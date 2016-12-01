@@ -85,7 +85,7 @@ the tests.
 Check out the tests
 
 ```
-git checkout https://github.com/google/wycheproof.git
+git clone https://github.com/google/wycheproof.git
 ```
 
 To test latest stable version of Bouncy Castle:
@@ -120,13 +120,15 @@ Here are some of the notable vulnerabilities that are uncovered by
 Project Wycheproof:
 
  - OpenJDK's SHA1withDSA leaks private keys > 1024 bits
-  - Test: TODO(thaidn)
-  - This bug is the same as
+   - Test: testBiasSha1WithDSA in
+[DsaTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java)
+   - This bug is the same as
 [CVE-2003-0971 - GnuPG generated ElGamal signatures that leaked the private key]
-(https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971)
+(https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971).
 
  - Bouncy Castle's ECDHC leaks private keys
-  - Test: TODO(thaidn)
+   - Test: testModifiedPublic in
+[EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
 
 ### Contact and mailing list
 
