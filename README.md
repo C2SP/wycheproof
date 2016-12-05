@@ -64,8 +64,6 @@ The tests detect whether a library is vulnerable to many attacks, including
  - Of course, all Bleichenbacher’s attacks
  - And many more -- we have over 80 test cases
 
-### Usage
-
 Our first set of tests are written in Java, because Java has a common
 cryptographic interface. This allowed us to test multiple providers with a
 single test suite. While this interface is somewhat low level, and should not
@@ -77,6 +75,8 @@ languages. We provide ready-to-use test runners for Java Cryptography
 Architecture providers such as [Bouncy Castle](http://bouncycastle.org),
 [Conscrypt](https://conscrypt.org) and the default providers in
 [OpenJDK](http://openjdk.java.net/).
+
+### Usage
 
 Project Wycheproof uses the [Bazel](https://bazel.build/) build system, you need
 to [install](https://bazel.build/versions/master/docs/install.html) Bazel to run
@@ -121,7 +121,7 @@ Project Wycheproof:
 
  - OpenJDK's SHA1withDSA leaks private keys > 1024 bits
    - Test: testBiasSha1WithDSA in
-[DsaTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java)
+[DsaTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java).
    - This bug is the same as
 [CVE-2003-0971 - GnuPG generated ElGamal signatures that leaked the private key]
 (https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971).
@@ -129,11 +129,10 @@ Project Wycheproof:
  - Bouncy Castle's ECDHC leaks private keys
    - Test: testModifiedPublic in
 [EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
-
 ### Contact and mailing list
 
-If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING) and send us
-pull requests. You can also report bugs or request new tests.
+If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
+us pull requests. You can also report bugs or request new tests.
 
 If you'd like to talk to our developers or get notified about major new
 tests, you may want to subscribe to our
