@@ -10,7 +10,7 @@ climb it.*
 ## Introduction
 
 Project Wycheproof tests crypto libraries against known attacks. It is developed
-and maintained by [members of Google Security Team](CREDITS.md), but it is not
+and maintained by [members of Google Security Team](AUTHORS.md), but it is not
 an official Google product.
 
 At Google, we rely on many third party cryptographic software libraries.

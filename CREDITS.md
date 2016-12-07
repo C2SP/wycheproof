@@ -1,4 +1,0 @@
-- Daniel Bleichenbacher
-- Thai Duong
-- Emilia Kasper
-- Quan Nguyen
