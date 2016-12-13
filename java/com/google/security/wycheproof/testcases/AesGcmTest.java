@@ -20,8 +20,9 @@ import java.nio.ByteBuffer;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.util.ArrayList;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
@@ -32,12 +33,6 @@ import junit.framework.TestCase;
 // TODO(bleichen):
 //   - For EAX I was able to derive some special cases by inverting OMAC.
 //     Not sure if that is possible here.
-//   - Gcm used to skip the tag verification in BouncyCastle when using ByteBuffers.
-//     test this.
-//   - Other Bytebuffer tests: Buffers with offset, Readonly buffers
-//   - The SUNJce provider requires tags that are at least 96 bits long.
-//     It would make sense to require this for all providers and add a test.
-//   - conscrypt only allows 12 byte IVs.
 /**
  * Testing AES-GCM
  *
@@ -54,6 +49,8 @@ public class AesGcmTest extends TestCase {
     final String ctHex;
     final GCMParameterSpec parameters;
     final SecretKeySpec key;
+    final int nonceLengthInBits;
+    final int tagLengthInBits;
 
     public GcmTestVector(
         String message,
@@ -67,14 +64,14 @@ public class AesGcmTest extends TestCase {
       this.aad = TestUtil.hexToBytes(aad);
       this.ct = TestUtil.hexToBytes(ciphertext + tag);
       this.ctHex = ciphertext + tag;
-      int tagLength = 4 * tag.length();
-      this.parameters = new GCMParameterSpec(tagLength, TestUtil.hexToBytes(nonce));
+      this.tagLengthInBits = 4 * tag.length();
+      this.nonceLengthInBits = 4 * nonce.length();
+      this.parameters = new GCMParameterSpec(tagLengthInBits, TestUtil.hexToBytes(nonce));
       this.key = new SecretKeySpec(TestUtil.hexToBytes(keyMaterial), "AES");
     }
   };
 
-  // default, used for BouncyCastle
-  private static final GcmTestVector[] DEFAULT_GCM_TEST_VECTORS = {
+  private static final GcmTestVector[] GCM_TEST_VECTORS = {
     new GcmTestVector(
         "001d0c231287c1182784554ca3a21908",
         "5b9604fe14eadba931b0ccf34843dab9",
@@ -103,71 +100,48 @@ public class AesGcmTest extends TestCase {
         "aac39231129872a2",
         "64c36bb3b732034e3a7d04efc5197785",
         "b7d0dd70b00d65b97cfd080ff4b819d1"),
+    new GcmTestVector(
+        "02efd2e5782312827ed5d230189a2a342b277ce048462193",
+        "2034a82547276c83dd3212a813572bce",
+        "3254202d854734812398127a3d134421",
+        "1a0293d8f90219058902139013908190bc490890d3ff12a3",
+        "64069c2d58690561f27ee199e6b479b6369eec688672bde9",
+        "9b7abadd6e69c1d9ec925786534f5075"),
   };
 
-  // Conscrypt doesn't support 8-byte nonces
-  private static final GcmTestVector[] OPENSSL_PROVIDER_GCM_TEST_VECTORS = {
-    new GcmTestVector(
-        "001d0c231287c1182784554ca3a21908",
-        "5b9604fe14eadba931b0ccf34843dab9",
-        "028318abc1824029138141a2",
-        "",
-        "26073cc1d851beff176384dc9896d5ff",
-        "0a3ea7a5487cb5f7d70fb6c58d038554"),
-    new GcmTestVector(
-        "001d0c231287c1182784554ca3a21908",
-        "5b9604fe14eadba931b0ccf34843dab9",
-        "921d2507fa8007b7bd067d34",
-        "00112233445566778899aabbccddeeff",
-        "49d8b9783e911913d87094d1f63cc765",
-        "1e348ba07cca2cf0"),
-    new GcmTestVector(
-        "2035af313d1346ab00154fea78322105",
-        "aa023d0478dcb2b2312498293d9a9129",
-        "0432bc49ac34412081288127",
-        "aac39231129872a2",
-        "eea945f3d0f98cc0fbab472a0cf24e87",
-        "4bb9b4812519dadf9e1232016d068133"),
-  };
-
-  // SunJCE doesn't support 8-byte tags
-  private static final GcmTestVector[] SUNJCE_PROVIDER_GCM_TEST_VECTORS = {
-    new GcmTestVector(
-        "001d0c231287c1182784554ca3a21908",
-        "5b9604fe14eadba931b0ccf34843dab9",
-        "028318abc1824029138141a2",
-        "",
-        "26073cc1d851beff176384dc9896d5ff",
-        "0a3ea7a5487cb5f7d70fb6c58d038554"),
-    new GcmTestVector(
-        "2035af313d1346ab00154fea78322105",
-        "aa023d0478dcb2b2312498293d9a9129",
-        "0432bc49ac34412081288127",
-        "aac39231129872a2",
-        "eea945f3d0f98cc0fbab472a0cf24e87",
-        "4bb9b4812519dadf9e1232016d068133"),
-    new GcmTestVector(
-        "2035af313d1346ab00154fea78322105",
-        "aa023d0478dcb2b2312498293d9a9129",
-        "0432bc49ac344120",
-        "aac39231129872a2",
-        "64c36bb3b732034e3a7d04efc5197785",
-        "b7d0dd70b00d65b97cfd080ff4b819d1"),
-  };
-
-  private GcmTestVector[] getTestVectors() {
-    GcmTestVector[] gcmTestVectors = DEFAULT_GCM_TEST_VECTORS;
-    if (Security.getProvider("AndroidOpenSSL") != null) {
-      gcmTestVectors = OPENSSL_PROVIDER_GCM_TEST_VECTORS;
-    } else if (Security.getProvider("SunJCE") != null) {
-      gcmTestVectors = SUNJCE_PROVIDER_GCM_TEST_VECTORS;
+  /**
+   * Returns the GCM test vectors supported by the current provider.
+   * This is necessary since not every provider supports all parameters sizes.
+   * For example SUNJCE does not support 8 byte tags and Conscrypt only supports
+   * 12 byte nonces.
+   * Such restrictions are often made because AES-GCM is a relatively weak algorithm and
+   * especially small parameter sizes can lead to easy attacks.
+   * Avoiding such small parameter sizes should not be seen as a bug in the library.
+   *
+   * <p>The only assumption we make here is that all test vectors with 128 bit tags and nonces
+   * with at least 96 bits are supported.
+   */
+  private Iterable<GcmTestVector> getTestVectors() throws Exception {
+    ArrayList<GcmTestVector> supported = new ArrayList<GcmTestVector>();
+    for (GcmTestVector test : GCM_TEST_VECTORS) {
+      if (test.nonceLengthInBits != 96 || test.tagLengthInBits != 128) {
+        try {
+          // Checks whether the parameter size is supported.
+          // It would be nice if there was a way to check this without trying to encrypt.
+          Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+          cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException ex) {
+          // Not supported
+          continue;
+        }
+      }
+      supported.add(test);
     }
-    return gcmTestVectors;
+    return supported;
   }
 
   public void testVectors() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       cipher.updateAAD(test.aad);
@@ -188,8 +162,7 @@ public class AesGcmTest extends TestCase {
    * now throw exceptions.
    */
   public void testLateUpdateAAD() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       byte[] c0 = cipher.update(test.pt);
@@ -207,8 +180,7 @@ public class AesGcmTest extends TestCase {
 
   /** Encryption with ByteBuffers. */
   public void testByteBuffer() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       // Encryption
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt);
@@ -232,8 +204,7 @@ public class AesGcmTest extends TestCase {
 
   /** Encryption with ByteBuffers should be copy-safe. */
   public void testByteBufferAlias() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       // Encryption
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
@@ -258,8 +229,7 @@ public class AesGcmTest extends TestCase {
   }
 
   public void testReadOnlyByteBuffer() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       // Encryption
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt).asReadOnlyBuffer();
@@ -288,8 +258,7 @@ public class AesGcmTest extends TestCase {
    * considers the offset.
    */
   public void testByteBufferWithOffset() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       // Encryption
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(new byte[test.pt.length + 50]);
@@ -319,8 +288,7 @@ public class AesGcmTest extends TestCase {
   }
 
   public void testByteBufferTooShort() throws Exception {
-    GcmTestVector[] gcmTestVectors = getTestVectors();
-    for (GcmTestVector test : gcmTestVectors) {
+    for (GcmTestVector test : getTestVectors()) {
       // Encryption
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt);
@@ -368,7 +336,7 @@ public class AesGcmTest extends TestCase {
       cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(counter));
     } catch (InvalidAlgorithmParameterException ex) {
       // OpenJDK8 does not support IvParameterSpec for GCM.
-      System.out.println(ex);
+      System.out.println("testDefaultTagSizeIvParameterSpec:" + ex.toString());
       return;
     }
     byte[] output = cipher.doFinal(input);
@@ -394,7 +362,7 @@ public class AesGcmTest extends TestCase {
       AlgorithmParameterGenerator.getInstance("GCM");
     } catch (NoSuchAlgorithmException ex) {
       // Conscrypt does not support AlgorithmParameterGenerator for GCM.
-      System.out.println(ex);
+      System.out.println("testDefaultTagSizeAlgorithmParameterGenerator:" + ex.toString());
       return;
     }
     AlgorithmParameters param = AlgorithmParameterGenerator.getInstance("GCM").generateParameters();

@@ -16,10 +16,9 @@
 
 // TODO(bleichen):
 //   - So far only 16 byte tags are tested.
-// Tested providers:
-//   BC : ok
-//        BC uses a 64-bit default for tags. This is not such a big
-//        problem as with AES-GCM, since the tag gives 64 bit strength.
+//   - default values: BC uses a 64-bit default for tags.
+//     Tag size is not such a big problem as with AES-GCM, 
+//     since a 64 bit tag gives 64 bit strength for AES-EAX.
 
 package com.google.security.wycheproof;
 
@@ -48,10 +47,9 @@ public class AesEaxTest extends TestCase {
       this.aad = TestUtil.hexToBytes(aad);
       this.ct = TestUtil.hexToBytes(ciphertext);
       this.ctHex = ciphertext;
-      // Ugly hack from
-      // https://github.com/bcgit/bc-java/blob/master/prov/src/test/java/org/bouncycastle/jce/provider/test/AEADTest.java
-      // Apparently, one way to specify the tag length is to use GCMParameterSpec.
-      // BouncyCastle is using a 64-bit tag by default.
+      // BouncyCastle uses GCMParameterSpec to specify the parameters for EAX.
+      // This solution is a bit of a hack, but so far we don't know a better way to
+      // specify these parameters.
       // So far all test vectors use a 128 bit tag.
       this.parameters = new GCMParameterSpec(128, TestUtil.hexToBytes(nonce));
       this.key = new SecretKeySpec(TestUtil.hexToBytes(keyMaterial), "AES");
@@ -59,72 +57,67 @@ public class AesEaxTest extends TestCase {
   };
 
   private static final EaxTestVector[] EAX_TEST_VECTOR = {
-    // Test vectors from
-    // http://csrc.nist.gov/groups/ST/toolkit/BCM/modes_development.html
-    // TODO(bleichen): Check if we can include test cases from NIST and
-    //   republish.
     new EaxTestVector(
         "",
-        "233952dee4d5ed5f9b9c6d6ff80ff478",
-        "62ec67f9c3a4a407fcb2a8c49031a8b3",
-        "6bfb914fd07eae6b",
-        "e037830e8389f27b025a2d6527e79d01"),
+        "010511c5e24ee7097dca93272ebfae9e",
+        "93ad516bc6f7302b8edb884ca37f2e65",
+        "",
+        "12edfdb379ef62e845da3d17995b4a1e"),
     new EaxTestVector(
-        "f7fb",
-        "91945d3f4dcbee0bf45ef52255f095a4",
-        "becaf043b0a23d843194ba972c66debd",
-        "fa3bfd4806eb53fa",
-        "19dd5c4c9331049d0bdab0277408f67967e5"),
+        "",
+        "acf877a5aa71e794efd6dc82d5b1a155",
+        "4e301710ae15b2f0ee6335d774741f7e",
+        "c0e0f00a919b7652",
+        "eb3dae1fc33be95848da9fd24e7dbae3"),
     new EaxTestVector(
-        "1a47cb4933",
-        "01f74ad64077f2e704c0f60ada3dd523",
-        "70c3db4f0d26368400a10ed05d2bff5e",
-        "234a3463c1264ac6",
-        "d851d5bae03a59f238a23e39199dc9266626c40f80"),
+        "c3",
+        "95d8e3675bbc3b96befdc5efb7433a68",
+        "0d40fdefd9289e3a49114454b3c4a5f4",
+        "f2",
+        "c5814dfc2f4ee1719bd5f1d5a649174c1a"),
     new EaxTestVector(
-        "481c9e39b1",
-        "d07cf6cbb7f313bdde66b727afd3c5e8",
-        "8408dfff3c1a2b1292dc199e46b7d617",
-        "33cce2eabff5a79d",
-        "632a9d131ad4c168a4225d8e1ff755939974a7bede"),
+        "5810842d",
+        "2eed51af91b178b26e9b53c8877a7af6",
+        "e78747ca46cb9f2068e07717d5226e8a",
+        "",
+        "24245c5bb54aa8bfaceca3665867fa2d7de1653d"),
     new EaxTestVector(
-        "40d0c07da5e4",
-        "35b6d0580005bbc12b0587124557d2c2",
-        "fdb6b06676eedc5c61d74276e1f8e816",
-        "aeb96eaebe2970e9",
-        "071dfe16c675cb0677e536f73afe6a14b74ee49844dd"),
+        "5ae11bb3b7d60e55",
+        "cb782da180e97023530d1612e2287f0d",
+        "ba641ebe03057b387dd3132e0c7a3853",
+        "",
+        "f6f64fa858708b8f445812fd75a9639f635045fd5972b820"),
     new EaxTestVector(
-        "4de3b35c3fc039245bd1fb7d",
-        "bd8e6e11475e60b268784c38c62feb22",
-        "6eac5c93072d8e8513f750935e46da1b",
-        "d4482d1ca78dce0f",
-        "835bb4f15d743e350e728414abb8644fd6ccb86947c5e10590210a4f"),
+        "54332ed26cd966761710ea58a8f248",
+        "8b4457d52e5c04b38d306f8f38480e97",
+        "3f9d6faca5dd97eb1bc74e1954304cca",
+        "",
+        "3ebbf1fe11e2f454e0ef587fb42a7588e1e32ea788cae20d1700584f448814"),
     new EaxTestVector(
-        "8b0a79306c9ce7ed99dae4f87f8dd61636",
-        "7c77d6e813bed5ac98baa417477a2e7d",
-        "1a8c98dcd73d38393b2bf1569deefc19",
-        "65d2017990d62528",
-        "02083e3979da014812f59f11d52630da30137327d10649b0aa6e1c181db617d7" + "f2"),
+        "82ce1f2934dcafe9dee7e0e7cbfdfcd0",
+        "2892cf62d2cc0e8e9c796624e05920f5",
+        "8a0da6d1c4b7a4f426ad62f6829cc310",
+        "c3ed66484eb367c8",
+        "c374afaa42d9497326af332f42d2dee8fb478c82a2b2567b0ab9597c93f137cf"),
     new EaxTestVector(
-        "1bda122bce8a8dbaf1877d962b8592dd2d56",
-        "5fff20cafab119ca2fc73549e20f5b0d",
-        "dde59b97d722156d4d9aff2bc7559826",
-        "54b9f04e6a09189a",
-        "2ec47b2c4954a489afc7ba4897edcdae8cc33b60450599bd02c96382902aef7f" + "832a"),
+        "e0c993ff5d1d00b4cbee523a1df01db011794d54ab7a504c",
+        "463d89aadfa7d8158dcff9b9c3fc32aa",
+        "356ab4709b32fc85ff82f40561e9f08b",
+        "5ab01a3bfa141f8d33720bd1",
+        "d34bc706a9d7a2be6c2d8805cec2fac270ec6d17844b0911accb612cbb3b373438c74c1280445359"),
     new EaxTestVector(
-        "6cf36720872b8513f6eab1a8a44438d5ef11",
-        "a4a4782bcffd3ec5e7ef6d8c34a56123",
-        "b781fcf2f75fa5a8de97a9ca48e522ec",
-        "899a175897561d7e",
-        "0de18fd0fdd91e7af19f1d8ee8733938b1e8e7f6d2231618102fdb7fe55ff199" + "1700"),
+        "e9dfb2897e44236880baf166fa62fa5b8a4713aa981dbc3fe6cf65d9f0c30f47",
+        "54617abbeb90fff7095b26af0e596064",
+        "2621c97c4fe379d9d42f04c479ae1bac",
+        "b6b29c2fbe29dcd2",
+        "212263116062443db28d6abd2c3bca880ea4d178282247fffbc10532d40e9cea"
+            + "6f580fdaca33d446dd6f38a4425be844"),
     new EaxTestVector(
-        "ca40d7446e545ffaed3bd12a740a659ffbbb3ceab7",
-        "8395fcf1e95bebd697bd010bc766aac3",
-        "22e7add93cfc6393c57ec0b3c17d6b44",
-        "126735fcc320d25a",
-        "cb8920f87a6c75cff39627b56e3ed197c552d295a7cfc46afc253b4652b1af37" + "95b124ab6e"),
-    // The tests are self generated.
-    //
+        "7537f3e4cbe228468a7837c66aec8a9b6033cba4f1b3d8",
+        "7c74da83b1f292b869c891c80850e85f8237412e13a0bf3f",
+        "cfab2c573a0e723613e6e5b58787af60",
+        "",
+        "98a55f7db58fde8ed8bc00c01c97a6e5bda137b03e56e0dddfbe396c44a14646cbc89979f38736"),
     // Some test vectors for counter overflow:
     // Initial counter value == 2^128-1
     new EaxTestVector(
@@ -203,11 +196,23 @@ public class AesEaxTest extends TestCase {
         "",
         "c472b1c6c22b4f2b7e02409499aa2ade"),
     new EaxTestVector(
+        "",
+        "d33dda72649575e42d6eb1f3255e686084b8a9cf4480803c",
+        "ad2a1d2ef236dfaeb109ab29b1084d63",
+        "fb9c0938a5d317fad5f43edc",
+        "6edc358f22358e1d328c4c1cd98184c6"),
+    new EaxTestVector(
         "abcdef",
         "03dd258601c1d4872a52b27892db0356911b2df1436dc7f4",
         "025f3d2286c143976412022102696708231208",
         "8917328de211",
         "520f4f2cf1b893ae3ba8ecbac3a08ea57de2cd"),
+    new EaxTestVector(
+        "4e43dbebe316b7d684b56236fdd928dd",
+        "a36eed1cb54130f547664c184c249e777a3d8ba2e2251b58",
+        "e9587847b1e81511e0643f7dda5b725c",
+        "80c7cb954463b6067b081ff66b1d40cc",
+        "e2645cd32a6e8c1e7cd1991d879b335756f848aba8e51f0b56712bb2889c4783"),
     new EaxTestVector(
         "1111111111111111111111111111111122222222222222222222222222222222",
         "0172acf299142c001d0c231287c1182784554ca3a21908276ac2c92af1294612",
@@ -228,6 +233,18 @@ public class AesEaxTest extends TestCase {
         "696708231208",
         "8917328de211",
         "12486c87bf9a7f22fa65a9493ec0f57f8070f5"),
+    new EaxTestVector(
+        "13d106d7be0890093f44a457d4cc5309",
+        "db50934278a8d8101d1c538acfbfaa13aba9fe53408b6205a0c996d53cf04e8d",
+        "eaef04607a36b2e1b1c539bc335aee9a",
+        "d50e7dbdcc7cf92822dd9dd762a0fc12",
+        "2202165697a2d21316c5f65d2aedb3c52b5567b3f8a25e247cfda1f02bc6cf6f"),
+    new EaxTestVector(
+        "17672288fff3e93a45b3b951bbcfa8a4cb",
+        "1cd28aca6542a4df7316b2c6e9232a4e2cc88cf7aaece33eec7da32ab514051f",
+        "d219298abb115ccbb473cf8e2da9671a",
+        "9c504ab2e5ce0f46844833aba6a11c9186e500239460bb26",
+        "aa518b62c5422e56ce393951aa0441e99df8cafb1555d5a30c90391bb9272c32b9"),
     new EaxTestVector(
         "1111111111111111111111111111111122222222222222222222222222222222",
         "0172acf299142c001d0c231287c1182784554ca3a21908276ac2c92af1294612",

@@ -10,8 +10,8 @@ climb it.*
 ## Introduction
 
 Project Wycheproof tests crypto libraries against known attacks. It is developed
-and maintained by [members of Google Security Team](AUTHORS.md), but it is not
-an official Google product.
+and maintained by members of Google Security Team, but it is not an official
+Google product.
 
 At Google, we rely on many third party cryptographic software libraries.
 Unfortunately, in cryptography, subtle mistakes can have catastrophic
@@ -127,8 +127,16 @@ Project Wycheproof:
 (https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971).
 
  - Bouncy Castle's ECDHC leaks private keys
-   - Test: testModifiedPublic in
+   - Test: testModifiedPublic and testWrongOrderEcdhc in
 [EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
+
+### Maintainers
+
+Project Wycheproof is maintained by:
+- Daniel Bleichenbacher
+- Thai Duong
+- Emilia Kasper
+- Quan Nguyen
 
 ### Contact and mailing list
 
