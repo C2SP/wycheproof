@@ -97,6 +97,23 @@ spongycastle_tests(
     deps = common_deps,
 )
 
+# OpenJDK tests
+java_test(
+    name = "OpenJDKTest",
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/OpenJDKTest.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.OpenJDKTest",
+    deps = common_deps,
+)
+
+java_test(
+    name = "OpenJDKAllTests",
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/OpenJDKAllTests.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.OpenJDKAllTests",
+    deps = common_deps,
+)
+
 # Platform-independent tests
 java_test(
     name = "ProviderIndependentTest",

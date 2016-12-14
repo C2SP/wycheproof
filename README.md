@@ -7,6 +7,8 @@ mountain in the world. The main motivation for the project is to have a goal
 that is achievable. The smaller the mountain the more likely it is to be able to
 climb it.*
 
+[TOC]
+
 ## Introduction
 
 Project Wycheproof tests crypto libraries against known attacks. It is developed
@@ -47,22 +49,22 @@ check out our [doc](doc/).
 
 Project Wycheproof has tests for the most popular crypto algorithms, including
 
- - AES-EAX
- - AES-GCM
- - [DH](doc/dh.md)
- - DHIES
- - [DSA](doc/dsa.md)
- - [ECDH](doc/ecdh.md)
- - ECDSA
- - ECIES
- - [RSA](doc/rsa.md)
+- AES-EAX
+- AES-GCM
+- [DH](doc/dh.md)
+- DHIES
+- [DSA](doc/dsa.md)
+- [ECDH](doc/ecdh.md)
+- ECDSA
+- ECIES
+- [RSA](doc/rsa.md)
 
 The tests detect whether a library is vulnerable to many attacks, including
 
- - Invalid curve attacks
- - Biased nonces in digital signature schemes
- - Of course, all Bleichenbacher’s attacks
- - And many more -- we have over 80 test cases
+- Invalid curve attacks
+- Biased nonces in digital signature schemes
+- Of course, all Bleichenbacher’s attacks
+- And many more -- we have over 80 test cases
 
 Our first set of tests are written in Java, because Java has a common
 cryptographic interface. This allowed us to test multiple providers with a
@@ -73,66 +75,90 @@ default values to be a significant security flaw. We are converting as many
 tests into sets of test vectors to simplify porting the tests to other
 languages. We provide ready-to-use test runners for Java Cryptography
 Architecture providers such as [Bouncy Castle](http://bouncycastle.org),
-[Conscrypt](https://conscrypt.org) and the default providers in
-[OpenJDK](http://openjdk.java.net/).
+[Spongy Castle](https://rtyley.github.io/spongycastle/), and the default
+providers in [OpenJDK](http://openjdk.java.net/).
 
 ### Usage
 
-Project Wycheproof uses the [Bazel](https://bazel.build/) build system, you need
-to [install](https://bazel.build/versions/master/docs/install.html) Bazel to run
-the tests.
+- Install [Bazel](https://bazel.build/).
 
-Check out the tests
+- Install
+[Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters): this enables tests with large key
+sizes. Otherwise you'll see a lot of "iilegal key size" exceptions.
+
+- Check out the tests
 
 ```
 git clone https://github.com/google/wycheproof.git
 ```
 
-To test latest stable version of Bouncy Castle:
+- To test latest stable version of Bouncy Castle:
 
 ```
 bazel test BouncyCastleAllTests
 ```
 
-To test other versions, e.g., v1.52:
+- To test other versions, e.g., v1.52:
 
 ```
 bazel test BouncyCastleAllTests_1_52
 ```
 
-To test all known versions (warning, will take a long time):
+- To test all known versions (warning, will take a long time):
 
 ```
 bazel test BouncyCastleAllTests_*
 ```
 
-ConscryptAllTests and OpenJDKAllTests run the tests against
-[Conscrypt](https://conscrypt.org) and [OpenJDK](http://openjdk.java.net/),
-respectively.
+- To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
+BouncyCastle with SpongyCastle in your commands, for example
 
-Some of the tests take a very long time to run. If you want to exclude those
-tests, use either BouncyCastleTest, ConscryptTest or OpenJDKTest -- these
-targets exclude all slow tests (i.e., those annotated with @SlowTest).
+```
+bazel test SpongyCastleAllTests
+```
+
+- To test your current installation of
+[OpenJDK](http://openjdk.java.net/):
+
+```
+bazel test OpenJDKAllTests
+```
+
+Note that OpenJDKAllTests expects that OpenJDK is your default JDK, so it might
+refuse to run or its results might be incorrect if you are using some other JDK.
+If you downloaded your JDK from Oracle or https://java.com, you're probably
+using Oracle JDK, which should be compatible with OpenJDK, thus the tests should
+run correctly.
+
+Some tests take a very long time to finish. If you want to exclude them, use
+BouncyCastleTest, SpongyCastleTest or OpenJDKTest -- these targets exclude all
+slow tests (which are annotated with @SlowTest).
+
+Most test targets are failing, and each failure might be a security issue. To
+learn more about what a failed test means, you might want to check out our
+documentation (doc/bugs.md) or the comments on top of the corresponding test
+function and test class.
 
 ### Hall of Bugs
 
 Here are some of the notable vulnerabilities that are uncovered by
 Project Wycheproof:
 
- - OpenJDK's SHA1withDSA leaks private keys > 1024 bits
-   - Test: testBiasSha1WithDSA in
+- OpenJDK's SHA1withDSA leaks private keys > 1024 bits
+  - Test: testBiasSha1WithDSA in
 [DsaTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java).
-   - This bug is the same as
+  - This bug is the same as
 [CVE-2003-0971 - GnuPG generated ElGamal signatures that leaked the private key]
 (https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971).
 
- - Bouncy Castle's ECDHC leaks private keys
-   - Test: testModifiedPublic and testWrongOrderEcdhc in
+- Bouncy Castle's ECDHC leaks private keys
+  - Test: testModifiedPublic and testWrongOrderEcdhc in
 [EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
 
 ### Maintainers
 
 Project Wycheproof is maintained by:
+
 - Daniel Bleichenbacher
 - Thai Duong
 - Emilia Kasper
