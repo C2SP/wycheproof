@@ -49,10 +49,10 @@ cryptographic libraries based on the bugs found would be biased:
 * Libraries used internally in Google get more attention.
   Serious vulnerabilities in these libraries should be fixed at the time the
   tests are added to Wycheproof.  On the other hand it is also likely that
-  tests find a larger number of bugs in thsese libraries when old versions are
+  tests find a larger number of bugs in these libraries when old versions are
   tested.
 * Tests often check for expected behaviour and compatibility.
-  Excpected behaviour is often defined by a prominent library.
+  Expected behaviour is often defined by a prominent library.
   Pointing out such problems can therefore penalize smaller third party
   libraries.
 * We are working toward covering as many potential vulnerabilities as possible
@@ -68,10 +68,10 @@ Hence we are reluctant to publish comparisons.
 ## Thoughts on the design of cryptographic libraries
 
 We should promote robust interfaces with the goal to simplify
-the use of the library, codereviews of applications using the
+the use of the library, code reviews of applications using the
 library and testing the library.
 
-* When cryptrographic primitives require randomness then the random
+* When cryptographic primitives require randomness then the random
   numbers should be chosen by the library. It shouldn't be possible
   for a user to provide randomness. If the library itself chooses the
   randomness then it is possible (at least to some degree) to check
