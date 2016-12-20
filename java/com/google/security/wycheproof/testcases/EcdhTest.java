@@ -946,6 +946,16 @@ public class EcdhTest extends TestCase {
     }
   }
 
+  public void testModifiedPublic() throws Exception {
+    testModifiedPublic("ECDH");
+    testModifiedPublic("ECDHC");
+  }
+
+  public void testModifiedPublicSpec() throws Exception {
+    testModifiedPublicSpec("ECDH");
+    testModifiedPublicSpec("ECDHC");
+  }
+
   public void testDistinctCurves(String algorithm, ECPrivateKey priv, ECPublicKey pub)
       throws Exception {
     KeyAgreement kaA;
