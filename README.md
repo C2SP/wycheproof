@@ -82,10 +82,6 @@ providers in [OpenJDK](http://openjdk.java.net/).
 
 - Install [Bazel](https://bazel.build/).
 
-- Install
-[Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters): this enables tests with large key
-sizes. Otherwise you'll see a lot of "iilegal key size" exceptions.
-
 - Check out the tests
 
 ```

@@ -195,6 +195,7 @@ public class WycheproofRunner extends Suite {
     super(runnerClass, builder);
     addFilter(new ExcludeTestFilter(runnerClass));
     TestUtil.printJavaInformation();
+    TestUtil.removeCryptoStrengthRestriction();
   }
 
   private void addFilter(Filter filter) {

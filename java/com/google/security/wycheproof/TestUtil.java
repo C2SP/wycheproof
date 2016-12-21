@@ -16,9 +16,13 @@
 
 package com.google.security.wycheproof;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import javax.crypto.Cipher;
 
 /** Test utilities */
 public class TestUtil {
@@ -101,5 +105,33 @@ public class TestUtil {
     System.out.println("Running with: ");
     System.out.println("  java.runtime.name: " + System.getProperty("java.runtime.name"));
     System.out.println("  java.runtime.version: " + System.getProperty("java.runtime.version"));
+  }
+  
+  /**
+   * Removes JDK crypto restriction.
+   * 
+   * Partially taken from:
+   * https://github.com/jruby/jruby/blob/0c345e1b186bd457ebd96143c0816abe93b18fdf/core/src/main/java/org/jruby/util/SecurityHelper.java
+   */
+  public static void removeCryptoStrengthRestriction() {
+    try {
+      if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
+        Class jceSecurity = Class.forName("javax.crypto.JceSecurity");
+        Field isRestricted = jceSecurity.getDeclaredField("isRestricted");
+        if (Modifier.isFinal(isRestricted.getModifiers())) {
+          Field modifiers = Field.class.getDeclaredField("modifiers");
+          modifiers.setAccessible(true);
+          modifiers.setInt(isRestricted, isRestricted.getModifiers() & ~Modifier.FINAL);
+          modifiers.setAccessible(false);
+        }
+        isRestricted.setAccessible(true);
+        isRestricted.setBoolean(null, false);
+        isRestricted.setAccessible(false);
+      }
+    } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | 
+        NoSuchAlgorithmException | NoSuchFieldException | SecurityException ex) {
+      System.out.println("It is not possible to use unrestricted policy with this JDK, "
+              + "consider reconfiguration: " + ex.getLocalizedMessage());
+    }
   }
 }
