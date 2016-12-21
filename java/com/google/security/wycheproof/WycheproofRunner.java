@@ -194,6 +194,7 @@ public class WycheproofRunner extends Suite {
   public WycheproofRunner(Class<?> runnerClass, RunnerBuilder builder) throws InitializationError {
     super(runnerClass, builder);
     addFilter(new ExcludeTestFilter(runnerClass));
+    TestUtil.printJavaInformation();
   }
 
   private void addFilter(Filter filter) {
