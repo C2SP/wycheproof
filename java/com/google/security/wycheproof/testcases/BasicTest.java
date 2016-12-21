@@ -29,7 +29,7 @@ public class BasicTest {
   public void testListAllAlgorithms() {
     for (Provider p : Security.getProviders()) {
       System.out.println();
-      System.out.println("Provider:" + p.getName());
+      System.out.println("Provider: " + p.getName() + " " + p.getVersion());
       // Using a TreeSet here, because the elements are sorted.
       TreeSet<String> list = new TreeSet<String>();
       for (Object key : p.keySet()) {
