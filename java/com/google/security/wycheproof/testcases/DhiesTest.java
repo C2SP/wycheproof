@@ -68,9 +68,9 @@ public class DhiesTest extends TestCase {
   }
 
   /**
-   * WARNING: This test uses weak crypto (i.e. DHIESWithAES). Checks that key agreement using DHIES
-   * works in the sense that it can decrypt what it encrypts. Unfortunately it seems that there is
-   * no secure mode using AES.
+   * WARNING: This test uses weak crypto (i.e. DHIESWithAES), if supported. Checks that key agreement
+   * using DHIES works in the sense that it can decrypt what it encrypts. Unfortunately it seems that
+   * there is no secure mode using AES.
    */
   @SuppressWarnings("InsecureCipherMode")
   public void testDhiesBasic() throws Exception {
@@ -81,7 +81,13 @@ public class DhiesTest extends TestCase {
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
     byte[] message = "Hello".getBytes("UTF-8");
-    Cipher dhies = Cipher.getInstance("DHIESwithAES");
+    Cipher dhies;
+    try {
+      dhies = Cipher.getInstance("DHIESwithAES");
+    } catch (NoSuchAlgorithmException ex) {
+      // The algorithm isn't supported - even better!
+      return;
+    }
     dhies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = dhies.doFinal(message);
     System.out.println("testDhiesBasic:" + TestUtil.bytesToHex(ciphertext));
@@ -103,7 +109,13 @@ public class DhiesTest extends TestCase {
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
     byte[] message = new byte[32];
-    Cipher dhies = Cipher.getInstance("DHIESwithAES");
+    Cipher dhies;
+    try {
+      dhies = Cipher.getInstance("DHIESwithAES");
+    } catch (NoSuchAlgorithmException ex) {
+      // The algorithm isn't supported - even better!
+      return;
+    }
     dhies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = dhies.doFinal(message);
     for (int i = 0; i < ciphertext.length; i++) {
