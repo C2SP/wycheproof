@@ -110,6 +110,12 @@ bazel test BouncyCastleAllTests_1_52
 bazel test BouncyCastleAllTests_*
 ```
 
+- To test a local jar
+
+``` shell
+bazel test BouncyCastleAllTestsLocal --define BOUNCYCASTLE_JAR=/path/to/bouncycastle
+```
+
 - To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
 BouncyCastle with SpongyCastle in your commands, for example
 
