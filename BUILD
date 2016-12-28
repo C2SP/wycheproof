@@ -15,6 +15,21 @@ common_deps = [
 
 test_srcs = glob(["java/com/google/security/wycheproof/testcases/*.java"]) + ["java/com/google/security/wycheproof/WycheproofRunner.java"]
 
+# We cannot supply $(BOUNCYCASTLE_JAR) directly to the 'jars'
+# attribute of java_import, but we can generate a symlink.
+# TODO(wycheproof-team): is there an easier way to supply
+# deps from the command line?
+java_import(
+    name = "bouncycastle_jar",
+    jars = ["bouncycastle.jar"],
+)
+
+genrule(
+    name = "bouncycastle_symlink",
+    outs = ["bouncycastle.jar"],
+    cmd = "ln -sf $(BOUNCYCASTLE_JAR) $@",
+)
+
 # These targets run all tests.
 
 load(":build_defs.bzl", "bouncycastle_all_tests", "spongycastle_all_tests")
@@ -29,13 +44,25 @@ load(":build_defs.bzl", "bouncycastle_all_tests", "spongycastle_all_tests")
 # $ bazel test BouncyCastleAllTests_1_52
 #
 # To test all known versions (warning, will take a long time):
-# $ bazel test BouncyCastleAllTest_*
+# $ bazel test BouncyCastleAllTests_*
+#
+# To test against a local jar:
+# $ bazel test BouncyCastleAllTestsLocal \
+#  --define BOUNCYCASTLE_JAR=/path/to/bouncycastle
 bouncycastle_all_tests(
     # This test takes a long time, because key generation for DSA and DH generate new parameters.
     size = "large",
     srcs = ["java/com/google/security/wycheproof/BouncyCastleAllTests.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleAllTests",
     deps = common_deps,
+)
+
+java_test(
+    name = "BouncyCastleAllTestsLocal",
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/BouncyCastleAllTests.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.BouncyCastleAllTests",
+    deps = common_deps + [":bouncycastle_jar"],
 )
 
 # Generates SpongyCastleAllTests_1_xx target for all available versions,
@@ -77,6 +104,14 @@ bouncycastle_tests(
     srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleTest",
     deps = common_deps,
+)
+
+java_test(
+    name = "BouncyCastleTestLocal",
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.BouncyCastleTest",
+    deps = common_deps + [":bouncycastle_jar"],
 )
 
 # Generates SpongyCastleTest_1_xx target for all available versions,
