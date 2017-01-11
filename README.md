@@ -110,6 +110,26 @@ bazel test BouncyCastleAllTests_1_52
 bazel test BouncyCastleAllTests_*
 ```
 
+- To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable:
+
+``` shell
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
+$ bazel test BouncyCastleTestLocal
+$ bazel test BouncyCastleAllTestsLocal
+```
+
+Note: bazel does not currently invalidate the build on environment changes. If
+you change the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable, run `bazel
+clean` to force a rebuild:
+
+``` shell
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
+$ bazel test BouncyCastleTestLocal
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/other/jar
+$ bazel clean
+$ bazel test BouncyCastleTestLocal
+```
+
 - To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
 BouncyCastle with SpongyCastle in your commands, for example
 
