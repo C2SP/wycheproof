@@ -32,7 +32,8 @@ load(":build_defs.bzl", "bouncycastle_all_tests", "spongycastle_all_tests")
 # $ bazel test BouncyCastleAllTest_*
 bouncycastle_all_tests(
     # This test takes a long time, because key generation for DSA and DH generate new parameters.
-    size = "large",
+    # Also, it encrypts several gigabytes of test data.
+    size = "enormous",
     srcs = ["java/com/google/security/wycheproof/BouncyCastleAllTests.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleAllTests",
     deps = common_deps,
@@ -59,7 +60,8 @@ java_test(
 # $ bazel test SpongyCastleAllTests_*
 spongycastle_all_tests(
     # This test takes a long time, because key generation for DSA and DH generate new parameters.
-    size = "large",
+    # Also, it encrypts several gigabytes of test data.
+    size = "enormous",
     srcs = ["java/com/google/security/wycheproof/SpongyCastleAllTests.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.SpongyCastleAllTests",
     deps = common_deps,
@@ -124,6 +126,7 @@ java_test(
 
 java_test(
     name = "OpenJDKAllTests",
+    # This test may take a long time, because it tries to encrypt several gigabytes of test data.
     size = "large",
     srcs = ["java/com/google/security/wycheproof/OpenJDKAllTests.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.OpenJDKAllTests",

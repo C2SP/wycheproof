@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -369,5 +371,70 @@ public class AesGcmTest extends TestCase {
     cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), param);
     byte[] output = cipher.doFinal(input);
     assertEquals(input.length + 16, output.length);
+  }
+
+  /**
+   * According to NIST SP 800-38D, no plaintext may be more than than 2^32 - 2 blocks long. This is
+   * because with the (ideal) 96 bit nonce, there is a 32 bit counter. If more than 2^32 blocks are
+   * encrypted (which counts two blocks for authentication) the counter will wrap around and
+   * (depending on implementation) either cause the key-stream to repeat or will start treading on
+   * the next 96-bit nonce. Both of these are very dangerous and must not be allowed.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE,
+      ProviderType.CONSCRYPT, ProviderType.OPENJDK})
+  public void testMaxPlaintextLength() throws Exception {
+    final long maxBytes = 68_719_476_704L; // 16 * (2^32 - 2)
+    final int bigStepSize = 16 * 1024 * 1024;
+    final byte[] plaintext = new byte[bigStepSize];
+    final int smallStepSize = 16;
+
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    SecretKeySpec key = new SecretKeySpec(new byte[16], "AES");
+    GCMParameterSpec spec = new GCMParameterSpec(128, new byte[12]);
+    cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+
+    // Implementations may track bytes encountered with an integer,
+    // so we assume any implementation should accept at least Integer.MAX_VALUE
+    // bytes before choking. After that we'll consider exceptions
+    // acceptable behavior
+    long bytesEncrypted = 0;
+    while (bytesEncrypted < Integer.MAX_VALUE - bigStepSize) {
+      cipher.update(plaintext, 0, bigStepSize);
+      bytesEncrypted += bigStepSize;
+    }
+    while (bytesEncrypted < Integer.MAX_VALUE - smallStepSize) {
+      cipher.update(plaintext, 0, smallStepSize);
+      bytesEncrypted += smallStepSize;
+    }
+    while (bytesEncrypted < Integer.MAX_VALUE) {
+      cipher.update(plaintext, 0, 1);
+      bytesEncrypted++;
+    }
+    // From now on, implementations are permitted to fail
+    try {
+      while (bytesEncrypted < maxBytes - bigStepSize) {
+        cipher.update(plaintext, 0, bigStepSize);
+        bytesEncrypted += bigStepSize;
+      }
+      while (bytesEncrypted < maxBytes - smallStepSize) {
+        cipher.update(plaintext, 0, smallStepSize);
+        bytesEncrypted += smallStepSize;
+      }
+      while (bytesEncrypted < maxBytes) {
+        cipher.update(plaintext, 0, 1);
+        bytesEncrypted++;
+      }
+    } catch (final RuntimeException ex) {
+      System.out.println(
+          "testMaxPlaintextLength: Early exception at " + bytesEncrypted + ": " + ex.toString());
+      return;
+    }
+    // We've reach the limit and now require failure
+    try {
+      cipher.doFinal(plaintext, 0, 1);
+      fail("GCM encrypted too many bytes in a single message");
+    } catch (final Exception ex) {
+      // expected
+    }
   }
 }
