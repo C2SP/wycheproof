@@ -97,3 +97,7 @@ maven_jar(
     name = "spongycastle_prov_1_54",
     artifact = "com.madgag.spongycastle:prov:1.54.0.0",
 )
+
+load(":local_repository_defs.bzl", "local_jars")
+
+local_jars(name = "local")
