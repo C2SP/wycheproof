@@ -29,6 +29,8 @@ package com.google.security.wycheproof;
 
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -109,6 +111,46 @@ public class DsaTest extends TestCase {
   static final String[] VALID_SIGNATURES = {
     "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
         + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+  };
+
+  /**
+   * The following test vectos are derived from a valid signature by
+   * using alternative BER encoding as well as legacy formats.
+   * Accepting such signatures is in many cases benign. Hence the tests
+   * below will pass if such signatures are accepted as valid.
+   * The test vectors could be used to check for signature malleability.
+   * An example where this kind of signature malleability was a problem is
+   * https://en.bitcoin.it/wiki/Transaction_Malleability
+   */
+  static final String[] MODIFIED_SIGNATURES = {
+    // BER:long form encoding of length
+    "30813d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e02811c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "02811d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // BER:length contains leading 0
+    "3082003d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f0282001c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0282001d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // BER:prepending 0's to integer
+    "303f021e00001e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021f000000ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // The Sun provider accepts DSA signatures where a leading 00 has
+    // been omitted in the ASN encoding.
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021cade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
   };
 
   static final String[] INVALID_SIGNATURES = {
@@ -663,6 +705,20 @@ public class DsaTest extends TestCase {
         VALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Valid DSA signature", true, true);
   }
 
+  /**
+   * The following test vectors check for signature malleability. That means the test vectors are
+   * derived from a valid signature by modifying the ASN encoding. A correct implementation of DSA
+   * should only accept correct DER encoding. Allowing alternative BER encodings is in many cases
+   * benign. An example where this kind of signature malleability was a problem
+   * https://en.bitcoin.it/wiki/Transaction_Malleability alternative BER encodings
+   */
+
+  public void testModifiedSignatures() throws Exception {
+    testVectors(
+        MODIFIED_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Modified DSA signature",
+        false, true);
+  }
+
   public void testInvalidSignatures() throws Exception {
     testVectors(
         INVALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Invalid DSA signature",
@@ -768,6 +824,47 @@ public class DsaTest extends TestCase {
     System.out.println("Signature:" + TestUtil.bytesToHex(signature));
     System.out.println("r:" + extractR(signature).toString());
     System.out.println("s:" + extractS(signature).toString());
+  }
+
+  public void testKeyGeneration(int keysize) throws Exception {
+    KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+    generator.initialize(keysize);
+    KeyPair keyPair = generator.generateKeyPair();
+    DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
+    DSAParams params = priv.getParams();
+    assertEquals(keysize, params.getP().bitLength());
+    // The NIST standard does not fully specify the size of q that
+    // must be used for a given key size. Hence there are differences.
+    // For example if keysize = 2048, then OpenSSL uses 256 bit q's by default,
+    // but the SUN provider uses 224 bits. Both are acceptable sizes.
+    // The tests below simply asserts that the size of q does not decrease the
+    // overall security of the DSA.
+    int qsize = params.getQ().bitLength();
+    switch (keysize) {
+      case 1024:
+        assertTrue("Invalid qsize for 1024 bit key:" + qsize, qsize >= 160);
+        break;
+      case 2048:
+        assertTrue("Invalid qsize for 2048 bit key:" + qsize, qsize >= 224);
+        break;
+      case 3072:
+        assertTrue("Invalid qsize for 3072 bit key:" + qsize, qsize >= 256);
+        break;
+      default:
+        fail("Invalid key size:" + keysize);
+    }
+    // Check the length of the private key.
+    // For example GPG4Browsers or the KJUR library derived from it use
+    // q.bitCount() instead of q.bitLength() to determine the size of the private key
+    // and hence would generate keys that are much too small.
+    assertTrue(priv.getX().bitLength() >= qsize - 32);
+  }
+
+  /** BouncyCastle v 1.52 failed this test because it always generated 160-bit q. */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  public void testKeyGenerationAll() throws Exception {
+    testKeyGeneration(1024);
+    testKeyGeneration(2048);
   }
 
   /**
@@ -884,6 +981,123 @@ public class DsaTest extends TestCase {
     } catch (GeneralSecurityException ex) {
       // The key is invalid, hence getting here is reasonable.
       return;
+    }
+  }
+
+  /**
+   * This test checks for potential of a timing attack. The test generates a number of signatures,
+   * selects a fraction of them with a small timing and then compares the values k for the selected
+   * signatures with a normal distribution. The test fails if these ks are much smaller than
+   * expected. An implementation flaw that can lead to a test failure is to compute the signature
+   * with a modular exponentiation with a runtime that depend on the length of the exponent.
+   *
+   * <p>A failing test simply means that the timing can be used to get information about k. Further
+   * analysis is necessary to determine if the bias is exploitable and how many timings are
+   * necessary for an attack. A passing test does not mean that the implementation is secure against
+   * timing attacks. The test only catches relatively big timing differences. It requires high
+   * confidence to fail. Noise on the test machine can prevent that a relation between timing and k
+   * can be detected.
+   *
+   * <p>Claims of what is exploitable: http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf 30
+   * signatures are sufficient to find the private key if the attacker knows 8 bits of each k.
+   * http://eprint.iacr.org/2004/277.pdf 27 signatures are sufficient if 8 bits of each k is known.
+   * Our own old experiments (using 1GB memory on a Pentium-4? CPU): 2^11 signatures are sufficient
+   * with a 3 bit leakage. 2^15 signatures are sufficient with a 2 bit leakage. 2^24 signatures are
+   * sufficient with a 1 bit leakage. Estimate for biased generation in the NIST standard: e.g. 2^22
+   * signatures, 2^40 memory, 2^64 time
+   *
+   * <p><b>Sample output for the SUN provider:</b> <code>
+   * count:50000 cutoff:4629300 relative average:0.9992225872624547 sigmas:0.3010906585642381
+   * count:25000 cutoff:733961 relative average:0.976146066585879 sigmas:6.532668708070148
+   * count:12500 cutoff:688305 relative average:0.9070352192339134 sigmas:18.00255238454385
+   * count:6251 cutoff:673971 relative average:0.7747148791368986 sigmas:30.850903417893825
+   * count:3125 cutoff:667045 relative average:0.5901994097874541 sigmas:39.67877152897901
+   * count:1563 cutoff:662088 relative average:0.4060286694971057 sigmas:40.67294313795137
+   * count:782 cutoff:657921 relative average:0.2577955312387898 sigmas:35.94906247333319
+   * count:391 cutoff:653608 relative average:0.1453438859272699 sigmas:29.271192100879457
+   * count:196 cutoff:649280 relative average:0.08035497211567771 sigmas:22.300206785132406
+   * count:98 cutoff:645122 relative average:0.05063589092661368 sigmas:16.27820353139225
+   * count:49 cutoff:641582 relative average:0.018255560447883384 sigmas:11.903018745467488
+   * count:25 cutoff:638235 relative average:0.009082660721102722 sigmas:8.581595888660086
+   * count:13 cutoff:633975 relative average:0.0067892346039088326 sigmas:6.20259924188633
+   * </code>
+   *
+   * <p><b>What this shows:</b> The first line uses all 50'000 signatures. The average k of these
+   * signatures is close to the expected value q/2. Being more selective gives us signatures with a
+   * more biased k. For example, the 196 signatures with the fastest timing have about a 3-bit bias.
+   * From this we expect that 2^19 signatures and timings are sufficient to find the private key.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK,
+    ProviderType.SPONGY_CASTLE})
+  public void testTiming() throws Exception {
+    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+    if (!bean.isCurrentThreadCpuTimeSupported()) {
+      System.out.println("getCurrentThreadCpuTime is not supported. Skipping");
+      return;
+    }
+    String hashAlgorithm = "SHA-1";
+    String message = "Hello";
+    byte[] messageBytes = message.getBytes("UTF-8");
+    byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
+    BigInteger h = new BigInteger(1, digest);
+    KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("DSA");
+    generator.initialize(1024);
+    KeyPair keyPair = generator.generateKeyPair();
+    DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
+    Signature signer = Signature.getInstance("SHA1WITHDSA");
+    signer.initSign(priv);
+    // The timings below are quite noisy. Thus we need a large number of samples.
+    int samples = 50000;
+    long[] timing = new long[samples];
+    BigInteger[] k = new BigInteger[samples];
+    for (int i = 0; i < samples; i++) {
+      long start = bean.getCurrentThreadCpuTime();
+      signer.update(messageBytes);
+      byte[] signature = signer.sign();
+      timing[i] = bean.getCurrentThreadCpuTime() - start;
+      k[i] = extractK(signature, h, priv, false);
+    }
+    long[] sorted = Arrays.copyOf(timing, timing.length);
+    Arrays.sort(sorted);
+    // Here we are only interested in roughly the 8 most significant bits of the ks.
+    // Hence, using double is sufficiently precise.
+    double q = priv.getParams().getQ().doubleValue();
+    double expectedAverage = q / 2;
+    double maxSigmas = 0;
+    System.out.println("testTiming: SHA1WITHDSA");
+    for (int idx = samples - 1; idx > 10; idx /= 2) {
+      long cutoff = sorted[idx];
+      int count = 0;
+      double total = 0;
+      for (int i = 0; i < samples; i++) {
+        if (timing[i] <= cutoff) {
+          total += k[i].doubleValue();
+          count += 1;
+        }
+      }
+      double expectedStdDev = q / Math.sqrt(12 * count);
+      double average = total / count;
+      // Number of standard deviations that the average is away from
+      // the expected value:
+      double sigmas = (expectedAverage - average) / expectedStdDev;
+      if (sigmas > maxSigmas) {
+        maxSigmas = sigmas;
+      }
+      System.out.println(
+          "count:"
+              + count
+              + " cutoff:"
+              + cutoff
+              + " relative average:"
+              + (average / expectedAverage)
+              + " sigmas:"
+              + sigmas);
+    }
+    // Checks if the signatures with a small timing have a biased k.
+    // We use 7 standard deviations, so that the probability of a false positive is smaller
+    // than 10^{-10}.
+    if (maxSigmas >= 7) {
+      fail("Signatures with short timing have a biased k");
     }
   }
 
