@@ -65,6 +65,8 @@ public class RsaSignatureTest extends TestCase {
    * around 2012.
    * <li> Berserk: http://www.intelsecurity.com/advanced-threat-research/berserk.html
    * <li> Truncated comparison of hashes e.g.: http://wiibrew.org/wiki/Signing_bug
+   * <li> CVE-2016-5547: OpenJDK8 RSA signature's throws an OutOfMemoryError for some invalid
+   * signatures
    * </ul>
    */
   static final String[] SIGNATURES_KEY1 = {

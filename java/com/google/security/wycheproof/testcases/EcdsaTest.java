@@ -70,8 +70,7 @@ public class EcdsaTest extends TestCase {
 
   /**
    * Test vectors with invalid signatures.
-   * The motivation for these test vectors are previously
-   * broken implementations. E.g.
+   * The motivation for these test vectors are previously broken implementations. E.g.
    * <ul>
    * <li> The implementation of DSA in gpg4browsers accepted signatures with r=1 and s=q as valid.
    *     Similar bugs in ECDSA are thinkable, hence the test vectors contain a number of tests with
@@ -82,11 +81,16 @@ public class EcdsaTest extends TestCase {
    *      the result can be 0 (verification failed), 1 (verification succeded)
    *      or -1 (invalid format). A simple <code>if (result) { ... }</code> will be incorrect in
    *      such situations. The test vectors below contain incorrectly encoded signatures.
-   * <li> careless ASN parsing. For example SunEC throws various run
-   *      time exceptions when the ASN encoding is broken.
+   * </ul>
+   * <p> {@link java.security.Signature#verify(byte[])} should either return false or throw a
+   * SignatureException. Other behaviour such as throwing a RuntimeException might allow a denial
+   * of service attack:
+   * <ul>
+   * <li> CVE-2016-5546: OpenJDK8 throwed an OutOfmemoryError on some signatures.
    * </ul>
    * Some of the test vectors were derived from a valid signature by corrupting the DER encoding.
-   * If providers accepts such modified signatures for legacy purpose, then
+   * If providers accepts such modified signatures for legacy purpose, then these signatures
+   * should be moved to MODIFIED_SIGNATURES.
    */
   // NOTE(bleichen): The following test vectors were generated with some python code. New test
   // vectors should best be done by extending the python code.

@@ -358,6 +358,8 @@ public class DhTest extends TestCase {
    * itself cannot prevent all small-subgroup attacks because of the missing parameter q in the
    * Diffie-Hellman parameters. Implementations must add additional countermeasures such as the ones
    * proposed in RFC 2785.
+   *
+   * <p> CVE-2016-1000346: BouncyCastle before v.1.56 did not validate the other parties public key.
    */
   public void testSubgroupConfinement() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
