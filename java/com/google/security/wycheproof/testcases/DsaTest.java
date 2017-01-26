@@ -15,7 +15,6 @@
  */
 
 // TODO(bleichen):
-// - add tests for signature malleability and ASN parsing.
 // - add tests for SHA1WithDSA with wrong key
 // - add tests for "alternative" algorithm names
 // - convert tests for deterministic DSA variants.
@@ -153,6 +152,19 @@ public class DsaTest extends TestCase {
         + "021cade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
   };
 
+  /**
+   * The following test vectors are invalid DSA signatures.
+   * According to {@link java.security.Signature#verify(byte[])} verifying an invalid
+   * signature may either return false or throw a SignatureException.
+   * We expect that a correct implementation of DSA signatures satisfies this contract.
+   * Throwing a RuntimeException instead of a SignatureException could for example
+   * result in a denial of service attack.
+   *
+   * <p>A list of problems that are caught by these signatures:
+   * <li> CVE-2016-5546: OpenJDK8 throwed java.lang.ArrayIndexOutOfBoundsException for
+   * some invalid DSA signatures.
+   * </ul>
+   */
   static final String[] INVALID_SIGNATURES = {
     // wrong length
     "303e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
@@ -242,27 +254,27 @@ public class DsaTest extends TestCase {
         + "021f00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623605"
         + "00",
     // including garbage
-    "30414980303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
-        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
-        + "786236",
+    "3042498177303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
     "30412500303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
         + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
         + "786236",
     "303f303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
         + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
         + "360004deadbeef",
-    "304122204980021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
-        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
-        + "786236",
+    "30422221498177021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
     "304122202500021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
         + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
         + "786236",
     "3045221e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
         + "c9cd0004deadbeef021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
         + "65813fe8786236",
-    "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
-        + "22214980021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
-        + "786236",
+    "3042021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "2222498177021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
     "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
         + "22212500021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
         + "786236",
@@ -324,6 +336,9 @@ public class DsaTest extends TestCase {
         + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862",
     "303c1c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd02"
         + "1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // indefinite length with no delimiter
+    "3080021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
     // prepend empty sequence
     "303f3000021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
         + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
@@ -705,14 +720,6 @@ public class DsaTest extends TestCase {
         VALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Valid DSA signature", true, true);
   }
 
-  /**
-   * The following test vectors check for signature malleability. That means the test vectors are
-   * derived from a valid signature by modifying the ASN encoding. A correct implementation of DSA
-   * should only accept correct DER encoding. Allowing alternative BER encodings is in many cases
-   * benign. An example where this kind of signature malleability was a problem
-   * https://en.bitcoin.it/wiki/Transaction_Malleability alternative BER encodings
-   */
-
   public void testModifiedSignatures() throws Exception {
     testVectors(
         MODIFIED_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Modified DSA signature",
@@ -860,7 +867,15 @@ public class DsaTest extends TestCase {
     assertTrue(priv.getX().bitLength() >= qsize - 32);
   }
 
-  /** BouncyCastle v 1.52 failed this test because it always generated 160-bit q. */
+  /**
+   * Tests the key generation for DSA.
+   *
+   * <p>Problems found:
+   * <ul>
+   * <li> CVE-2016-1000343 BouncyCastle before v.1.56 always generated DSA keys with
+   * a 160-bit q.
+   * </ul>
+   */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   public void testKeyGenerationAll() throws Exception {
     testKeyGeneration(1024);
@@ -1026,6 +1041,12 @@ public class DsaTest extends TestCase {
    * signatures is close to the expected value q/2. Being more selective gives us signatures with a
    * more biased k. For example, the 196 signatures with the fastest timing have about a 3-bit bias.
    * From this we expect that 2^19 signatures and timings are sufficient to find the private key.
+   *
+   * <p>A list of problems caught by this test:
+   * <ul>
+   * <li> CVE-2016-5548 OpenJDK8's DSA is vulnerable to timing attacks.
+   * <li> CVE-2016-1000341 BouncyCastle before v 1.56 is vulnernerable to timing attacks.
+   * </ul>
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK,
     ProviderType.SPONGY_CASTLE})

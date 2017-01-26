@@ -142,30 +142,15 @@ public class EciesTest extends TestCase {
   }
 
   /**
-   * Check the length of the ciphertext. TODO(bleichen): This is more an explanation what is going
-   * on than a test. Maybe remove this later.
+   * Tries to decrypt ciphertexts where the symmetric part has been randomized.
+   * If this randomization leads to distinguishable exceptions then this may indicate that the
+   * implementation is vulnerable to a padding attack.
+   *
+   * Problems detected:
+   * <ul>
+   * <li> CVE-2016-1000345 BouncyCastle before v.1.56 is vulnerable to a padding oracle attack.
+   * </ul>
    */
-  @SuppressWarnings("InsecureCipherMode")
-  public void testCiphertextLength() throws Exception {
-    String algorithm = "ECIESwithAES-CBC";
-    final int messageLength = 40;
-    final int coordinateSize = 32;
-    byte[] message = new byte[messageLength];
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
-    PublicKey pub = keyPair.getPublic();
-    Cipher ecies = Cipher.getInstance(algorithm);
-    ecies.init(Cipher.ENCRYPT_MODE, pub);
-    byte[] ciphertext = ecies.doFinal(message);
-    assertEquals(
-        expectedCiphertextLength(algorithm, coordinateSize, messageLength), ciphertext.length);
-  }
-
-  // Tries to decrypt ciphertexts where the symmetric part has been
-  // randomized. Distinguishable exceptions mean that a padding attack
-  // may be possible.
   @SuppressWarnings("InsecureCipherMode")
   public void testExceptions(String algorithm) throws Exception {
     Cipher ecies;
@@ -317,8 +302,7 @@ public class EciesTest extends TestCase {
    *
    * <p>This test tries to verify this.
    */
-  /* TODO(bleichen): There's no point to run this test as long as not even the previous basic
-        test fails.
+  /* TODO(bleichen): There's no point to run this test as long as the previous basic test fails.
    public void testByteBufferAlias() throws Exception {
      byte[] message = "Hello".getBytes("UTF-8");
      String algorithm = "ECIESWithAES-CBC";
