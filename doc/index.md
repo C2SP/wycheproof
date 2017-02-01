@@ -68,7 +68,7 @@ Hence we are reluctant to publish comparisons.
 ## Thoughts on the design of cryptographic libraries
 
 We should promote robust interfaces with the goal to simplify
-the use of the library, codereviews of applications using the
+the use of the library, code reviews of applications using the
 library and testing the library.
 
 * When cryptographic primitives require randomness then the random
