@@ -69,7 +69,59 @@ public class EcdsaTest extends TestCase {
   };
 
   /**
-   * Test vectors with invalid signatures.
+   * The following test vectors contain a valid signature that use alternative BER encoding.
+   * Whether such signatures are accepted as valid or rejected depends on the implementation.
+   * Allowing alternative BER encodings is in many cases benign. However, there are cases where this
+   * kind of signature malleability was a problem. See for example
+   * https://en.bitcoin.it/wiki/Transaction_Malleability
+   */
+  // NOTE(bleichen): The following test vectors were generated with some python code.
+  //   New test vectors should best be done by extending this code. Some of the signatures
+  //   can be moved to INVALID_SIGNATURES, when b/31572415 is fixed.
+  static final String[] MODIFIED_SIGNATURES = {
+    // BER:long form encoding of length
+    "308145022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d"
+        + "491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
+        + "85cd59f43260ecce",
+    "304602812100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d"
+        + "491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
+        + "85cd59f43260ecce",
+    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
+        + "1b39fd2c3f028120747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
+        + "85cd59f43260ecce",
+    // BER:length contains leading 0
+    "30820045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
+        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
+        + "6285cd59f43260ecce",
+    "30470282002100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
+        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
+        + "6285cd59f43260ecce",
+    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
+        + "1b39fd2c3f02820020747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
+        + "6285cd59f43260ecce",
+    // BER:prepending 0's to integer
+    "30470223000000b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
+        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
+        + "6285cd59f43260ecce",
+    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
+        + "1b39fd2c3f02220000747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
+        + "6285cd59f43260ecce",
+    // NOTE (bleichen): belongs into INVALID_SIGNATURES. We only keep these
+    //  sigantures here because of b/31572415.
+    // length = 2**31 - 1
+    "30847fffffff022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
+        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
+        + "a6e76285cd59f43260ecce",
+    "304902847fffffff00b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
+        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
+        + "a6e76285cd59f43260ecce",
+    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
+        + "1b39fd2c3f02847fffffff747291dd2f3f44af7ace68ea33431d6f94e418c106"
+        + "a6e76285cd59f43260ecce",
+  };
+
+  /**
+   * Test vectors with invalid signatures. 
    * The motivation for these test vectors are previously broken implementations. E.g.
    * <ul>
    * <li> The implementation of DSA in gpg4browsers accepted signatures with r=1 and s=q as valid.
@@ -83,7 +135,7 @@ public class EcdsaTest extends TestCase {
    *      such situations. The test vectors below contain incorrectly encoded signatures.
    * </ul>
    * <p> {@link java.security.Signature#verify(byte[])} should either return false or throw a
-   * SignatureException. Other behaviour such as throwing a RuntimeException might allow a denial
+   * SignatureException. Other behaviour such as throwing a RuntimeException might allow a denial 
    * of service attack:
    * <ul>
    * <li> CVE-2016-5546: OpenJDK8 throwed an OutOfmemoryError on some signatures.
