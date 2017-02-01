@@ -40,6 +40,9 @@ bouncycastle_all_tests(
 
 java_test(
     name = "BouncyCastleAllTestsLocal",
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
     size = "large",
     srcs = ["java/com/google/security/wycheproof/BouncyCastleAllTests.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleAllTests",
@@ -89,6 +92,9 @@ bouncycastle_tests(
 
 java_test(
     name = "BouncyCastleTestLocal",
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
     size = "large",
     srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleTest",
