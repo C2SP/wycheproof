@@ -69,7 +69,7 @@ unit tests.
 
 ## RSA OAEP
 Manger describes an chosen ciphertext attack against RSA in [M01].
-There are implementations that were subseptible to Mangers attack, 
+There are implementations that were susceptible to Mangers attack, 
 e.g. [CVE-2012-5081].
 
 ## RSA PKCS1 signatures
