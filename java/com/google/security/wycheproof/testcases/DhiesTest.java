@@ -35,15 +35,18 @@ import junit.framework.TestCase;
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
-// Tested providers:
-// BC (not recommended)
-//
 // TODO(bleichen):
 // - maybe again CipherInputStream, CipherOutputStream,
 // - byteBuffer.
 // - Exception handling
 // - Is DHIES using the key derivation function for the key stream?
 // - BouncyCastle knows an algorithm IES. Is this the same as DHIES?
+// - Bouncy fixed a padding oracle bug in version 1.56 (CVE-2016-1000345)
+//   So far we have no test for this bug mainly because this cannot be tested
+//   through the JCA interface. BC does not register and algorithm such as
+//   Cipher.DHIESWITHAES-CBC.
+// - So far only BouncyCastles is tesed because this is the only provider
+//   we use that implements DHIES.
 public class DhiesTest extends TestCase {
 
   // TODO(bleichen): This is the same as DhTest.java
