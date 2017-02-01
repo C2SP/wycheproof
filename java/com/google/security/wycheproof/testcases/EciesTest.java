@@ -68,7 +68,7 @@ public class EciesTest extends TestCase {
    * AES-CBC with PKCS #5 padding. HMAC-SHA1 with a 20 byte digest. The AES and the HMAC key are
    * both 128 bits.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEciesBasic() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -92,7 +92,7 @@ public class EciesTest extends TestCase {
    */
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testInvalidNames() throws Exception {
     String[] invalidNames =
         new String[] {
@@ -114,7 +114,7 @@ public class EciesTest extends TestCase {
   /** Here are a few names that BouncyCastle accepts. */
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testValidNames() throws Exception {
     String[] invalidNames =
         new String[] {
@@ -151,7 +151,7 @@ public class EciesTest extends TestCase {
    * <li> CVE-2016-1000345 BouncyCastle before v.1.56 is vulnerable to a padding oracle attack.
    * </ul>
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testExceptions(String algorithm) throws Exception {
     Cipher ecies;
     try {
@@ -197,7 +197,7 @@ public class EciesTest extends TestCase {
     testExceptions("ECIES");
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testModifyPoint() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -224,7 +224,7 @@ public class EciesTest extends TestCase {
    * This test tries to detect ECIES implementations using ECB. This is insecure and also violates
    * the claims of ECIES, since ECIES is secure agains adaptive chosen-ciphertext attacks.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testNotEcb(String algorithm) throws Exception {
     Cipher ecies;
     try {
@@ -257,7 +257,7 @@ public class EciesTest extends TestCase {
    * Tests whether algorithmA is an alias of algorithmB by encrypting with algorithmA and decrypting
    * with algorithmB.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testIsAlias(String algorithmA, String algorithmB) throws Exception {
     Cipher eciesA;
     Cipher eciesB;

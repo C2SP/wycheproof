@@ -61,7 +61,7 @@ public class CipherInputStreamTest extends TestCase {
     public byte[] aad;
     public byte[] ct;
 
-    @SuppressWarnings("InsecureCipherMode")
+    @SuppressWarnings("InsecureCryptoUsage")
     public TestVector(
         String algorithm, int keySize, int ivSize, int tagSize, int ptSize, int aadSize)
         throws Exception {
@@ -100,7 +100,7 @@ public class CipherInputStreamTest extends TestCase {
     return result;
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEncrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -124,7 +124,7 @@ public class CipherInputStreamTest extends TestCase {
   }
 
   /** JDK-8016249: CipherInputStream in decrypt mode fails on close with AEAD ciphers */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -155,7 +155,7 @@ public class CipherInputStreamTest extends TestCase {
    * with BouncyCastle v 1.52. A possible explanation is that BouncyCastle has its own
    * implemenatation of CipherInputStream (org.bouncycastle.crypto.io.CipherInputStream).
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -189,7 +189,7 @@ public class CipherInputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecryptEmpty(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);

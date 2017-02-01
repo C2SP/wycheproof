@@ -1126,7 +1126,7 @@ public class DsaTest extends TestCase {
    * DSA does not allow encryption. This test verifies that a provider does not implement an ad hoc
    * scheme that attempts to turn DSA into a public key encryption scheme.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEncryptionWithDsa() throws Exception {
     try {
       Cipher cipher = Cipher.getInstance("DSA");
