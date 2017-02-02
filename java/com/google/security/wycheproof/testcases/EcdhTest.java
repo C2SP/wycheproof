@@ -878,6 +878,7 @@ public class EcdhTest extends TestCase {
    * the public key. Also a severe bug would be to reduce the private key modulo the order given in
    * the public key parameters.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testModifiedPublic(String algorithm) throws Exception {
     KeyAgreement ka;
     try {
@@ -922,6 +923,7 @@ public class EcdhTest extends TestCase {
    * This is a similar test as testModifiedPublic. However, this test uses test vectors
    * ECPublicKeySpec
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testModifiedPublicSpec(String algorithm) throws Exception {
     KeyAgreement ka;
     try {
@@ -977,6 +979,7 @@ public class EcdhTest extends TestCase {
     testModifiedPublicSpec("ECDHC");
   }
 
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDistinctCurves(String algorithm, ECPrivateKey priv, ECPublicKey pub)
       throws Exception {
     KeyAgreement kaA;
@@ -1039,6 +1042,7 @@ public class EcdhTest extends TestCase {
    * the public key parameters.
    */
   // TODO(bleichen): This can be merged with testModifiedPublic once this is fixed.
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testWrongOrder(String algorithm, ECParameterSpec spec) throws Exception {
     KeyAgreement ka;
     try {
