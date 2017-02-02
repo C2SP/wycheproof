@@ -192,6 +192,7 @@ public class DhTest extends TestCase {
   }
 
   /** Check that key agreement using DH works. */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDh() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     DHParameterSpec dhparams = ike2048();
@@ -320,6 +321,7 @@ public class DhTest extends TestCase {
    * <p> This is a slow test since some providers (e.g. BouncyCastle) generate new safe primes
    * for each new key.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testKeyPairGenerator() throws Exception {
     int keySize = 1024;
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
@@ -329,6 +331,7 @@ public class DhTest extends TestCase {
   }
 
   /** This test tries a key agreement with keys using distinct parameters. */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDHDistinctParameters() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     keyGen.initialize(ike1536());
@@ -361,6 +364,7 @@ public class DhTest extends TestCase {
    *
    * <p> CVE-2016-1000346: BouncyCastle before v.1.56 did not validate the other parties public key.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testSubgroupConfinement() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     DHParameterSpec params = ike2048();

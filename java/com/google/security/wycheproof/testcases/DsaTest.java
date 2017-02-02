@@ -671,7 +671,8 @@ public class DsaTest extends TestCase {
         + "22e342be484c05763939601cd667",
     "300a090380fe01090380fe01",
   };
-
+  
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testVectors(
       String[] signatures,
       DSAPublicKeySpec key,
@@ -790,6 +791,7 @@ public class DsaTest extends TestCase {
    * when an implementation is seriously broken.
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testBasic() throws Exception {
     int keySize = 2048;
     String algorithm = "SHA256WithDSA";
@@ -833,6 +835,7 @@ public class DsaTest extends TestCase {
     System.out.println("s:" + extractS(signature).toString());
   }
 
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testKeyGeneration(int keysize) throws Exception {
     KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
     generator.initialize(keysize);
@@ -886,6 +889,7 @@ public class DsaTest extends TestCase {
    * Checks whether the one time key k in DSA is biased. For example the SUN provider fell for this
    * test until April 2016.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDsaBias() throws Exception {
     // q is close to 2/3 * 2^160.
     BigInteger q = new BigInteger("974317976835659416858874959372334979171063697271");
@@ -962,6 +966,7 @@ public class DsaTest extends TestCase {
    * the private key.
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testBiasSha1WithDSA() throws Exception {
     String hashAlgorithm = "SHA";
     String message = "Hello";
@@ -1050,6 +1055,7 @@ public class DsaTest extends TestCase {
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK,
     ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testTiming() throws Exception {
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
