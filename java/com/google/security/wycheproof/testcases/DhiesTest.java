@@ -75,7 +75,7 @@ public class DhiesTest extends TestCase {
    * works in the sense that it can decrypt what it encrypts. Unfortunately it seems that there is
    * no secure mode using AES.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDhiesBasic() throws Exception {
     DHParameterSpec params = ike2048();
     KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
@@ -98,7 +98,7 @@ public class DhiesTest extends TestCase {
    * ciphertexts. Checks that a modification of the ciphertext is dectected.
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDhiesCorrupt() throws Exception {
     KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
     kf.initialize(ike2048());
@@ -126,7 +126,7 @@ public class DhiesTest extends TestCase {
    * Tries to detect if an algorithm is using ECB. Unfortunately, many JCE algorithms use ECB if no
    * encryption mode is specified.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testNotEcb(String algorithm) throws Exception {
     Cipher dhies;
     try {
