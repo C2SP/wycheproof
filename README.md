@@ -84,7 +84,7 @@ providers in [OpenJDK](http://openjdk.java.net/).
 
 - Install
 [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters): this enables tests with large key
-sizes. Otherwise you'll see a lot of "iilegal key size" exceptions.
+sizes. Otherwise you'll see a lot of "illegal key size" exceptions.
 
 - Check out the tests
 
@@ -155,8 +155,8 @@ BouncyCastleTest, SpongyCastleTest or OpenJDKTest -- these targets exclude all
 slow tests (which are annotated with @SlowTest).
 
 Most test targets are failing, and each failure might be a security issue. To
-learn more about what a failed test means, you might want to check out our
-documentation (doc/bugs.md) or the comments on top of the corresponding test
+learn more about what a failed test means, you might want to check out [our
+documentation](doc/bugs.md) or the comments on top of the corresponding test
 function and test class.
 
 ### Hall of Bugs
@@ -193,3 +193,4 @@ If you'd like to talk to our developers or get notified about major new
 tests, you may want to subscribe to our
 [mailing list](https://groups.google.com/forum/#!forum/wycheproof-users). To
 join, simply send an empty mail to wycheproof-users+subscribe@googlegroups.com.
+

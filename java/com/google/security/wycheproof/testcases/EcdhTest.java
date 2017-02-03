@@ -864,7 +864,7 @@ public class EcdhTest extends TestCase {
     ECPublicKey key1 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
     ECPublicKey key2 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getX509EncodedKeySpec());
     ECParameterSpec params1 = key1.getParams();
-    ECParameterSpec params2 = key1.getParams();
+    ECParameterSpec params2 = key2.getParams();
     assertEquals(params1.getCofactor(), params2.getCofactor());
     assertEquals(params1.getCurve(), params2.getCurve());
     assertEquals(params1.getGenerator(), params2.getGenerator());
