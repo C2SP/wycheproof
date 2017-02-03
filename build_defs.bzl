@@ -1,10 +1,10 @@
-bouncycastle_versions = range(49, 56)
+bouncycastle_versions = range(49, 57)
 
 # These targets run all tests.
 def bouncycastle_all_tests(srcs, deps, size, test_class):
   """BouncyCastle version-specific tests."""
 
-  # Generates BouncyCastleAllTests_1_55, ..., BouncyCastleAllTests_1_49
+  # Generates BouncyCastleAllTests_1_56, ..., BouncyCastleAllTests_1_49
   for version in bouncycastle_versions:
     native.java_test(
         name = "BouncyCastleAllTests_1_%s" % version,
@@ -31,7 +31,7 @@ def bouncycastle_all_tests(srcs, deps, size, test_class):
 def bouncycastle_tests(srcs, deps, size, test_class):
   """BouncyCastle version-specific tests."""
 
-  # Generates BouncyCastleTest_1_55, ..., BouncyCastleTest_1_49
+  # Generates BouncyCastleTest_1_56, ..., BouncyCastleTest_1_49
   for version in bouncycastle_versions:
     native.java_test(
         name = "BouncyCastleTest_1_%s" % version,

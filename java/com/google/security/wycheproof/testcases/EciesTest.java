@@ -17,6 +17,7 @@
 package com.google.security.wycheproof;
 
 import java.nio.ByteBuffer;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -81,7 +82,7 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println("testEciesBasic:" + TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     byte[] decrypted = ecies.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
@@ -98,6 +99,8 @@ public class EciesTest extends TestCase {
         new String[] {
           "ECIESWITHAES/CBC/PKCS5PADDING",
           "ECIESWITHAES/CBC/PKCS7PADDING",
+          "ECIESWITHAES/DHAES/NOPADDING",
+          "ECIESWITHDESEDE/DHAES/NOPADDING",
           "ECIESWITHAES/ECB/NOPADDING",
           "ECIESWITHAES/CTR/NOPADDING",
         };
@@ -116,14 +119,12 @@ public class EciesTest extends TestCase {
   // expect.
   @SuppressWarnings("InsecureCryptoUsage")
   public void testValidNames() throws Exception {
-    String[] invalidNames =
+    String[] validNames =
         new String[] {
-          "ECIESWITHAES/DHAES/NOPADDING",
           "ECIES/DHAES/PKCS7PADDING",
-          "ECIESWITHDESEDE/DHAES/NOPADDING",
           "ECIESWITHAES-CBC/NONE/NOPADDING",
         };
-    for (String algorithm : invalidNames) {
+    for (String algorithm : validNames) {
       Cipher.getInstance(algorithm);
     }
   }
@@ -172,7 +173,7 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println(TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     HashSet<String> exceptions = new HashSet<String>();
     for (int byteNr = kemSize; byteNr < ciphertext.length; byteNr++) {
       for (int bit = 0; bit < 8; bit++) {
@@ -210,13 +211,15 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     ciphertext[2] ^= (byte) 1;
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     try {
       ecies.doFinal(ciphertext);
       fail("This should not work");
-    } catch (java.lang.IllegalArgumentException ex) {
-      // This is what BouncyCastle throws when the points are not on the curve.
-      // Maybe GeneralSecurityException would be better.
+    } catch (GeneralSecurityException ex) {
+      // This is as expected
+    } catch (Exception ex) {
+      fail("Expected subclass of java.security.GeneralSecurityException, but got: "
+        + ex.getClass().getName());
     }
   }
 
@@ -281,7 +284,7 @@ public class EciesTest extends TestCase {
     byte[] message = "Hello".getBytes("UTF-8");
     eciesA.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
     byte[] ciphertext = eciesA.doFinal(message);
-    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesA.getParameters());
     byte[] decrypted = eciesB.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
