@@ -217,6 +217,7 @@ public class EciesTest extends TestCase {
       fail("This should not work");
     } catch (GeneralSecurityException ex) {
       // This is as expected
+      // Bouncy Castle 1.56 throws this exception
     } catch (Exception ex) {
       fail("Expected subclass of java.security.GeneralSecurityException, but got: "
         + ex.getClass().getName());
@@ -284,7 +285,7 @@ public class EciesTest extends TestCase {
     byte[] message = "Hello".getBytes("UTF-8");
     eciesA.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
     byte[] ciphertext = eciesA.doFinal(message);
-    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesA.getParameters());
+    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesB.getParameters());
     byte[] decrypted = eciesB.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }

@@ -71,9 +71,9 @@ public class DhiesTest extends TestCase {
   }
 
   /**
-   * WARNING: This test uses weak crypto (i.e. DHIESWithAES), if supported. Checks that key agreement
-   * using DHIES works in the sense that it can decrypt what it encrypts. Unfortunately it seems that
-   * there is no secure mode using AES.
+   * WARNING: This test uses weak crypto (i.e. DHIESWithAES), if supported. Checks that key
+   * agreement using DHIES works in the sense that it can decrypt what it encrypts. Unfortunately it
+   * seems that there is no secure mode using AES.
    */
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDhiesBasic() throws Exception {
