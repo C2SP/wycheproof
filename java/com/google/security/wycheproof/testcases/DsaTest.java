@@ -671,7 +671,7 @@ public class DsaTest extends TestCase {
         + "22e342be484c05763939601cd667",
     "300a090380fe01090380fe01",
   };
-  
+
   @SuppressWarnings("InsecureCryptoUsage")
   public void testVectors(
       String[] signatures,

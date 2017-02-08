@@ -80,13 +80,15 @@ providers in [OpenJDK](http://openjdk.java.net/).
 
 ### Usage
 
-- Install [Bazel](https://bazel.build/).
+-   Install [Bazel](https://bazel.build/).
 
-- Install
-[Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters): this enables tests with large key
-sizes. Otherwise you'll see a lot of "illegal key size" exceptions.
+-   Install [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction
+    Policy
+    Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters):
+    this enables tests with large key sizes. Otherwise you'll see a lot of
+    "illegal key size" exceptions.
 
-- Check out the tests
+-   Check out the tests
 
 ```
 git clone https://github.com/google/wycheproof.git
@@ -110,9 +112,10 @@ bazel test BouncyCastleAllTests_1_52
 bazel test BouncyCastleAllTests_*
 ```
 
-- To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable:
+-   To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment
+    variable:
 
-``` shell
+```shell
 $ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
 $ bazel test BouncyCastleTestLocal
 $ bazel test BouncyCastleAllTestsLocal
@@ -122,7 +125,7 @@ Note: bazel does not currently invalidate the build on environment changes. If
 you change the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable, run `bazel
 clean` to force a rebuild:
 
-``` shell
+```shell
 $ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
 $ bazel test BouncyCastleTestLocal
 $ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/other/jar
@@ -193,4 +196,3 @@ If you'd like to talk to our developers or get notified about major new
 tests, you may want to subscribe to our
 [mailing list](https://groups.google.com/forum/#!forum/wycheproof-users). To
 join, simply send an empty mail to wycheproof-users+subscribe@googlegroups.com.
-
