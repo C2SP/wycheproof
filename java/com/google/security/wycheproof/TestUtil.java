@@ -110,28 +110,52 @@ public class TestUtil {
   /**
    * Removes JDK crypto restriction.
    * 
-   * Partially taken from:
+   * Inspired by:
    * https://github.com/jruby/jruby/blob/0c345e1b186bd457ebd96143c0816abe93b18fdf/core/src/main/java/org/jruby/util/SecurityHelper.java
    */
   public static void removeCryptoStrengthRestriction() {
     try {
       if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
-        Class jceSecurity = Class.forName("javax.crypto.JceSecurity");
-        Field isRestricted = jceSecurity.getDeclaredField("isRestricted");
-        if (Modifier.isFinal(isRestricted.getModifiers())) {
-          Field modifiers = Field.class.getDeclaredField("modifiers");
-          modifiers.setAccessible(true);
-          modifiers.setInt(isRestricted, isRestricted.getModifiers() & ~Modifier.FINAL);
-          modifiers.setAccessible(false);
-        }
-        isRestricted.setAccessible(true);
-        isRestricted.setBoolean(null, false);
-        isRestricted.setAccessible(false);
+        Class securityClass = Class.forName("javax.crypto.JceSecurity");
+        Field isRestricted = securityClass.getDeclaredField("isRestricted");
+        removeFinalModifier(isRestricted);
+        setFieldBooleanValue(isRestricted, false);
+        System.out.println("Successfully removed crypto strength restriction.");
       }
     } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | 
         NoSuchAlgorithmException | NoSuchFieldException | SecurityException ex) {
       System.out.println("It is not possible to use unrestricted policy with this JDK, "
               + "consider reconfiguration: " + ex.getLocalizedMessage());
     }
+  }
+  
+  /**
+   * Converts a field f to a non-final field (if necessary)
+   * 
+   * @param f
+   * @throws IllegalAccessException
+   * @throws NoSuchFieldException 
+   */
+  public static void removeFinalModifier(Field f) throws IllegalAccessException, NoSuchFieldException {
+    if (Modifier.isFinal(f.getModifiers())) {
+      Field modifiers = Field.class.getDeclaredField("modifiers");
+      modifiers.setAccessible(true);
+      modifiers.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+      modifiers.setAccessible(false);
+    }
+  }
+  
+  /**
+   * Sets a new boolean value to a provided field
+   * 
+   * @param f
+   * @param b
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException 
+   */
+  public static void setFieldBooleanValue(Field f, boolean b) throws IllegalArgumentException, IllegalAccessException {
+    f.setAccessible(true);
+    f.setBoolean(null, b);
+    f.setAccessible(false);
   }
 }
