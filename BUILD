@@ -38,6 +38,17 @@ bouncycastle_all_tests(
     deps = common_deps,
 )
 
+java_test(
+    name = "BouncyCastleAllTestsLocal",
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/BouncyCastleAllTests.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.BouncyCastleAllTests",
+    deps = common_deps + ["@local//:bouncycastle_jar"],
+)
+
 # Generates SpongyCastleAllTests_1_xx target for all available versions,
 # plus a SpongyCastleAllTests alias for latest stable.
 #
@@ -77,6 +88,17 @@ bouncycastle_tests(
     srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
     test_class = "com.google.security.wycheproof.BouncyCastleTest",
     deps = common_deps,
+)
+
+java_test(
+    name = "BouncyCastleTestLocal",
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.BouncyCastleTest",
+    deps = common_deps + ["@local//:bouncycastle_jar"],
 )
 
 # Generates SpongyCastleTest_1_xx target for all available versions,

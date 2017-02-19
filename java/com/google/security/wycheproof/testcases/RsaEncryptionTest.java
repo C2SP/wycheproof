@@ -94,7 +94,7 @@ public class RsaEncryptionTest extends TestCase {
    *       differences are too small to be reliably detectable in unit tests.
    * </ul>
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testExceptions(String algorithm) throws Exception {
     KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
     keygen.initialize(1024);

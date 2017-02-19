@@ -80,7 +80,7 @@ providers in [OpenJDK](http://openjdk.java.net/).
 
 ### Usage
 
-- Install [Bazel](https://bazel.build/).
+-   Install [Bazel](https://bazel.build/).
 
 - Check out the tests
 
@@ -104,6 +104,27 @@ bazel test BouncyCastleAllTests_1_52
 
 ```
 bazel test BouncyCastleAllTests_*
+```
+
+-   To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment
+    variable:
+
+```shell
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
+$ bazel test BouncyCastleTestLocal
+$ bazel test BouncyCastleAllTestsLocal
+```
+
+Note: bazel does not currently invalidate the build on environment changes. If
+you change the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable, run `bazel
+clean` to force a rebuild:
+
+```shell
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/bouncycastle
+$ bazel test BouncyCastleTestLocal
+$ WYCHEPROOF_BOUNCYCASTLE_JAR=/path/to/other/jar
+$ bazel clean
+$ bazel test BouncyCastleTestLocal
 ```
 
 - To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
@@ -131,8 +152,8 @@ BouncyCastleTest, SpongyCastleTest or OpenJDKTest -- these targets exclude all
 slow tests (which are annotated with @SlowTest).
 
 Most test targets are failing, and each failure might be a security issue. To
-learn more about what a failed test means, you might want to check out our
-documentation (doc/bugs.md) or the comments on top of the corresponding test
+learn more about what a failed test means, you might want to check out [our
+documentation](doc/bugs.md) or the comments on top of the corresponding test
 function and test class.
 
 ### Hall of Bugs

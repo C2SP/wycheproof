@@ -52,7 +52,7 @@ public class CipherOutputStreamTest extends TestCase {
   }
 
   /** Test vectors */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public static class TestVector {
     public String algorithm;
     public SecretKeySpec key;
@@ -99,7 +99,7 @@ public class CipherOutputStreamTest extends TestCase {
     return result;
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEncrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -113,7 +113,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -127,7 +127,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -158,7 +158,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecryptEmpty(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -216,7 +216,7 @@ public class CipherOutputStreamTest extends TestCase {
   }
 
   /** Tests CipherOutputStream with AES-EAX if AES-EAS is supported by the provider. */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testAesEax() throws Exception {
     final String algorithm = "AES/EAX/NoPadding";
     final int[] keySizes = {16, 32};

@@ -16,13 +16,18 @@
 
 package com.google.security.wycheproof;
 
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
@@ -175,6 +180,41 @@ public class AesGcmTest extends TestCase {
       byte[] c1 = cipher.doFinal();
       String result = TestUtil.bytesToHex(c0) + TestUtil.bytesToHex(c1);
       assertEquals(test.ctHex, result);
+    }
+  }
+
+  /**
+   * JCE has a dangerous feature: after a doFinal the cipher is typically reinitialized using the
+   * previous IV. This "feature" can easily break AES-GCM usages, because encrypting twice with
+   * the same key and IV leaks the authentication key. Hence any reasonable implementation of
+   * AES-GCM should not allow this. The expected behaviour of OpenJDK can be derived from the tests
+   * in jdk/test/com/sun/crypto/provider/Cipher/AES/TestGCMKeyAndIvCheck.java.
+   * OpenJDK does not allow two consecutive initializations for encryption with the same key and IV.
+   *
+   * <p>The test here is weaker than the restrictions in OpenJDK. The only requirement here is that
+   * reusing a Cipher without an explicit init() is caught.
+   *
+   * <p>BouncyCastle 1.52 failed this test
+   *
+   * <p>Conscrypt failed this test
+   */
+  public void testIvReuse() throws Exception {
+    for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
+      cipher.updateAAD(test.aad);
+      byte[] ct1 = cipher.doFinal(test.pt);
+      try {
+        byte[] ct2 = cipher.doFinal(test.pt);
+        fail(
+            "It should not possible to reuse an IV."
+                + " ct1:"
+                + TestUtil.bytesToHex(ct1)
+                + " ct2:"
+                + TestUtil.bytesToHex(ct2));
+      } catch (java.lang.IllegalStateException ex) {
+        // This is expected.
+      }
     }
   }
 
@@ -369,5 +409,63 @@ public class AesGcmTest extends TestCase {
     cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), param);
     byte[] output = cipher.doFinal(input);
     assertEquals(input.length + 16, output.length);
+  }
+
+  /**
+   * Test AES-GCM wrapped around counter bug which leaks plaintext and authentication key. Let's
+   * consider 12-byte IV, counter = IV || 0^31 || 1. For each encryption block, the last 4 bytes of
+   * the counter is increased by 1. After 2^32 blocks, the counter will be wrapped around causing
+   * counter collision and hence, leaking plaintext and authentication key as explained below. The
+   * library must make a check to make sure that the plaintext's length never exceeds 2^32 - 2
+   * blocks. Note that this is different from usual IV collisions because it happens even if users
+   * use different IVs. <br>
+   * We have: <br>
+   * J0 = IV || 0^31 || 1 <br>
+   * Plaintext: P[0], P[1], P[2], .... <br>
+   * Ciphertext: <br>
+   * C[0] = Enc(K, (J0 + 1) % 2^32) XOR P[0] <br>
+   * C[1] = Enc(K, (J0 + 2) % 2^32) XOR P[1] <br>
+   * C[2] = Enc(K, (J0 + 3) % 2^32) XOR P[2] <br>
+   * ... <br>
+   * C[2^32 - 1] = Enc(K, J0) XOR P[2^32 - 1] <br>
+   * C[2^32] = Enc(K, (J0 + 1)% 2^32) XOR P[2^32] <br>
+   * It means that after 2^32 blocks, the counter is wrapped around causing counter collisions. In
+   * counter mode, once the counter is collided then it's reasonable to assume that the plaintext is
+   * leaked. As the ciphertext is already known to attacker, Enc(K, J0) is leaked. <br>
+   * Now, as the authentication tag T is computed as GHASH(H, {}, C) XOR E(K, J0), the attacker can
+   * learn GHASH(H, {}, C}. It essentially means that the attacker finds a polynomial where H is the
+   * root (see Joux attack http://csrc.nist.gov/groups/ST/toolkit/BCM/documents/Joux_comments.pdf).
+   * Solving polynomial equation in GF(2^128) is enough to extract the authentication key.
+   *
+   * <p>BouncyCastle used to have this bug (CVE-2015-6644).
+   *
+   * <p>OpenJDK8 used to have this bug (http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/rev/0c3ed12cdaf5)
+   *
+   * <p>The test is slow as we have to encrypt 2^32 blocks.
+   */
+  // TODO(quannguyen): Is there a faster way to test it?
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt doesn't support streaming, would crash")
+  @SlowTest(
+    providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  public void testWrappedAroundCounter() throws Exception {
+    try {
+      byte[] iv = new byte[12];
+      byte[] input = new byte[16];
+      byte[] key = new byte[16];
+      (new SecureRandom()).nextBytes(key);
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(
+          Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(16 * 8, iv));
+      byte[] output = cipher.update(input);
+      for (long i = 0; i < 4294967296L + 2; i++) {
+        byte[] output1 = cipher.update(input);
+        assertFalse("GCM Wrapped Around Counter" + i, Arrays.equals(output, output1));
+      }
+      fail("Expected Exception");
+    } catch (Exception expected) {
+      System.out.println("testWrappedAroundcounter:" + expected.toString());
+    }
   }
 }

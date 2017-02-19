@@ -15,7 +15,6 @@
  */
 
 // TODO(bleichen):
-// - add tests for signature malleability and ASN parsing.
 // - add tests for SHA1WithDSA with wrong key
 // - add tests for "alternative" algorithm names
 // - convert tests for deterministic DSA variants.
@@ -29,6 +28,8 @@ package com.google.security.wycheproof;
 
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -111,7 +112,338 @@ public class DsaTest extends TestCase {
         + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
   };
 
+  /**
+   * The following test vectos are derived from a valid signature by
+   * using alternative BER encoding as well as legacy formats.
+   * Accepting such signatures is in many cases benign. Hence the tests
+   * below will pass if such signatures are accepted as valid.
+   * The test vectors could be used to check for signature malleability.
+   * An example where this kind of signature malleability was a problem is
+   * https://en.bitcoin.it/wiki/Transaction_Malleability
+   */
+  static final String[] MODIFIED_SIGNATURES = {
+    // BER:long form encoding of length
+    "30813d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e02811c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "02811d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // BER:length contains leading 0
+    "3082003d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f0282001c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0282001d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // BER:prepending 0's to integer
+    "303f021e00001e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021f000000ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // The Sun provider accepts DSA signatures where a leading 00 has
+    // been omitted in the ASN encoding.
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021cade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+  };
+
+  /**
+   * The following test vectors are invalid DSA signatures.
+   * According to {@link java.security.Signature#verify(byte[])} verifying an invalid
+   * signature may either return false or throw a SignatureException.
+   * We expect that a correct implementation of DSA signatures satisfies this contract.
+   * Throwing a RuntimeException instead of a SignatureException could for example
+   * result in a denial of service attack.
+   *
+   * <p>A list of problems that are caught by these signatures:
+   * <li> CVE-2016-5546: OpenJDK8 throwed java.lang.ArrayIndexOutOfBoundsException for
+   * some invalid DSA signatures.
+   * </ul>
+   */
   static final String[] INVALID_SIGNATURES = {
+    // wrong length
+    "303e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021d1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021b1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021e00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021c00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // uint32 overflow in length
+    "3085010000003d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    "30420285010000001c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    "3042021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0285010000001d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    // uint64 overflow in length
+    "308901000000000000003d021c1e41b479ad576905b960fe14eadb91b0ccf348"
+        + "43dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf"
+        + "3365813fe8786236",
+    "3046028901000000000000001c1e41b479ad576905b960fe14eadb91b0ccf348"
+        + "43dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf"
+        + "3365813fe8786236",
+    "3046021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "028901000000000000001d00ade65988d237d30f9ef41dd424a4e1c8f16967cf"
+        + "3365813fe8786236",
+    // length = 2**31 - 1
+    "30847fffffff021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "304102847fffffff1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "02847fffffff00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    // length = 2**32 - 1
+    "3084ffffffff021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "30410284ffffffff1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0284ffffffff00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    // length = 2**64 - 1
+    "3088ffffffffffffffff021c1e41b479ad576905b960fe14eadb91b0ccf34843"
+        + "dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "30450288ffffffffffffffff1e41b479ad576905b960fe14eadb91b0ccf34843"
+        + "dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "3045021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0288ffffffffffffffff00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    // removing sequence
+    "",
+    // appending 0's to sequence
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623600"
+        + "00",
+    // prepending 0's to sequence
+    "303f0000021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // appending unused 0's
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0000021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // appending null value
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623605"
+        + "00",
+    "303f021e1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0500021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021f00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623605"
+        + "00",
+    // including garbage
+    "3042498177303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    "30412500303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "303f303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "360004deadbeef",
+    "30422221498177021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916"
+        + "173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    "304122202500021c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3045221e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd0004deadbeef021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "3042021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "2222498177021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813f"
+        + "e8786236",
+    "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "22212500021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3045021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "221f021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "360004deadbeef",
+    // including undefined tags
+    "3045aa00bb00cd00303d021c1e41b479ad576905b960fe14eadb91b0ccf34843"
+        + "dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "3043aa02aabb303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab9"
+        + "16173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf336581"
+        + "3fe8786236",
+    "30452224aa00bb00cd00021c1e41b479ad576905b960fe14eadb91b0ccf34843"
+        + "dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "30432222aa02aabb021c1e41b479ad576905b960fe14eadb91b0ccf34843dab9"
+        + "16173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf336581"
+        + "3fe8786236",
+    "3045021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "2225aa00bb00cd00021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf33"
+        + "65813fe8786236",
+    "3043021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "2223aa02aabb021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf336581"
+        + "3fe8786236",
+    // changing tag value
+    "2e3d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "323d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "ff3d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d001c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d041c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303dff1c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "001d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "041d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "ff1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // dropping value of sequence
+    "3000",
+    // using composition
+    "3041300102303c1c1e41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3041222002011e021b41b479ad576905b960fe14eadb91b0ccf34843dab91617"
+        + "3bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    "3041021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "2221020100021cade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8"
+        + "786236",
+    // truncate sequence
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862",
+    "303c1c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd02"
+        + "1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // indefinite length with no delimiter
+    "3080021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // prepend empty sequence
+    "303f3000021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // append empty sequence
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623630"
+        + "00",
+    // sequence of sequence
+    "303f303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8"
+        + "c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    // truncated sequence
+    "301e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd",
+    // repeat element in sequence
+    "305c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623602"
+        + "1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // removing integer
+    "301f021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // appending 0's to integer
+    "303f021e1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "0000021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862"
+        + "36",
+    "303f021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021f00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe878623600"
+        + "00",
+    // dropping value of integer
+    "30210200021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "3020021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd0200",
+    // modify first byte of integer
+    "303d021c1f41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // modify last byte of integer
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cc"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786237",
+    // truncate integer
+    "303c021b1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c902"
+        + "1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303c021b41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd02"
+        + "1d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021c00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862",
+    // leading ff in integer
+    "303e021dff1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021eff00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    // infinity
+    "3022090180021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "3021021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd090180",
+    // Vectors where r or s have been modified e.g. by adding or subtracting the order of the
+    // group and hence violate the range check for r and s required by DSA.
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d0168dcf02f57b0caef7ddc183bee1ca94ee09c1a02ee4b0200a54dcb93",
+    "303c021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021cf2efc2e24cbedb2fc00c236c5b2d1a430236b59b7880007f2ba2f8d9",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021dff5219a6772dc82cf0610be22bdb5b1e370e969830cc9a7ec017879dca",
+    "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd"
+        + "021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021d00d9384b2032d060e59848f87cb4535936bc25fa77959e96d7f88e33"
+        + "2a021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021d00d9384b2032d060e59848f87cb4535936bc25fa77959e96d7f88e33"
+        + "2a021d0168dcf02f57b0caef7ddc183bee1ca94ee09c1a02ee4b0200a54dcb93",
+    "303d021d00d9384b2032d060e59848f87cb4535936bc25fa77959e96d7f88e33"
+        + "2a021cf2efc2e24cbedb2fc00c236c5b2d1a430236b59b7880007f2ba2f8d9",
+    "303e021d00d9384b2032d060e59848f87cb4535936bc25fa77959e96d7f88e33"
+        + "2a021dff5219a6772dc82cf0610be22bdb5b1e370e969830cc9a7ec017879dca",
+    "303e021d00d9384b2032d060e59848f87cb4535936bc25fa77959e96d7f88e33"
+        + "2a021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021dff634b1dd327de7125da7903ad2163ca2addc096101fd395567ee360"
+        + "70021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021dff634b1dd327de7125da7903ad2163ca2addc096101fd395567ee360"
+        + "70021d0168dcf02f57b0caef7ddc183bee1ca94ee09c1a02ee4b0200a54dcb93",
+    "303d021dff634b1dd327de7125da7903ad2163ca2addc096101fd395567ee360"
+        + "70021cf2efc2e24cbedb2fc00c236c5b2d1a430236b59b7880007f2ba2f8d9",
+    "303e021dff634b1dd327de7125da7903ad2163ca2addc096101fd395567ee360"
+        + "70021dff5219a6772dc82cf0610be22bdb5b1e370e969830cc9a7ec017879dca",
+    "303e021dff634b1dd327de7125da7903ad2163ca2addc096101fd395567ee360"
+        + "70021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021ce1be4b8652a896fa469f01eb15246e4f330cb7bc2546e9e8c4473633"
+        + "021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303d021ce1be4b8652a896fa469f01eb15246e4f330cb7bc2546e9e8c4473633"
+        + "021d0168dcf02f57b0caef7ddc183bee1ca94ee09c1a02ee4b0200a54dcb93",
+    "303c021ce1be4b8652a896fa469f01eb15246e4f330cb7bc2546e9e8c4473633"
+        + "021cf2efc2e24cbedb2fc00c236c5b2d1a430236b59b7880007f2ba2f8d9",
+    "303d021ce1be4b8652a896fa469f01eb15246e4f330cb7bc2546e9e8c4473633"
+        + "021dff5219a6772dc82cf0610be22bdb5b1e370e969830cc9a7ec017879dca",
+    "303d021ce1be4b8652a896fa469f01eb15246e4f330cb7bc2546e9e8c4473633"
+        + "021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021d011e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
+    "303e021d011e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d0168dcf02f57b0caef7ddc183bee1ca94ee09c1a02ee4b0200a54dcb93",
+    "303d021d011e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021cf2efc2e24cbedb2fc00c236c5b2d1a430236b59b7880007f2ba2f8d9",
+    "303e021d011e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021dff5219a6772dc82cf0610be22bdb5b1e370e969830cc9a7ec017879dca",
+    "303e021d011e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9"
+        + "cd021d01ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe8786236",
     // Signatures with special case values for r and s. E.g. r=1, s=0 are values that can lead to
     // forgeries if the DSA implementation does not check boundaries and computes s^(-1) == 0.
     "3022020100021dff450969597a870820211805983688387a10cd4dcc451a7f3f432a96a3",
@@ -340,15 +672,17 @@ public class DsaTest extends TestCase {
     "300a090380fe01090380fe01",
   };
 
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testVectors(
       String[] signatures,
       DSAPublicKeySpec key,
       String message,
       String algorithm,
       String signatureType,
-      boolean isValid)
+      boolean isValidDER,
+      boolean isValidBER)
       throws Exception {
-    byte[] messageBytes = "Hello".getBytes("UTF-8");
+    byte[] messageBytes = message.getBytes("UTF-8");
     Signature verifier = Signature.getInstance(algorithm);
     KeyFactory kf = KeyFactory.getInstance("DSA");
     PublicKey pub = kf.generatePublic(key);
@@ -371,10 +705,10 @@ public class DsaTest extends TestCase {
         errors++;
         continue;
       }
-      if (isValid && !verified) {
+      if (isValidDER && !verified) {
         System.out.println(signatureType + " was not verified:" + signature);
         errors++;
-      } else if (!isValid && verified) {
+      } else if (!isValidBER && verified) {
         System.out.println(signatureType + " was verified:" + signature);
         errors++;
       }
@@ -384,12 +718,19 @@ public class DsaTest extends TestCase {
 
   public void testValidSignatures() throws Exception {
     testVectors(
-        VALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Valid DSA signature", true);
+        VALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Valid DSA signature", true, true);
+  }
+
+  public void testModifiedSignatures() throws Exception {
+    testVectors(
+        MODIFIED_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Modified DSA signature",
+        false, true);
   }
 
   public void testInvalidSignatures() throws Exception {
     testVectors(
-        INVALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Invalid DSA signature", false);
+        INVALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Invalid DSA signature",
+        false, false);
   }
 
   // Extract the integer r from a DSA signature.
@@ -450,6 +791,7 @@ public class DsaTest extends TestCase {
    * when an implementation is seriously broken.
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testBasic() throws Exception {
     int keySize = 2048;
     String algorithm = "SHA256WithDSA";
@@ -493,10 +835,61 @@ public class DsaTest extends TestCase {
     System.out.println("s:" + extractS(signature).toString());
   }
 
+  @SuppressWarnings("InsecureCryptoUsage")
+  public void testKeyGeneration(int keysize) throws Exception {
+    KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+    generator.initialize(keysize);
+    KeyPair keyPair = generator.generateKeyPair();
+    DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
+    DSAParams params = priv.getParams();
+    assertEquals(keysize, params.getP().bitLength());
+    // The NIST standard does not fully specify the size of q that
+    // must be used for a given key size. Hence there are differences.
+    // For example if keysize = 2048, then OpenSSL uses 256 bit q's by default,
+    // but the SUN provider uses 224 bits. Both are acceptable sizes.
+    // The tests below simply asserts that the size of q does not decrease the
+    // overall security of the DSA.
+    int qsize = params.getQ().bitLength();
+    switch (keysize) {
+      case 1024:
+        assertTrue("Invalid qsize for 1024 bit key:" + qsize, qsize >= 160);
+        break;
+      case 2048:
+        assertTrue("Invalid qsize for 2048 bit key:" + qsize, qsize >= 224);
+        break;
+      case 3072:
+        assertTrue("Invalid qsize for 3072 bit key:" + qsize, qsize >= 256);
+        break;
+      default:
+        fail("Invalid key size:" + keysize);
+    }
+    // Check the length of the private key.
+    // For example GPG4Browsers or the KJUR library derived from it use
+    // q.bitCount() instead of q.bitLength() to determine the size of the private key
+    // and hence would generate keys that are much too small.
+    assertTrue(priv.getX().bitLength() >= qsize - 32);
+  }
+
+  /**
+   * Tests the key generation for DSA.
+   *
+   * <p>Problems found:
+   * <ul>
+   * <li> CVE-2016-1000343 BouncyCastle before v.1.56 always generated DSA keys with
+   * a 160-bit q.
+   * </ul>
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  public void testKeyGenerationAll() throws Exception {
+    testKeyGeneration(1024);
+    testKeyGeneration(2048);
+  }
+
   /**
    * Checks whether the one time key k in DSA is biased. For example the SUN provider fell for this
    * test until April 2016.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDsaBias() throws Exception {
     // q is close to 2/3 * 2^160.
     BigInteger q = new BigInteger("974317976835659416858874959372334979171063697271");
@@ -573,6 +966,7 @@ public class DsaTest extends TestCase {
    * the private key.
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testBiasSha1WithDSA() throws Exception {
     String hashAlgorithm = "SHA";
     String message = "Hello";
@@ -611,10 +1005,134 @@ public class DsaTest extends TestCase {
   }
 
   /**
+   * This test checks for potential of a timing attack. The test generates a number of signatures,
+   * selects a fraction of them with a small timing and then compares the values k for the selected
+   * signatures with a normal distribution. The test fails if these ks are much smaller than
+   * expected. An implementation flaw that can lead to a test failure is to compute the signature
+   * with a modular exponentiation with a runtime that depend on the length of the exponent.
+   *
+   * <p>A failing test simply means that the timing can be used to get information about k. Further
+   * analysis is necessary to determine if the bias is exploitable and how many timings are
+   * necessary for an attack. A passing test does not mean that the implementation is secure against
+   * timing attacks. The test only catches relatively big timing differences. It requires high
+   * confidence to fail. Noise on the test machine can prevent that a relation between timing and k
+   * can be detected.
+   *
+   * <p>Claims of what is exploitable: http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf 30
+   * signatures are sufficient to find the private key if the attacker knows 8 bits of each k.
+   * http://eprint.iacr.org/2004/277.pdf 27 signatures are sufficient if 8 bits of each k is known.
+   * Our own old experiments (using 1GB memory on a Pentium-4? CPU): 2^11 signatures are sufficient
+   * with a 3 bit leakage. 2^15 signatures are sufficient with a 2 bit leakage. 2^24 signatures are
+   * sufficient with a 1 bit leakage. Estimate for biased generation in the NIST standard: e.g. 2^22
+   * signatures, 2^40 memory, 2^64 time
+   *
+   * <p><b>Sample output for the SUN provider:</b> <code>
+   * count:50000 cutoff:4629300 relative average:0.9992225872624547 sigmas:0.3010906585642381
+   * count:25000 cutoff:733961 relative average:0.976146066585879 sigmas:6.532668708070148
+   * count:12500 cutoff:688305 relative average:0.9070352192339134 sigmas:18.00255238454385
+   * count:6251 cutoff:673971 relative average:0.7747148791368986 sigmas:30.850903417893825
+   * count:3125 cutoff:667045 relative average:0.5901994097874541 sigmas:39.67877152897901
+   * count:1563 cutoff:662088 relative average:0.4060286694971057 sigmas:40.67294313795137
+   * count:782 cutoff:657921 relative average:0.2577955312387898 sigmas:35.94906247333319
+   * count:391 cutoff:653608 relative average:0.1453438859272699 sigmas:29.271192100879457
+   * count:196 cutoff:649280 relative average:0.08035497211567771 sigmas:22.300206785132406
+   * count:98 cutoff:645122 relative average:0.05063589092661368 sigmas:16.27820353139225
+   * count:49 cutoff:641582 relative average:0.018255560447883384 sigmas:11.903018745467488
+   * count:25 cutoff:638235 relative average:0.009082660721102722 sigmas:8.581595888660086
+   * count:13 cutoff:633975 relative average:0.0067892346039088326 sigmas:6.20259924188633
+   * </code>
+   *
+   * <p><b>What this shows:</b> The first line uses all 50'000 signatures. The average k of these
+   * signatures is close to the expected value q/2. Being more selective gives us signatures with a
+   * more biased k. For example, the 196 signatures with the fastest timing have about a 3-bit bias.
+   * From this we expect that 2^19 signatures and timings are sufficient to find the private key.
+   *
+   * <p>A list of problems caught by this test:
+   * <ul>
+   * <li> CVE-2016-5548 OpenJDK8's DSA is vulnerable to timing attacks.
+   * <li> CVE-2016-1000341 BouncyCastle before v 1.56 is vulnernerable to timing attacks.
+   * </ul>
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK,
+    ProviderType.SPONGY_CASTLE})
+  @SuppressWarnings("InsecureCryptoUsage")
+  public void testTiming() throws Exception {
+    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+    if (!bean.isCurrentThreadCpuTimeSupported()) {
+      System.out.println("getCurrentThreadCpuTime is not supported. Skipping");
+      return;
+    }
+    String hashAlgorithm = "SHA-1";
+    String message = "Hello";
+    byte[] messageBytes = message.getBytes("UTF-8");
+    byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
+    BigInteger h = new BigInteger(1, digest);
+    KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("DSA");
+    generator.initialize(1024);
+    KeyPair keyPair = generator.generateKeyPair();
+    DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
+    Signature signer = Signature.getInstance("SHA1WITHDSA");
+    signer.initSign(priv);
+    // The timings below are quite noisy. Thus we need a large number of samples.
+    int samples = 50000;
+    long[] timing = new long[samples];
+    BigInteger[] k = new BigInteger[samples];
+    for (int i = 0; i < samples; i++) {
+      long start = bean.getCurrentThreadCpuTime();
+      signer.update(messageBytes);
+      byte[] signature = signer.sign();
+      timing[i] = bean.getCurrentThreadCpuTime() - start;
+      k[i] = extractK(signature, h, priv, false);
+    }
+    long[] sorted = Arrays.copyOf(timing, timing.length);
+    Arrays.sort(sorted);
+    // Here we are only interested in roughly the 8 most significant bits of the ks.
+    // Hence, using double is sufficiently precise.
+    double q = priv.getParams().getQ().doubleValue();
+    double expectedAverage = q / 2;
+    double maxSigmas = 0;
+    System.out.println("testTiming: SHA1WITHDSA");
+    for (int idx = samples - 1; idx > 10; idx /= 2) {
+      long cutoff = sorted[idx];
+      int count = 0;
+      double total = 0;
+      for (int i = 0; i < samples; i++) {
+        if (timing[i] <= cutoff) {
+          total += k[i].doubleValue();
+          count += 1;
+        }
+      }
+      double expectedStdDev = q / Math.sqrt(12 * count);
+      double average = total / count;
+      // Number of standard deviations that the average is away from
+      // the expected value:
+      double sigmas = (expectedAverage - average) / expectedStdDev;
+      if (sigmas > maxSigmas) {
+        maxSigmas = sigmas;
+      }
+      System.out.println(
+          "count:"
+              + count
+              + " cutoff:"
+              + cutoff
+              + " relative average:"
+              + (average / expectedAverage)
+              + " sigmas:"
+              + sigmas);
+    }
+    // Checks if the signatures with a small timing have a biased k.
+    // We use 7 standard deviations, so that the probability of a false positive is smaller
+    // than 10^{-10}.
+    if (maxSigmas >= 7) {
+      fail("Signatures with short timing have a biased k");
+    }
+  }
+
+  /**
    * DSA does not allow encryption. This test verifies that a provider does not implement an ad hoc
    * scheme that attempts to turn DSA into a public key encryption scheme.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEncryptionWithDsa() throws Exception {
     try {
       Cipher cipher = Cipher.getInstance("DSA");

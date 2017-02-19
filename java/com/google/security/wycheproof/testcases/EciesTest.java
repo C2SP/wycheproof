@@ -17,6 +17,7 @@
 package com.google.security.wycheproof;
 
 import java.nio.ByteBuffer;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -68,7 +69,7 @@ public class EciesTest extends TestCase {
    * AES-CBC with PKCS #5 padding. HMAC-SHA1 with a 20 byte digest. The AES and the HMAC key are
    * both 128 bits.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEciesBasic() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -81,7 +82,7 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println("testEciesBasic:" + TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     byte[] decrypted = ecies.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
@@ -92,12 +93,14 @@ public class EciesTest extends TestCase {
    */
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testInvalidNames() throws Exception {
     String[] invalidNames =
         new String[] {
           "ECIESWITHAES/CBC/PKCS5PADDING",
           "ECIESWITHAES/CBC/PKCS7PADDING",
+          "ECIESWITHAES/DHAES/NOPADDING",
+          "ECIESWITHDESEDE/DHAES/NOPADDING",
           "ECIESWITHAES/ECB/NOPADDING",
           "ECIESWITHAES/CTR/NOPADDING",
         };
@@ -114,16 +117,14 @@ public class EciesTest extends TestCase {
   /** Here are a few names that BouncyCastle accepts. */
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testValidNames() throws Exception {
-    String[] invalidNames =
+    String[] validNames =
         new String[] {
-          "ECIESWITHAES/DHAES/NOPADDING",
           "ECIES/DHAES/PKCS7PADDING",
-          "ECIESWITHDESEDE/DHAES/NOPADDING",
           "ECIESWITHAES-CBC/NONE/NOPADDING",
         };
-    for (String algorithm : invalidNames) {
+    for (String algorithm : validNames) {
       Cipher.getInstance(algorithm);
     }
   }
@@ -142,31 +143,16 @@ public class EciesTest extends TestCase {
   }
 
   /**
-   * Check the length of the ciphertext. TODO(bleichen): This is more an explanation what is going
-   * on than a test. Maybe remove this later.
+   * Tries to decrypt ciphertexts where the symmetric part has been randomized.
+   * If this randomization leads to distinguishable exceptions then this may indicate that the
+   * implementation is vulnerable to a padding attack.
+   *
+   * Problems detected:
+   * <ul>
+   * <li> CVE-2016-1000345 BouncyCastle before v.1.56 is vulnerable to a padding oracle attack.
+   * </ul>
    */
-  @SuppressWarnings("InsecureCipherMode")
-  public void testCiphertextLength() throws Exception {
-    String algorithm = "ECIESwithAES-CBC";
-    final int messageLength = 40;
-    final int coordinateSize = 32;
-    byte[] message = new byte[messageLength];
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
-    PublicKey pub = keyPair.getPublic();
-    Cipher ecies = Cipher.getInstance(algorithm);
-    ecies.init(Cipher.ENCRYPT_MODE, pub);
-    byte[] ciphertext = ecies.doFinal(message);
-    assertEquals(
-        expectedCiphertextLength(algorithm, coordinateSize, messageLength), ciphertext.length);
-  }
-
-  // Tries to decrypt ciphertexts where the symmetric part has been
-  // randomized. Distinguishable exceptions mean that a padding attack
-  // may be possible.
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testExceptions(String algorithm) throws Exception {
     Cipher ecies;
     try {
@@ -187,7 +173,7 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println(TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     HashSet<String> exceptions = new HashSet<String>();
     for (int byteNr = kemSize; byteNr < ciphertext.length; byteNr++) {
       for (int bit = 0; bit < 8; bit++) {
@@ -212,7 +198,7 @@ public class EciesTest extends TestCase {
     testExceptions("ECIES");
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testModifyPoint() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -225,13 +211,16 @@ public class EciesTest extends TestCase {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     ciphertext[2] ^= (byte) 1;
-    ecies.init(Cipher.DECRYPT_MODE, priv);
+    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
     try {
       ecies.doFinal(ciphertext);
       fail("This should not work");
-    } catch (java.lang.IllegalArgumentException ex) {
-      // This is what BouncyCastle throws when the points are not on the curve.
-      // Maybe GeneralSecurityException would be better.
+    } catch (GeneralSecurityException ex) {
+      // This is as expected
+      // Bouncy Castle 1.56 throws this exception
+    } catch (Exception ex) {
+      fail("Expected subclass of java.security.GeneralSecurityException, but got: "
+        + ex.getClass().getName());
     }
   }
 
@@ -239,7 +228,7 @@ public class EciesTest extends TestCase {
    * This test tries to detect ECIES implementations using ECB. This is insecure and also violates
    * the claims of ECIES, since ECIES is secure agains adaptive chosen-ciphertext attacks.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testNotEcb(String algorithm) throws Exception {
     Cipher ecies;
     try {
@@ -272,7 +261,7 @@ public class EciesTest extends TestCase {
    * Tests whether algorithmA is an alias of algorithmB by encrypting with algorithmA and decrypting
    * with algorithmB.
    */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testIsAlias(String algorithmA, String algorithmB) throws Exception {
     Cipher eciesA;
     Cipher eciesB;
@@ -296,7 +285,7 @@ public class EciesTest extends TestCase {
     byte[] message = "Hello".getBytes("UTF-8");
     eciesA.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
     byte[] ciphertext = eciesA.doFinal(message);
-    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesB.getParameters());
     byte[] decrypted = eciesB.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
@@ -317,8 +306,7 @@ public class EciesTest extends TestCase {
    *
    * <p>This test tries to verify this.
    */
-  /* TODO(bleichen): There's no point to run this test as long as not even the previous basic
-        test fails.
+  /* TODO(bleichen): There's no point to run this test as long as the previous basic test fails.
    public void testByteBufferAlias() throws Exception {
      byte[] message = "Hello".getBytes("UTF-8");
      String algorithm = "ECIESWithAES-CBC";
