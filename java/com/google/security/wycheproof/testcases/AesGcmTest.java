@@ -444,6 +444,7 @@ public class AesGcmTest extends TestCase {
    * <p>The test is slow as we have to encrypt 2^32 blocks.
    */
   // TODO(quannguyen): Is there a faster way to test it?
+/*
   @ExcludedTest(
     providers = {ProviderType.CONSCRYPT},
     comment = "Conscrypt doesn't support streaming, would crash")
@@ -468,4 +469,5 @@ public class AesGcmTest extends TestCase {
       System.out.println("testWrappedAroundcounter:" + expected.toString());
     }
   }
+*/
 }
