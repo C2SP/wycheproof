@@ -116,7 +116,7 @@ public class RsaEncryptionTest extends TestCase {
       }
     }
     Cipher enc = Cipher.getInstance("RSA/ECB/NOPADDING");
-    enc.init(Cipher.ENCRYPT_MODE, keypair.getPrivate());
+    enc.init(Cipher.ENCRYPT_MODE, keypair.getPublic());
     c.init(Cipher.DECRYPT_MODE, keypair.getPrivate());
     byte[][] paddedKeys = generatePkcs1Vectors(1024 / 8);
     for (int i = 0; i < paddedKeys.length; i++) {
