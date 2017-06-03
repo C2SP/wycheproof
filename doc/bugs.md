@@ -47,7 +47,7 @@ See [list of issues](issues.md) for details.
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | ECDH Invalid Curve Attack        | Quan Nguyen                | CVE-2016-9121     | $5500 total by Square Inc. for all bugs | To be released                         |
 | Multiple signatures, auth bypass | Quan Nguyen                | CVE-2016-9122     |                                         | To be released                         |
-| Integer overflow, HMAC bypas     | Quan Nguyen                | CVE-2016-9123     |                                         | To be released                         |
+| Integer overflow, HMAC bypass    | Quan Nguyen                | CVE-2016-9123     |                                         | To be released                         |
 | Accepts embedded HMAC key        | Quan Nguyen                |   N/A             |                                         | To be released                         |
 
 ## Package Go crypto
