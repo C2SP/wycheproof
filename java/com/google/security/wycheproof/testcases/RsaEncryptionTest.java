@@ -116,12 +116,12 @@ public class RsaEncryptionTest extends TestCase {
       }
     }
     Cipher enc = Cipher.getInstance("RSA/ECB/NOPADDING");
-    enc.init(Cipher.ENCRYPT_MODE, keypair.getPublic());
-    c.init(Cipher.DECRYPT_MODE, keypair.getPrivate());
     byte[][] paddedKeys = generatePkcs1Vectors(1024 / 8);
     for (int i = 0; i < paddedKeys.length; i++) {
+      enc.init(Cipher.ENCRYPT_MODE, keypair.getPublic());
       ciphertext = enc.doFinal(paddedKeys[i]);
       try {
+        c.init(Cipher.DECRYPT_MODE, keypair.getPrivate());
         c.doFinal(ciphertext);
       } catch (Exception ex) {
         exceptions.add(ex.toString());
@@ -148,12 +148,11 @@ public class RsaEncryptionTest extends TestCase {
   public void testGetExceptionsOAEP() throws Exception {
     testExceptions("RSA/ECB/OAEPWITHSHA-1ANDMGF1PADDING");
   }
-  
+
   /**
    * Generates PKCS#1 invalid vectors
    * @param rsaKeyLength
-   * @return 
-  */
+   */
   private byte[][] generatePkcs1Vectors(int rsaKeyLength) {
     // create plain padded keys
     byte[][] plainPaddedKeys = new byte[13][];
@@ -190,9 +189,9 @@ public class RsaEncryptionTest extends TestCase {
     // set the second byte to 0x02
     key[1] = 0x02;
     // set the separating byte
-    if(symmetricKeyLength != -1) {
+    if (symmetricKeyLength != -1) {
       key[rsaKeyLength - symmetricKeyLength - 1] = 0x00;
-    }    
+    }
     return key;
   }
 
