@@ -114,6 +114,43 @@ public class AesGcmTest extends TestCase {
         "1a0293d8f90219058902139013908190bc490890d3ff12a3",
         "64069c2d58690561f27ee199e6b479b6369eec688672bde9",
         "9b7abadd6e69c1d9ec925786534f5075"),
+
+    // GCM uses GHASH to compute the initial counter J0 if the nonce is not 12 bytes long.
+    // The counter is incremented modulo 2^32 in counter mode. The following test vectors verify
+    // the behavior of an implementation for initial counter values J0 close to a 2^32 limit.
+
+    // J0:00000000000000000000000000000000
+    new GcmTestVector(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "00112233445566778899aabbccddeeff",
+        "7b95b8c356810a84711d68150a1b7750",
+        "",
+        "84d4c9c08b4f482861e3a9c6c35bc4d91df927374513bfd49f436bd73f325285daef4ff7e13d46a6",
+        "213a3cb93855d18e69337eee66aeec07"),
+    // J0:ffffffffffffffffffffffffffffffff
+    new GcmTestVector(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "00112233445566778899aabbccddeeff",
+        "1a552e67cdc4dc1a33b824874ebf0bed",
+        "",
+        "948ca37a8e6649e88aeffb1c598f3607007702417ea0e0bc3c60ad5a949886de968cf53ea6462aed",
+        "99b381bfa2af9751c39d1b6e86d1be6a"),
+    // J0:000102030405060708090a0bffffffff
+    new GcmTestVector(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "00112233445566778899aabbccddeeff",
+        "99821c2dd5daecded07300f577f7aff1",
+        "",
+        "127af9b39ecdfc57bb11a2847c7c2d3d8f938f40f877e0c4af37d0fe9af033052bd537c4ae978f60",
+        "07eb2fe4a958f8434d40684899507c7c"),
+    // J0:000102030405060708090a0bfffffffe
+    new GcmTestVector(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "00112233445566778899aabbccddeeff",
+        "5e4a3900142358d1c774d8d124d8d27d",
+        "",
+        "0cf6ae47156b14dce03c8a07a2e172b1127af9b39ecdfc57bb11a2847c7c2d3d8f938f40f877e0c4",
+        "f145c2dcaf339eede427be934357eac0"),
   };
 
   /**
@@ -612,7 +649,6 @@ public class AesGcmTest extends TestCase {
    * <p>The test is slow as we have to encrypt 2^32 blocks.
    */
   // TODO(quannguyen): Is there a faster way to test it?
-/*
   @ExcludedTest(
     providers = {ProviderType.CONSCRYPT},
     comment = "Conscrypt doesn't support streaming, would crash")
@@ -637,5 +673,4 @@ public class AesGcmTest extends TestCase {
       System.out.println("testWrappedAroundcounter:" + expected.toString());
     }
   }
-*/
 }
