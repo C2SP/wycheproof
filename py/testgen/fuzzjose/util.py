@@ -33,7 +33,7 @@ def int2bytes(x, size):
 
 def randint(x, y):
   """Generates a random integer in range [x, y)."""
-  size = (y - x).bit_length() / 8  # add 8 to reduce bias.
+  size = (y - x).bit_length() / 8  + 8  # add 8 to reduce bias.
   res = 0
   for b in urandom(size):
     res = res * 256 + ord(b)
