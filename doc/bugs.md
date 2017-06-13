@@ -15,6 +15,7 @@ See [list of issues](issues.md) for details.
 | DSA Timing Attack                | Daniel Bleichenbacher      | CVE-2016-5548     | Oracle Critical Patch Update Jan 2017   | DsaTest: testTiming                    |
 | ECDSA accepts modified signatures| Daniel Bleichenbacher      | CVE-2016-5546     | Oracle Critical Patch Update Jan 2017   | EcdsaTest: testModifiedSignatures      |
 | ECDSA Timing Attack              | Daniel Bleichenbacher      | CVE-2016-5549     | Oracle Critical Patch Update Jan 2017   | EcdsaTest: testTiming                  |
+| Biased ECDSA                     | Daniel Bleichenbacher      |                   |                                        | Ecdsa: testBias                        |
 
 ## Package Conscrypt
 
@@ -54,3 +55,11 @@ See [list of issues](issues.md) for details.
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | GCM wrapped around counter       | Quan Nguyen                |  N/A              |   goo.gl/OdhZcY  |
+
+## Package Nimbus JOSE+JWT (https://connect2id.com/products/nimbus-jose-jwt)
+|           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
+|:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
+| CBC-HMAC is vulnerable to padding oracle attack  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
+| CBC-HMAC integer overflow, HMAC bypass  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
+
+
