@@ -46,8 +46,6 @@ wycheproof.webcryptoapi.RsaUtil.RsaSignatureTestCase
   this.msg = msg;
   this.sig = sig;
   this.result = result;
-  this.pk = null;
-  this.sk = null;
 };
 
 /**
@@ -64,7 +62,6 @@ wycheproof.webcryptoapi.RsaUtil.RsaSignatureTestCase
  */
 wycheproof.webcryptoapi.RsaUtil.importPublicKey =
     function(e, n, schemeName, hashAlg, usages) {
-  assertTrue('Unsupported hash algorithm', HashUtil.isSupported(hashAlg));
   return window.crypto.subtle.importKey(
       'jwk', {
           kty: 'RSA',
@@ -87,33 +84,21 @@ wycheproof.webcryptoapi.RsaUtil.importPublicKey =
  *     The message that was signed by the corresponding private key, in
  * @param {!ArrayBuffer} sig
  *     The signature to be verified
+ * @param {!string} hashAlg The hash algorithm
  * @param {!string} schemeName The signature scheme
  *
  * @return {!Promise} A Promise object containing the verification result.
  */
-wycheproof.webcryptoapi.RsaUtil.verify = function(pk, msg, sig, schemeName) {
+wycheproof.webcryptoapi.RsaUtil.verify = function(pk, msg, sig, hashAlg, schemeName) {
   return window.crypto.subtle.verify(
-      {name: schemeName},
+      {
+        name: schemeName,
+        hash: hashAlg
+      },
       pk,
       sig,
       msg
   );
-};
-
-/**
- * Tests importation of RSA public key
- *
- * @return {!Promise}
- */
-wycheproof.webcryptoapi.RsaUtil.testImportPublicKey = function() {
-  var tc = this;
-  var promise = RsaUtil.importPublicKey(tc.e, tc.n, tc.scheme, tc.hashAlg, ['verify'])
-      .then(function(pk){
-    tc.pk = pk;
-  }).catch(function(err){
-      fail('Failed to import public key in test case ' + tc.id + ': ' + err);
-  });
-  return promise;
 };
 
 
@@ -124,18 +109,26 @@ wycheproof.webcryptoapi.RsaUtil.testImportPublicKey = function() {
  */
 wycheproof.webcryptoapi.RsaUtil.testVerification = function() {
   var tc = this;
-  var promise = wycheproof.webcryptoapi.RsaUtil
-      .verify(tc.pk, tc.msg, tc.sig, tc.scheme)
-      .then(function(isValid){
-    if (tc.result == 'valid') {
-      assertTrue('Failed on test case ' + tc.id, isValid);
-    } else if (tc.result == 'invalid') {
-      assertFalse('Failed on test case ' + tc.id, isValid);
-    }
-  }).catch(function(err){
-    assertNotEquals('Failed on test case ' + tc.id, tc.result, 'valid');
-    assertTrue('Expect an InvalidAccessError exception',
-                  err instanceof InvalidAccessError);
+  var promise = new Promise(function(resolve, reject){
+    RsaUtil.importPublicKey(tc.e, tc.n, tc.scheme, tc.hashAlg, ['verify'])
+      .then(function(pk){
+        wycheproof.webcryptoapi.RsaUtil.verify(pk, tc.msg, tc.sig,
+          tc.hashAlg, tc.scheme).then(function(isValid){
+        if (tc.result == 'valid') {
+          assertTrue('Failed on test case ' + tc.id, isValid);
+        } else if (tc.result == 'invalid') {
+          assertFalse('Failed on test case ' + tc.id, isValid);
+        }
+        resolve();
+      }).catch(function(err){
+        assertNotEquals('Failed on test case ' + tc.id + ': ' + err,
+            tc.result, 'valid');
+        resolve();
+      });
+    }).catch(function(err){
+      fail('Failed to import public key in test case ' + tc.id + ': ' + err);
+      resolve();
+    });
   });
   return promise;
 };

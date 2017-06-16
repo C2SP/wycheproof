@@ -22,23 +22,17 @@ goog.require('goog.testing.TestCase');
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');
 goog.require('wycheproof.BigInteger');
-goog.require('wycheproof.Constants');
 goog.require('wycheproof.TestUtil');
 goog.require('wycheproof.webcryptoapi.HashUtil');
 
 var TestUtil = wycheproof.TestUtil;
 var BigInteger = wycheproof.BigInteger;
-var Constants = wycheproof.Constants;
 var HashUtil = wycheproof.webcryptoapi.HashUtil;
 
 const ECDSA_TEST_TIMEOUT = 30*1000;
 
-/**
- * Initializes test settings before all the tests run.
- */
-function setUpPage(){
-  goog.testing.TestCase.getActiveTestCase().promiseTimeout = ECDSA_TEST_TIMEOUT;
-}
+// Test vector files
+var ECDSA_VECTOR_FILE = '../../testvectors/ecdsa_webcrypto_test.json';
 
 
 /** ECDSA wrapper */
@@ -48,14 +42,18 @@ var Ecdsa = function() {};
 /**
  * Verifies the given signature using the given ECDSA public key.
  * @param {!CryptoKey} pk The ECDSA public key
+ * @param {!string} hashAlg The hash algorithm
  * @param {!ArrayBuffer} msg The message to be verified
  * @param {!ArrayBuffer} sig The signature to be verified
  *
  * @return {!Promise}
  */
-Ecdsa.verify = function(pk, msg, sig) {
+Ecdsa.verify = function(pk, hashAlg, msg, sig) {
   return crypto.subtle.verify(
-    {name: 'ECDSA'},
+    {
+      name: 'ECDSA',
+      hash: {name: hashAlg}
+    },
     pk,
     sig,
     msg
@@ -66,15 +64,20 @@ Ecdsa.verify = function(pk, msg, sig) {
 /**
  * Imports a ECDSA public key.
  * @param {!JSONObject} keyData The key data in JWK format
+ * @param {!string} hashAlg The hash algorithm
  * @param {!Array<string>} usages The usages of the key
  *
  * @return {!Promise}
  */
-Ecdsa.importPublicKey = function(keyData, usages) {
+Ecdsa.importPublicKey = function(keyData, hashAlg, usages) {
   return crypto.subtle.importKey(
     'jwk',
     keyData,
-    {name: 'ECDSA'},
+    {
+      name: 'ECDSA',
+      namedCurve: keyData['crv'],
+      hash: {name: hashAlg}
+    },
     true,
     usages
   );
@@ -85,16 +88,18 @@ Ecdsa.importPublicKey = function(keyData, usages) {
  * Parameters of a ECDSA signature verification test.
  * @param {!number} id Test case's id
  * @param {!JSONObject} keyData The key data in JWK format
+ * @param {!string} hashAlg The hash algorithm
  * @param {!ArrayBuffer} msg The message that was signed
  * @param {!ArrayBuffer} sig The signature to be verified
  * @param {!string} result The expected result of the test case
  */
-var EcdsaVerifyTestCase = function(id, keyData, msg, sig, result) {
+var EcdsaVerifyTestCase = function(id, keyData, hashAlg, msg, sig, result) {
   this.id = id;
   this.keyData = keyData;
   this.msg = msg;
   this.sig = sig;
   this.result = result;
+  this.hashAlg = hashAlg;
 };
 
 
@@ -107,8 +112,10 @@ var EcdsaVerifyTestCase = function(id, keyData, msg, sig, result) {
 Ecdsa.testVerify = function() {
   tc = this;
   var promise = new Promise((resolve, reject) => {
-    Ecdsa.importPublicKey(tc.keyData, ['verify']).then(function(pk){
-      Ecdsa.verify(pk, tc.msg, tc.sig).then(function(isValid){
+    console.log('Trying to import');
+    Ecdsa.importPublicKey(tc.keyData, tc.hashAlg, ['verify']).then(function(pk){
+      console.log(pk);
+      Ecdsa.verify(pk, tc.hashAlg, tc.msg, tc.sig).then(function(isValid){
         if (tc.result == 'valid') {
           assertTrue('Failed in test case ' + tc.id, isValid);
         } else if (tc.result == 'invalid') {
@@ -116,6 +123,7 @@ Ecdsa.testVerify = function() {
         }
         resolve();
       }).catch(function(err){
+        console.log(err);
         assertNotEquals('Failed to verify in test case ' + tc.id,
               tc.result, 'valid');
         resolve();
@@ -135,25 +143,27 @@ Ecdsa.testVerify = function() {
  * @return {!Promise}
  */
 function testEcdsaVectors() {
-  var tv = TestUtil.readJsonTestVectorsFromFile(
-      Constants.ECDSA_WEBCRYPTO_VECTOR_FILE);
+  var tv = TestUtil.readJsonTestVectorsFromFile(ECDSA_VECTOR_FILE);
   var testCase = new goog.testing.TestCase();
 
   for (var i = 0; i < tv['testGroups'].length; i++) {
     var tg = tv['testGroups'][i];
     var keyData = tg['jwk'];
     var curveName = keyData['crv'];
-    if (SUPPORTED_ALGORITHMS['ecdsa-curve'].includes(curveName)) {
-      for (var j = 0; j < tg['tests'].length; j++) {
-        var tc = tg['tests'][j];
-        var tcId = tc['tcId'];
-        var result = tc['result'];
-        var msg = TestUtil.hexToArrayBuffer(tc['message']);
-        var sig = TestUtil.hexToArrayBuffer(tc['sig']);
-        var test = new EcdsaVerifyTestCase(
-            tcId, keyData, msg, sig, result);
-        testCase.addNewTest(tcId + '-verify', Ecdsa.testVerify, test);
-      }
+    var hashAlg = tg['sha'];
+    if (SUPPORTED['ecdsa-curve'].indexOf(curveName) == -1
+       || SUPPORTED['hash'].indexOf(hashAlg) == -1) {
+      continue;
+    }
+    for (var j = 0; j < tg['tests'].length; j++) {
+      var tc = tg['tests'][j];
+      var tcId = tc['tcId'];
+      var result = tc['result'];
+      var msg = TestUtil.hexToArrayBuffer(tc['message']);
+      var sig = TestUtil.hexToArrayBuffer(tc['sig']);
+      var test = new EcdsaVerifyTestCase(
+          tcId, keyData, hashAlg, msg, sig, result);
+      testCase.addNewTest('Test ' + tcId, Ecdsa.testVerify, test);
     }
   }
   return testCase.runTestsReturningPromise().then(TestUtil.checkTestCaseResult);

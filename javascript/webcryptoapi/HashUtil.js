@@ -19,14 +19,6 @@
  */
 goog.provide('wycheproof.webcryptoapi.HashUtil');
 
-// TODO(bleichen): Is there a reason for excluding SHA-224.
-//   I.e. if the underlying library does not implement some hash functions for
-//   some reason then we might want to explicitely list them so that test
-//   vectors with these hash algorithms can be safely skipped.
-
-// Hash functions that are supported by Web Crypto API
-wycheproof.webcryptoapi.HashUtil.SUPPORTED_HASHES
-    = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
 
 // Hash function names
 wycheproof.webcryptoapi.HashUtil.SHA256 = 'SHA-256';
@@ -43,17 +35,5 @@ wycheproof.webcryptoapi.HashUtil.SHA1 = 'SHA-1';
  * @return {!Promise}
  */
 wycheproof.webcryptoapi.HashUtil.digest = function(hashAlg, msg) {
-  assertTrue(hashAlg + ' is not supported',
-      wycheproof.HashUtil.isSupported(hashAlg));
   return window.crypto.subtle.digest(hashAlg, msg);
-};
-
-/**
- * Checks if the given hash algorithm is supported.
- * @param {!string} hashAlg
- *
- * @return {boolean}
- */
-wycheproof.webcryptoapi.HashUtil.isSupported = function(hashAlg) {
-  return wycheproof.webcryptoapi.HashUtil.SUPPORTED_HASHES.includes(hashAlg);
 };
