@@ -43,44 +43,34 @@ const FIREFOX_SUPPORTED = {
     'hash': ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512']
 };
 
+// Test names
+const TEST_AES_GCM_VECTORS = 'testAesGcmVectors';
+const TEST_ECDSA_VECTORS = 'testEcdsaVectors';
+const TEST_RSASSAPKCS1_VECTORS = 'testRsaSsaPkcs1Vectors';
+const TEST_RSA_ENCRYPT = 'testRsaEncryptionException';
+// Tests to run
+var TESTS_ALL = {};
+TESTS_ALL[TEST_AES_GCM_VECTORS] = true;
+TESTS_ALL[TEST_ECDSA_VECTORS] = true;
+TESTS_ALL[TEST_RSASSAPKCS1_VECTORS] = true;
+TESTS_ALL[TEST_RSA_ENCRYPT] = true;
 
 // Tests to run on Chrome
-const TESTS_TO_RUN_CHROME_ALL = {
-    'testAesGcmVectors': true,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': true
-};
-const TESTS_TO_RUN_CHROME_PRESUBMIT = {
-    'testAesGcmVectors': false,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': true
-};
+var TESTS_TO_RUN_CHROME_ALL = goog.cloneObject(TESTS_ALL);
+var TESTS_TO_RUN_CHROME_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_CHROME_ALL);
+TESTS_TO_RUN_CHROME_PRESUBMIT[TEST_AES_GCM_VECTORS] = false;
+
 
 // Tests to run on Firefox
-const TESTS_TO_RUN_FIREFOX_ALL = {
-    'testAesGcmVectors': true,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': true
-};
-const TESTS_TO_RUN_FIREFOX_PRESUBMIT = {
-    'testAesGcmVectors': false,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': true
-};
+var TESTS_TO_RUN_FIREFOX_ALL = goog.cloneObject(TESTS_ALL);
+var TESTS_TO_RUN_FIREFOX_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_FIREFOX_ALL);
+TESTS_TO_RUN_FIREFOX_PRESUBMIT[TEST_AES_GCM_VECTORS] = false;
 
 // Tests to run on MS Edge
 // MS Edge doesn't support ECDSA
-const TESTS_TO_RUN_EDGE_ALL = {
-    'testAesGcmVectors': true,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': false
-};
-const TESTS_TO_RUN_EDGE_PRESUBMIT = {
-    'testAesGcmVectors': true,
-    'testRsaSsaPkcs1Vectors': true,
-    'testEcdsaVectors': false
-};
-
+var TESTS_TO_RUN_EDGE_ALL = goog.cloneObject(TESTS_ALL);
+TESTS_TO_RUN_EDGE_ALL[TEST_ECDSA_VECTORS] = false;
+var TESTS_TO_RUN_EDGE_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_EDGE_ALL);
 
 /**
  * Runs all tests.

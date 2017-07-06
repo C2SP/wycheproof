@@ -112,9 +112,7 @@ var EcdsaVerifyTestCase = function(id, keyData, hashAlg, msg, sig, result) {
 Ecdsa.testVerify = function() {
   tc = this;
   var promise = new Promise((resolve, reject) => {
-    console.log('Trying to import');
     Ecdsa.importPublicKey(tc.keyData, tc.hashAlg, ['verify']).then(function(pk){
-      console.log(pk);
       Ecdsa.verify(pk, tc.hashAlg, tc.msg, tc.sig).then(function(isValid){
         if (tc.result == 'valid') {
           assertTrue('Failed in test case ' + tc.id, isValid);
@@ -123,7 +121,6 @@ Ecdsa.testVerify = function() {
         }
         resolve();
       }).catch(function(err){
-        console.log(err);
         assertNotEquals('Failed to verify in test case ' + tc.id,
               tc.result, 'valid');
         resolve();

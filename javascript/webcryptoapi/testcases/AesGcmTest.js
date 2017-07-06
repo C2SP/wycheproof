@@ -153,7 +153,6 @@ AesGcm.testEncrypt = function() {
         }
         resolve();
       }).catch(function(err){
-        console.log(err);
         assertNotEquals('Failed on test case ' + tc.id + ': ' + err,
                           tc.result, 'valid');
         resolve();
@@ -177,7 +176,6 @@ function testAesGcmVectors() {
   var tv = TestUtil.readJsonTestVectorsFromFile(AES_GCM_VECTOR_FILE);
   var testCase = new goog.testing.TestCase();
   testCase.promiseTimeout = 2*1000;
-  console.log('Is firefox? ' + goog.userAgent.GECKO);
 
   for (var i = 0; i < tv['testGroups'].length; i++) {
     var tg = tv['testGroups'][i];

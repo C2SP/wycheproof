@@ -23,30 +23,13 @@ goog.require('wycheproof.webcryptoapi.HashUtil');
 
 var HashUtil = wycheproof.webcryptoapi.HashUtil;
 
+// algorithm names
 wycheproof.webcryptoapi.RsaUtil.RSASSA_PKCS1 = 'RSASSA-PKCS1-v1_5';
+wycheproof.webcryptoapi.RsaUtil.RSA_OAEP = 'RSA-OAEP';
 
-/**
- * A class containing RSA signature test case's parameters
- * @param {!number} id
- * @param {!string} e RSA public exponent in base64url format
- * @param {!string} n RSA modulus in base64url format
- * @param {!string} hashAlg The hash algorithm used for the scheme.
- * @param {!string} scheme The usage scheme.
- * @param {!ArrayBuffer} msg The message to be verified
- * @param {!ArrayBuffer} sig The signature to be verified
- * @param {!string} result The test result
- */
-wycheproof.webcryptoapi.RsaUtil.RsaSignatureTestCase
-    = function(id, e, n, hashAlg, scheme, msg, sig, result) {
-  this.id = id;
-  this.e = e;
-  this.n = n;
-  this.hashAlg = hashAlg;
-  this.scheme = scheme;
-  this.msg = msg;
-  this.sig = sig;
-  this.result = result;
-};
+// public exponents
+wycheproof.webcryptoapi.RsaUtil.E_65537 = new Uint8Array([0x01, 0x00, 0x01]);
+wycheproof.webcryptoapi.RsaUtil.E_3 = new Uint8Array([0x03]);
 
 /**
  * Imports a RSA public key.
@@ -101,6 +84,64 @@ wycheproof.webcryptoapi.RsaUtil.verify = function(pk, msg, sig, hashAlg, schemeN
   );
 };
 
+/**
+ * Generates a new RSA key pair.
+ * @param {!string} schemeName The algorithm scheme
+ * @param {number} keySize The key size in bits
+ * @param {!ArrayBuffer} e The public exponent
+ * @param {!string} hashAlg The hash algorithm
+ * @param {!Array<string>} usages The usages of the key
+ *
+ * @return {!Promise} A promise containing the new key pair.
+ */
+wycheproof.webcryptoapi.RsaUtil.generateKey
+    = function(schemeName, keySize, e, hashAlg, usages) {
+  return window.crypto.subtle.generateKey(
+    {
+        name: schemeName,
+        modulusLength: keySize,
+        publicExponent: e,
+        hash: {name: hashAlg},
+    },
+    true,
+    usages
+  );
+};
+
+/**
+ * Decrypts the given ciphertext.
+ * @param {!string} schemeName The algorithm scheme
+ * @param {!CryptoKey} sk The private key that will be used for decryption
+ * @param {!string} ct The ciphertext to be decrypted
+ *
+ * @return {!Promise} A promise containing the decrypted text.
+ */
+wycheproof.webcryptoapi.RsaUtil.decrypt = function(schemeName, sk, ct) {
+  return window.crypto.subtle.decrypt({name: schemeName}, sk, ct);
+};
+
+/**
+ * A class containing RSA signature test case's parameters
+ * @param {!number} id
+ * @param {!string} e RSA public exponent in base64url format
+ * @param {!string} n RSA modulus in base64url format
+ * @param {!string} hashAlg The hash algorithm used for the scheme.
+ * @param {!string} scheme The usage scheme.
+ * @param {!ArrayBuffer} msg The message to be verified
+ * @param {!ArrayBuffer} sig The signature to be verified
+ * @param {!string} result The test result
+ */
+wycheproof.webcryptoapi.RsaUtil.RsaSignatureTestCase
+    = function(id, e, n, hashAlg, scheme, msg, sig, result) {
+  this.id = id;
+  this.e = e;
+  this.n = n;
+  this.hashAlg = hashAlg;
+  this.scheme = scheme;
+  this.msg = msg;
+  this.sig = sig;
+  this.result = result;
+};
 
 /**
  * Tests RSA signature verification.
