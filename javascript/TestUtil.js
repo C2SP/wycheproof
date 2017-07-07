@@ -111,7 +111,7 @@ wycheproof.TestUtil.hexToBase64 = function(s) {
  * @return {!string}
  */
 wycheproof.TestUtil.base64ToHex = function(s) {
-  var bytes = goog.crypt.decodeStringToByteArray(s);
+  var bytes = goog.crypt.base64.decodeStringToByteArray(s);
   return goog.crypt.byteArrayToHex(bytes);
 };
 

@@ -18,26 +18,25 @@
  * Tests for ECDSA implementations of Web Crypto API.
  */
 goog.provide('wycheproof.webcryptoapi.ECDSA');
+goog.require('e2e.ecc.Ecdsa');
 goog.require('goog.testing.TestCase');
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');
 goog.require('wycheproof.BigInteger');
+goog.require('wycheproof.EcUtil');
 goog.require('wycheproof.TestUtil');
 goog.require('wycheproof.webcryptoapi.HashUtil');
 
 var TestUtil = wycheproof.TestUtil;
+var EcUtil = wycheproof.EcUtil;
 var BigInteger = wycheproof.BigInteger;
 var HashUtil = wycheproof.webcryptoapi.HashUtil;
-
-const ECDSA_TEST_TIMEOUT = 30*1000;
 
 // Test vector files
 var ECDSA_VECTOR_FILE = '../../testvectors/ecdsa_webcrypto_test.json';
 
-
 /** ECDSA wrapper */
 var Ecdsa = function() {};
-
 
 /**
  * Verifies the given signature using the given ECDSA public key.
@@ -56,6 +55,25 @@ Ecdsa.verify = function(pk, hashAlg, msg, sig) {
     },
     pk,
     sig,
+    msg
+  );
+};
+
+/**
+ * Signs a message using the given ECDSA private key and hash algorithm.
+ * @param {!CryptoKey} sk The ECDSA private key
+ * @param {!ArrayBuffer} msg The message to be signed
+ * @param {!string} hashAlg The hash algorithm
+ *
+ * @return {!Promise}
+ */
+Ecdsa.sign = function(sk, msg, hashAlg) {
+  return crypto.subtle.sign(
+    {
+        name: 'ECDSA',
+        hash: {name: hashAlg},
+    },
+    sk,
     msg
   );
 };
@@ -83,23 +101,32 @@ Ecdsa.importPublicKey = function(keyData, hashAlg, usages) {
   );
 };
 
+/**
+ * Exports the given ECDSA key as a JSON object.
+ * @param {!CryptoKey} key The ECDSA key to be exported
+ *
+ * @return {!Promise}
+ */
+Ecdsa.exportKey = function(key) {
+  return crypto.subtle.exportKey('jwk', key);
+};
 
 /**
- * Parameters of a ECDSA signature verification test.
- * @param {!number} id Test case's id
- * @param {!JSONObject} keyData The key data in JWK format
+ * Generates an ECDSA key pair using the given hash algorithm and curve name.
  * @param {!string} hashAlg The hash algorithm
- * @param {!ArrayBuffer} msg The message that was signed
- * @param {!ArrayBuffer} sig The signature to be verified
- * @param {!string} result The expected result of the test case
+ * @param {!string} curveName The curve name
+ *
+ * @return {!Promise}
  */
-var EcdsaVerifyTestCase = function(id, keyData, hashAlg, msg, sig, result) {
-  this.id = id;
-  this.keyData = keyData;
-  this.msg = msg;
-  this.sig = sig;
-  this.result = result;
-  this.hashAlg = hashAlg;
+Ecdsa.generateKey = function(hashAlg, curveName) {
+  return crypto.subtle.generateKey(
+    {
+        name: 'ECDSA',
+        namedCurve: curveName,
+    },
+    true,
+    ['sign', 'verify']
+  );
 };
 
 
@@ -128,6 +155,25 @@ Ecdsa.testVerify = function() {
     });
   });
   return promise;
+};
+
+
+/**
+ * Parameters of a ECDSA signature verification test.
+ * @param {!number} id Test case's id
+ * @param {!JSONObject} keyData The key data in JWK format
+ * @param {!string} hashAlg The hash algorithm
+ * @param {!ArrayBuffer} msg The message that was signed
+ * @param {!ArrayBuffer} sig The signature to be verified
+ * @param {!string} result The expected result of the test case
+ */
+var EcdsaVerifyTestCase = function(id, keyData, hashAlg, msg, sig, result) {
+  this.id = id;
+  this.keyData = keyData;
+  this.msg = msg;
+  this.sig = sig;
+  this.result = result;
+  this.hashAlg = hashAlg;
 };
 
 
@@ -161,5 +207,172 @@ function testEcdsaVectors() {
     }
   }
   return testCase.runTestsReturningPromise().then(TestUtil.checkTestCaseResult);
+}
+
+/**
+ * Extracts 'r' and 's' values from the given signature. The function assumes
+ * that the given signature is the concatenation of 'r' and 's'.
+ * @param {!ArrayBuffer} sig The signature
+ *
+ * @return {!Array<wycheproof.BigInteger>}
+ */
+Ecdsa.extractSig = function(sig) {
+  var bytes = new Uint8Array(sig);
+  var byteLen = bytes.length;
+  var rBytes = bytes.subarray(0, byteLen/2);
+  var r = new BigInteger(rBytes);
+  var sBytes = bytes.subarray(byteLen/2, byteLen);
+  var s = new BigInteger(sBytes);
+  return [r, s];
+};
+
+/**
+ * Extracts the random nonce that was used to calculate the given signature.
+ * @param {!wycheproof.BigInteger} h The digest of the message
+ * @param {!wycheproof.BigInteger} r The 'r' value of the signature
+ * @param {!wycheproof.BigInteger} s The 's' value of the signature
+ * @param {!wycheproof.BigInteger} d The private component of the ECDSA key
+ * @param {!NistCurveSpec} curveSpec The specifications of the used curve
+ *
+ * @return {!wycheproof.BigInteger}
+ */
+Ecdsa.extractNonce = function(h, r, s, d, curveSpec) {
+  var n = curveSpec.n;
+  var k = d.multiply(r).add(h).multiply(n.modInverse(s)).mod(n);
+  return k;
+};
+
+/**
+ * Checks whether the given nonce was actually used during the signing process
+ * of the given signature.
+ * @param {!ArrayBuffer} msg The message that was signed
+ * @param {!wycheproof.BigInteger} r The 'r' value of the signature
+ * @param {!wycheproof.BigInteger} s The 's' value of the signature
+ * @param {!wycheproof.BigInteger} d The private component of the ECDSA key
+ * @param {!wycheproof.BigInteger} k The nonce that needs to be checked
+ * @param {!string} curveName The curve name
+ */
+Ecdsa.checkNonceCorrectness = function(msg, r, s, d, k, curveName) {
+  var e2eCurveMap = {
+    'P-256': 'P_256',
+    'P-384': 'P_384',
+    'P-521': 'P_521',
+  };
+  var e2eCurveName = e2eCurveMap[curveName];
+  var key = new e2e.ecc.Ecdsa(e2eCurveName,
+                              {privKey: d.toByteArray()});
+  var msgBytes = new Uint8Array(msg);
+  var calSig = key.signForTestingOnly(msgBytes, k);
+  var calR = new BigInteger(calSig['r']);
+  var calS = new BigInteger(calSig['s']);
+  assertTrue('Nonce calculation was incorrect',
+              r.isEqual(calR) && s.isEqual(calS));
+};
+
+/**
+ * Tests whether there is bias in the nonce generation during
+ * ECDSA signing process. The test case's parameters are passed
+ * to 'this' variable of the function. The test is based on the fact that
+ * if we throw a fair coin nTests times then the probability that
+ * either heads or tails appears less than minCount is less than 2^{-32}.
+ * Therefore the test below is not expected to fail unless the generation
+ * of the one time keys is indeed biased.
+ *
+ * NOTE: This test only works correctly if the length of the output of the
+ * hash function is equal to the bit length of the curve order.
+ *
+ * @return {!Promise}
+ */
+Ecdsa.testBias = function() {
+  var tc = this;
+  var nDone = 0;
+  var countLsb = 0;
+  var countMsb = 0;
+  var promise = new Promise(function(resolve, reject){
+    for (var i = 0; i < tc.nTests; i++) {
+      Ecdsa.generateKey(tc.hashAlg, tc.curveName).then(function(key){
+        Ecdsa.exportKey(key.privateKey).then(function(keyData){
+          Ecdsa.sign(key.privateKey, tc.msg, tc.hashAlg).then(function(sig){
+            HashUtil.digest(tc.hashAlg, tc.msg).then(function(digest){
+              var curveSpec = EcUtil.getCurveSpec(tc.curveName);
+              var h = new BigInteger(new Uint8Array(digest));
+              // private key value
+              var d = BigInteger.fromHex(TestUtil.base64UrlToHex(keyData['d']));
+              var r, s;
+              [r, s] = Ecdsa.extractSig(sig);
+              var k = Ecdsa.extractNonce(h, r, s, d, curveSpec);
+              // Uncomment this line to check correctness of nonce calculation
+              // Ecdsa.checkNonceCorrectness(tc.msg, r, s, d, k, tc.curveName);
+              var halfN = curveSpec.n.shiftRight(1);
+              if (k.isBitSet(0)) countLsb += 1;
+              if (k.compare(halfN) == 1) countMsb += 1;
+
+              nDone += 1;
+              if (nDone == tc.nTests) {
+                if (countLsb < tc.minCount || countLsb > tc.nTests-tc.minCount) {
+                  reject("Bias detected in the LSB of k" +
+                      ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
+                      ", countLSB: " + countLsb + ", countMSB: " + countMsb);
+                }
+                if (countMsb < tc.minCount || countMsb > tc.nTests-tc.minCount) {
+                  reject("Bias detected in the MSB of k" +
+                      ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
+                      ", countLSB: " + countLsb + ", countMSB: " + countMsb);
+                }
+                resolve();
+              }
+            });
+          }).catch(function(err){
+            reject('Failed to sign: ' + err);
+          });
+        }).catch(function(err){
+          reject('Failed to export private key: ' + err);
+        });
+      }).catch(function(err){
+        reject('Failed to generate key: ' + err);
+      });
+    }
+  });
+  return promise;
+};
+
+/**
+ * Parameters of a ECDSA bias test.
+ * @param {!string} hashAlg The hash algorithm
+ * @param {!string} curveName The curve name
+ * @param {!ArrayBuffer} msg The message that was signed
+ * @param {!number} nTests The number of key to be generated
+ * @param {!number} minCount
+ *   The expected number of times that a bit of the nonce should be 1 or 0
+ */
+var EcdsaBiasTestCase = function(hashAlg, curveName, msg, nTests, minCount) {
+  this.msg = msg;
+  this.hashAlg = hashAlg;
+  this.curveName = curveName;
+  this.nTests = nTests;
+  this.minCount = minCount;
+};
+
+/**
+ * Tests whether there is bias in the nonce generation during
+ * ECDSA signing process. It considers three curves: secp256r1, secp384r1,
+ * and secp521r1.
+ *
+ * @return {!Promise}
+ */
+function testEcdsaBiasAll() {
+  var testCase = new goog.testing.TestCase();
+  testCase.promiseTimeout = 120*1000;
+  var msg = TestUtil.hexToArrayBuffer('48656c6c6f'); // msg = 'Hello'
+  var nTests = 1024;
+  var minCount = 410;
+  var biasTest256 = new EcdsaBiasTestCase('SHA-256', 'P-256', msg, nTests, minCount);
+  testCase.addNewTest('bias256', Ecdsa.testBias, biasTest256);
+  var biasTest384 = new EcdsaBiasTestCase('SHA-384', 'P-384', msg, nTests, minCount);
+  testCase.addNewTest('bias384', Ecdsa.testBias, biasTest384);
+  var biasTest521 = new EcdsaBiasTestCase('SHA-512', 'P-521', msg, nTests, minCount);
+  testCase.addNewTest('bias521', Ecdsa.testBias, biasTest521);
+  return testCase.runTestsReturningPromise()
+      .then(wycheproof.TestUtil.checkTestCaseResult);
 }
 

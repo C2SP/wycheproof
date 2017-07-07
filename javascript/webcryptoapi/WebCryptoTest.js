@@ -20,7 +20,7 @@ goog.provide('wycheproof.webcryptoapi');
 goog.require('goog.testing.TestCase');
 goog.require('goog.userAgent.product');
 
-const TEST_TIMEOUT = 30*1000;
+const TEST_TIMEOUT = 120*1000;
 
 // A dictionary containing the parameters that are supported by the current browser
 var SUPPORTED;
@@ -46,12 +46,15 @@ const FIREFOX_SUPPORTED = {
 // Test names
 const TEST_AES_GCM_VECTORS = 'testAesGcmVectors';
 const TEST_ECDSA_VECTORS = 'testEcdsaVectors';
+const TEST_ECDSA_BIAS = 'testEcdsaBiasAll';
 const TEST_RSASSAPKCS1_VECTORS = 'testRsaSsaPkcs1Vectors';
 const TEST_RSA_ENCRYPT = 'testRsaEncryptionException';
+
 // Tests to run
 var TESTS_ALL = {};
 TESTS_ALL[TEST_AES_GCM_VECTORS] = true;
 TESTS_ALL[TEST_ECDSA_VECTORS] = true;
+TESTS_ALL[TEST_ECDSA_BIAS] = true;
 TESTS_ALL[TEST_RSASSAPKCS1_VECTORS] = true;
 TESTS_ALL[TEST_RSA_ENCRYPT] = true;
 
@@ -59,17 +62,19 @@ TESTS_ALL[TEST_RSA_ENCRYPT] = true;
 var TESTS_TO_RUN_CHROME_ALL = goog.cloneObject(TESTS_ALL);
 var TESTS_TO_RUN_CHROME_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_CHROME_ALL);
 TESTS_TO_RUN_CHROME_PRESUBMIT[TEST_AES_GCM_VECTORS] = false;
-
+TESTS_TO_RUN_CHROME_PRESUBMIT[TEST_ECDSA_BIAS] = false;
 
 // Tests to run on Firefox
 var TESTS_TO_RUN_FIREFOX_ALL = goog.cloneObject(TESTS_ALL);
 var TESTS_TO_RUN_FIREFOX_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_FIREFOX_ALL);
 TESTS_TO_RUN_FIREFOX_PRESUBMIT[TEST_AES_GCM_VECTORS] = false;
+TESTS_TO_RUN_FIREFOX_PRESUBMIT[TEST_ECDSA_BIAS] = false;
 
 // Tests to run on MS Edge
 // MS Edge doesn't support ECDSA
 var TESTS_TO_RUN_EDGE_ALL = goog.cloneObject(TESTS_ALL);
 TESTS_TO_RUN_EDGE_ALL[TEST_ECDSA_VECTORS] = false;
+TESTS_TO_RUN_EDGE_ALL[TEST_ECDSA_BIAS] = false;
 var TESTS_TO_RUN_EDGE_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_EDGE_ALL);
 
 /**
