@@ -153,22 +153,19 @@ wycheproof.webcryptoapi.RsaUtil.testVerification = function() {
   var promise = new Promise(function(resolve, reject){
     RsaUtil.importPublicKey(tc.e, tc.n, tc.scheme, tc.hashAlg, ['verify'])
       .then(function(pk){
-        wycheproof.webcryptoapi.RsaUtil.verify(pk, tc.msg, tc.sig,
-          tc.hashAlg, tc.scheme).then(function(isValid){
-        if (tc.result == 'valid') {
-          assertTrue('Failed on test case ' + tc.id, isValid);
-        } else if (tc.result == 'invalid') {
-          assertFalse('Failed on test case ' + tc.id, isValid);
+      wycheproof.webcryptoapi.RsaUtil.verify(pk, tc.msg, tc.sig,
+        tc.hashAlg, tc.scheme).then(function(isValid){
+        if ((tc.result == 'valid' && !isValid) ||
+            (tc.result == 'invalid' && isValid)) {
+          reject('Failed on test case ' + tc.id);
         }
         resolve();
       }).catch(function(err){
-        assertNotEquals('Failed on test case ' + tc.id + ': ' + err,
-            tc.result, 'valid');
-        resolve();
+        // don't expect any exception in signature verification
+        reject('Unexpected exception on test case ' + tc.id + ": " + err);
       });
     }).catch(function(err){
-      fail('Failed to import public key in test case ' + tc.id + ': ' + err);
-      resolve();
+      reject('Failed to import public key in test case ' + tc.id + ': ' + err);
     });
   });
   return promise;

@@ -142,24 +142,22 @@ AesGcm.testEncrypt = function() {
         .then(function(ct){
         // Fail if the iv is empty and the encryption still succeeds
         if (tc.ivSize == 0) {
-          fail('Failed on test case ' + tc.id + ': 0-length iv should not be accepted');
+          reject('Failed on test case ' + tc.id + ': 0-length iv should not be accepted');
         } else {
-          var hexCt = TestUtil.arrayBufferToHex(ct);
-          if (tc.result == 'valid') {
-            assertEquals('Failed on test case ' + tc.id, hexCt, tc.ct+tc.tag);
-          } else if (tc.result == 'invalid') {
-            assertNotEquals('Failed on test case ' + tc.id, hexCt, tc.ct+tc.tag);
+          var obtainedCt = TestUtil.arrayBufferToHex(ct);
+          var expectedCt = tc.ct+tc.tag;
+          if ((tc.result == 'valid' && obtainedCt != expectedCt) ||
+              (tc.result == 'invalid' && obtainedCt == expectedCt)) {
+            reject('Failed on test case ' + tc.id);
           }
         }
         resolve();
       }).catch(function(err){
-        assertNotEquals('Failed on test case ' + tc.id + ': ' + err,
-                          tc.result, 'valid');
-        resolve();
+        // don't expect any exception during encryption
+        reject('Unexpected exception on test case ' + tc.id + ': ' + err);
       });
     }).catch(function(err){
-      fail('Failed to import key in test case ' + tc.id + ': ' + err);
-      resolve();
+      reject('Failed to import key in test case ' + tc.id + ': ' + err);
     });
   });
 

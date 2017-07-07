@@ -114,20 +114,17 @@ Ecdsa.testVerify = function() {
   var promise = new Promise((resolve, reject) => {
     Ecdsa.importPublicKey(tc.keyData, tc.hashAlg, ['verify']).then(function(pk){
       Ecdsa.verify(pk, tc.hashAlg, tc.msg, tc.sig).then(function(isValid){
-        if (tc.result == 'valid') {
-          assertTrue('Failed in test case ' + tc.id, isValid);
-        } else if (tc.result == 'invalid') {
-          assertFalse('Failed in test case ' + tc.id, isValid);
+        if ((tc.result == 'valid' && !isValid) ||
+            (tc.result == 'invalid' && isValid)) {
+          reject('Failed in test case ' + tc.id);
         }
         resolve();
       }).catch(function(err){
-        assertNotEquals('Failed to verify in test case ' + tc.id,
-              tc.result, 'valid');
-        resolve();
+        // don't expect any exception in signature verification
+        reject('Unexpected exception on test case ' + tc.id + ": " + err);
       });
     }).catch(function(err){
-      fail('Failed to import key in test case ' + tc.id + ': ' + err);
-      resolve();
+      reject('Failed to import key in test case ' + tc.id + ': ' + err);
     });
   });
   return promise;
