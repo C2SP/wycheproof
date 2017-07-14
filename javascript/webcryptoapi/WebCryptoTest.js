@@ -49,6 +49,7 @@ const TEST_ECDSA_VECTORS = 'testEcdsaVectors';
 const TEST_ECDSA_BIAS = 'testEcdsaBiasAll';
 const TEST_RSASSAPKCS1_VECTORS = 'testRsaSsaPkcs1Vectors';
 const TEST_RSA_ENCRYPT = 'testRsaEncryptionException';
+const TEST_ECDH_VECTORS = 'testEcdhVectors';
 
 // Tests to run
 var TESTS_ALL = {};
@@ -57,6 +58,7 @@ TESTS_ALL[TEST_ECDSA_VECTORS] = true;
 TESTS_ALL[TEST_ECDSA_BIAS] = true;
 TESTS_ALL[TEST_RSASSAPKCS1_VECTORS] = true;
 TESTS_ALL[TEST_RSA_ENCRYPT] = true;
+TESTS_ALL[TEST_ECDH_VECTORS] = true;
 
 // Tests to run on Chrome
 var TESTS_TO_RUN_CHROME_ALL = goog.cloneObject(TESTS_ALL);
@@ -75,6 +77,7 @@ TESTS_TO_RUN_FIREFOX_PRESUBMIT[TEST_ECDSA_BIAS] = false;
 var TESTS_TO_RUN_EDGE_ALL = goog.cloneObject(TESTS_ALL);
 TESTS_TO_RUN_EDGE_ALL[TEST_ECDSA_VECTORS] = false;
 TESTS_TO_RUN_EDGE_ALL[TEST_ECDSA_BIAS] = false;
+TESTS_TO_RUN_EDGE_ALL[TEST_ECDH_VECTORS] = false;
 var TESTS_TO_RUN_EDGE_PRESUBMIT = goog.cloneObject(TESTS_TO_RUN_EDGE_ALL);
 
 /**
