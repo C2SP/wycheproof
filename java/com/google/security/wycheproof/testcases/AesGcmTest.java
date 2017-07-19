@@ -114,11 +114,9 @@ public class AesGcmTest extends TestCase {
         "1a0293d8f90219058902139013908190bc490890d3ff12a3",
         "64069c2d58690561f27ee199e6b479b6369eec688672bde9",
         "9b7abadd6e69c1d9ec925786534f5075"),
-
     // GCM uses GHASH to compute the initial counter J0 if the nonce is not 12 bytes long.
     // The counter is incremented modulo 2^32 in counter mode. The following test vectors verify
     // the behavior of an implementation for initial counter values J0 close to a 2^32 limit.
-
     // J0:00000000000000000000000000000000
     new GcmTestVector(
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
