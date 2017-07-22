@@ -1,3 +1,5 @@
+package(default_visibility = ["//visibility:public"])
+
 # Wycheproof tests
 
 java_library(
@@ -11,6 +13,7 @@ java_library(
 
 common_deps = [
     ":utils",
+    "@gson//:Gson"
 ]
 
 test_srcs = glob(["java/com/google/security/wycheproof/testcases/*.java"]) + ["java/com/google/security/wycheproof/WycheproofRunner.java"]
@@ -142,4 +145,29 @@ java_test(
     size = "small",
     srcs = ["java/com/google/security/wycheproof/ProviderIndependentTest.java"] + test_srcs,
     deps = common_deps,
+)
+
+# Tests using JSON formated test vectors.
+testvectors = [
+    "//testvectors:aes_gcm",
+    "//testvectors:aes_gcm_siv",
+    "//testvectors:dsa",
+    "//testvectors:ecdsa",
+    "//testvectors:rsa_signature",
+]
+
+java_test(
+    name = "JsonTest",
+    size = "small",
+    srcs = ["java/com/google/security/wycheproof/JsonTest.java"] + test_srcs,
+    data = testvectors,
+    deps = common_deps,
+)
+
+# Load closure rules
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_deps")
+
+closure_js_deps(
+    name = "E2EDeps",
+    deps = ["@e2e//:E2E"],
 )
