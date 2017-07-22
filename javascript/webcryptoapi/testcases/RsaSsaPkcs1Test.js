@@ -34,7 +34,6 @@ var BigInteger = wycheproof.BigInteger;
 var RSASSA_PKCS1_SIGNATURE_VECTOR_FILE
     = '../../testvectors/rsa_signature_test.json';
 
-
 /**
  * Tests RSASSA-PKCS1-v1_5 signature implementation with a number of vectors.
  *
