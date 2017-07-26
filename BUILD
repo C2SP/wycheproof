@@ -161,3 +161,11 @@ java_test(
     data = testvectors,
     deps = common_deps,
 )
+
+# Load closure rules
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_deps")
+
+closure_js_deps(
+    name = "E2EDeps",
+    deps = ["@e2e//:E2E"],
+)

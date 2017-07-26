@@ -162,6 +162,28 @@ learn more about what a failed test means, you might want to check out [our
 documentation](doc/bugs.md) or the comments on top of the corresponding test
 function and test class.
 
+- To test [Web Cryptography API](https://www.w3.org/TR/WebCryptoAPI/), you first need
+to compile [End-to-end](https://github.com/google/end-to-end) because our tests depend on it:
+
+```
+bazel build E2EDeps
+```
+
+Since Web Cryptography API works on web browsers, you then need to run a simple web server in your local machine by running, for example:
+
+```
+python -m SimpleHTTPServer
+```
+
+Now assuming that your source code folder's name is "wycheproof", open the web browsers
+that you want to test and point it to:
+
+```
+http://localhost:8000/bazel-wycheproof/javascript/webcryptoapi/WebCryptoTest.html
+```
+
+We have tested Chrome, Firefox, and Microsoft Edge.
+
 ### Hall of Bugs
 
 Here are some of the notable vulnerabilities that are uncovered by
