@@ -253,7 +253,7 @@ public class DhTest extends TestCase {
     BigInteger p = priv.getParams().getP();
     BigInteger g = priv.getParams().getG();
     int keySize = p.bitLength();
-    assertEquals("wrong key size", keySize, expectedKeySize);
+    assertEquals("wrong key size", expectedKeySize, keySize);
 
     // Checks the key size of the private key.
     // NIST SP 800-56A requires that x is in the range (1, q-1).
@@ -322,6 +322,7 @@ public class DhTest extends TestCase {
    * for each new key.
    */
   @SuppressWarnings("InsecureCryptoUsage")
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   public void testKeyPairGenerator() throws Exception {
     int keySize = 1024;
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");

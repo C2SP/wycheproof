@@ -11,6 +11,7 @@ java_library(
 
 common_deps = [
     ":utils",
+    "@gson//:Gson"
 ]
 
 test_srcs = glob(["java/com/google/security/wycheproof/testcases/*.java"]) + ["java/com/google/security/wycheproof/WycheproofRunner.java"]
@@ -141,5 +142,22 @@ java_test(
     name = "ProviderIndependentTest",
     size = "small",
     srcs = ["java/com/google/security/wycheproof/ProviderIndependentTest.java"] + test_srcs,
+    deps = common_deps,
+)
+
+# Tests using JSON formated test vectors.
+testvectors = [
+    "//testvectors:aes_gcm",
+    "//testvectors:aes_gcm_siv",
+    "//testvectors:dsa",
+    "//testvectors:ecdsa",
+    "//testvectors:rsa_signature",
+]
+
+java_test(
+    name = "JsonTest",
+    size = "small",
+    srcs = ["java/com/google/security/wycheproof/JsonTest.java"] + test_srcs,
+    data = testvectors,
     deps = common_deps,
 )

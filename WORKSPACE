@@ -1,3 +1,12 @@
+# Google GSON
+new_http_archive(
+    name = "gson",
+    strip_prefix = "gson-gson-parent-2.8.1",
+    sha256 = "5b64446a14ee5b29ab62f1bc0341631c20073e141b724afc410aa66dff6d7f2e",
+    url = "https://github.com/google/gson/archive/gson-parent-2.8.1.tar.gz",
+    build_file = "//:Gson.BUILD"
+)
+
 maven_jar(
     name = "bouncycastle_1_46",
     artifact = "org.bouncycastle:bcprov-jdk15on:1.46",
