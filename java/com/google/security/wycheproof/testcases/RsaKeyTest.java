@@ -1430,7 +1430,7 @@ public class RsaKeyTest extends TestCase {
     assertEquals(pub.getModulus(), priv.getModulus());
     BigInteger e = pub.getPublicExponent();
     // Checks that e > 1. [CVE-1999-1444]
-    assertEquals(e.compareTo(BigInteger.ONE), 1);
+    assertEquals(1, e.compareTo(BigInteger.ONE));
   }
 
   private void checkKeyPair(KeyPair keypair, int keySizeInBits) throws Exception {
