@@ -22,13 +22,15 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** AES-EAX tests */
-public class AesEaxTest extends TestCase {
+public class AesEaxTest {
 
   /** Test vectors */
   public static class EaxTestVector {
@@ -264,6 +266,7 @@ public class AesEaxTest extends TestCase {
     }
   }
 
+  @Test
   public void testLateUpdateAAD() throws Exception {
     for (EaxTestVector test : EAX_TEST_VECTOR) {
       Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");

@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +26,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * RSA encryption tests
@@ -36,7 +38,7 @@ import junit.framework.TestCase;
 // - plaintext too long
 // - ciphertext 0
 // - ciphertext == modulus timing attacks
-public class RsaEncryptionTest extends TestCase {
+public class RsaEncryptionTest {
 
   /**
    * Providers that implement RSA with PKCS1Padding but not OAEP are outdated and should be avoided
@@ -44,6 +46,7 @@ public class RsaEncryptionTest extends TestCase {
    * cipher. There is a great danger that PKCS1Padding is used as a temporary workaround, but later
    * stays in the project for much longer than necessary.
    */
+  @Test
   public void testOutdatedProvider() throws Exception {
     try {
       Cipher c = Cipher.getInstance("RSA/ECB/PKCS1Padding");
@@ -141,10 +144,12 @@ public class RsaEncryptionTest extends TestCase {
    * chosen message attacks. Nonetheless, to minimize the damage of such an attack an implementation
    * should minimize the information about the failure in the padding.
    */
+  @Test
   public void testExceptionsPKCS1() throws Exception {
     testExceptions("RSA/ECB/PKCS1PADDING");
   }
 
+  @Test
   public void testGetExceptionsOAEP() throws Exception {
     testExceptions("RSA/ECB/OAEPWITHSHA-1ANDMGF1PADDING");
   }

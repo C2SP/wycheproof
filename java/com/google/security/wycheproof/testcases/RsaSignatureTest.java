@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -27,7 +29,7 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** Tests RSA signature schemes. */
 // TODO(bleichen):
@@ -35,7 +37,7 @@ import junit.framework.TestCase;
 // - So far only PKCS #1 signatures are tested. But RSA-PSS becomes more popular.
 // - document stuff
 // - Join other RSA tests
-public class RsaSignatureTest extends TestCase {
+public class RsaSignatureTest {
   static final RSAPublicKeySpec RSA_KEY1 =
       new RSAPublicKeySpec(
           new BigInteger(
@@ -1074,6 +1076,7 @@ public class RsaSignatureTest extends TestCase {
         + "0000",
   };
 
+  @Test
   public void testBasic() throws Exception {
     String algorithm = "SHA256WithRSA";
     String hashAlgorithm = "SHA-256";
@@ -1155,6 +1158,7 @@ public class RsaSignatureTest extends TestCase {
   }
 
   /** SunJCE threw an OutOfMemoryError with one of the signatures. */
+  @Test
   public void testVectorsAll() throws Exception {
     testVectors(RSA_KEY1, ALGORITHM_KEY1, SIGNATURES_KEY1);
   }
@@ -1187,6 +1191,7 @@ public class RsaSignatureTest extends TestCase {
    * https://groups.google.com/a/chromium.org/forum/#!topic/chromium-reviews/Jo5S7HtEABI claims that
    * 7% of the responses in the Online Certificate Status Protocol (OCSP) miss the NULL parameter
    */
+  @Test
   public void testLegacySignatures() throws Exception {
     RSAPublicKeySpec key = RSA_KEY1;
     String algorithm = ALGORITHM_KEY1;

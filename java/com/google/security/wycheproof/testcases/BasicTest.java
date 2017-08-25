@@ -16,15 +16,18 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.security.Provider;
 import java.security.Security;
 import java.util.TreeSet;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** Not a true test: reports information about the provider. */
-public class BasicTest extends TestCase {
+public class BasicTest {
 
   /** List all algorithms known to the security manager. */
+  @Test
   public void testListAllAlgorithms() {
     for (Provider p : Security.getProviders()) {
       System.out.println();

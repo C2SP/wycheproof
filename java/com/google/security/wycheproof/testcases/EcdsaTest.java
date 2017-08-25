@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.lang.management.ManagementFactory;
@@ -35,7 +37,7 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Tests ECDSA against invalid signatures.
@@ -50,7 +52,7 @@ import junit.framework.TestCase;
 // TODO(bleichen):
 //   - CVE-2015-2730: Firefox failed to handle some signatures correctly because of incorrect
 //     point multiplication. (I don't have enough information here.)
-public class EcdsaTest extends TestCase {
+public class EcdsaTest {
   // ECDSA-Key1
   static final String MESSAGE = "Hello";
   static final String CURVE = "secp256r1";
@@ -639,12 +641,14 @@ public class EcdsaTest extends TestCase {
     assertEquals(0, errors);
   }
 
+  @Test
   public void testValidSignatures() throws Exception {
     testVectors(
         VALID_SIGNATURES, publicKey1(), "Hello", "SHA256WithECDSA", "Valid ECDSA signature",
         true, true);
   }
 
+  @Test
   public void testModifiedSignatures() throws Exception {
     testVectors(
         MODIFIED_SIGNATURES,
@@ -656,6 +660,7 @@ public class EcdsaTest extends TestCase {
         true);
   }
 
+  @Test
   public void testInvalidSignatures() throws Exception {
     testVectors(
         INVALID_SIGNATURES,
@@ -671,6 +676,7 @@ public class EcdsaTest extends TestCase {
    * This test checks the basic functionality of ECDSA. It can also be used to generate simple test
    * vectors.
    */
+  @Test
   public void testBasic() throws Exception {
     String algorithm = "SHA256WithECDSA";
     String hashAlgorithm = "SHA-256";
@@ -778,6 +784,7 @@ public class EcdsaTest extends TestCase {
 
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.CONSCRYPT, ProviderType.OPENJDK,
     ProviderType.SPONGY_CASTLE})
+  @Test
   public void testBiasAll() throws Exception {
     testBias("SHA256WithECDSA", "secp256r1", EcUtil.getNistP256Params());
     testBias("SHA224WithECDSA", "secp224r1", EcUtil.getNistP224Params());
@@ -889,6 +896,7 @@ public class EcdsaTest extends TestCase {
 
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.CONSCRYPT, ProviderType.OPENJDK,
     ProviderType.SPONGY_CASTLE})
+  @Test
   public void testTimingAll() throws Exception {
     testTiming("SHA256WithECDSA", "secp256r1", EcUtil.getNistP256Params());
     // TODO(bleichen): crypto libraries sometimes use optimized code for curves that are frequently

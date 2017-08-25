@@ -21,6 +21,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
@@ -34,10 +36,10 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** EC tests */
-public class EcKeyTest extends TestCase {
+public class EcKeyTest {
   /**
    * Encodings of public keys with invalid parameters. There are multiple places where a provider
    * can validate a public key: some parameters are typically validated by the KeyFactory, more
@@ -127,6 +129,7 @@ public class EcKeyTest extends TestCase {
         + "8c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
   };
 
+  @Test
   public void testEncodedPublicKey() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
     for (String encodedHex : EC_INVALID_PUBLIC_KEYS) {
@@ -142,6 +145,7 @@ public class EcKeyTest extends TestCase {
     }
   }
 
+  @Test
   public void testEncodedPrivateKey() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     keyGen.initialize(EcUtil.getNistP256Params());
@@ -185,6 +189,7 @@ public class EcKeyTest extends TestCase {
     // TODO(bleichen): use RandomUtil
   }
 
+  @Test
   public void testKeyGenerationAll() throws Exception {
     testKeyGeneration(EcUtil.getNistP224Params(), true);
     testKeyGeneration(EcUtil.getNistP256Params(), true);
@@ -202,6 +207,7 @@ public class EcKeyTest extends TestCase {
    * Nist recommends a minimal security strength of 112 bits for the time until 2030.
    * To achieve this security strength EC keys of at least 224 bits are required.
    */
+  @Test
   public void testDefaultKeyGeneration() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     KeyPair keyPair = keyGen.generateKeyPair();
@@ -216,6 +222,7 @@ public class EcKeyTest extends TestCase {
    * Tries to generate a public key with a point at infinity. Public keys with a point at infinity
    * should be rejected to prevent subgroup confinement attacks.
    */
+  @Test
   public void testPublicKeyAtInfinity() throws Exception {
     ECParameterSpec ecSpec = EcUtil.getNistP256Params();
     try {

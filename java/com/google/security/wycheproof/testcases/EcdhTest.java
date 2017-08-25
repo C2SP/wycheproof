@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
@@ -35,7 +37,7 @@ import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.KeyAgreement;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Testing ECDH.
@@ -75,7 +77,7 @@ import junit.framework.TestCase;
 //     certificate.
 //   - CVE-2014-3572: OpenSSL downgrades ECDHE to ECDH
 //   - CVE-2011-3210: OpenSSL was not thread safe
-public class EcdhTest extends TestCase {
+public class EcdhTest {
 
   static final String[] ECDH_VARIANTS = {
     // Raw ECDH. The shared secret is the x-coordinate of the ECDH computation.
@@ -827,6 +829,7 @@ public class EcdhTest extends TestCase {
   };
 
   /** Checks that key agreement using ECDH works. */
+  @Test
   public void testBasic() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
@@ -845,6 +848,7 @@ public class EcdhTest extends TestCase {
     assertEquals(TestUtil.bytesToHex(kAB), TestUtil.bytesToHex(kBA));
   }
 
+  @Test
   public void testVectors() throws Exception {
     KeyAgreement ka = KeyAgreement.getInstance("ECDH");
     for (EcdhTestVector t : ECDH_TEST_VECTORS) {
@@ -859,6 +863,7 @@ public class EcdhTest extends TestCase {
     }
   }
 
+  @Test
   public void testDecode() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
     ECPublicKey key1 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
@@ -969,11 +974,13 @@ public class EcdhTest extends TestCase {
     }
   }
 
+  @Test
   public void testModifiedPublic() throws Exception {
     testModifiedPublic("ECDH");
     testModifiedPublic("ECDHC");
   }
 
+  @Test
   public void testModifiedPublicSpec() throws Exception {
     testModifiedPublicSpec("ECDH");
     testModifiedPublicSpec("ECDHC");
@@ -1113,11 +1120,13 @@ public class EcdhTest extends TestCase {
         "Algorithm:" + algorithm, TestUtil.bytesToHex(shared), TestUtil.bytesToHex(shared2));
   }
 
+  @Test
   public void testWrongOrderEcdh() throws Exception {
     testWrongOrder("ECDH", EcUtil.getNistP256Params());
     testWrongOrder("ECDH", EcUtil.getBrainpoolP256r1Params());
   }
 
+  @Test
   public void testWrongOrderEcdhc() throws Exception {
     testWrongOrder("ECDHC", EcUtil.getNistP256Params());
     testWrongOrder("ECDHC", EcUtil.getBrainpoolP256r1Params());

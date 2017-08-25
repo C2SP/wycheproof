@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -29,7 +31,7 @@ import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.crypto.Cipher;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Testing ECIES.
@@ -48,7 +50,7 @@ import junit.framework.TestCase;
 // - compressed points,
 // - maybe again CipherInputStream, CipherOutputStream,
 // - BouncyCastle has a KeyPairGenerator for ECIES. Is this one different from EC?
-public class EciesTest extends TestCase {
+public class EciesTest {
 
   int expectedCiphertextLength(String algorithm, int coordinateSize, int messageLength)
       throws Exception {
@@ -70,6 +72,7 @@ public class EciesTest extends TestCase {
    * both 128 bits.
    */
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testEciesBasic() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -94,6 +97,7 @@ public class EciesTest extends TestCase {
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testInvalidNames() throws Exception {
     String[] invalidNames =
         new String[] {
@@ -118,6 +122,7 @@ public class EciesTest extends TestCase {
   // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
   // expect.
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testValidNames() throws Exception {
     String[] validNames =
         new String[] {
@@ -133,6 +138,7 @@ public class EciesTest extends TestCase {
    * BouncyCastle has a key generation algorithm "ECIES". This test checks that the result are
    * ECKeys in both cases.
    */
+  @Test
   public void testKeyGeneration() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("ECIES");
@@ -194,11 +200,13 @@ public class EciesTest extends TestCase {
     assertEquals(1, exceptions.size());
   }
 
+  @Test
   public void testEciesCorruptDefault() throws Exception {
     testExceptions("ECIES");
   }
 
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testModifyPoint() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
@@ -253,6 +261,7 @@ public class EciesTest extends TestCase {
     assertTrue("Ciphertext repeats:" + TestUtil.bytesToHex(ciphertext), !block1.equals(block2));
   }
 
+  @Test
   public void testDefaultEcies() throws Exception {
     testNotEcb("ECIES");
   }
@@ -291,6 +300,7 @@ public class EciesTest extends TestCase {
   }
 
   /** Tests whether two distinct algorithm names implement the same cipher */
+  @Test
   public void testAlias() throws Exception {
     testIsAlias("ECIESWITHAES-CBC", "ECIESWithAES-CBC");
     testIsAlias("ECIESWITHAES", "ECIESWithAES");

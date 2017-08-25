@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,10 +30,10 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** CipherInputStream tests */
-public class CipherInputStreamTest extends TestCase {
+public class CipherInputStreamTest {
   static final SecureRandom rand = new SecureRandom();
 
   static byte[] randomBytes(int size) {
@@ -217,6 +219,7 @@ public class CipherInputStreamTest extends TestCase {
     }
   }
 
+  @Test
   public void testAesGcm() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -229,6 +232,7 @@ public class CipherInputStreamTest extends TestCase {
     testDecrypt(v);
   }
 
+  @Test
   public void testCorruptAesGcm() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -245,6 +249,7 @@ public class CipherInputStreamTest extends TestCase {
    * ciphertexts. Because of this we test empty plaintext separately to distinguish behaviour
    * considered acceptable by Oracle from other behaviour.
    */
+  @Test
   public void testEmptyPlaintext() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -257,6 +262,7 @@ public class CipherInputStreamTest extends TestCase {
   }
 
   /** Tests CipherOutputStream with AES-EAX if this algorithm is supported by the provider. */
+  @Test
   public void testAesEax() throws Exception {
     final String algorithm = "AES/EAX/NoPadding";
     final int[] keySizes = {16, 32};

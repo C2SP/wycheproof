@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.math.BigInteger;
@@ -28,7 +30,7 @@ import java.security.PublicKey;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.DHParameterSpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Testing DHIES.
@@ -47,7 +49,7 @@ import junit.framework.TestCase;
 //   Cipher.DHIESWITHAES-CBC.
 // - So far only BouncyCastles is tesed because this is the only provider
 //   we use that implements DHIES.
-public class DhiesTest extends TestCase {
+public class DhiesTest {
 
   // TODO(bleichen): This is the same as DhTest.java
   //   We could move this into some TestUtil.
@@ -76,6 +78,7 @@ public class DhiesTest extends TestCase {
    * seems that there is no secure mode using AES.
    */
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testDhiesBasic() throws Exception {
     DHParameterSpec params = ike2048();
     KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
@@ -105,6 +108,7 @@ public class DhiesTest extends TestCase {
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testDhiesCorrupt() throws Exception {
     KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
     kf.initialize(ike2048());
@@ -166,6 +170,7 @@ public class DhiesTest extends TestCase {
     }
   }
 
+  @Test
   public void testSemanticSecurityDhies() throws Exception {
     testNotEcb("DHIES");
   }

@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -25,7 +27,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Tests RSA keys. Signatures and encryption are tested in different tests.
@@ -44,7 +46,7 @@ import junit.framework.TestCase;
 //    some libraries compute d mod lambda(n)
 //    paramaters p,q,... are not really required
 // - checks for bad random number generation
-public class RsaKeyTest extends TestCase {
+public class RsaKeyTest {
 
   public static final String ENCODED_PUBLIC_KEY =
     "30819f300d06092a864886f70d010101050003818d0030818902818100ab9014"
@@ -1454,6 +1456,7 @@ public class RsaKeyTest extends TestCase {
     checkKeyPair(keypair, keySizeInBits);
   }
 
+  @Test
   public void testKeyGeneration() throws Exception {
     testKeyGenerationSize(1024);
     testKeyGenerationSize(2048);
@@ -1466,6 +1469,7 @@ public class RsaKeyTest extends TestCase {
    * Such a failure does not need to be a bug, since several encoding for the same key are
    * possible.
    */
+  @Test
   public void testEncodeDecodePublic() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("RSA");
     byte[] encoded = TestUtil.hexToBytes(ENCODED_PUBLIC_KEY);
@@ -1483,6 +1487,7 @@ public class RsaKeyTest extends TestCase {
    * This test has mostly "defense in depth" characteristic, since applications should
    * never accept unauthenticated public keys.
    */
+  @Test
   public void testModifiedPublicKeyDecoding() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("RSA");
     int cnt = 0;
