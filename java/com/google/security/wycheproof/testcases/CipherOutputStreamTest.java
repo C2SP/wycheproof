@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -27,10 +29,10 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** CipherOutputStream tests */
-public class CipherOutputStreamTest extends TestCase {
+public class CipherOutputStreamTest {
   static final SecureRandom rand = new SecureRandom();
 
   static byte[] randomBytes(int size) {
@@ -184,6 +186,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
+  @Test
   public void testAesGcm() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -202,6 +205,7 @@ public class CipherOutputStreamTest extends TestCase {
    * ciphertexts. Because of this we test empty plaintext separately to distinguish behaviour
    * considered acceptable by Oracle from other behaviour.
    */
+  @Test
   public void testEmptyPlaintext() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -217,6 +221,7 @@ public class CipherOutputStreamTest extends TestCase {
 
   /** Tests CipherOutputStream with AES-EAX if AES-EAS is supported by the provider. */
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testAesEax() throws Exception {
     final String algorithm = "AES/EAX/NoPadding";
     final int[] keySizes = {16, 32};

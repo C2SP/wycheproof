@@ -16,15 +16,17 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Test BigInteger class.
  *
  * <p>This unit tests focuses on checking security relevant properties.
  */
-public class BigIntegerTest extends TestCase {
+public class BigIntegerTest {
   public static final BigInteger[] NONPRIMES =
       new BigInteger[] {
         // small non prime integers
@@ -444,6 +446,7 @@ public class BigIntegerTest extends TestCase {
    * Lucas test. This is similar to the Baillie-PSW test
    * https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test
    */
+  @Test
   public void testIsProbablePrime() throws Exception {
     // The probability that a non-prime passes should be at most 1-2^{-certainty}.
     int certainty = 80;

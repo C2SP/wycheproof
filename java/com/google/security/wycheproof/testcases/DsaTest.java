@@ -26,6 +26,8 @@
 //       signature multiple times, since this allows to get more accurate timings.
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.lang.management.ManagementFactory;
@@ -47,7 +49,7 @@ import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Tests DSA against invalid signatures. The motivation for this test is the DSA implementation in
@@ -55,7 +57,7 @@ import junit.framework.TestCase;
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
-public class DsaTest extends TestCase {
+public class DsaTest {
   static final String MESSAGE = "Hello";
 
   static final DSAPrivateKeySpec privateKey1 =
@@ -716,17 +718,20 @@ public class DsaTest extends TestCase {
     assertEquals(0, errors);
   }
 
+  @Test
   public void testValidSignatures() throws Exception {
     testVectors(
         VALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Valid DSA signature", true, true);
   }
 
+  @Test
   public void testModifiedSignatures() throws Exception {
     testVectors(
         MODIFIED_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Modified DSA signature",
         false, true);
   }
 
+  @Test
   public void testInvalidSignatures() throws Exception {
     testVectors(
         INVALID_SIGNATURES, publicKey1, "Hello", "SHA224WithDSA", "Invalid DSA signature",
@@ -772,6 +777,7 @@ public class DsaTest extends TestCase {
    * flaws. For example the SUN provider leaked the private keys with 3 to 5 signatures in such
    * instances.
    */
+  @Test
   public void testOutdatedProvider() throws Exception {
     try {
       Signature sig = Signature.getInstance("SHA1WithDSA");
@@ -792,6 +798,7 @@ public class DsaTest extends TestCase {
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testBasic() throws Exception {
     int keySize = 2048;
     String algorithm = "SHA256WithDSA";
@@ -880,6 +887,7 @@ public class DsaTest extends TestCase {
    * </ul>
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
   public void testKeyGenerationAll() throws Exception {
     testKeyGeneration(1024);
     testKeyGeneration(2048);
@@ -890,6 +898,7 @@ public class DsaTest extends TestCase {
    * test until April 2016.
    */
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testDsaBias() throws Exception {
     // q is close to 2/3 * 2^160.
     BigInteger q = new BigInteger("974317976835659416858874959372334979171063697271");
@@ -967,6 +976,7 @@ public class DsaTest extends TestCase {
    */
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testBiasSha1WithDSA() throws Exception {
     String hashAlgorithm = "SHA";
     String message = "Hello";
@@ -1056,6 +1066,7 @@ public class DsaTest extends TestCase {
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK,
     ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testTiming() throws Exception {
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
@@ -1133,6 +1144,7 @@ public class DsaTest extends TestCase {
    * scheme that attempts to turn DSA into a public key encryption scheme.
    */
   @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testEncryptionWithDsa() throws Exception {
     try {
       Cipher cipher = Cipher.getInstance("DSA");

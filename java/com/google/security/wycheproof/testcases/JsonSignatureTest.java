@@ -16,6 +16,8 @@
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.*;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.gson.JsonElement;
@@ -30,14 +32,14 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.X509EncodedKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * This test uses test vectors in JSON format to check digital signature schemes.
  * There are still a lot of open questions, e.g. the format for the test vectors is not
  * yet finalized. Therefore, we are not integrating the tests here into other tests
  */
-public class JsonSignatureTest extends TestCase {
+public class JsonSignatureTest {
 
   static protected String getString(JsonObject object, String name) throws Exception {
     return object.get(name).getAsString();
@@ -210,10 +212,12 @@ public class JsonSignatureTest extends TestCase {
     testVectors(tests, algorithm);
   }
 
+  @Test
   public void testEcdsa() throws Exception {
     testSignatureScheme("ecdsa_test.json", "ECDSA");
   }
 
+  @Test
   public void testRsaSignatures() throws Exception {
     testSignatureScheme("rsa_signature_test.json", "RSA");
   }

@@ -16,7 +16,7 @@
 
 package com.google.security.wycheproof;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
@@ -35,7 +35,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 // TODO(bleichen):
 //   - For EAX I was able to derive some special cases by inverting OMAC.
@@ -45,7 +45,7 @@ import junit.framework.TestCase;
  *
  * <p>Other tests using AES-GCM are: CipherInputStreamTest.java CipherOuputStreamTest.java
  */
-public class AesGcmTest extends TestCase {
+public class AesGcmTest {
 
   /** Test vectors */
   public static class GcmTestVector {
@@ -182,6 +182,7 @@ public class AesGcmTest extends TestCase {
     return supported;
   }
 
+  @Test
   public void testVectors() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -203,6 +204,7 @@ public class AesGcmTest extends TestCase {
    * <p>For example BouncyCastle computes correct tags if the calls are reversed, SunJCE and OpenJdk
    * now throw exceptions.
    */
+  @Test
   public void testLateUpdateAAD() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -235,6 +237,7 @@ public class AesGcmTest extends TestCase {
    *
    * <p>Conscrypt failed this test
    */
+  @Test
   public void testIvReuse() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -256,6 +259,7 @@ public class AesGcmTest extends TestCase {
   }
 
   /** Encryption with ByteBuffers. */
+  @Test
   public void testByteBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
@@ -280,6 +284,7 @@ public class AesGcmTest extends TestCase {
   }
 
   /** Encryption with ByteBuffers should be copy-safe. */
+  @Test
   public void testByteBufferAlias() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
@@ -306,6 +311,7 @@ public class AesGcmTest extends TestCase {
   }
 
   /** Encryption and decryption with large arrays should be copy-safe. */
+  @Test
   public void testLargeArrayAlias() throws Exception {
     byte[] ptVector = new byte[8192];
 
@@ -370,6 +376,7 @@ public class AesGcmTest extends TestCase {
    *
    * @see https://bugs.openjdk.java.net/browse/JDK-8181386
    */
+  @Test
   public void testByteBufferShiftedAlias() throws Exception {
     byte[] ptVector = new byte[8192];
 
@@ -471,6 +478,7 @@ public class AesGcmTest extends TestCase {
 
   }
 
+  @Test
   public void testReadOnlyByteBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
@@ -500,6 +508,7 @@ public class AesGcmTest extends TestCase {
    * through the .array() method. An implementation using this possiblity must ensure that it
    * considers the offset.
    */
+  @Test
   public void testByteBufferWithOffset() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
@@ -530,6 +539,7 @@ public class AesGcmTest extends TestCase {
     }
   }
 
+  @Test
   public void testByteBufferTooShort() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
@@ -570,6 +580,7 @@ public class AesGcmTest extends TestCase {
    * another provider. Such a switch should ideally not lower the security. <br>
    * Conscrypt used to have only 12-byte authentication tag (b/26186727).
    */
+  @Test
   public void testDefaultTagSizeIvParameterSpec() throws Exception {
     byte[] counter = new byte[12];
     byte[] input = new byte[16];
@@ -597,6 +608,7 @@ public class AesGcmTest extends TestCase {
    * another provider. Such a switch should ideally not lower the security. <br>
    * BouncyCastle used to have only 12-byte authentication tag (b/26186727).
    */
+  @Test
   public void testDefaultTagSizeAlgorithmParameterGenerator() throws Exception {
     byte[] input = new byte[10];
     byte[] key = new byte[16];
@@ -652,6 +664,7 @@ public class AesGcmTest extends TestCase {
     comment = "Conscrypt doesn't support streaming, would crash")
   @SlowTest(
     providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @Test
   public void testWrappedAroundCounter() throws Exception {
     try {
       byte[] iv = new byte[12];
