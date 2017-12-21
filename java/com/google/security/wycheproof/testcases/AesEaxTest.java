@@ -256,6 +256,7 @@ public class AesEaxTest {
             + "e632946e4999be20159977431bef0454"),
   };
 
+  @Test
   public void testEax() throws Exception {
     for (EaxTestVector test : EAX_TEST_VECTOR) {
       Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");
