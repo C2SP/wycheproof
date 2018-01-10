@@ -1,11 +1,9 @@
 # for javascript
 http_archive(
    name = "io_bazel_rules_closure",
-   sha256 = "e9e2538b1f7f27de73fa2914b7d2cb1ce2ac01d1abe8390cfe51fb2558ef8b27",
-   strip_prefix = "rules_closure-4c559574447f90751f05155faba4f3344668f666",
+   strip_prefix = "rules_closure-master",
    urls = [
-       "http://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/4c559574447f90751f05155faba4f3344668f666.tar.gz",
-       "https://github.com/bazelbuild/rules_closure/archive/4c559574447f90751f05155faba4f3344668f666.tar.gz",  # 2017-06-21
+       "https://github.com/bazelbuild/rules_closure/archive/master.zip",
    ],
 )
 
