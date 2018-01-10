@@ -55,6 +55,10 @@ import org.junit.Test;
  * <p>Adrian Antipa, Daniel Brown, Alfred Menezes, Rene Struik, and Scott Vanstone, "Validation of
  * Elliptic Curve Public Keys", PKC 2003, https://www.iacr.org/archive/pkc2003/25670211/25670211.pdf
  *
+ * <p>Tibor Jager, Jörg Schwenk, Juraj Somorovsky, "Practical Invalid Curve Attacks on TLS-ECDH", 
+ * ESORICS'15, https://www.nds.rub.de/research/publications/ESORICS15/ 
+ * (describes attacks on BouncyCastle and SunEC)
+ *
  * <p># <b>Bugs:</b> CVE-2015-7940: BouncyCastle before 1.51 does not validate a point is on the
  * curve. BouncyCastle v.1.52 checks that the public key point is on the public key curve but does
  * not check whether public key and private key use the same curve. BouncyCastle v.1.53 is still
@@ -62,7 +66,8 @@ import org.junit.Test;
  * used by the public key. ECDHC would then reduce the private key modulo this order, which can be
  * used to find the private key.
  *
- * <p>SunEC had similar problem. CVE ?
+ * <p>CVE-2015-6924: Utimaco HSMs vulnerable to invalid curve attacks, which made the private key 
+ * extraction possible.
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */

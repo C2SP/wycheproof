@@ -16,9 +16,13 @@
 
 package com.google.security.wycheproof;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import javax.crypto.Cipher;
 
 /** Test utilities */
 public class TestUtil {
@@ -95,5 +99,63 @@ public class TestUtil {
   private static void installOpenJDKProvider(String className) throws Exception {
     Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
     Security.insertProviderAt(provider, 1);
+  }
+  
+  public static void printJavaInformation() {
+    System.out.println("Running with: ");
+    System.out.println("  java.runtime.name: " + System.getProperty("java.runtime.name"));
+    System.out.println("  java.runtime.version: " + System.getProperty("java.runtime.version"));
+  }
+  
+  /**
+   * Removes JDK crypto restriction.
+   * 
+   * Inspired by:
+   * https://github.com/jruby/jruby/blob/0c345e1b186bd457ebd96143c0816abe93b18fdf/core/src/main/java/org/jruby/util/SecurityHelper.java
+   */
+  public static void removeCryptoStrengthRestriction() {
+    try {
+      if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
+        Class securityClass = Class.forName("javax.crypto.JceSecurity");
+        Field isRestricted = securityClass.getDeclaredField("isRestricted");
+        removeFinalModifier(isRestricted);
+        setFieldBooleanValue(isRestricted, false);
+        System.out.println("Successfully removed crypto strength restriction.");
+      }
+    } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | 
+        NoSuchAlgorithmException | NoSuchFieldException | SecurityException ex) {
+      System.out.println("It is not possible to use unrestricted policy with this JDK, "
+              + "consider reconfiguration: " + ex.getLocalizedMessage());
+    }
+  }
+  
+  /**
+   * Converts a field f to a non-final field (if necessary)
+   * 
+   * @param f
+   * @throws IllegalAccessException
+   * @throws NoSuchFieldException 
+   */
+  public static void removeFinalModifier(Field f) throws IllegalAccessException, NoSuchFieldException {
+    if (Modifier.isFinal(f.getModifiers())) {
+      Field modifiers = Field.class.getDeclaredField("modifiers");
+      modifiers.setAccessible(true);
+      modifiers.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+      modifiers.setAccessible(false);
+    }
+  }
+  
+  /**
+   * Sets a new boolean value to a provided field
+   * 
+   * @param f
+   * @param b
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException 
+   */
+  public static void setFieldBooleanValue(Field f, boolean b) throws IllegalArgumentException, IllegalAccessException {
+    f.setAccessible(true);
+    f.setBoolean(null, b);
+    f.setAccessible(false);
   }
 }
