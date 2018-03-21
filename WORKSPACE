@@ -95,6 +95,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "bouncycastle_1_59",
+    artifact = "org.bouncycastle:bcprov-jdk15on:1.59",
+)
+
+maven_jar(
     name = "spongycastle_core_1_50",
     artifact = "com.madgag.spongycastle:core:1.50.0.0",
 )
