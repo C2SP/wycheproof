@@ -25,6 +25,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECFieldFp;
@@ -1131,4 +1132,35 @@ public class EcdhTest {
     testWrongOrder("ECDHC", EcUtil.getNistP256Params());
     testWrongOrder("ECDHC", EcUtil.getBrainpoolP256r1Params());
   }
+  
+    /**
+     * Test for CVE-2017-10176 An error occurs in the elliptic curve point
+     * addition algorithm that uses mixed Jacobian-affine coordinates where it
+     * can yield a result POINT_AT_INFINITY when it should not. A
+     * man-in-the-middle attacker could use this to interfere with a connection,
+     * resulting in an attacked party computing an incorrect shared secret.
+     */
+    @Test
+    public void testP521Failure() throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+        KeyFactory kf = KeyFactory.getInstance("EC");
+        ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp521r1");
+        keyGen.initialize(ecSpec);
+        KeyPair keyPair = keyGen.generateKeyPair();
+        KeyAgreement kaA = KeyAgreement.getInstance("ECDH");
+
+        // forging private key
+        ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(
+                new BigInteger("6864797660130" + "609714981900799081393217269"
+                        + "435300143305409394463459185"
+                        + "5431833976553942450577463332"
+                        + "171975329639963713633211138647"
+                        + "68612440380340372808892707005431"),
+                ((ECPublicKey) keyPair.getPublic()).getParams());
+        PrivateKey forgedPrivateKey = kf.generatePrivate(privateKeySpec);
+
+        kaA.init(forgedPrivateKey);
+        kaA.doPhase(keyPair.getPublic(), true);
+        kaA.generateSecret();
+    }
 }
