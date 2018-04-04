@@ -30,7 +30,7 @@ some cryptographic algorithm. Project Wycheproof provides tests for most
 cryptographic algorithms, including RSA, elliptic curve crypto and
 authenticated encryption. Our cryptographers have systematically surveyed the
 literature and implemented most known attacks. We have over 80 test cases which
-have uncovered more than [40 bugs](g3doc/bugs.md). For
+have uncovered more than [40 bugs](doc/bugs.md). For
 example, we found that we could recover the private key of widely-used DSA and
 ECDHC implementations.
 
