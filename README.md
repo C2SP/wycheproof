@@ -43,7 +43,7 @@ check their libraries against a large number of known attacks, without having
 to spend years reading academic papers or become cryptographers themselves.
 
 For more information on the goals and strategies of Project Wycheproof, please
-check out our [doc](g3doc/).
+check out our [doc](doc/).
 
 ### Coverage
 
@@ -51,13 +51,13 @@ Project Wycheproof has tests for the most popular crypto algorithms, including
 
 - AES-EAX
 - AES-GCM
-- [DH](g3doc/dh.md)
+- [DH](doc/dh.md)
 - DHIES
-- [DSA](g3doc/dsa.md)
-- [ECDH](g3doc/ecdh.md)
+- [DSA](doc/dsa.md)
+- [ECDH](doc/ecdh.md)
 - ECDSA
 - ECIES
-- [RSA](g3doc/rsa.md)
+- [RSA](doc/rsa.md)
 
 The tests detect whether a library is vulnerable to many attacks, including
 
@@ -159,7 +159,7 @@ slow tests (which are annotated with @SlowTest).
 
 Most test targets are failing, and each failure might be a security issue. To
 learn more about what a failed test means, you might want to check out [our
-documentation](g3doc/bugs.md) or the comments on top of the corresponding test
+documentation](doc/bugs.md) or the comments on top of the corresponding test
 function and test class.
 
 ### Hall of Bugs

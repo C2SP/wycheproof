@@ -14,5 +14,6 @@ bazel build ... || exit 1
 
 # Run all tests to generate logs.
 # We don't care about the test results, thus always return successfully.
-bazel test ... || exit 0
+bazel query "kind(test, :all)" | grep AllTests | grep -v Local | xargs bazel \
+    --host_javabase="$JAVA_HOME" test --test_output=all || exit 0
 
