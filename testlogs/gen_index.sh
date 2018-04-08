@@ -4,7 +4,7 @@ generate_index_html() {
   testlogs_dir=$1
 
   outfile=$testlogs_dir/index.html
-  echo "<html><body>i<p>Last update: $(date)</p>" > $outfile
+  echo "<html><body><p>Last update: $(date)</p>" > $outfile
   echo "<p><ul>" >> $outfile
   for f in `ls $testlogs_dir | egrep '(txt)'`; do
     report=$(grep 'Tests run: [0-9]\{1,\},  Failures: [0-9]\{1,\}' $testlogs_dir/$f)
