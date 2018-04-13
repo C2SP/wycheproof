@@ -42,6 +42,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
   JsonAeadTest.class,
   JsonCipherTest.class,
   JsonEcdhTest.class,
+  JsonKeyWrapTest.class,
   JsonSignatureTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
