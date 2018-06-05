@@ -90,9 +90,21 @@ public class TestUtil {
   }
 
   private static void installOpenJDKProvider(String className) throws Exception {
-    Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
-    Security.insertProviderAt(provider, 1);
+      Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
+      Security.insertProviderAt(provider, 1);
   }
+
+  public static void installOnlyWolfCryptProviders() throws Exception {
+      for (Provider p : Security.getProviders()) {
+          Security.removeProvider(p.getName());
+      }
+      installWolfCryptProvider("com.wolfssl.provider.jce.WolfCryptProvider");
+  }
+
+  private static void installWolfCryptProvider(String className) throws Exception {
+      Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
+      Security.insertProviderAt(provider, 1);
+ }
   
   public static void printJavaInformation() {
     System.out.println("Running with: ");

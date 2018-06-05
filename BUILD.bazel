@@ -28,6 +28,26 @@ test_srcs = glob([
     "java/**/testcases/*Test.java",
 ])
 
+# wolfCrypt tests
+
+java_import(
+        name = "wolfcrypt_jar",
+        jars = ["wolfcrypt-jni.jar"],
+        visibility = ["//visibility:public"],
+        )
+
+java_test(
+        name = "WolfCryptAllTestsLocal",
+        size = "enormous",
+        srcs = ["java/com/google/security/wycheproof/WolfCryptAllTests.java"] + test_srcs,
+## this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+# with tags=["manual"] it'll be excluded from said patterns.
+        tags = ["manual"],
+        test_class = "com.google.security.wycheproof.WolfCryptAllTests",
+        deps = common_deps + ["//:wolfcrypt_jar"],
+        data = testdata,
+        )
+
 # Bouncy Castle tests
 load("//tools:build_defs.bzl", "bouncycastle_all_tests", "bouncycastle_tests")
 
