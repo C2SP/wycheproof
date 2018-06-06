@@ -321,7 +321,7 @@ public class EciesTest {
     byte[] message = "Hello".getBytes("UTF-8");
     eciesA.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
     byte[] ciphertext = eciesA.doFinal(message);
-    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesB.getParameters());
+    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesA.getParameters());
     byte[] decrypted = eciesB.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
