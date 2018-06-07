@@ -55,7 +55,7 @@ function testRsaSsaPkcs1Vectors() {
     }
     for (var j = 0; j < tg['tests'].length; j++) {
       var tc = tg['tests'][j];
-      var msg = BigInteger.fromHex(tc['msg']).toArrayBuffer();
+      var msg = TestUtil.hexToArrayBuffer(tc['msg']);
       var sig = TestUtil.hexToArrayBuffer(tc['sig']);
       var result = tc['result'];
       var tcId = tc['tcId'];
