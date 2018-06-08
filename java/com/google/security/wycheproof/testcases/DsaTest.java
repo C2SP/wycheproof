@@ -917,6 +917,10 @@ public class DsaTest {
    * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html only requires
    * that 1024 bits are supported.
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/33190860", "b/33190677"}
+  )
   @Test
   public void testDefaultKeySize() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");

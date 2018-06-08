@@ -1888,6 +1888,11 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       }
     }
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"BouncyCastle uses long encoding. Is this a bug?"}
+  )
   @Test
   public void testEncode() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
@@ -2209,6 +2214,11 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     // testLargePrivateKey(EcUtil.getNistP521Params());
     testLargePrivateKey(EcUtil.getBrainpoolP256r1Params());
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"CVE-2017-10176"}
+  )
   @Test
   public void testLargePrivateKeyNoPresubmit() throws Exception {
     testLargePrivateKey(EcUtil.getNistP521Params());

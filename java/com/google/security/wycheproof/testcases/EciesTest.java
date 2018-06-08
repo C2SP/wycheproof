@@ -208,6 +208,11 @@ public class EciesTest {
   public void testEciesCorruptDefault() throws Exception {
     testExceptions("ECIES");
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
+  )
   @Test
   public void testEciesCorruptAesCbc() throws Exception {
     testExceptions("ECIESWithAES-CBC");
@@ -283,11 +288,19 @@ public class EciesTest {
   }
 
   /** BouncyCastle v1.52 uses ECB as default for ECIES with AES. */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
+  )
   @Test
   public void testDefaultEciesWithAes() throws Exception {
     testNotEcb("ECIESWithAES");
   }
   /** BouncyCastle v1.52 uses ECB as default for ECIES with DESede. */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
+  )
   @Test
   public void testDefaultEciesWithDESede() throws Exception {
     testNotEcb("ECIESwithDESede");
@@ -341,6 +354,10 @@ public class EciesTest {
    * Encryption with ByteBuffers. This currently fails with BouncyCastle. Possibly this is the same
    * bug as http://www.bouncycastle.org/jira/browse/BJA-577 and should be fixed in version 1.53.
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
+  )
   @Test
   public void testByteBuffer() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
@@ -375,6 +392,10 @@ public class EciesTest {
    *
    * <p>This test tries to verify this.
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
+  )
   @Test
   public void testByteBufferAlias() throws Exception {
     byte[] message = "Hello".getBytes("UTF-8");

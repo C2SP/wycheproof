@@ -233,10 +233,20 @@ public class JsonKeyWrapTest {
       assertEquals(1, exceptions.size());
     }
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/77572633"}
+  )
   @Test
   public void testAesWrap() throws Exception {
     testKeywrap("kw_test.json", "AESWRAP", "HMACSHA256", false);
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/77572633"}
+  )
   @Test
   public void testAesRFC5649Wrap() throws Exception {
     testKeywrap("kwp_test.json", "AESRFC5649WRAP", "HMACSHA256", false);

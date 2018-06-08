@@ -409,6 +409,10 @@ public class AesGcmTest {
   }
 
   /** Encryption and decryption with large arrays should be copy-safe. */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/64378943"}
+  )
   @Test
   public void testLargeArrayAlias() throws Exception {
     byte[] ptVector = new byte[8192];
@@ -484,6 +488,10 @@ public class AesGcmTest {
    *
    * @see https://bugs.openjdk.java.net/browse/JDK-8181386
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK},
+    bugs = {"b/64378943"}
+  )
   @Test
   public void testByteBufferShiftedAlias() throws Exception {
     byte[] ptVector = new byte[8192];

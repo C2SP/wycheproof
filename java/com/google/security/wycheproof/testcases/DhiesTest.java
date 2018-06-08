@@ -187,10 +187,19 @@ public class DhiesTest {
    *   <li>CVE-2016-1000344 BouncyCaslte before v.1.56 used ECB mode as a default.
    * </ul>
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/31101111: won't fix, all BC DHIES modes are banned"}
+  )
   @Test
   public void testSemanticSecurityDhiesWithAes() throws Exception {
     testNotEcb("DHIESWithAES");
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/31101111: won't fix, all BC DHIES modes are banned"}
+  )
   @Test
   public void testSemanticSecurityDhiesWithDesede() throws Exception {
     testNotEcb("DHIESWITHDESEDE");

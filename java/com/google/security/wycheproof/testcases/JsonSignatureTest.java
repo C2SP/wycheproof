@@ -332,6 +332,10 @@ public class JsonSignatureTest {
   }
 
   // Testing DSA signatures.
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/33446454"}
+  )
   @ExcludedTest(
     providers = {ProviderType.CONSCRYPT},
     comment = "Conscrypt does not support DSA.")

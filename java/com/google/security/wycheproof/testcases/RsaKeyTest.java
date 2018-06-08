@@ -1536,6 +1536,10 @@ public class RsaKeyTest {
    * implementation of the Java platform is required to implement RSA with both 1024 and 2048 bit
    * key sizes. Hence a 2048 bit default should not lead to compatibility problems.
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/33190530"}
+  )
   @Test
   public void testDefaultKeySize() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -1640,6 +1644,10 @@ public class RsaKeyTest {
   };
 
   // TODO(bleichen): This test is only needed as long as there are open issues.
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/32656910"}
+  )
   @Test
   public void testProblematicPublicKeyDecoding() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("RSA");

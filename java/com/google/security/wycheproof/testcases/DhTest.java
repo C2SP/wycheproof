@@ -349,6 +349,10 @@ public class DhTest {
    * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html an implementation
    * of the Java platform is only required to support 1024 bit keys.
    */
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/33190860", "b/33190677"}
+  )
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testDefaultKeyPairGenerator() throws Exception {
