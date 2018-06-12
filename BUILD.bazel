@@ -32,19 +32,18 @@ test_srcs = glob([
 
 java_import(
         name = "wolfcrypt_jar",
-        jars = ["wolfcrypt-jni.jar"],
+        jars = ["third_party/wolfcrypt-jni/lib/wolfcrypt-jni.jar"],
         visibility = ["//visibility:public"],
         )
 
 java_test(
-        name = "WolfCryptAllTestsLocal",
+        name = "WolfCryptAllTests",
         size = "enormous",
-        srcs = ["java/com/google/security/wycheproof/WolfCryptAllTests.java"] + test_srcs,
-## this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
-# with tags=["manual"] it'll be excluded from said patterns.
+        srcs = ["java/com/google/security/wycheproof/WolfCryptAllTests.java"]
+                 + test_srcs,
         tags = ["manual"],
         test_class = "com.google.security.wycheproof.WolfCryptAllTests",
-        deps = common_deps + ["//:wolfcrypt_jar"],
+        deps = common_deps + ["wolfcrypt_jar"],
         data = testdata,
         )
 

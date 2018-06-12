@@ -26,29 +26,30 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(WycheproofRunner.class)
 @SuiteClasses({
-//AesGcmTest.class, //need AES/GCM/NoPadding
-  BasicTest.class,
-//CipherInputStreamTest.class, //err constructing HashDRBG
-//CipherOutputStreamTest.class,  //err constructing HashDRBG
-//DhTest.class, //err constructing DH
-//DsaTest.class,  // DSA keyPairGenerator not available
-//EcKeyTest.class,
-//EcdhTest.class,
-//EcdsaTest.class,
-  JsonAeadTest.class,
-  JsonCipherTest.class,
-//JsonEcdhTest.class,
-  JsonKeyWrapTest.class,
-//JsonSignatureTest.class,
-//MessageDigestTest.class,
-//RsaEncryptionTest.class,
-//RsaKeyTest.class,
-//RsaSignatureTest.class
+//  AesGcmTest.class,             /* No Support. Skipped. */
+    BasicTest.class,
+//  CipherInputStreamTest.class,  /* SIG FAULT */
+//  CipherOutputStreamTest.class, /* SIG FAULT */
+    DhTest.class,
+//  DsaTest.class,                /* No Support. Skipped */
+    EcKeyTest.class,
+    EcdhTest.class,               /* 2 failures, 2 Ignored tests */
+    EcdsaTest.class,
+    JsonAeadTest.class,           /* Pass. no modification. Skips 2 AES. */
+    JsonCipherTest.class,         /* Pass. no modification. Skips 1 AES. */
+//  JsonEcdhTest.class,           /* Fail 1 test. No support EC KeyFactory */
+    JsonKeyWrapTest.class,
+    JsonSignatureTest.class,      /* 1/7 fail, secp and DSA ignored */
+//  MessageDigestTest.class,
+    RsaEncryptionTest.class,      /* RSA KeyPairGenerator skip 2, 1 crit. fail*/
+//  RsaKeyTest.class,       /*Fail all test. No RSA KeyFactory or KeyPairGenerator*/
+//  RsaSignatureTest.class  /*Fail all test. No RSA KeyFactory or KeyPairGenerator*/
 })
+
 @Provider(ProviderType.WOLFCRYPT)
 public final class WolfCryptAllTests {
   @BeforeClass
   public static void setUp() throws Exception {
-    TestUtil.installOnlyThisProvider(new WolfCryptProvider());
+    TestUtil.installOnlyWolfCryptProviders();
   }
 }

@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
@@ -131,6 +133,10 @@ public class EcKeyTest {
         + "8c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
   };
 
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
   @Test
   public void testEncodedPublicKey() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
@@ -146,6 +152,10 @@ public class EcKeyTest {
       }
     }
   }
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
 
   @Test
   public void testEncodedPrivateKey() throws Exception {

@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -1859,6 +1861,11 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   };
 
   /** Checks that key agreement using ECDH works. */
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
   @Test
   public void testBasic() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
@@ -1892,14 +1899,23 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       }
     }
   }
-  @Test
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+ @Test
   public void testEncode() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
     ECPublicKey valid = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
     assertEquals(TestUtil.bytesToHex(valid.getEncoded()), EC_VALID_PUBLIC_KEY.encoded);
   }
 
-  @Test
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+ @Test
   public void testDecode() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
     ECPublicKey key1 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
