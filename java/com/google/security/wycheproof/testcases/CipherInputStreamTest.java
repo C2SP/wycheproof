@@ -222,26 +222,40 @@ public class CipherInputStreamTest {
 
   @Test
   public void testAesGcm() throws Exception {
+    final String algorithm = "AES/GCM/NoPadding";
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
     final int[] tagSizes = {12, 16};
     final int[] ptSizes = {0, 8, 16, 65, 8100};
     final int[] aadSizes = {0, 8, 24};
+    try {
+        Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+        System.out.println("Skipping testAesGcm");
+        return;
+    }
     Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testEncrypt(v);
     testDecrypt(v);
   }
 
   @Test
   public void testCorruptAesGcm() throws Exception {
+    final String algorithm = "AES/GCM/NoPadding";
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
     final int[] tagSizes = {12, 16};
     final int[] ptSizes = {8, 16, 65, 8100};
     final int[] aadSizes = {0, 8, 24};
+    try {
+        Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+        System.out.println("Skipping testCorruptAesGcm");
+        return;
+    }
     Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testCorruptDecrypt(v);
   }
 
@@ -252,13 +266,20 @@ public class CipherInputStreamTest {
    */
   @Test
   public void testEmptyPlaintext() throws Exception {
+    final String algorithm = "AES/GCM/NoPadding";
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
     final int[] tagSizes = {12, 16};
     final int[] ptSizes = {0};
     final int[] aadSizes = {0, 8, 24};
+    try {
+        Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+        System.out.println("Skipping testEmptyPlaintext");
+        return;
+    }
     Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testCorruptDecryptEmpty(v);
   }
 
