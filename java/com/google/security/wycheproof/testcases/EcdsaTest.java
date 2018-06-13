@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.lang.management.ManagementFactory;
@@ -642,6 +643,10 @@ public class EcdsaTest {
     assertEquals(0, errors);
   }
 
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
   @Test
   public void testValidSignatures() throws Exception {
     testVectors(
@@ -654,7 +659,11 @@ public class EcdsaTest {
         true);
   }
 
-  @Test
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+ @Test
   public void testModifiedSignatures() throws Exception {
     testVectors(
         MODIFIED_SIGNATURES,
@@ -665,6 +674,10 @@ public class EcdsaTest {
         false,
         true);
   }
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
 
   @Test
   public void testInvalidSignatures() throws Exception {
@@ -682,6 +695,11 @@ public class EcdsaTest {
    * This test checks the basic functionality of ECDSA. It can also be used to generate simple test
    * vectors.
    */
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
   @Test
   public void testBasic() throws Exception {
     String algorithm = "SHA256WithECDSA";
@@ -793,7 +811,8 @@ public class EcdsaTest {
       ProviderType.BOUNCY_CASTLE,
       ProviderType.CONSCRYPT,
       ProviderType.OPENJDK,
-      ProviderType.SPONGY_CASTLE
+      ProviderType.SPONGY_CASTLE,
+      ProviderType.WOLFCRYPT
     }
   )
   @Test
@@ -911,7 +930,8 @@ public class EcdsaTest {
       ProviderType.BOUNCY_CASTLE,
       ProviderType.CONSCRYPT,
       ProviderType.OPENJDK,
-      ProviderType.SPONGY_CASTLE
+      ProviderType.SPONGY_CASTLE,
+      ProviderType.WOLFCRYPT
     }
   )
   @Test

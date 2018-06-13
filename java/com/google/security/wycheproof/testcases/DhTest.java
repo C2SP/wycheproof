@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
@@ -197,6 +198,11 @@ public class DhTest {
   }
 
   /** Check that key agreement using DH works. */
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support DH KeyFactory.")
+
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testDh() throws Exception {
@@ -369,6 +375,10 @@ public class DhTest {
   }
 
   /** This test tries a key agreement with keys using distinct parameters. */
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support DH KeyFactory.")
+
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testDHDistinctParameters() throws Exception {
@@ -403,6 +413,11 @@ public class DhTest {
    *
    * <p>CVE-2016-1000346: BouncyCastle before v.1.56 did not validate the other parties public key.
    */
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support DH KeyFactory.")
+
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testSubgroupConfinement() throws Exception {

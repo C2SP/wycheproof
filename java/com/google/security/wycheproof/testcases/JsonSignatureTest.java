@@ -259,40 +259,72 @@ public class JsonSignatureTest {
     }
   }
 
+
   @Test
   public void testEcdsa() throws Exception {
     testSignatureScheme("ecdsa_test.json", "ECDSA", true);
   }
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
 
   @Test
   public void testSecp224r1Sha224() throws Exception {
     testSignatureScheme("ecdsa_secp224r1_sha224_test.json", "ECDSA", false);
   }
 
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+
   @Test
   public void testSecp224r1Sha256() throws Exception {
     testSignatureScheme("ecdsa_secp224r1_sha256_test.json", "ECDSA", false);
   }
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
 
   @Test
   public void testSecp256r1Sha256() throws Exception {
     testSignatureScheme("ecdsa_secp256r1_sha256_test.json", "ECDSA", false);
   }
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
 
   @Test
   public void testSecp384r1Sha384() throws Exception {
     testSignatureScheme("ecdsa_secp384r1_sha384_test.json", "ECDSA", false);
   }
 
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+
   @Test
   public void testSecp384r1Sha512() throws Exception {
     testSignatureScheme("ecdsa_secp384r1_sha512_test.json", "ECDSA", false);
   }
 
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
+
+
   @Test
   public void testSecp521r1Sha512() throws Exception {
     testSignatureScheme("ecdsa_secp521r1_sha512_test.json", "ECDSA", false);
   }
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support EC KeyFactory.")
 
   // Testing curves that may not be supported by a provider.
   @Test
@@ -333,8 +365,9 @@ public class JsonSignatureTest {
 
   // Testing DSA signatures.
   @ExcludedTest(
-    providers = {ProviderType.CONSCRYPT},
-    comment = "Conscrypt does not support DSA.")
+    providers = {ProviderType.CONSCRYPT, ProviderType.WOLFCRYPT},
+    comment = "Conscrypt and wolfCrypt does not support DSA.")
+
   @Test
   public void testDsa() throws Exception {
     testSignatureScheme("dsa_test.json", "DSA", false);

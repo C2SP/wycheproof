@@ -15,6 +15,8 @@ package com.google.security.wycheproof;
 
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -144,10 +146,18 @@ public class RsaEncryptionTest {
    * chosen message attacks. Nonetheless, to minimize the damage of such an attack an implementation
    * should minimize the information about the failure in the padding.
    */
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support RSA KeyPairGenerator.")
+
   @Test
   public void testExceptionsPKCS1() throws Exception {
     testExceptions("RSA/ECB/PKCS1PADDING");
   }
+
+  @ExcludedTest(
+  providers = {ProviderType.WOLFCRYPT},
+  comment = "wolfCrypt does not support RSA KeyPairGenerator.")
 
   @Test
   public void testGetExceptionsOAEP() throws Exception {
