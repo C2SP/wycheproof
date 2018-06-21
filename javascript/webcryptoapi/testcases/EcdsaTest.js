@@ -285,55 +285,52 @@ Ecdsa.checkNonceCorrectness = function(msg, r, s, d, k, curveName) {
  */
 Ecdsa.testBias = function() {
   var tc = this;
-  var nDone = 0;
   var countLsb = 0;
   var countMsb = 0;
-  var promise = new Promise(function(resolve, reject){
-    for (var i = 0; i < tc.nTests; i++) {
-      Ecdsa.generateKey(tc.hashAlg, tc.curveName).then(function(key){
-        Ecdsa.exportKey(key.privateKey).then(function(keyData){
-          Ecdsa.sign(key.privateKey, tc.msg, tc.hashAlg).then(function(sig){
-            HashUtil.digest(tc.hashAlg, tc.msg).then(function(digest){
-              var curveSpec = EcUtil.getCurveSpec(tc.curveName);
-              var h = new BigInteger(new Uint8Array(digest));
-              // private key value
-              var d = BigInteger.fromHex(TestUtil.base64UrlToHex(keyData['d']));
-              var r, s;
-              [r, s] = Ecdsa.extractSig(sig);
-              var k = Ecdsa.extractNonce(h, r, s, d, curveSpec);
-              // Uncomment this line to check correctness of nonce calculation
-              // Ecdsa.checkNonceCorrectness(tc.msg, r, s, d, k, tc.curveName);
-              var halfN = curveSpec.n.shiftRight(1);
-              if (k.isBitSet(0)) countLsb += 1;
-              if (k.compare(halfN) == 1) countMsb += 1;
 
-              nDone += 1;
-              if (nDone == tc.nTests) {
-                if (countLsb < tc.minCount || countLsb > tc.nTests-tc.minCount) {
-                  reject("Bias detected in the LSB of k" +
-                      ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
-                      ", countLSB: " + countLsb + ", countMSB: " + countMsb);
-                }
-                if (countMsb < tc.minCount || countMsb > tc.nTests-tc.minCount) {
-                  reject("Bias detected in the MSB of k" +
-                      ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
-                      ", countLSB: " + countLsb + ", countMSB: " + countMsb);
-                }
-                resolve();
-              }
+  return Ecdsa.generateKey(tc.hashAlg, tc.curveName).then(function (key) {
+    return Ecdsa.exportKey(key.privateKey).then(function (keyData) {
+      var promises = [];
+
+      for (var i = 0; i < tc.nTests; i++) {
+        promises.push(
+            Ecdsa.sign(key.privateKey, tc.msg, tc.hashAlg).then(function (sig) {
+              return HashUtil.digest(tc.hashAlg, tc.msg).then(function (digest) {
+                var curveSpec = EcUtil.getCurveSpec(tc.curveName);
+                var h = new BigInteger(new Uint8Array(digest));
+                // private key value
+                var d = BigInteger.fromHex(TestUtil.base64UrlToHex(keyData['d']));
+                var r, s;
+                [r, s] = Ecdsa.extractSig(sig);
+                var k = Ecdsa.extractNonce(h, r, s, d, curveSpec);
+                // Uncomment this line to check correctness of nonce calculation
+                // Ecdsa.checkNonceCorrectness(tc.msg, r, s, d, k, tc.curveName);
+                var halfN = curveSpec.n.shiftRight(1);
+                if (k.isBitSet(0)) countLsb += 1;
+                if (k.compare(halfN) == 1) countMsb += 1;
             });
-          }).catch(function(err){
-            reject('Failed to sign: ' + err);
-          });
-        }).catch(function(err){
-          reject('Failed to export private key: ' + err);
-        });
-      }).catch(function(err){
-        reject('Failed to generate key: ' + err);
+          })
+        )
+      }
+
+      return Promise.all(promises).then(function () {
+        if (countLsb < tc.minCount || countLsb > tc.nTests - tc.minCount) {
+          reject("Bias detected in the LSB of k" +
+            ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
+            ", countLSB: " + countLsb + ", countMSB: " + countMsb);
+        }
+        if (countMsb < tc.minCount || countMsb > tc.nTests - tc.minCount) {
+          reject("Bias detected in the MSB of k" +
+            ", hash: " + tc.hashAlg + ", curve: " + tc.curveName +
+            ", countLSB: " + countLsb + ", countMSB: " + countMsb);
+        }
       });
-    }
+    }).catch(function (err) {
+      throw new Error('Failed to export private key: ' + err);
+    });
+  }).catch(function (err) {
+    throw new Error('Failed to generate key: ' + err);
   });
-  return promise;
 };
 
 /**
