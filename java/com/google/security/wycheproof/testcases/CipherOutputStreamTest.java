@@ -31,7 +31,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** CipherOutputStream tests */
+/** 
+ * CipherOutputStream tests
+ *
+ * <p>CipherOutputStream is a class that is basically unsuitable for authenticated encryption
+ * and hence should be avoided whenever possible. The class is unsuitable, because the interface
+ * does not provide a method to tell the caller when decryption failed. I.e. the specification
+ * now explicitly claims that it catches exceptions thrown by the Cipher class such as
+ * BadPaddingException and that it does not rethrow them.
+ * http://www.oracle.com/technetwork/java/javase/8u171-relnotes-4308888.html
+ *
+ * <p>The Jdk implementation has the property that no unauthenticated plaintext is released.
+ * In the case of an authentication failure the implementation simply returns an empty plaintext.
+ * This allows a trivial attack where the attacker substitutes any message with an empty message. 
+ *
+ * <p>The tests in this class have been adapted to this unfortunate situation. testEmptyPlaintext 
+ * checks whether corrupting the tag of an empty message is detected. This test currently fails.
+ * All other tests run under the assumption that returning an empty plaintext is acceptable
+ * behaviour, so that the tests are able to catch additional problems.
+ */
+
 @RunWith(JUnit4.class)
 public class CipherOutputStreamTest {
   static final SecureRandom rand = new SecureRandom();
@@ -130,8 +149,16 @@ public class CipherOutputStreamTest {
     }
   }
 
+  /**
+   * Tests decryption of corrupted ciphertext. The test may accept empty plaintext as valid
+   * result because of the problem with CipherOutputStream described in the header of this file.
+   * @param tests an iterable with valid test vectors, that will be corrupted for the test
+   * @param acceptEmptyPlaintext determines whether an empty plaintext instead of an exception
+   *     is acceptable.
+   */
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testCorruptDecrypt(Iterable<TestVector> tests) throws Exception {
+  public void testCorruptDecrypt(Iterable<TestVector> tests, boolean acceptEmptyPlaintext)
+      throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
       cipher.init(Cipher.DECRYPT_MODE, t.key, t.params);
@@ -154,33 +181,9 @@ public class CipherOutputStreamTest {
                   + TestUtil.bytesToHex(decrypted)
                   + " pt: "
                   + TestUtil.bytesToHex(t.pt));
+        } else if (decrypted.length == 0 && !acceptEmptyPlaintext) {
+          fail("Corrupted ciphertext returns empty plaintext");
         }
-      } catch (IOException ex) {
-        // expected
-      }
-    }
-  }
-
-  @SuppressWarnings("InsecureCryptoUsage")
-  public void testCorruptDecryptEmpty(Iterable<TestVector> tests) throws Exception {
-    for (TestVector t : tests) {
-      Cipher cipher = Cipher.getInstance(t.algorithm);
-      cipher.init(Cipher.DECRYPT_MODE, t.key, t.params);
-      cipher.updateAAD(t.aad);
-      byte[] ct = Arrays.copyOf(t.ct, t.ct.length);
-      ct[ct.length - 1] ^= (byte) 1;
-      ByteArrayOutputStream os = new ByteArrayOutputStream();
-      CipherOutputStream cos = new CipherOutputStream(os, cipher);
-      cos.write(ct);
-      try {
-        // cos.close() should call cipher.doFinal().
-        cos.close();
-        byte[] decrypted = os.toByteArray();
-        fail(
-            "this should fail; decrypted:"
-                + TestUtil.bytesToHex(decrypted)
-                + " pt: "
-                + TestUtil.bytesToHex(t.pt));
       } catch (IOException ex) {
         // expected
       }
@@ -198,13 +201,14 @@ public class CipherOutputStreamTest {
         getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testEncrypt(v);
     testDecrypt(v);
-    testCorruptDecrypt(v);
+    boolean acceptEmptyPlaintext = true;
+    testCorruptDecrypt(v, acceptEmptyPlaintext);
   }
 
   /**
-   * Unfortunately Oracle thinks that returning an empty array is valid behaviour for corrupt
-   * ciphertexts. Because of this we test empty plaintext separately to distinguish behaviour
-   * considered acceptable by Oracle from other behaviour.
+   * Tests the behaviour for corrupt plaintext more strictly than in the tests above.
+   * This test does not accept that an implementation returns an empty plaintext when the
+   * ciphertext has been corrupted.
    */
   @Test
   public void testEmptyPlaintext() throws Exception {
@@ -217,7 +221,8 @@ public class CipherOutputStreamTest {
         getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testEncrypt(v);
     testDecrypt(v);
-    testCorruptDecryptEmpty(v);
+    boolean acceptEmptyPlaintext = false;
+    testCorruptDecrypt(v, acceptEmptyPlaintext);
   }
 
   /** Tests CipherOutputStream with AES-EAX if AES-EAS is supported by the provider. */
@@ -240,6 +245,7 @@ public class CipherOutputStreamTest {
         getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testEncrypt(v);
     testDecrypt(v);
-    testCorruptDecrypt(v);
+    boolean acceptEmptyPlaintext = true;
+    testCorruptDecrypt(v, acceptEmptyPlaintext);
   }
 }
