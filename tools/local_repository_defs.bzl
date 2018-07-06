@@ -15,15 +15,17 @@ java_import(
 # Meanwhile, users have to call 'bazel clean' explicitly when the
 # environment changes.
 def _local_jars_impl(repository_ctx):
-  contents = ""
-  if "WYCHEPROOF_BOUNCYCASTLE_JAR" in repository_ctx.os.environ:
-    repository_ctx.symlink(repository_ctx.os.environ["WYCHEPROOF_BOUNCYCASTLE_JAR"],
-                           "bouncycastle.jar")
-    contents += _bouncycastle_jar_rule
+    contents = ""
+    if "WYCHEPROOF_BOUNCYCASTLE_JAR" in repository_ctx.os.environ:
+        repository_ctx.symlink(
+            repository_ctx.os.environ["WYCHEPROOF_BOUNCYCASTLE_JAR"],
+            "bouncycastle.jar",
+        )
+        contents += _bouncycastle_jar_rule
 
-  repository_ctx.file("BUILD", contents)
+    repository_ctx.file("BUILD", contents)
 
 local_jars = repository_rule(
     implementation = _local_jars_impl,
-    local = True
+    local = True,
 )
