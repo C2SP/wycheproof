@@ -868,4 +868,73 @@ public class AesGcmTest {
       System.out.println("testWrappedAroundcounter:" + expected.toString());
     }
   }
+
+  /**
+   * AES-GCM allows IVs of bit length 1 .. 2^64-1. See NIST SP 800 38d, Section 5.2.1.1
+   * http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+   *
+   * <p>Disallowing IVs of length 0 is necessary for the following reason: if an empty IV is used
+   * then the tag is an evaluation of a polynomial with the hash subkey as the value. Since the
+   * polynomial can be derived from the ciphertext it is known to an attacker. Therefore, any
+   * message encrypted with an empty IV leaks the hash subkey. In particular, encrypting an empty
+   * plaintext with an empty IV results in a ciphertext having a tag that is equal to the hash
+   * subkey used in AES-GCM. I.e. both are the same as encrypting an all zero block.
+   *
+   * <p>OpenJDK fails this test.
+   */
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/35746778"}
+  )
+  @Test
+  public void testEncryptEmptyPlaintextWithEmptyIv() throws Exception {
+    byte[] emptyIv = new byte[0];
+    byte[] input = new byte[0];
+    byte[] key = TestUtil.hexToBytes("56aae7bd5cbefc71d31c4338e6ddd6c5");
+    SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Cipher block = Cipher.getInstance("AES/ECB/NoPadding");
+    block.init(Cipher.ENCRYPT_MODE, keySpec);
+    byte[] hashkey = block.doFinal(new byte[16]);
+    try {
+      cipher.init(Cipher.ENCRYPT_MODE, keySpec, new GCMParameterSpec(16 * 8, emptyIv));
+      byte[] ct = cipher.doFinal(input);
+      // If the encryption above is not rejected then the hash key and the ciphertext are the same.
+      // Both are d1bdd948ddc5a7f7a9250cf78229b84d.
+      System.out.println("testEncryptEmptyPlaintextWithEmptyIv:");
+      System.out.println("Encrypt with empty IV:" + TestUtil.bytesToHex(ct));
+      System.out.println("Hash subkey          :" + TestUtil.bytesToHex(hashkey));
+      fail("Encrypting with an empty IV leaks the hash subkey.");
+    } catch (GeneralSecurityException expected) {
+      System.out.println("testEncryptWithEmptyIv:" + expected.toString());
+      // expected behavior
+    }
+  }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/35746778"}
+  )
+  @Test
+  public void testDecryptWithEmptyIv() throws Exception {
+    byte[] emptyIv = new byte[0];
+    byte[] key = TestUtil.hexToBytes("56aae7bd5cbefc71d31c4338e6ddd6c5");
+    SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    try {
+      cipher.init(Cipher.DECRYPT_MODE, keySpec, new GCMParameterSpec(16 * 8, emptyIv));
+      String ciphertext = "2b65876c00d77facf8f3d0e5be792b129bab10b25bcb739b92d6e2eab241245ff449";
+      String tag = "c2b2d7086e7fa84ca795a881b540";
+      byte[] pt1 = cipher.update(TestUtil.hexToBytes(ciphertext));
+      byte[] pt2 = cipher.doFinal(TestUtil.hexToBytes(tag));
+      // We shouldn't get here. If a provider releases unverified plaintext additionally to
+      // accepting empty IVs then chosen ciphertext attacks might be possible.
+      System.out.println("testDecryptWithEmptyIv:");
+      System.out.println("pt1:" + TestUtil.bytesToHex(pt1));
+      System.out.println("pt2:" + TestUtil.bytesToHex(pt2));
+      fail("AES-GCM must not accept an IV of size 0.");
+    } catch (GeneralSecurityException expected) {
+      System.out.println("testDecryptWithEmptyIv:" + expected.toString());
+    }
+  }
 }
