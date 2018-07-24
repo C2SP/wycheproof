@@ -54,7 +54,7 @@ public class JsonEcdhTest {
    * Example for test vector
    * {
    * "algorithm" : "ECDH",
-   * "generatorVersion" : "0.1.3",
+   * "generatorVersion" : "0.5",
    * "numberOfTests" : 335,
    * "header" : [],
    * "testGroups" : [
@@ -74,12 +74,19 @@ public class JsonEcdhTest {
    **/
   public void testEcdhComp(String filename) throws Exception {
     // Testing with old test vectors may a reason for a test failure.
-    // Version number have the format major.minor[status].
+    // Version number have the format major.minor[.subversion].
     // Versions before 1.0 are experimental and  use formats that are expected to change.
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4";
+    // Subversions are release candidates for the next version.
+    //
+    // Changes:
+    // Version 0.4 test vectors had a duplicate field for the curve (in the test group
+    // and in the test itself). The duplicate has been removed for version 0.5, since all
+    // tests in a test group use the same curve. The field curve describes the curve of
+    // the private key. A test vector can contain a public key using a different curve,
+    // in which case the ECDH implementation is expected to throw an exception.
+    final String expectedVersion = "0.5";
     JsonObject test = JsonUtil.getTestVectors(filename);
     String generatorVersion = test.get("generatorVersion").getAsString();
     if (!generatorVersion.equals(expectedVersion)) {
@@ -91,15 +98,15 @@ public class JsonEcdhTest {
     }
     int numTests = test.get("numberOfTests").getAsInt();
     int passedTests = 0;
-    int rejectedTests = 0; // invalid test vectors leading to exceptions
-    int skippedTests = 0; // valid test vectors leading to exceptions
+    int rejectedTests = 0;  // invalid test vectors leading to exceptions
+    int skippedTests = 0;  // valid test vectors leading to exceptions
     int errors = 0;
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
+      String curve = getString(group, "curve");
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
         int tcid = testcase.get("tcId").getAsInt();
-        String curve = getString(testcase, "curve");
         String comment = getString(testcase, "comment");
         BigInteger priv = getBigInteger(testcase, "private");
         byte[] publicEncoded = getBytes(testcase, "public");

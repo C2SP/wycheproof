@@ -18,6 +18,8 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
@@ -63,7 +65,8 @@ public class JsonAeadTest {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       GCMParameterSpec parameters = new GCMParameterSpec(tagSize, iv);
       cipher.init(opmode, keySpec, parameters);
-    } else if (algorithm.equalsIgnoreCase("AES/EAX/NoPadding")) {
+    } else if (algorithm.equalsIgnoreCase("AES/EAX/NoPadding")
+               || algorithm.equalsIgnoreCase("AES/CCM/NoPadding")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       // TODO(bleichen): This works for BouncyCastle but looks non-standard.
       //   org.bouncycastle.crypto.params.AEADParameters works too, but would add a dependency that
@@ -103,13 +106,17 @@ public class JsonAeadTest {
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
   public void testAead(String filename, String algorithm) throws Exception {
-    // Testing with old test vectors may a reason for a test failure.
-    // Version number have the format major.minor[status].
+    // Version number have the format major.minor[.subversion].
     // Versions before 1.0 are experimental and  use formats that are expected to change.
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4";
+    // Subversions are release candidate for the next version.
+    //
+    // Relevant version changes: 
+    // <ul>
+    // <li> Version 0.5 adds test vectors for CCM.
+    // </ul>
+    final String expectedVersion = "0.5";
     JsonObject test = JsonUtil.getTestVectors(filename);
     String generatorVersion = test.get("generatorVersion").getAsString();
     if (!generatorVersion.equals(expectedVersion)) {
@@ -228,4 +235,14 @@ public class JsonAeadTest {
   public void testAesEax() throws Exception {
     testAead("aes_eax_test.json", "AES/EAX/NoPadding");
   }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.BOUNCY_CASTLE},
+    bugs = {"b/111153892"}
+  )
+  @Test
+  public void testAesCcm() throws Exception {
+    testAead("aes_ccm_test.json", "AES/CCM/NoPadding");
+  }
+  
 }

@@ -55,19 +55,18 @@ Ecdh.generateKey = function(curveName) {
 
 /**
  * Imports a ECDH key from the given key data.
- * @param {!string} curveName The curve name
  * @param {!JSONObject} keyData The key data in JWK format
  * @param {!Array<string>} usages The usages of the key
  *
  * @return {!Promise}
  */
-Ecdh.importKey = function(curveName, keyData, usages) {
+Ecdh.importKey = function(keyData, usages) {
   return window.crypto.subtle.importKey(
     "jwk",
     keyData,
     {
         name: 'ECDH',
-        namedCurve: curveName,
+        namedCurve: keyData['crv'],
     },
     true,
     usages
@@ -116,9 +115,9 @@ Ecdh.testKeyDerivation = function() {
   tc = this;
   var sk, pk;
   var promise = new Promise(function(resolve, reject){
-    Ecdh.importKey(tc.curveName, tc.privKeyData, ['deriveBits']).then(function(key){
+    Ecdh.importKey(tc.privKeyData, ['deriveBits']).then(function(key){
       sk = key;
-      Ecdh.importKey(tc.curveName, tc.pubKeyData, []).then(function(key){
+      Ecdh.importKey(tc.pubKeyData, []).then(function(key){
         pk = key;
         Ecdh.deriveBits(pk, sk, tc.sharedKeyLen).then(function(sharedKey){
           if (tc.result == 'invalid') {
@@ -151,15 +150,13 @@ Ecdh.testKeyDerivation = function() {
 /**
  * Parameters of a ECDH key derivation test.
  * @param {!number} id Test case's id
- * @param {!string} curveName The name of the elliptic curve
  * @param {!JSONObject} privKeyData The private key's data in JWK format
  * @param {!JSONObject} pubKeyData The public key's data in JWK format
  * @param {!string} sharedKey The expected shared key
  * @param {!string} result The expected result of the test case
  */
-var EcdhTestCase = function(id, curveName, privKeyData, pubKeyData, sharedKey, result) {
+var EcdhTestCase = function(id, privKeyData, pubKeyData, sharedKey, result) {
   this.id = id;
-  this.curveName = curveName;
   this.privKeyData = privKeyData;
   this.pubKeyData = pubKeyData;
   this.sharedKey = sharedKey;
@@ -179,7 +176,7 @@ function testEcdhVectors() {
     tg = tv['testGroups'][i];
     for (var j = 0; j < tg['tests'].length; j++) {
       tc = tg['tests'][j];
-      var test = new EcdhTestCase(tc['tcId'], tc['curve'], tc['private'], tc['public'],
+      var test = new EcdhTestCase(tc['tcId'], tc['private'], tc['public'],
           tc['shared'], tc['result']);
       testCase.addNewTest(tc['tcId'], Ecdh.testKeyDerivation, test);
     }
