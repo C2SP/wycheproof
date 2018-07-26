@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.nio.ByteBuffer;
+import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -183,13 +184,13 @@ public class EciesTest {
     ecies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println(TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
+    AlgorithmParameters params = ecies.getParameters();
     HashSet<String> exceptions = new HashSet<String>();
     for (int byteNr = kemSize; byteNr < ciphertext.length; byteNr++) {
       for (int bit = 0; bit < 8; bit++) {
         byte[] corrupt = Arrays.copyOf(ciphertext, ciphertext.length);
         corrupt[byteNr] ^= (byte) (1 << bit);
-        ecies.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+        ecies.init(Cipher.DECRYPT_MODE, priv, params);
         try {
           ecies.doFinal(corrupt);
           fail("Decrypted:" + TestUtil.bytesToHex(corrupt));
@@ -209,10 +210,6 @@ public class EciesTest {
     testExceptions("ECIES");
   }
 
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
-  )
   @Test
   public void testEciesCorruptAesCbc() throws Exception {
     testExceptions("ECIESWithAES-CBC");
