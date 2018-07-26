@@ -47,6 +47,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
+  RsaPssTest.class,
   RsaSignatureTest.class,
 })
 @Provider(ProviderType.SPONGY_CASTLE)

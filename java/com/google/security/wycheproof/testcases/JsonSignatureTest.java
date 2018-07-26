@@ -143,12 +143,12 @@ public class JsonSignatureTest {
     // Generally mismatched version numbers are of little or no concern, since
     // the test vector version change much more frequently than the format.
     //
-    // Version numbers have the format major.minor[status].
+    // Version numbers have the format major.minor[.subversion].
     // Versions before 1.0 are experimental and  use formats that are expected to change.
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4";
+    // Subversions are release canddiate for the next version.
+    final String expectedVersion = "0.5";
     JsonObject test = JsonUtil.getTestVectors(filename); 
     String generatorVersion = getString(test, "generatorVersion");
     if (!generatorVersion.equals(expectedVersion)) {
@@ -275,8 +275,18 @@ public class JsonSignatureTest {
   }
 
   @Test
+  public void testSecp224r1Sha512() throws Exception {
+    testSignatureScheme("ecdsa_secp224r1_sha512_test.json", "ECDSA", false);
+  }
+
+  @Test
   public void testSecp256r1Sha256() throws Exception {
     testSignatureScheme("ecdsa_secp256r1_sha256_test.json", "ECDSA", false);
+  }
+
+  @Test
+  public void testSecp256r1Sha512() throws Exception {
+    testSignatureScheme("ecdsa_secp256r1_sha512_test.json", "ECDSA", false);
   }
 
   @Test
@@ -298,6 +308,11 @@ public class JsonSignatureTest {
   @Test
   public void testSecp256k1Sha256() throws Exception {
     testSignatureScheme("ecdsa_secp256k1_sha256_test.json", "ECDSA", true);
+  }
+
+  @Test
+  public void testSecp256k1Sha512() throws Exception {
+    testSignatureScheme("ecdsa_secp256k1_sha512_test.json", "ECDSA", true);
   }
 
   @Test
@@ -329,6 +344,46 @@ public class JsonSignatureTest {
   @Test
   public void testRsaSignatures() throws Exception {
     testSignatureScheme("rsa_signature_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignature2048sha224() throws Exception {
+    testSignatureScheme("rsa_signature_2048_sha224_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha256() throws Exception {
+    testSignatureScheme("rsa_signature_2048_sha256_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha512() throws Exception {
+    testSignatureScheme("rsa_signature_2048_sha512_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha256() throws Exception {
+    testSignatureScheme("rsa_signature_3072_sha256_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha384() throws Exception {
+    testSignatureScheme("rsa_signature_3072_sha384_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha512() throws Exception {
+    testSignatureScheme("rsa_signature_3072_sha512_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures4096sha384() throws Exception {
+    testSignatureScheme("rsa_signature_4096_sha384_test.json", "RSA", false);
+  }
+
+  @Test
+  public void testRsaSignatures4096sha512() throws Exception {
+    testSignatureScheme("rsa_signature_4096_sha512_test.json", "RSA", false);
   }
 
   // Testing DSA signatures.

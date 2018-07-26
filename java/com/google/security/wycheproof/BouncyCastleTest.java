@@ -44,6 +44,7 @@ import org.junit.runners.Suite.SuiteClasses;
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
+  RsaPssTest.class,
   RsaSignatureTest.class,
 })
 @Provider(ProviderType.BOUNCY_CASTLE)
