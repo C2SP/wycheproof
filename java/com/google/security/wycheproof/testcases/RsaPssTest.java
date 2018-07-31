@@ -170,9 +170,13 @@ public class RsaPssTest {
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       String algorithm = getAlgorithmName(group);
-      PublicKey key;
+      PublicKey key = null;
+      Signature verifier = null;
       try {
         key = getPublicKey(group);
+        PSSParameterSpec pssParams = getPSSParams(group);
+        verifier = Signature.getInstance(algorithm);
+        verifier.setParameter(pssParams);
       } catch (GeneralSecurityException ex) {
         if (allowSkippingKeys) {
           skippedKeys++;
@@ -183,9 +187,6 @@ public class RsaPssTest {
         }
         continue;
       }
-      PSSParameterSpec pssParams = getPSSParams(group);
-      Signature verifier = Signature.getInstance(algorithm);
-      verifier.setParameter(pssParams);
       for (JsonElement t : group.getAsJsonArray("tests")) {
         cntTests++;
         JsonObject testcase = t.getAsJsonObject();
@@ -278,6 +279,18 @@ public class RsaPssTest {
   @Test
   public void testRsaPss2048Sha256NoSalt() throws Exception {
     testRsaPss("rsa_pss_2048_sha256_mgf1_0_test.json", false);
+  }
+
+  /**
+   * Checks RSA-PSS with various combinations of hashes and salt lengths.
+   * Some providers restrict the range of supported parameters.
+   * E.g. BouncyCastle requires that the signature hash and the mgf hash
+   * are the same. The test expects that unsupported combinations are
+   * rejected during the initialization of the Signature instance.
+   */
+  @Test
+  public void testRsaPssMisc() throws Exception {
+    testRsaPss("rsa_pss_misc_test.json", true);
   }
 }
 
