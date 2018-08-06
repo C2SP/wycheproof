@@ -62,12 +62,4 @@ See [list of issues](issues.md) for details.
 | CBC-HMAC is vulnerable to padding oracle attack  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
 | CBC-HMAC integer overflow, HMAC bypass  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
 
-## Package OpenSSL
-|           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
-|:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
-| X25519 incorrect carry handling | Alex Gaynor and Paul Kehrer | N/A | https://github.com/openssl/openssl/issues/6687 |
 
-## Package LibreSSL
-|           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
-|:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
-| Overly lax RSA PKCS1v1.5 parsing | Alex Gaynor and Paul Kehrer | N/A | https://github.com/openbsd/src/commit/4698a0ba0d5547fce37134cb00f204c68f429885#diff-8c6377c3026df41da690063739326043 |
