@@ -20,8 +20,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -35,13 +37,107 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * This test uses test vectors in JSON format to check digital signature with PSS padding. 
- * There are still a lot of open questions, e.g. the format for the test vectors is not yet
- * finalized. Therefore, we are not integrating the tests here into other tests.
+ * Tests for RSA-PSS.
  */
 @RunWith(JUnit4.class)
 public class RsaPssTest {
 
+  /**
+   * Tests the default parameters used for a given algorithm name.
+   *
+   * @param algorithm the algorithm name for an RSA-PSS instance. (e.g. "SHA256WithRSAandMGF1")
+   * @param expectedHash the hash algorithm expected for the given algorithm
+   * @param expectedMgf the mask generation function expected for the given algorithm (e.g. "MGF1")
+   * @param expectedMgfHash the hash algorithm exptected for the mask generation function
+   * @param expectedSaltLength the expected salt length in bytes for the given algorithm
+   * @param expectedTrailerField the expected value for the tailer field (e.g. 1 for 0xbc).
+   */
+  protected void testDefaultForAlgorithm(
+      String algorithm,
+      String expectedHash,
+      String expectedMgf,
+      String expectedMgfHash,
+      int expectedSaltLength,
+      int expectedTrailerField) throws Exception {
+    // An X509 encoded 2048-bit RSA public key.
+    String pubKey =
+        "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
+            + "00bdf90898577911c71c4d9520c5f75108548e8dfd389afdbf9c997769b8594e"
+            + "7dc51c6a1b88d1670ec4bb03fa550ba6a13d02c430bfe88ae4e2075163017f4d"
+            + "8926ce2e46e068e88962f38112fc2dbd033e84e648d4a816c0f5bd89cadba0b4"
+            + "d6cac01832103061cbb704ebacd895def6cff9d988c5395f2169a6807207333d"
+            + "569150d7f569f7ebf4718ddbfa2cdbde4d82a9d5d8caeb467f71bfc0099b0625"
+            + "a59d2bad12e3ff48f2fd50867b89f5f876ce6c126ced25f28b1996ee21142235"
+            + "fb3aef9fe58d9e4ef6e4922711a3bbcd8adcfe868481fd1aa9c13e5c658f5172"
+            + "617204314665092b4d8dca1b05dc7f4ecd7578b61edeb949275be8751a5a1fab"
+            + "c30203010001";
+    KeyFactory kf;
+    kf = KeyFactory.getInstance("RSA");
+    X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
+    PublicKey key = kf.generatePublic(x509keySpec);
+    Signature verifier;
+    try {
+      verifier = Signature.getInstance(algorithm);
+      verifier.initVerify(key);
+    } catch (NoSuchAlgorithmException ex) {
+      System.out.println("Unsupported algorithm:" + algorithm);
+      return;
+    }
+    AlgorithmParameters params = verifier.getParameters();
+    PSSParameterSpec pssParams = params.getParameterSpec(PSSParameterSpec.class);
+    assertEquals("digestAlgorithm", expectedHash, pssParams.getDigestAlgorithm());
+    assertEquals("mgfAlgorithm", expectedMgf, pssParams.getMGFAlgorithm());
+    assertEquals("saltLength", expectedSaltLength, pssParams.getSaltLength());
+    assertEquals("trailerField", expectedTrailerField, pssParams.getTrailerField());
+    if (expectedMgf.equals("MGF1")) {
+      MGF1ParameterSpec mgf1Params = (MGF1ParameterSpec) pssParams.getMGFParameters();
+      assertEquals("mgf1 digestAlgorithm", expectedMgfHash, mgf1Params.getDigestAlgorithm());
+    }
+  }
+
+  /**
+   * Tests the default values for PSS parameters.
+   *
+   * <p>RSA-PSS has a number of parameters. RFC 8017 specifies the parameters as follows:
+   *
+   * <pre>
+   * RSASSA-PSS-params :: = SEQUENCE {
+   *   hashAlgorithm            [0] HashAlgorithm     DEFAULT sha1,
+   *   maskGenerationAlgorithm  [1] MaskGenAlgorithm  DEFAULT mgf1SHA1,
+   *   saltLength               [2] INTEGER           DEFAULT 20,
+   *   trailerField             [3] TrailerField      DEFAULT trailerFieldBC
+   * }
+   * </pre>
+   *
+   * <p>The standard algorithm names for RSA-PSS are defined in the section "Signature Algorithms"
+   * of https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
+   * I.e. the standard names have the format <digest>with<encryption>and<mgf>, e.g.,
+   * SHA256withRSAandMGF1. This name only specifies the hashAlgorithm and the mask generation
+   * algorithm, but not the hash used for the mask generation algorithm, the salt length and
+   * the trailerField. The missing parameters can be explicitly specified with and instance
+   * of PSSParameterSpec. The test below checks that distinct providers use the same default values
+   * when no PSSParameterSpec is given.
+   *
+   * <p>In particular, the test expects that the two hash algorithm (for message hashing and mgf)
+   * are the same. It expects that the saltLength is the same as the size of the message digest.
+   * It expects that the default for the trailerField is 1. These expectations are based on
+   * existing implementations. They differ from the ASN defaults in RFC 8017.
+   */
+  @Test
+  public void testDefaults() throws Exception {
+    testDefaultForAlgorithm("SHA1withRSAandMGF1", "SHA-1", "MGF1", "SHA-1", 20, 1);
+    testDefaultForAlgorithm("SHA224withRSAandMGF1", "SHA-224", "MGF1", "SHA-224", 28, 1);
+    testDefaultForAlgorithm("SHA256withRSAandMGF1", "SHA-256", "MGF1", "SHA-256", 32, 1);
+    testDefaultForAlgorithm("SHA384withRSAandMGF1", "SHA-384", "MGF1", "SHA-384", 48, 1);
+    testDefaultForAlgorithm("SHA512withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 64, 1);
+    testDefaultForAlgorithm("SHA512/224withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 28, 1);
+    testDefaultForAlgorithm("SHA512/256withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 32, 1);
+    testDefaultForAlgorithm("SHA3-224withRSAandMGF1", "SHA3-224", "MGF1", "SHA3-224", 28, 1);
+    testDefaultForAlgorithm("SHA3-256withRSAandMGF1", "SHA3-256", "MGF1", "SHA3-256", 32, 1);
+    testDefaultForAlgorithm("SHA3-384withRSAandMGF1", "SHA3-384", "MGF1", "SHA3-384", 48, 1);
+    testDefaultForAlgorithm("SHA3-512withRSAandMGF1", "SHA3-512", "MGF1", "SHA3-512", 64, 1);
+  }
+    
   /** Convenience mehtod to get a String from a JsonObject */
   protected static String getString(JsonObject object, String name) throws Exception {
     return object.get(name).getAsString();
