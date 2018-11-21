@@ -4,3 +4,4 @@
 * [ECDH](ecdh.md)
 * [Diffie-Hellman](dh.md)
 * [AES-GCM](aesgcm.md)
+* [Key-wrap](key_wrap.md)
