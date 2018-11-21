@@ -84,6 +84,11 @@ public class RsaPssTest {
       return;
     }
     AlgorithmParameters params = verifier.getParameters();
+    if (params == null) {
+      // No defaults are specified. This is a good choice since this avoid
+      // incompatible implementations.
+      return;
+    }
     PSSParameterSpec pssParams = params.getParameterSpec(PSSParameterSpec.class);
     assertEquals("digestAlgorithm", expectedHash, pssParams.getDigestAlgorithm());
     assertEquals("mgfAlgorithm", expectedMgf, pssParams.getMGFAlgorithm());
@@ -109,9 +114,10 @@ public class RsaPssTest {
    * }
    * </pre>
    *
-   * <p>The standard algorithm names for RSA-PSS are defined in the section "Signature Algorithms"
-   * of https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
-   * I.e. the standard names have the format <digest>with<encryption>and<mgf>, e.g.,
+   * <p>The algorithm name for RSA-PSS used in jdk11 is "RSASSA-PSS". Previously, the algorithm
+   * names for RSA-PSS were defined in the section "Signature Algorithms" of
+   * https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
+   * I.e. the proposed standard names had the format <digest>with<encryption>and<mgf>, e.g.,
    * SHA256withRSAandMGF1. This name only specifies the hashAlgorithm and the mask generation
    * algorithm, but not the hash used for the mask generation algorithm, the salt length and
    * the trailerField. The missing parameters can be explicitly specified with and instance
@@ -136,6 +142,12 @@ public class RsaPssTest {
     testDefaultForAlgorithm("SHA3-256withRSAandMGF1", "SHA3-256", "MGF1", "SHA3-256", 32, 1);
     testDefaultForAlgorithm("SHA3-384withRSAandMGF1", "SHA3-384", "MGF1", "SHA3-384", 48, 1);
     testDefaultForAlgorithm("SHA3-512withRSAandMGF1", "SHA3-512", "MGF1", "SHA3-512", 64, 1);
+    // TODO(bleichen): Should there be any expectations for RSASSA-PSS?
+    //   RSASSA-PSS does not specify any parameters. Using the default values from RFC 8017
+    //   (i.e. SHA-1 for both hashes) leads to potential weaknesses. jdk11 requires that
+    //   the parameters are always specified. BouncyCastle however uses the SHA-1 default.
+    //   Is this a bug?
+    // testDefaultForAlgorithm("RSASSA-PSS", "SHA-256", "MGF1", "SHA-256", 32, 1);
   }
     
   /** Convenience mehtod to get a String from a JsonObject */
@@ -150,17 +162,24 @@ public class RsaPssTest {
 
   /**
    * Returns the algorithm name for the RSA-PSS signature scheme.
-   * algorithm names used in JCA are a bit inconsequential. E.g. a dash is necessary for message
-   * digests (e.g. "SHA-256") but are not used in the corresponding names for digital signatures
-   * (e.g. "SHA256WITHRSAandMGF1").
-   *
-   * <p>See http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
+   * Oracle previously specified that algorithm names for RSA-PSS are strings like
+   * "SHA256WITHRSAandMGF1".
+   * See http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
+   * 
+   * <p> But the implementation in jdk11 only support "RSASSA-PSS". This function simply attempts
+   * to return an algorithm name that works.
    *
    * @param group A json dictionary containing a field "sha" with message digest (e.g. "SHA-256")
    *              and the a field "mgf" for the mask generation function (e.g. "MGF1").
-   * @return the algorithm name for the signature scheme with the given hash.
+   * @return the algorithm name
    */
   protected static String getAlgorithmName(JsonObject group) throws Exception {
+    try {
+      Signature.getInstance("RSASSA-PSS");
+      return "RSASSA-PSS";
+    } catch (NoSuchAlgorithmException ex) {
+      // RSASSA-PSS is not known. Try the other option.
+    }
     String md = getString(group, "sha");
     String mgf = getString(group, "mgf");
     if (md.equals("SHA-1")) {
@@ -248,7 +267,7 @@ public class RsaPssTest {
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
     // Versions meant for distribution have no status.
-    final String expectedVersion = "0.5";
+    final String expectedVersion = "0.6";
     JsonObject test = JsonUtil.getTestVectors(filename); 
     String generatorVersion = getString(test, "generatorVersion");
     if (!generatorVersion.equals(expectedVersion)) {
@@ -278,7 +297,7 @@ public class RsaPssTest {
           skippedKeys++;
           skippedAlgorithms.add(algorithm);
         } else {
-          System.out.println("Failed to generate verifier for " + algorithm);
+          System.out.println("Failed to generate verifier for " + algorithm + ex);
           errors++;
         }
         continue;
@@ -294,12 +313,14 @@ public class RsaPssTest {
         verifier.initVerify(key);
         verifier.update(message);
         boolean verified = false;
+        Exception reason = null;
         try {
           verified = verifier.verify(signature);
         } catch (SignatureException ex) {
           // verify can throw SignatureExceptions if the signature is malformed.
           // We don't flag these cases and simply consider the signature as invalid.
           verified = false;
+          reason = ex;
         } catch (Exception ex) {
           // Other exceptions (i.e. unchecked exceptions) are considered as error
           // since a third party should never be able to cause such exceptions.
@@ -316,13 +337,18 @@ public class RsaPssTest {
           errors++;
         }
         if (!verified && result.equals("valid")) {
+          String comment = "";
+          if (reason != null) {
+            comment = " exception:" + reason;
+          }
           System.out.println(
               "Valid signature not verified. "
                   + filename
                   + " tcId:"
                   + tcid
                   + " sig:"
-                  + sig);
+                  + sig
+                  + comment);
           errors++;
         } else if (verified && result.equals("invalid")) {
           System.out.println(
@@ -350,7 +376,7 @@ public class RsaPssTest {
 
   @Test
   public void testRsaPss2048Sha256() throws Exception {
-    testRsaPss("rsa_pss_2048_sha256_mgf1_32_test.json", false);
+    testRsaPss("rsa_pss_2048_sha256_mgf1_32_test.json", true);
   }
 
   @NoPresubmitTest(
@@ -359,34 +385,22 @@ public class RsaPssTest {
   )
   @Test
   public void testRsaPss3072Sha256() throws Exception {
-    testRsaPss("rsa_pss_3072_sha256_mgf1_32_test.json", false);
+    testRsaPss("rsa_pss_3072_sha256_mgf1_32_test.json", true);
   }
 
   @Test
   public void testRsaPss4096Sha256() throws Exception {
-    testRsaPss("rsa_pss_4096_sha256_mgf1_32_test.json", false);
+    testRsaPss("rsa_pss_4096_sha256_mgf1_32_test.json", true);
   }
 
   @Test
   public void testRsaPss4096Sha512() throws Exception {
-    testRsaPss("rsa_pss_4096_sha512_mgf1_32_test.json", false);
+    testRsaPss("rsa_pss_4096_sha512_mgf1_32_test.json", true);
   }
 
   @Test
   public void testRsaPss2048Sha256NoSalt() throws Exception {
-    testRsaPss("rsa_pss_2048_sha256_mgf1_0_test.json", false);
-  }
-
-  /**
-   * Checks RSA-PSS with various combinations of hashes and salt lengths.
-   * Some providers restrict the range of supported parameters.
-   * E.g. BouncyCastle requires that the signature hash and the mgf hash
-   * are the same. The test expects that unsupported combinations are
-   * rejected during the initialization of the Signature instance.
-   */
-  @Test
-  public void testRsaPssMisc() throws Exception {
-    testRsaPss("rsa_pss_misc_test.json", true);
+    testRsaPss("rsa_pss_2048_sha256_mgf1_0_test.json", true);
   }
 }
 

@@ -153,7 +153,7 @@ public class RsaEncryptionTest {
   public void testGetExceptionsOAEP() throws Exception {
     testExceptions("RSA/ECB/OAEPWITHSHA-1ANDMGF1PADDING");
   }
-
+    
   /**
    * Generates PKCS#1 invalid vectors
    *
@@ -179,11 +179,20 @@ public class RsaEncryptionTest {
     plainPaddedKeys[8] = getPaddedKey(rsaKeyLength, 16);
     plainPaddedKeys[9] = getPaddedKey(rsaKeyLength, 96);
     // the decrypted padded plaintext is shorter than RSA key
-    plainPaddedKeys[10] = getPaddedKey(rsaKeyLength - 1, 16);
-    plainPaddedKeys[11] = getPaddedKey(rsaKeyLength - 2, 16);
+    plainPaddedKeys[10] = zeroPad(getPaddedKey(rsaKeyLength - 1, 16), rsaKeyLength);
+    plainPaddedKeys[11] = zeroPad(getPaddedKey(rsaKeyLength - 2, 16), rsaKeyLength);
     // just 0x00 bytes
     plainPaddedKeys[12] = new byte[rsaKeyLength];
     return plainPaddedKeys;
+  }
+
+  /**
+   * Prepends data with some zeros, so that the result is keyLength bytes long.
+   */
+  private byte[] zeroPad(byte[] data, int keyLength) {
+    byte[] padded = new byte[keyLength];
+    System.arraycopy(data, 0, padded, keyLength - data.length, data.length);
+    return padded;
   }
 
   private byte[] getPaddedKey(int rsaKeyLength, int symmetricKeyLength) {

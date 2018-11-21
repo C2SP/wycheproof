@@ -38,10 +38,13 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
   JsonSignatureTest.class,
+  JsonXdhTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
-  RsaSignatureTest.class
+  RsaPssTest.class,
+  RsaOaepTest.class,
+  RsaSignatureTest.class,
 })
 @Provider(ProviderType.OPENJDK)
 @Fast

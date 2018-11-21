@@ -22,10 +22,14 @@ import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,30 +57,58 @@ public class JsonSignatureTest {
   }
 
   /**
-   * Returns the algorithm name for a digital signature algorithm with a given message digest. The
-   * algorithm names used in JCA are a bit inconsequential. E.g. a dash is necessary for message
-   * digests (e.g. "SHA-256") but are not used in the corresponding names for digital signatures
-   * (e.g. "SHA256WITHECDSA").
+   * Returns an instance of java.security.Signature for an algorithm name, a digest name and
+   * a signature format. The algorithm names used in JCA are a bit inconsequential. E.g. a dash 
+   * is necessary for message digests (e.g. "SHA-256") but are not used in the corresponding
+   * names for digital signatures (e.g. "SHA256WITHECDSA"). Providers sometimes use distinct
+   * algorithm names for the same cryptographic primitive.
    *
    * <p>See http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
    *
    * @param md the name of the message digest (e.g. "SHA-256")
    * @param signatureAlgorithm the name of the signature algorithm (e.g. "ECDSA")
-   * @return the algorithm name for the signature scheme with the given hash.
+   * @param signatureFormat the format of the signatures. This should be "P1363Format" for 
+   *        P1363 encoded ECDSA signatures or "" otherwise.  
+   * @return an instance of java.security.Signature if the algorithm is known
+   * @throws NoSuchAlgorithmException if the algorithm is not known
    */
-  protected static String getAlgorithmName(String md, String signatureAlgorithm) {
-    if (md.equals("SHA-1")) {
+  protected static Signature getSignatureInstance(
+      String md, String signatureAlgorithm, String signatureFormat)
+      throws NoSuchAlgorithmException {
+    if (md.equalsIgnoreCase("SHA-1")) {
       md = "SHA1";
-    } else if (md.equals("SHA-224")) {
+    } else if (md.equalsIgnoreCase("SHA-224")) {
       md = "SHA224";
-    } else if (md.equals("SHA-256")) {
+    } else if (md.equalsIgnoreCase("SHA-256")) {
       md = "SHA256";
-    } else if (md.equals("SHA-384")) {
+    } else if (md.equalsIgnoreCase("SHA-384")) {
       md = "SHA384";
-    } else if (md.equals("SHA-512")) {
+    } else if (md.equalsIgnoreCase("SHA-512")) {
       md = "SHA512";
     }
-    return md + "WITH" + signatureAlgorithm;
+    if (signatureFormat.equalsIgnoreCase("P1363Format")
+        && signatureAlgorithm.equalsIgnoreCase("ECDSA")) {
+      // The algorithm names for signature schemes with P1363 format have distinct names
+      // in distinct providers. This is mainly the case since the P1363 format has only
+      // been added in jdk11, while providers such as BouncyCastle added the format earlier
+      // than that. Hence the code below just tries known algorithm names.
+      try {
+        String jdkName = md + "WITH" + signatureAlgorithm + "inP1363Format";
+        return Signature.getInstance(jdkName);
+      } catch (NoSuchAlgorithmException ex) {
+        // jdkName is not known.
+      }
+      try {
+        String bcName = md + "WITHPLAIN-" + signatureAlgorithm;
+        return Signature.getInstance(bcName);
+      } catch (NoSuchAlgorithmException ex) {
+        // bcName is not known.
+      }
+    } 
+    if (!signatureFormat.isEmpty()) {
+      throw new NoSuchAlgorithmException("Invalid signatureFormat:" + signatureFormat);
+    }
+    return Signature.getInstance(md + "WITH" + signatureAlgorithm);
   }
 
   /**
@@ -98,6 +130,18 @@ public class JsonSignatureTest {
     byte[] encoded = TestUtil.hexToBytes(getString(object, "keyDer"));
     X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(encoded);
     return kf.generatePublic(x509keySpec);
+  }
+
+  /**
+   * Get a PrivateKey from a JsonObject.
+   */
+  // This is a false positive, since errorprone cannot track values passed into a method.
+  @SuppressWarnings("InsecureCryptoUsage")
+  protected static PrivateKey getPrivateKey(JsonObject object, String algorithm) throws Exception {
+    KeyFactory kf = KeyFactory.getInstance(algorithm);
+    byte[] encoded = TestUtil.hexToBytes(getString(object, "privateKeyPkcs8"));
+    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+    return kf.generatePrivate(keySpec);
   }
 
   /** 
@@ -132,12 +176,14 @@ public class JsonSignatureTest {
    *
    * @param filename the filename of the test vectors
    * @param signatureAlgorithm the algorithm name of the test vectors
+   * @param signatureFormat the format of the signatures. This should be "P1363Format" for 
+   *        P1363 encoded ECDSA signatures or "" otherwise.  
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
    *     This is for example used for files with test vectors that use elliptic curves that are not
    *     commonly supported.
    **/
-  public void testSignatureScheme(
-      String filename, String signatureAlgorithm, boolean allowSkippingKeys)
+  public void testVerification(
+      String filename, String signatureAlgorithm, String signatureFormat, boolean allowSkippingKeys)
       throws Exception {
     // Testing with old test vectors may be a reason for a test failure.
     // Generally mismatched version numbers are of little or no concern, since
@@ -148,7 +194,7 @@ public class JsonSignatureTest {
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
     // Subversions are release canddiate for the next version.
-    final String expectedVersion = "0.5";
+    final String expectedVersion = "0.6";
     JsonObject test = JsonUtil.getTestVectors(filename); 
     String generatorVersion = getString(test, "generatorVersion");
     if (!generatorVersion.equals(expectedVersion)) {
@@ -180,8 +226,13 @@ public class JsonSignatureTest {
         continue;
       }
       String md = getString(group, "sha");
-      String algorithm = getAlgorithmName(md, signatureAlgorithm);
-      Signature verifier = Signature.getInstance(algorithm);
+      Signature verifier;
+      try {
+        verifier = getSignatureInstance(md, signatureAlgorithm, signatureFormat);
+      } catch (NoSuchAlgorithmException ex) {
+        skippedKeys++;
+        continue;
+      }
       for (JsonElement t : group.getAsJsonArray("tests")) {
         cntTests++;
         JsonObject testcase = t.getAsJsonObject();
@@ -193,17 +244,20 @@ public class JsonSignatureTest {
         verifier.initVerify(key);
         verifier.update(message);
         boolean verified = false;
+        Exception failure = null;
         try {
           verified = verifier.verify(signature);
         } catch (SignatureException ex) {
           // verify can throw SignatureExceptions if the signature is malformed.
           // We don't flag these cases and simply consider the signature as invalid.
           verified = false;
+          failure = ex;
         } catch (java.lang.ArithmeticException ex) {
           // b/33446454 The Sun provider may throw an ArithmeticException instead of
           // the expected SignatureException for DSA signatures.
           // We should eventually remove this.
           verified = false;
+          failure = ex;
         } catch (Exception ex) {
           // Other exceptions (i.e. unchecked exceptions) are considered as error
           // since a third party should never be able to cause such exceptions.
@@ -218,9 +272,14 @@ public class JsonSignatureTest {
                   + " sig:"
                   + sig);
           verified = false;
+          failure = ex;
           errors++;
         }
         if (!verified && result.equals("valid")) {
+          String reason = "";
+          if (failure != null) {
+            reason = " reason:" + failure;
+          }
           System.out.println(
               "Valid "
                   + signatureAlgorithm
@@ -230,7 +289,8 @@ public class JsonSignatureTest {
                   + " tcId:"
                   + tcid
                   + " sig:"
-                  + sig);
+                  + sig
+                  + reason);
           errors++;
         } else if (verified && result.equals("invalid")) {
           System.out.println(
@@ -259,131 +319,316 @@ public class JsonSignatureTest {
     }
   }
 
+  /**
+   * Tests signature generation of deterministic signature schemes such as RSA-PKCS#1 v1.5.
+   *
+   * <p>The test expects that signatures are fully complying with the standards.
+   * E.g. it is acceptable when RSA-PKCS#1 verification considers ASN encodings of the
+   * digest name with a missing NULL value for legacy reasons. However, it is considered not
+   * acceptable when the signature generation does not include the NULL value.
+   * 
+   * @param filename the filename of the test vectors
+   * @param signatureAlgorithm the algorithm name of the test vectors (e.g. "RSA")
+   * @param signatureFormat the format of the signatures. This should be "P1363Format" for 
+   *        P1363 encoded ECDSA signatures or "" otherwise.  
+   * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
+   */
+  public void testSigning(
+      String filename, String signatureAlgorithm, String signatureFormat,
+      boolean allowSkippingKeys) throws Exception {
+    final String expectedVersion = "0.6";
+    JsonObject test = JsonUtil.getTestVectors(filename); 
+    String generatorVersion = getString(test, "generatorVersion");
+    if (!generatorVersion.equals(expectedVersion)) {
+      System.out.println(
+          signatureAlgorithm
+              + ": expecting test vectors with version "
+              + expectedVersion
+              + " found vectors with version "
+              + generatorVersion);
+    }
+    int cntTests = 0;
+    int errors = 0;
+    int skippedKeys = 0;
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      PrivateKey key;
+      try {
+        key = getPrivateKey(group, signatureAlgorithm);
+      } catch (GeneralSecurityException ex) {
+        skippedKeys++;
+        continue;
+      }
+      String md = getString(group, "sha");
+      Signature signer;
+      try {
+        signer = getSignatureInstance(md, signatureAlgorithm, signatureFormat);
+      } catch (NoSuchAlgorithmException ex) {
+        skippedKeys++;
+        continue;
+      }
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        JsonObject testcase = t.getAsJsonObject();
+        String result = getString(testcase, "result");
+        byte[] message = getBytes(testcase, "msg");
+        byte[] signature = getBytes(testcase, "sig");
+        int tcid = testcase.get("tcId").getAsInt();
+        String expectedSig = TestUtil.bytesToHex(signature);
+        try {
+          signer.initSign(key);
+          signer.update(message);
+          String sig = TestUtil.bytesToHex(signer.sign());
+          if (!sig.equals(expectedSig)) {
+            System.out.println(
+                "Incorrect signature generated "
+                    + filename
+                    + " tcId:"
+                    + tcid
+                    + " expected:"
+                    + expectedSig
+                    + " sig:"
+                    + sig);
+            errors++;
+          } else {
+            cntTests++;
+          }
+        } catch (InvalidKeyException | SignatureException ex) {
+          if (result.equals("valid")) {
+            System.out.println(
+                "Failed to sign "
+                    + filename
+                    + " tcId:"
+                    + tcid
+                    + " with exception:"
+                    + ex);
+            
+            errors++;
+          }
+        }
+      }
+    }
+    System.out.println("Number of skipped keys:" + skippedKeys);
+    System.out.println("Number of signatures verified:" + cntTests);
+    assertEquals(0, errors);
+    if (!allowSkippingKeys) {
+      assertEquals(0, skippedKeys);
+    }
+  }
+
   @Test
   public void testEcdsa() throws Exception {
-    testSignatureScheme("ecdsa_test.json", "ECDSA", true);
+    testVerification("ecdsa_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testSecp224r1Sha224() throws Exception {
-    testSignatureScheme("ecdsa_secp224r1_sha224_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp224r1_sha224_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp224r1Sha256() throws Exception {
-    testSignatureScheme("ecdsa_secp224r1_sha256_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp224r1_sha256_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp224r1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_secp224r1_sha512_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp224r1_sha512_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp256r1Sha256() throws Exception {
-    testSignatureScheme("ecdsa_secp256r1_sha256_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp256r1_sha256_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp256r1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_secp256r1_sha512_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp256r1_sha512_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp384r1Sha384() throws Exception {
-    testSignatureScheme("ecdsa_secp384r1_sha384_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp384r1_sha384_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp384r1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_secp384r1_sha512_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp384r1_sha512_test.json", "ECDSA", "", false);
   }
 
   @Test
   public void testSecp521r1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_secp521r1_sha512_test.json", "ECDSA", false);
+    testVerification("ecdsa_secp521r1_sha512_test.json", "ECDSA", "", false);
   }
 
   // Testing curves that may not be supported by a provider.
   @Test
   public void testSecp256k1Sha256() throws Exception {
-    testSignatureScheme("ecdsa_secp256k1_sha256_test.json", "ECDSA", true);
+    testVerification("ecdsa_secp256k1_sha256_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testSecp256k1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_secp256k1_sha512_test.json", "ECDSA", true);
+    testVerification("ecdsa_secp256k1_sha512_test.json", "ECDSA", "", true);
   }
 
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/117643131"}
+  )
   @Test
   public void testBrainpoolP224r1Sha224() throws Exception {
-    testSignatureScheme("ecdsa_brainpoolP224r1_sha224_test.json", "ECDSA", true);
+    testVerification("ecdsa_brainpoolP224r1_sha224_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testBrainpoolP256r1Sha256() throws Exception {
-    testSignatureScheme("ecdsa_brainpoolP256r1_sha256_test.json", "ECDSA", true);
+    testVerification("ecdsa_brainpoolP256r1_sha256_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testBrainpoolP320r1Sha384() throws Exception {
-    testSignatureScheme("ecdsa_brainpoolP320r1_sha384_test.json", "ECDSA", true);
+    testVerification("ecdsa_brainpoolP320r1_sha384_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testBrainpoolP384r1Sha384() throws Exception {
-    testSignatureScheme("ecdsa_brainpoolP384r1_sha384_test.json", "ECDSA", true);
+    testVerification("ecdsa_brainpoolP384r1_sha384_test.json", "ECDSA", "", true);
   }
 
   @Test
   public void testBrainpoolP512r1Sha512() throws Exception {
-    testSignatureScheme("ecdsa_brainpoolP512r1_sha512_test.json", "ECDSA", true);
+    testVerification("ecdsa_brainpoolP512r1_sha512_test.json", "ECDSA", "", true);
   }
 
-  // Testing RSA signatures.
+  // jdk11 adds P1363 encoded signatures.
+  @Test
+  public void testSecp224r1Sha224inP1363Format() throws Exception {
+    testVerification("ecdsa_secp224r1_sha224_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp224r1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp224r1_sha256_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp224r1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_secp224r1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp256r1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256r1_sha256_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp256r1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256r1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp384r1Sha384inP1363Format() throws Exception {
+    testVerification("ecdsa_secp384r1_sha384_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp384r1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_secp384r1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp521r1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_secp521r1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp256k1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256k1_sha256_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testSecp256k1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256k1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/117643131"}
+  )
+  @Test
+  public void testBrainpoolP224r1Sha224inP1363Format() throws Exception {
+    testVerification("ecdsa_brainpoolP224r1_sha224_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testBrainpoolP256r1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_brainpoolP256r1_sha256_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testBrainpoolP320r1Sha384inP1363Format() throws Exception {
+    testVerification("ecdsa_brainpoolP320r1_sha384_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testBrainpoolP384r1Sha384inP1363Format() throws Exception {
+    testVerification("ecdsa_brainpoolP384r1_sha384_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  @Test
+  public void testBrainpoolP512r1Sha512inP1363Format() throws Exception {
+    testVerification("ecdsa_brainpoolP512r1_sha512_p1363_test.json", "ECDSA", "P1363Format", true);
+  }
+
+  // Testing RSA PKCS#1 v1.5 signatures.
+  @Test
+  public void testRsaSigning() throws Exception { 
+    testSigning("rsa_sig_gen_misc_test.json", "RSA", "", false);
+  }
+
   @Test
   public void testRsaSignatures() throws Exception {
-    testSignatureScheme("rsa_signature_test.json", "RSA", false);
+    testVerification("rsa_signature_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignature2048sha224() throws Exception {
-    testSignatureScheme("rsa_signature_2048_sha224_test.json", "RSA", false);
+    testVerification("rsa_signature_2048_sha224_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures2048sha256() throws Exception {
-    testSignatureScheme("rsa_signature_2048_sha256_test.json", "RSA", false);
+    testVerification("rsa_signature_2048_sha256_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures2048sha512() throws Exception {
-    testSignatureScheme("rsa_signature_2048_sha512_test.json", "RSA", false);
+    testVerification("rsa_signature_2048_sha512_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures3072sha256() throws Exception {
-    testSignatureScheme("rsa_signature_3072_sha256_test.json", "RSA", false);
+    testVerification("rsa_signature_3072_sha256_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures3072sha384() throws Exception {
-    testSignatureScheme("rsa_signature_3072_sha384_test.json", "RSA", false);
+    testVerification("rsa_signature_3072_sha384_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures3072sha512() throws Exception {
-    testSignatureScheme("rsa_signature_3072_sha512_test.json", "RSA", false);
+    testVerification("rsa_signature_3072_sha512_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures4096sha384() throws Exception {
-    testSignatureScheme("rsa_signature_4096_sha384_test.json", "RSA", false);
+    testVerification("rsa_signature_4096_sha384_test.json", "RSA", "", false);
   }
 
   @Test
   public void testRsaSignatures4096sha512() throws Exception {
-    testSignatureScheme("rsa_signature_4096_sha512_test.json", "RSA", false);
+    testVerification("rsa_signature_4096_sha512_test.json", "RSA", "", false);
   }
 
   // Testing DSA signatures.
@@ -396,7 +641,7 @@ public class JsonSignatureTest {
     comment = "Conscrypt does not support DSA.")
   @Test
   public void testDsa() throws Exception {
-    testSignatureScheme("dsa_test.json", "DSA", false);
+    testVerification("dsa_test.json", "DSA", "", false);
   }
 }
 

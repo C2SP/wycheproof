@@ -45,6 +45,7 @@ import org.junit.runners.Suite.SuiteClasses;
   RsaEncryptionTest.class,
   RsaKeyTest.class,
   RsaPssTest.class,
+  RsaOaepTest.class,
   RsaSignatureTest.class,
 })
 @Provider(ProviderType.BOUNCY_CASTLE)
