@@ -66,6 +66,7 @@ See [list of issues](issues.md) for details.
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | X25519 incorrect carry handling | Alex Gaynor and Paul Kehrer | N/A | https://github.com/openssl/openssl/issues/6687 |
+| Ed25519 malleable signatures    | Paul Kehrer and Alex Gaynor | N/A | https://github.com/openssl/openssl/issues/7693 |
 
 ## Package LibreSSL
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
