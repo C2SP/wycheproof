@@ -73,10 +73,10 @@ detectable in unit tests.
 Manger describes an chosen ciphertext attack against RSA in [M01]. There are
 implementations that were susceptible to Mangers attack, e.g. [CVE-2012-5081].
 
-## RSA PKCS1 signatures
+## RSA PKCS #1 v1.5 signatures
 **Potential problems:**
 
-*   Some libraries parse PKCS#1 padding during signature verification
+*   Some libraries parse PKCS #1 v1.5 padding during signature verification
     incorrectly.
 *   Some libraries determine the hash function from the signature (rather than
     encoding this in the key) Effect:
@@ -93,39 +93,83 @@ value $$s^e \bmod n$$ obtained from applying a public key exponentiation to the
 signature s. Since this is a recurring bug it makes also a lot of sense to avoid
 small public exponents and prefer for example e=65537 .
 
-**List of broken implementations**
-This is a large list.
+## RSA PSS
+
+RSA-PSS is an RSA based signature scheme using probabilistic padding.
+The tests are based on [RFC 8017].
+
+**Potential problems:**
+
+*   The verification of an RSA-PSS signature contains a number of steps, where
+    the correctness of the padding has to be verified. Skipping such checks can
+    lead to similar attacks as with RSA PKCS #1 v1.5 signatures. The necessary steps
+    of the verification are detailed in Section 9.1.2 of [RFC 8017]. Possibly,
+    this detailed description is preventing similar problems as with
+    RSA PKCS #1 v1.5.
+
+**Compatibility and weak defaults:**
+
+RSA PSS requires to specify a list of parameters. In particular this is a hash
+function for hashing the message, a mask generation function, which typically
+requires to specify a second hash function, salt length and a trailer field.
+The ASN representation is specified in Appendix C of [RFC 8017].
+<pre>
+   RSASSA-PSS-params ::= SEQUENCE {
+       hashAlgorithm      [0] HashAlgorithm      DEFAULT sha1,
+       maskGenAlgorithm   [1] MaskGenAlgorithm   DEFAULT mgf1SHA1,
+       saltLength         [2] INTEGER            DEFAULT 20,
+       trailerField       [3] TrailerField       DEFAULT trailerFieldBC
+   }
+</pre>
+This specification leads to a number of problems, since implementations do not
+always require that all parameters are specified. The tests in Wycheproof
+do not follow [RFC 8017], rather the tests expect what appears to be common
+behaviour in current implementations: the default mask generation algorithm
+is MGF1 using the same hash as the hash algorithm used for hashing the message.
+If the salt length is not specified then the salt length is equal to the
+size of the hash function.
+
+The ASN encoding of a key contains an algorithm identifier. The algorithm
+identifier composed of either the OID rsaEncryption with a NULL parameter
+or an OID id-RSASSA-PSS with a specification of the PSS parameters.
+ASN encodings with an OID rsaEncryption is most commonly used in cryptographic
+libraries. The second option will be an alternative supported by jdk11.
+Because of this the test vectors in Wycheproof use the OID rsaEncryption.
 
 ## References
 
-\[B98]: D. Bleichenbacher, "Chosen ciphertext attacks against protocols based on
+[B98]: D. Bleichenbacher, "Chosen ciphertext attacks against protocols based on
 the RSA encryption standard PKCS# 1" Crypto 98
 
-\[M01]: J. Manger, "A chosen ciphertext attack on RSA optimal asymmetric
+[M01]: J. Manger, "A chosen ciphertext attack on RSA optimal asymmetric
 encryption padding (OAEP) as standardized in PKCS# 1 v2.0", Crypto 2001 This
 paper shows that OAEP is susceptible to a chosen ciphertext attack if error
-messages distinguish between different failure condidtions. [S10]: N. Smart,
+messages distinguish between different failure condidtions.
+
+[S10]: N. Smart,
 "Errors matter: Breaking RSA-based PIN encryption with thirty ciphertext
 validity queries" RSA conference, 2010 This paper shows that padding oracle
 attacks can be successful with even a small number of queries.
 
-\[KPR03]: V. Klima, O. Pokorny, and T. Rosa, "Attacking RSA-based Sessions in
+[KPR03]: V. Klima, O. Pokorny, and T. Rosa, "Attacking RSA-based Sessions in
 SSL/TLS" https://eprint.iacr.org/2003/052/
 
-\[BFKLSST12]: "Efficient padding oracle attacks on cryptographic hardware" R.
+[BFKLSST12]: "Efficient padding oracle attacks on cryptographic hardware" R.
 Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay, Crypto 2012
 
-\[NIST SP 800-57]:
+[NIST SP 800-57]:
 http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
 
-\[Enisa]: "Algorithms, key size and parameters report – 2014"
+[Enisa]: "Algorithms, key size and parameters report – 2014"
 https://www.enisa.europa.eu/publications/algorithms-key-size-and-parameters-report-2014
 
-\[ECRYPT II]: Yearly Report on Algorithms and Keysizes (2011-2012),
+[ECRYPT II]: Yearly Report on Algorithms and Keysizes (2011-2012),
 http://www.ecrypt.eu.org/ecrypt2/documents/D.SPA.20.pdf
 
-\[CVE-1999-1444]: Alibaba 2.0 generated RSA key pairs with an exponent 1
+[RFC 8017]: PKCS #1: RSA Cryptography Specifications Version 2.2
 
-\[CVE-2012-5081]: Java JSSE provider leaked information through exceptions and
+[CVE-1999-1444]: Alibaba 2.0 generated RSA key pairs with an exponent 1
+
+[CVE-2012-5081]: Java JSSE provider leaked information through exceptions and
 timing. Both the PKCS #1 padding and the OAEP padding were broken:
 http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf
