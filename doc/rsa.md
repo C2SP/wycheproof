@@ -121,9 +121,16 @@ The ASN representation is specified in Appendix C of [RFC 8017].
        trailerField       [3] TrailerField       DEFAULT trailerFieldBC
    }
 </pre>
-This specification leads to a number of problems, since implementations do not
-always require that all parameters are specified. The tests in Wycheproof
-do not follow [RFC 8017], rather the tests expect what appears to be common
+[RFC 4055] defines a number of identifiers for RSA-PSS in Section 6. The
+proposed identifiers use the same hash function for the message and the mask
+generation. The salt length is always 20.
+
+These specifications lead to a number of problems, since implementations do not
+always require that all parameters are specified and hence some default values
+are chosen by the implementation, which of course affects compatibility.
+
+The tests in Wycheproof do not follow the defaults and parameter sets proposed
+in [RFC 8017] or [RFC4055], rather the tests expect what appears to be common
 behaviour in current implementations: the default mask generation algorithm
 is MGF1 using the same hash as the hash algorithm used for hashing the message.
 If the salt length is not specified then the salt length is equal to the
@@ -165,6 +172,10 @@ https://www.enisa.europa.eu/publications/algorithms-key-size-and-parameters-repo
 
 [ECRYPT II]: Yearly Report on Algorithms and Keysizes (2011-2012),
 http://www.ecrypt.eu.org/ecrypt2/documents/D.SPA.20.pdf
+
+[RFC 4055]: Additional Algorithms and Identifiers for RSA Cryptography for use
+in the Internet X.509 Public Key Infrastructure Certificate and Certificate
+Revocation List (CRL) Profile
 
 [RFC 8017]: PKCS #1: RSA Cryptography Specifications Version 2.2
 
