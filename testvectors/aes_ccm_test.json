@@ -1,12 +1,18 @@
 {
   "algorithm" : "AES-CCM",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 510,
+  "header" : [
+    "Test vectors of type AeadTest test authenticated encryption with",
+    "additional data. The test vectors are intended for testing both",
+    "encryption and decryption."
+  ],
   "notes" : {
     "InvalidNonceSize" : "AES-CCM is only defined for nonces of size 7 .. 13. No other nonce sizes should be used. The encoding of the octet B0 is undefined in these cases.",
-    "InvalidTagSize" : "AES-CCM is only defined for tags of size 4, 6, 8, 10, 12, 14, 16. No other tags sizes should be used. The encoding of the octet B0 is undefined in these cases."
+    "InvalidTagSize" : "AES-CCM is only defined for tags of size 4, 6, 8, 10, 12, 14, 16. No other tags sizes should be used. The encoding of the octet B0 is undefined in these cases.",
+    "LongIv" : "CVE-2017-18330: Overflow with large IVs"
   },
-  "numberOfTests" : 501,
-  "header" : [],
+  "schema" : "aead_test_schema.json",
   "testGroups" : [
     {
       "ivSize" : 96,
@@ -5905,13 +5911,82 @@
       ]
     },
     {
+      "ivSize" : 512,
+      "keySize" : 128,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 458,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "c32a7643ab0f6ea3458d7e63b0ed6499",
+          "tag" : "8fc9b6f40b3a81fd5fd6c53c",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 1024,
+      "keySize" : 128,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 459,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "c32a7643ab0f6ea3458d7e63b0ed6499",
+          "tag" : "8fc9b6f40b3a81fd5fd6c53c",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 2144,
+      "keySize" : 128,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 460,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "c32a7643ab0f6ea3458d7e63b0ed6499",
+          "tag" : "8fc9b6f40b3a81fd5fd6c53c",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
       "ivSize" : 0,
       "keySize" : 192,
       "tagSize" : 96,
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 458,
+          "tcId" : 461,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "",
@@ -5933,7 +6008,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 459,
+          "tcId" : 462,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "40",
@@ -5955,7 +6030,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 460,
+          "tcId" : 463,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "4041",
@@ -5977,7 +6052,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 461,
+          "tcId" : 464,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "40414243",
@@ -5999,7 +6074,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 462,
+          "tcId" : 465,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "404142434445",
@@ -6021,7 +6096,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 463,
+          "tcId" : 466,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "404142434445464748494a4b4c4d",
@@ -6043,7 +6118,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 464,
+          "tcId" : 467,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "404142434445464748494a4b4c4d4e",
@@ -6065,7 +6140,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 465,
+          "tcId" : 468,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "202122232425262728292a2b2c2d2e2f",
@@ -6087,7 +6162,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 466,
+          "tcId" : 469,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "202122232425262728292a2b2c2d2e2f30313233",
@@ -6109,7 +6184,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 467,
+          "tcId" : 470,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
@@ -6125,13 +6200,82 @@
       ]
     },
     {
+      "ivSize" : 512,
+      "keySize" : 192,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 471,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "81a8a087cf96d58f64868b189edd0bb4",
+          "tag" : "c5cc4f2b5a460c1d229a6ba8",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 1024,
+      "keySize" : 192,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 472,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "81a8a087cf96d58f64868b189edd0bb4",
+          "tag" : "c5cc4f2b5a460c1d229a6ba8",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 2144,
+      "keySize" : 192,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 473,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "81a8a087cf96d58f64868b189edd0bb4",
+          "tag" : "c5cc4f2b5a460c1d229a6ba8",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
       "ivSize" : 0,
       "keySize" : 256,
       "tagSize" : 96,
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 468,
+          "tcId" : 474,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "",
@@ -6153,7 +6297,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 469,
+          "tcId" : 475,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "40",
@@ -6175,7 +6319,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 470,
+          "tcId" : 476,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "4041",
@@ -6197,7 +6341,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 471,
+          "tcId" : 477,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "40414243",
@@ -6219,7 +6363,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 472,
+          "tcId" : 478,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "404142434445",
@@ -6241,7 +6385,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 473,
+          "tcId" : 479,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "404142434445464748494a4b4c4d",
@@ -6263,7 +6407,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 474,
+          "tcId" : 480,
           "comment" : "Invalid nonce size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "404142434445464748494a4b4c4d4e",
@@ -6285,7 +6429,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 475,
+          "tcId" : 481,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "202122232425262728292a2b2c2d2e2f",
@@ -6307,7 +6451,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 476,
+          "tcId" : 482,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "202122232425262728292a2b2c2d2e2f30313233",
@@ -6329,7 +6473,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 477,
+          "tcId" : 483,
           "comment" : "Nonce is too long",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
@@ -6345,13 +6489,82 @@
       ]
     },
     {
+      "ivSize" : 512,
+      "keySize" : 256,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 484,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "e73cc2ee050a0e7b345aeb1000c481c3",
+          "tag" : "182dabaff0400de708746b6a",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 1024,
+      "keySize" : 256,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 485,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "e73cc2ee050a0e7b345aeb1000c481c3",
+          "tag" : "182dabaff0400de708746b6a",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
+      "ivSize" : 2144,
+      "keySize" : 256,
+      "tagSize" : 96,
+      "type" : "AeadTest",
+      "tests" : [
+        {
+          "tcId" : 486,
+          "comment" : "Very long nonce",
+          "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "iv" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b",
+          "aad" : "",
+          "msg" : "202122232425262728292a2b2c2d2e2f",
+          "ct" : "e73cc2ee050a0e7b345aeb1000c481c3",
+          "tag" : "182dabaff0400de708746b6a",
+          "result" : "invalid",
+          "flags" : [
+            "LongIv",
+            "InvalidNonceSize"
+          ]
+        }
+      ]
+    },
+    {
       "ivSize" : 96,
       "keySize" : 128,
       "tagSize" : 16,
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 478,
+          "tcId" : 487,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6373,7 +6586,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 479,
+          "tcId" : 488,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6395,7 +6608,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 480,
+          "tcId" : 489,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6417,7 +6630,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 481,
+          "tcId" : 490,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6439,7 +6652,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 482,
+          "tcId" : 491,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6461,7 +6674,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 483,
+          "tcId" : 492,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6483,7 +6696,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 484,
+          "tcId" : 493,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6505,7 +6718,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 485,
+          "tcId" : 494,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6527,7 +6740,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 486,
+          "tcId" : 495,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6549,7 +6762,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 487,
+          "tcId" : 496,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6571,7 +6784,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 488,
+          "tcId" : 497,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6593,7 +6806,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 489,
+          "tcId" : 498,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6615,7 +6828,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 490,
+          "tcId" : 499,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6637,7 +6850,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 491,
+          "tcId" : 500,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6659,7 +6872,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 492,
+          "tcId" : 501,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6681,7 +6894,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 493,
+          "tcId" : 502,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f1011121314151617",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6703,7 +6916,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 494,
+          "tcId" : 503,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6725,7 +6938,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 495,
+          "tcId" : 504,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6747,7 +6960,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 496,
+          "tcId" : 505,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6769,7 +6982,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 497,
+          "tcId" : 506,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6791,7 +7004,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 498,
+          "tcId" : 507,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6813,7 +7026,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 499,
+          "tcId" : 508,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6835,7 +7048,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 500,
+          "tcId" : 509,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",
@@ -6857,7 +7070,7 @@
       "type" : "AeadTest",
       "tests" : [
         {
-          "tcId" : 501,
+          "tcId" : 510,
           "comment" : "Invalid tag size",
           "key" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
           "iv" : "464748494a4b4c4d4e4f5051",

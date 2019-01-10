@@ -1,17 +1,22 @@
 {
   "algorithm" : "ECDH",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 182,
+  "header" : [
+    "Test vectors of type EcdhWebTest are intended for",
+    "testing an ECDH implementations where the public key",
+    "is just an ASN encoded point."
+  ],
   "notes" : {
     "AddSubChain" : "The private key has a special value. Implementations using addition subtraction chains for the point multiplication may get the point at infinity as an intermediate result. See CVE_2017_10176",
     "CompressedPoint" : "The point in the public key is compressed. Not every library supports points in compressed format."
   },
-  "numberOfTests" : 77,
-  "header" : [],
+  "schema" : "ecdh_ecpoint_test_schema.json",
   "testGroups" : [
     {
       "curve" : "secp384r1",
       "encoding" : "ecpoint",
-      "type" : "ECDHComp",
+      "type" : "EcdhEcpointTest",
       "tests" : [
         {
           "tcId" : 1,
@@ -431,6 +436,951 @@
         },
         {
           "tcId" : 47,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe732152442fb6ee5c3e6ce1d920c059bc623563814d79042b903ce60f1d4487fccd450a86da03f3e6ed525d02017bfdb3",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "c3d38450a5dfdbe64f4b5da3add4ac1315f87d11720f29beb6f3616a65ebca1d569c0fae5c5bbb6d146bf9103e645b9f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 48,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "public" : "04183c0d3650d35a33423c0d00896aa0af9f340217f42086ba51203d158a60fa91ee83b52034ee6167c6593ce67a31c38a20813d9e7eea718d46485650420366dcc1cfdb5cde93eab28308def758ba4c3ba386139d4a3a3bdad64c54192f2bde32",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "18150961859e3efad6267582f97417f19ed8e7e537b692b91050944a6fab8030411dd92e941357c7494af0118840a614",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 49,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "public" : "04ce5ad811e7eb08024e40e30c1cb29cacdfc8f809f7f0110e6b225c6d8336f60c30a573ef1b912f5fd300b0615e9fdf1f631ba974beb9544b4a8c9945f72f3e5fc569438c4303672279fafa900e53690aff753da92f400ab62de8067da99fe37b",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "cdfc9463af891682c51b6f4c9656551c33b80739f177612f27a4b1f37c97fd8023495b0bc15c688ab19b7f9880efc8c5",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 50,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "0442faac2ae2bbad43a6e45a796f1dcc70cac444ec1570ac769d6e86207443db8c03a33ba07862fcc619cec806ce8826c2776e31dd086c1b19323b58084553bb0825d091ffb123d265afa5970cb72c2e6804ab327834299641e70ff14291975bb1",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "bee46c5518e8e2f5c7fa23f2ab8fc43f5a7419f70373daa1a674630b161ea39c381a1eaaa90efd34aefa9ac6edb53c75",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 51,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "046ad66f673d832f8a86cfd7a66d216d23a26583235c28ecb7b598ff8dd1132bc6cf0dc46a98c864665f195a996563e57770aaaadcbf36531a318da95120d9a800226ac9fbff06f47837911c7b95f5187c43ef959a4ea3e117b847f1dd1f8cc4b2",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "1ef2e485531e26d69ab7c7b8c27c1b4be152728961875681042683678c7bb4ef8b59c7c1d62adb5f034bb2886ff691e9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 52,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04f842e8f47151949b5cb6cde4acc7a83d901173ae316ec423e1c966c8a39638ffa6def3160f7bea664982b9636f639f72702fe1d593454f73d06050655e28ecb8cfdfe13dcc7752bde38fe0070b43bda5e6b7203b45077471825df1b816a428c9",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "a8573b49006362d9b7363c502969b2233b2fc5730cf575d414c50a45f0a5b4d518bd450288c89e81d5171efadbce59c5",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 53,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "0464e68d8a8e6d44142fd0b3353275df4be95b0ff9465d114a18ff238fa4d3947ff4e3fc66970d85731d784b0a17157887cb961cf636c0e8d4b5f8db0060c2b699ed750e92a05ac4da49780b8a48729c6c2b866c75754afb2c7c2d661ecf640cc2",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "33f9aa308445cdc2d159cd39c33b495382ff8b9e21b6d1b160577a4b3c5daf00b8dad3c83852f18f27a4402ce94421ee",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 54,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04237e5a05a3b9dd16f27d1cc04d16f19ec3d27881b90c2049fd2665cec7eaae1cacded4e0f8abba5a64d4183a71449d9b741073dc2594d02ac9a88988e51d7bee22111962f63748efdc8c311f631ae8680c8996028da4e956ac1284d0c01614f5",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "ddf7fea52b92e1544fb1c7ce2274409bca1704f44bc0ae1a6a8b388eaf316c90bce99b0c203f7556e5baaa26c6b7ad6d",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 55,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04810face99512bec259d575229d9586791bdfb1b221d23c1738e4f9af0498f54b18cc0cbb01b64cf3411ec4b68480db6d6c06e6209188f354323b4db6f54f2b1dfc5c1c3dd4fef0cb379a7d7ea085acdac9e60e04f8db488be97f81ded66ea33e",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "d2287ccb642a76e001124dba6c6ce19e82536690abf542104cbd45c8708e462d8ce06e05ad2a0fea4d68492fcf376afe",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 56,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04f0b00271a2bdde4bddbdac00406adf056d32b9b03f4bd29cc66093df22e5da09fe48cabfc8d44bf136b5be275c7f53f66ccdd0d00354a307fea0091070b61fa9e2da1e2f329fad68013449ecf477fe33458039bac911104da62c29c08192a315",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "36151b0d1c1b28ac062e0829f41bd55044dae6f1daf30ab3ff4148a83ccbccf507bef7340c9544f047f554c71272ae24",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 57,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04f82cbbaf1c9b6063a1b505580766b1446b6b5a990151703e7afd8a3175387fae567081019e0fdba7964ed6c0e4d0e45ecf379bc1eda30ce4fa560106b3d09bf38e9fcbec3eadc9e12c5622c01130c870c6136498f52bf62f3987defd294df33c",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "2451fd979864169462a77d742adb6f4505f2db956d2d2dea5b05e40f40f2654fc17d1cd1d3b353322bf0d1f3cf828c49",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 58,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04ccec117025eece29e0ed077d98678738fd1a5cca20e40bb322a40566831243dac806555b8508f4eaa68beb4e78ed917686415f11232c5ecb9f805b0dcc6ce06b57fdf4e4ae4e6d822472d6725a9c1da41c2fee1519586c502bbb1a4ce2582863",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "0b3c06fb8c7c31a96fa6dc80250143e39af9e5c201fdbe92245771e345cf787f99234ecc1d6870599ad50a1cadf687e9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 59,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "041e829bdbd8a2c1321d04932aacd42972f5b2ac5b6a61b041216ca9481bb0da8abf6d5c1b63e868479f88d91345cb9153fca2c5698fd5b404c9bc125bdc3c608fe385367ee2b68408e959b83ec8bc3ec1e05a6fb984fedb256574885f5dd98940",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "5388905aee7f826b9a5b46faeffe26d49f8566c7a8e8af5a1653fcfbff7c0dfde566f043401248486ff91c390f5cc6ed",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 60,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "044dd1e1b454814f3be1c62eb87c120772c2062a3d7e5461d5554b3963a9fb1190db965695caf555a45ae25be73e47c3745baa93fe2bfb094fe718c8c9bd8e1e6e86cd629dca0bb91ee934e93469d4fff32a41dfd78c27ba534a3d5970c388effb",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "b920299ba26075d2647ccb978d15a54ef48330db3a8794d868ae02bf152b3c24ffa966893ea9eb5d3cce83e0239be02c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 61,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "049471abf4fd1b89d14df2325cb0a6bc92e73c8ec8e06c47b0978d93e9225adf089d3ee4e25c222b60d02199c1b58004c1d1b35bc1475cfcf3e3a6116593e2ca5a70344127ad907a4aa1d0c66139f287a7fe48cea5844a20df5a688b89211f19c3",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "705421b36618115fccb7ce6db8575fc4b3f0a2780ce02a3487e4055dd0d51834006270e992e0afaa4c7ce0f699f7fea2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 62,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "0497046c4438b040315be39ee3869f3e8711c3196758476f2b4d90cd4399665c8c5c87f9cf64289c2bb01166742e1ae036b281922e8872b48b7d3e1384ab4d0a92c602ace7df3a93a47dc50c8c2e5e8a875d2d927f7201ce11fd8df812baa1e4f8",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "3c510006f8658f3fa414fef9723d634a179db7aaf0b7068b7696cff93f88e04136dfdac68349781bf05a787ae19e9021",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 63,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "048e3dae500fe2c645aab15379170682503154af1fd0a21ffd2e34f0501c518507e0ebf45d7cb8653fd57bf1f894f2a552cb69af7e009d43bd6e688bf28f5e2815f3c9f4fab1d829d29f05312bad99d75c2518d2a301a74d5ecee1333582d79c14",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "248967afa36386cfeaa2214847c7c8c32a891a2438b83665f99e5fe7ab6dd86353ff7a8b15d4be4e1277c721d69cbba7",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 64,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "041fca8f9695650a02d6fb8049b1531a3783e449df75a98d45999fb9857c3e756219d48b2c84d5143f08c2ab097b365a3345aa197e10c659d9c53fa754f112d77973107ee35c3aee3b0b1322b362fa08497c097c1881934e36cebd5e18e9240cb6",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "a454ff4d944587a188e7ebaccd97649ab0cf83f8f8d19b3653a2e621206d3992868b5a5765d1fa762f0e3b0161a6809b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 65,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04731ba784e2ed21f4a4a2b4dd4877aec2fcd59031f80193b9558bbc1cf7fe6704469443fc7f398e8bec4086f88aa76aa26c389acfd51f69c89a153bfadb5d703a36cb12a4d85f5517cf462bf5d02abf7d19722f480eaf1a2617cba1941e1c76b6",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "99780ed215dc417f798c24327c3caf22f3685e5cf2ab835fc54b428117b7d17f0feb63f1755468157f3237b8117dffa6",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 66,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "048725cb754b5527a3b053d63e0c4b097e4c34c5d731ab5cd4728650a618b4ded4bf9214d793ad74cfc470e35c5493a4b420a3c50049a42791721bc50d5f608cb272b60a5545db0608855bac8fbfa93990d6b80e3041773e10937d837010cae640",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "d738b7373fe978f27b194f69edd5c421b98922f5e313b76859a9357a1faf42ed0e06dc13d55843357538ce7f4127cee1",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 67,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "049c7a594eaf2ddf3c8ab6c6e94f1ec011dac9fa42bd27df2fbe402ac949d3a2c676b684a24c99f7d1b7e89e9f8a0634eb3b83095c7a1cd6aa9332460ecbf257f7afa449608b9e0ddd15292b875ad2fd069dc927ce00a4b5e679338023bd3a4e6c",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "d9cc861db305b04a273d6b55348ef9f0a0a2aedf8b3d041a19e263ed6ae2e01e439a46823098f2aaa4867d4f08891e36",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 68,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "0421b1aa359d72ff33a84ec9621483e65881d4fa8ce6df3669e0abbb9f6bf8d0ee3d9862a7dfb45213e39ffac7b3e1ed871f5e59cda5a5b861ab3eb86caa7c6e85933676efe660dff8ac5625ec8a7630a9cba9eb3fc149d3ef379d4a5ec174d237",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "c59281d09f44f679294aee5668eb538d503ef25aac591614b46f525d8c0b109ab129674963500ad7b6268941a28c0067",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 69,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "04e1ad2b68fa69456574de95b1e048b0715009409ef5cc270be51fdd40b4f65b1ade67938a6a6d725b01310f2253a38cf444f726b3eb5c5ddc257d6d9bda9bfa60bec6a07fe07dae967511314370d3a4e041c34f1cb49fe6b70663f020488e98a8",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "9eb70f8949861c30f2456990abe4d345550008b8531901521361aaa17296dbca06fb3c87e8f4592b7dc5d1997c58c076",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 70,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "public" : "040bad67ea0cca960ed3ea0588d5eeef366c24342ab3e46602891d1adb4d85d80dd242962c5654bd6af5913aeaefab27ad9a07b4197180c9869af795f696fdf6f25cdc66469f4ca7ca89c5c904636d85f6b9a19e7bcf0540831ca7aa40446dd8e1",
+          "private" : "0938f3dbe37135cd8c8c04182952f6e6f9bfe7a4cff4eacf90612a48865dc43e9b5d230f761d1fc4dfb69be20e84ccc8f",
+          "shared" : "45b02fd4dd76496701be3b37e632056cf7f63e9808f627fa858eecc5bac16a01a949741b4de151fe35e774c6d1e389e2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 71,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "042c4069bc8078236eb23a8c4d575bde9b537b13b79989688c40d89d898a8c29bd7ac61745797b7ee55aca60ea7d6c2a8430fcfbed18a2504661e0253c43e47be01940e81fcb2d65a5e501111978059949c5d25b0b60de7821476b88a8342a0bdf",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "6ce9bffb8901baa801d1b19e92b5e5f47f5bee10c15fe44b8209977572cc8bd7902ccfc0d7ae98f6b58bb87f316a5792",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 72,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "0444bc1cb2d42ff974e72bc883dff784e86978501f918eef4d96d6e5242da6f5651a29cf5205c3dc3be33332fa2defc34788f88f549ed78732063020dd3fcb872515b25e088700e3eacb925de767e9edf6e89f089c4f9e0f4d8846980393667f6d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "c6dd2d372d5a5173ac63f6d5ab5dec972e8ae44d566c7f826beb7f2693e200c470ddedb1c9929c11ed86d135f44c979f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 73,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "04b824eb72c43edb5b3ce9af94ebbd33b446b4a7233b89affe1cfa3beb53cd199fb119a356772bfec178c03b077df12f53f99851fbeb9971ffcf29ad61ba484bd0580036dcaa59f407bc88a471cd862b80a163c91a6f64602b6f713959b2f6c2fd",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "0299b7fc3e5506926fea66d20f65b9791fb6c88c7179f7d4701d68c13427ab56ac0f9e1da96c1d5f3d1a65ff3122c153",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 74,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "049270b8cefb61a5d52fbb5e6b3b62361f3afa5d1a6b01419db9266e2dbabab36aea5b1961318eaf8f0bd7cca75ff2df5b7e538c63012a73f777b25e1737d44fdbc299a76288d7bcb57c8484c71c9bb6453245f239b6c6df32898424383b4c0309",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "13d78b7a4daf8ddd62e347ba235c36486fb2eb4a75a3e17a137ec6c2de37abaf45da92d1cf1b2966ded8d5381fd2319f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 75,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "0419e5c28657479eb41d3718f63e0678be0daa58502a5406d65913567df7b86ab25e905ec846789530d81d8d1fc2a8cade4aaf131a0ccfc79a24bc889c953249ee85b49e2a1bfa52167fe20de296e6497ef9014c2cd0a02afbad1f9d00ac3d924d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "7b0863fc6d72c4bd058576cff7a4aedf86482d3d9bc9c5fc55bd8fac84107dd0bf9f27d7e8d624edb0aa6ef1b9cc2246",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 76,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "public" : "0459666df447dabc386d8dddae93543dc76151f7c1c04858660d9ca8e0655b51a72feffb7085bacbde153fea75b5716ab5c3c7811d0c7435be9e36db00cd29c6ca879ef991adb157a6b4bf56e3de5cb34598b79a684cc3d4e23f22d10063e8d19c",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "fba2bdfb54e468a4ff5afbaa54c7037400d76414c98eafaa419adab0df50c9692aac67d44a9efbd00d4f9cfc206d537b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 77,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "public" : "043bafce9b32616f3bde17fc989f1e556f92faf5c30e2cddebc2aba44edf36ae3957c9c610a34521e6ac454652aa597811827b4ff45f991f9405f2d8cf45d5d0876a260ef0deb6e86090c5b45f5b7b1786105324f40a0d2b43ded57868b38b43ef",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "ba9b68d1c00aa1246edafb70db6ddaed8570c465d9a5836d4156a1ac7fda2a209c25471a0df6d7de93f980c89c841620",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 78,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "public" : "0453385b9303d2c5d1ea83e7700b3e811a7c905d1775c379a44e9e5c96821559700b492ee2868c5a01950aa4e2b05932ee8fa1bd83035aabbabc2be7b61f388f78b8046d36bee99b5489bafb3a86dede29c14d5373ed9bac72a92ab8e7c31fb86a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "33c6c7e2c805889caae5679aa024dd79f54456f798eff0a0ddcc1b28d8ad302d2f67092275ff55f8f4d99357ac86ce58",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 79,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "public" : "049ebf8d313da3e5ba237ee33e6dd5be770390f837c9528fbdd440a9eb2ba1cffb27837d865cbe1b32ff9c7995d5dd511caa4125ec258d182ee7f7173ca1d17139ae13e6072acd970ba56f6d5034e9f45da36b2ec774349be2168f32bbf04f9a31",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "0deeb01decaae0eee55e2c29501cdd9cf7d4db2f1679fb72efcaa5db6e05cc4a658480245c59fec9984c613501411b0a",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 80,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "public" : "04d4cd22e8dfa620ca7d68e290451b09285298a1db5a7ca00ea830d6e9ec9cc4d03f5cd43fb2a9aaaa142fe4c6e2269cdc747e0ca07e38f4c5b412e52cb7930c381100d2aafe54b619ebf72e81a46e1149635d25a37fa66e2d1bc9ac25fc1a83f3",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "d360753c568698d7f7b261dd2f5064ffc8aa9f03343a2291b967632646d51570562f1ae87775648e74f9f30e966e7380",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 81,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "public" : "0421b91b9c374ecf5cedc6d73422c6539b22ae5db61bfdb06b9c89e68112f6433e9d49715f474534fb9cd6c2cbfcdef94fb5d4fe306d59025af4e88f8cb3ddc3d64f707e6820b41cdfc055cd6762da23de01c1b311f1a5bf7010c4ff4ed0a7e84c",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "596af71209cdd23c386bb861edbd171ea9bc6a858993110c9333a956b3a03fc0f55393ca46bb15bcf9f12b496459c4e6",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 82,
+          "comment" : "edge case for projective coordinates",
+          "public" : "047a6fadfee03eb09554f2a04fe08300aca88bb3a46e8f6347bace672cfe4276988541cef8dc10536a84580215f5f90a3b6d243d5d9de1cdddd04cbeabdc7a0f6c244391f7cb2d5738fe13c334add4b4585fef61ffd446db33b39402278713ae78",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "15dbb285c23731b1b097856bc8444c3f23874ec977b419d85eb62278a73c277b484150b61298e2b64cf677a003dc980f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 83,
+          "comment" : "edge case for projective coordinates",
+          "public" : "04d0e20a46b36a39f05731087963dea0eaf839b9816f5d7192565614bcb3230312f853595e2639cf274544098a243cda5cd1d0698cdf4868175ebac978e0d91c8e826cabf0b801bef1b2604396f4c6c6e84d36527b3491c90190096f8e37ae8b74",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "08746ec407e71e9697d183324493d997e829f953c36e75d8356b10b5673f0d2dbe6a13a8f19e3af759072f25e98ce92a",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 84,
+          "comment" : "edge case for projective coordinates",
+          "public" : "040c1a9db28bb968fe86f4c40cc82a2e1bb4ac1de7e0944077978155976f0ec6e06fc9f0c9f1eb260239bcdec918a80d48947bb19283bd1375a6925b73a6593ba5f2540002d669fda7ab065711495bb2839789de0c5cf91c1af94ce8d56d2bfe3d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "cf3d24d04e4e853b69d5fb37674b75ac2d031fadd9db3811b32ff078e36dc35e98c9e662b675b37275e1f8fb25bdfaf7",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 85,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "0473c31564182f68ea047a3811697971276cb8156dd804fe5fef4a18a3eaa23d2df69986a2aaa34c37c56a25db6dab98114d0e438a975aa58c76052d05b9fc9de20d33458eaa16f332d4ce9ad0ce5e94aad3a5afce477dca2a4199932e5adbff36",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "361b4aba162da8dbf140fbfd0439b3893621b383cbf448aa8bebe5d5312407448f6e4859fbac9fc63d424e3f39ce092d",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 86,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04c43eb5618b8dbf6765ed0702881e054517f2ca6705d50888f9e87f9408f6151574b6ac74f8f65ff09a02099987996a41f6b995aa037164fdffb26d767a2afd356733942eb09a9ffe1beb6b8a03e3e00c245f8e4a779c394e172e97ba5200176d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "99c7bfd9a3a430158bf409029757f6856e25712bf72e6548d6c126d56cbae42d5b85687a4ffe4505a83c7a84880ae602",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 87,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "048952fed5e005c3406152a00669a345707f90fe517913c829a64eff27c3e0df22475025d6fe0c82ae00f43648b4d8715c5176857fe20d5a71fe733ecf407c6a795ca3a1b7599adaa252f71f44eb198131b3fd66b26f8adacc009da858766d291e",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "2097091e163f6bbab4ec11cd95bf3f7a7fe5a98816eaabc218dd61ebd8b22327646158c16d76e5310954eeacdef0da99",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 88,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "042988addf62149e6ac08219d2f036d3f5720aa862905cf3fe7bdf136dc08b845e8a61be43db86d71a26dc17bf55374a9dac53663a2f821ef318b12c4e3bec97914458ff0b6d9f4f7ca806a250a4ce5aa9cba3f89e860da2796f03e53ef38ead72",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "a8d424068fb7846b0d43a5cc13029d054b11c97e508ee0f92e73d35ac8351a462eedfc9da9dd1279f12812ba46c06053",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 89,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04ea59bcd98bcb82c149695a7079e32d24bc44ef8cea299519e1e6e7c4cb8127e2d2ec26e74108c7ad41407f6b412a22bbea2f219be006b1e464403e6bfe8ca14a1bef028ea2dafa048b3ef09e2e914323b8ec8e53a7eeefc29f1127de9ded7377",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "25d60bd16a3d73934a6968cebec28acc760ecf166e52d7728d85be5e6a816d10aeac9cc815f9f94c5d57e5a185d50673",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 90,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04b64c49ddf18bce79cff3b8cb7b0e58d48421eb6739f59d271fc4f54dd2fcb1cf56dd3b3c69173a5eab50ab1a2e0616d0a26d479b34361b5c08a9af100c61f15340783b3feff770ccc77bd32687cd8daf8644ea66942c057adaa7e9cbfb8c442c",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "db1edbbb1f3ac6df9f46128812bce7818b5d745c75322a9abe89983be868aa1aac555f4d60ec272730bb4ad949a53d38",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 91,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04a40b1ca1a51a8ee6bef5b58aaabcffe2e15f74a3087edb2620885d7d933e4f50d625eaad93b87b8dff58f0565792b17454768e80017832d60040c32826c74ee8c8b8403fcee4878dc97b28365e3d41c3a68406db9112f6ffd7125dec93b8819a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1f84c641ade162a274ab2efc7cf6582f5a5d91ce7993af6956d55eea0e1b7fbf040da9750486b0fbb2bd70d9ccabb785",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 92,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "044e7a82ad74a1b7851995f6e1a18141bb4584ac22e839d4d916018b150fed9cd0cce427bd446798522744d395e90ee4b6cbba3e595b32b983df324d677ab0e1d8f50415fac4887b6894afb2f1ecc63a369ff8313b9c7c66a75e05ae17b7c21a9e",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "54efb9bb7269d86b06282b1d7dc28a940cd7789ca4e104c4bb7c5e5736676c3e5370cfd97849e1200a031b668388d8d0",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 93,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "040137b07f07d42f23bfc0243e641733600df3971b25070193bd2367a7a37a595c3ef9c160cf461bba642df20a2a3eb84357baef3159bd7dc0c009f99614e80350aae9c34ebe8db22f3007378926aff92ace6401288fa3762b6de56a7397f52154",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1d73b8baa8e91f6f0e1cd8088a46c0925bbafe7cb2130e670ef0cb2f713eaccdf0e35f2e74aa5e6740c98b4da595ad8c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 94,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "0493fe6131c6b3051af98a2e11a6ebecde1f4b622196889bee7ffac53899f92c78038b81492321f29ae74d58628c2cc6a3e75adab1b12c5070988287367f38cdeb5e3499a9a31a88566dc4d984a02bd005b7b4dc7da76715227d4b4d4b0503a1a8",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "40e6d1dbfd6560b5f0ef4d1c5cc918faa0d63a56d5f4fa40ad2015e9c7b6540b5480bd1dd9b4822ac10f6eece9e3d2d2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 95,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04ccf5a5b80deba6318b85f57a0d563e95765c7fe30df5ac88837f35329dd51070e29896f4d96ef40bcccf36244df83561b1787a07f9a07e3a16d8f02aa6495c7f4b7c78b2d672f2c7d111e12495a6263d9cd695475f97e794f2dc0cc9c822f112",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "82864ef4d5fd25204ae1591c619f3ed813c762baa009ba3b49ac38c57b2f46652f719adceabfbcaf985b29958d1f420c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 96,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04c7f77ad286c68b88ffa64fefe4aaab3dee1f9bae37b7d069bb92bea82089e831a70dd9ed007ba6dce14f9c6d5e744ecc4ce652913ecbc8934fa65e37967b15742eab27d912c2451727271f955f341fec82203cd8de443e08ce0626f29785830a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1d0d3ed8c1e0d28f5e3766f193da7bdca1cc08376293f9bbde7bde0e9b1ebcf4cfa3c683dc63bcb42b2d9ede54242bc2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 97,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "0434bcf82c3d7c61f54d5421b0af95590ca1f09f98f6b4c270c56023016be0401e56048fb68ba7c688b0364e22b9efb77f2cd527a932f08b532b63dd058a32b57fdd73f7a80f9250a0bfe73954144495d81bb5077386a7785cab559ffad41d4dfc",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "f488bd6e7cadfbfeab78eec8631272903635d33079ed9f5184356d2eeedcc0da8584d356dcf2bee55d618a1b9e7c34b9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 98,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "0470099781328800375c190ea039c1809bcc5e17790c83de916a80733323aed89bffe128f1dddbef2eb9b49ec763db406abcf20b04e942841e9ed521dc84d105da61a49566e5c2e383b80dd5a8dcebd9f817610e916be97f4021821304d5a219ab",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "d32328735a64d34be726100086bb94ff518c72fd571f2174273f8045caca7ba1fe3b28ecaf3b2b707b4be4c356b8bfd7",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 99,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04e8ecdf51503bd79a1722b1eafb3d3993e2a3065957a972f99055b790df788010529ae4ef46d52d4a9d2b9f07673428b9525eb69755a42b088d53a0052b4df97acff241edac7f93e924a432023383eb3bf865e1863b9555db49d118ed20b22166",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "47b3fd85517c19b4237a60c9ba5c037e255220a8cd8ec57c790f54a5a0179918bde9742388d7d925d5b7c5440b4ac7c2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 100,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "048159ec6c7cb53ef662253d47436d6c16fb99d89dd54351a51f3d8aed46288794f77d689773152566c7358f65af3c610273110d1cffb2301a468d3b7d23810daa0e5875968921aafe5a8af44a2b389f2aaff174adb5eee4f8c2e2f3256bd64856",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "8408e93688ba137f00e5a58404f4b0a8b722498210394a297711383fcaea41dc1675762204b8ec5e6bfb810254a2ae06",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 101,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "041364703aeb52b20e7e083e3a0b692703f6da2d9f1c09efd57b34ad115339e39b327a48214ed805353ea37c356d94585f21b0d9a3cfe239dc4af51562f3a9e3e99443bd001bd10704ae2636a6f0baab64df051109d0972e0d08c99cfceb51cb7a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "4a39deaf69c2d6a405bbe714f51830dd4cddd92ac6515ba671571894b698115dd7e9a9909941a0476f1e8987f5e11f39",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 102,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "048527a4c038d96492f63906a6b690881cd6a2a522c4727efef8cdec9e4c70415add2c474e8f86f9f8e461484cd358da0be45ff665aca1e8e06b2579004ccfb5428640fc6c36d396887c26212899d906f31393f477a399d7a8a42d020d33ac3f90",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "fa2429aebb3439d6f95014b1bcca8b955eba5eeac7e1724dab1e22430b4d0f32d4811931b6c3670cd6a3a40b8b059725",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 103,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "047ffc8c997ca87675e56f8c3fb88218df6e13a733e9d567e0e5be2766c6f86bd2bfac0bfa664fed97144c1c8c36865fc98f3fac382ca179e547a9667998731ea9233cd9d07506fd35cfc8c44ccc5fa57cdc8077176a72646629e0422cca56d753",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "bccc7570bb7e1c7ca951feef506c99d50e9dcfcbe35e451b309ea04bf05d51f41bce2d5679adb10c9432cbc53292eff2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 104,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "0416f4efeba054dc5a550fdae474366b26383c7850135fc23add9cf9bfd39c6aeb61f33bca9bf0562063ca2e4a2eebe5248cc550d7b0fd9e5972f24b846c2b19b7c9acbdb970e7116f11eaa8b8187f003f1541dd4955c6744c007177c15b49dfe3",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1bbdd26efc5572928caf9e15247f7944aa03361f2c0c35776823cbc44b5c89b7a3e5fe5a7532a0b7f20caf92dd1e666c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 105,
+          "comment" : "edge case for projective coordinates in left to right addition chain",
+          "public" : "04254f33a74e55c029048cc2a77a0a2a0a1b24016e3ecab54c4af3e799a913634278ff780955f58159d8604a859ef168ec29225bc9ea23cee1abd3af2b64d6c679c663e246b08451d9cf4cd5459b3380b17e1fed99d81f9d4a1ec4a59b44fb9cf0",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "6c2186035548b11da789218dbb34274a77376ed38f34c69c60c9dc3a743a101a0df2047ad67027a1515dc2216c491d71",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 106,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "04dc4f06d671d86012cd5ce10377ffefbde657da08fa9259e4aeffe6211ac57f6e1c5bf8732989d44c1342a84fa6fd7fbad8eb31dc33f071f57425a6c13d4b4ad6b003fc9c19176bfc2bb7d0cac824561a0c94197171d12502733d3fe1a082313b",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "5a197a9a8793d94d8b84084c6dc36c36a293ac90337a1cf6a2653435d05e2f563bfd2933f23ed3aefd75555ead76e827",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 107,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "04ca1ec6798c5667813bfc45dd1815e82bec93eaa7081069767bec3685cdfa56267fc24da6c186d8b3271627a852560c5af68283be19ef1ad982540ada89c0b5b58b873a0651b47f455e19df53e0dd279664f8126466231f32b5ee97d1f8dd803b",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "8bf520337de6e5c6f27005161b3b2f1cf08759527c8fc7935e3621f68936f191ac6e931b794278d3ca1e3772dbfb19bf",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 108,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "0444b9e976b9e89aa31519fc0a35288c55e2d7630a1cd1fffd288cdac8c74bc2edcb0ff878fcccebbb78df9e7eb0afa6b1c7b87d475eec76b9a6b2702c49364b6ab18c273fbf585eac0c25a5bf060250c30ce5badcbe93ce90ef238328503d7b64",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1e56dc30dad33e34273535688605bb98ad7c6dd51d9267c90a62562d08e47dd684180d4ab7abb6cc14ae4c9bd6ae9e92",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 109,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "04cf661b71c2b8734f7cf5142a66edf787c56a33174303c20741f07e0c348e1b5425705d9ebbb459967621ded6eb56d710c8cc855e91e3091afce7de7b36bae0645ba827e5fcec04678cbc474c6cbb0c95cd67fef22a48c1c74321319a39805af7",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "14e3a97e9ee69089410b72459870495a037d4077bba027eff4c499567d7e7f1af2720e1fedd07bd780509a4516fa5c48",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 110,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "0450790908c043344e1cf42b27e4dc33a35d68a0b93be0ec2be05745b3c83c35f0a3ecc3ed27fb3188a5ed9f24cdbd29d14f0fc007a0280352b15a442742b3bd6ca0f6a8357fee3036c14148763b8deb18f1a25e90b22785acab811212b864f687",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "85a8ddb9997e2525cd555721f2d5f3b199ff76b57e91eec6fc7d2c95703a1a32f46e3d46952a90b51054c5fd046b3107",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 111,
+          "comment" : "edge case for projective coordinates in precomputation or right to left addition chain",
+          "public" : "04c20f3fac4ec4643eb6953efc6535048e9597d828ed3907f87aaf9b7d6ea5c9302ce74656f6bdf4f32ebe5a4a17194463373520af6b16e815c42345678a4f3fc1a7463fd2744ec88536ef30498dab4127031960d3bc4c5a96479a688de43fb327",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "7222f5a523f13e10f6b8294b35f7897065bb9bf38bbf66f3d0a131c174ac6e8a28f609b924c1cc989da385654deca7be",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 112,
+          "comment" : "edge case for projective coordinates in right to left addition chain",
+          "public" : "046f5c37efa571ddfc59e7ebb5c79b605a93cf19d24aa269607d5b2387834a1e2e993c85b21772d677fa9deac6f144f0d4353d21f75db85dd424ff4e563be3e527ca97f8905f93a67f74e3be93763520948ad696585a0117f4fd14beb8d9f4a75b",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "af614719fcdf0994d1deb81876e40f48a6a99a8e6d7e05b43fc564d8092441a12c357c992658216859288ec73240fcf1",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 113,
+          "comment" : "edge case for projective coordinates in right to left addition chain",
+          "public" : "0414dc9aadd3774e80cd23b0098531ca393431bf593a53d708f08e35626ad26cef19b0940a0dbecf6e526e3b611fa3d9a4caf858cb81a3a78db8e01e88e045632eeb08f2ca2dd347d0195c2b2ec64f51f246585235229e6368d2ad406bdaa80639",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "b2ecbdb9ae5498dc5dd70250926e6d1a83e205d7fba9fe8095211545f826d310091863a8a9400beba2cf4f66df50bfa9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 114,
+          "comment" : "edge case for projective coordinates in right to left addition chain",
+          "public" : "04a287bd74d501c29df23d786b7c34ea0daf10e4b3fce71d720f61a272f22151db2c5914867493028c01e103820b0ba6b1de34d67007688130de015711e49458264672533d5ba28a39c137cdcffe56409fa45b2c330117fb7d35eccc0c216f5eb5",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "18dd1d7b6bbc6311afe5383d796a5fec13844bae25708725554de0b5f03ec0f7d2e63b64db5f83d4ee9890c61e442c41",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 115,
+          "comment" : "edge case for projective coordinates in right to left addition chain",
+          "public" : "04df075fe1cc123df97a5a6b8606b3586abdf5bcebb99785fddcdcec4f00693b56e29271a66a2c0fe4f289a9d0047f4de5be6e177557f290f99a8842abaaf7fc93f5dc72d38510b9fd8ced512726d9c5c8fef64f590b3b72d85e8db206daa0ce2d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "25845cafd04fa50ecbe2fc7a558b20081438620a1878eac7b2f8f55bcf9f5658242698ff6c4975584c7507249977e1c2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 116,
+          "comment" : "edge case for projective coordinates in right to left addition chain",
+          "public" : "04fe16c75827b99ac6b3853fd0b5320721a2329312b9065343ec9ec4cf92bdcbaba3798fadf4d3119335a8fb1bf44587c8c9097747e0e2998d0ad14995178f83039ec686604bb6272e84ebd3b51509c0d7bf05c2a0cd978e90152da438a42637b1",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "475d8fe0c436dc71cc5da5bfaf88b7b5576b6d4a048c7864ec92d9fad3e2a5ce7869006d409c1a1f3f866cf32c1a27f9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 117,
+          "comment" : "edge case value for x-coordinate",
+          "public" : "040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003cf99ef04f51a5ea630ba3f9f960dd593a14c9be39fd2bd215d3b4b08aaaf86bbf927f2c46e52ab06fb742b8850e521e",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "96876e9ed89edf3e3dfd8ead06dcba0acdce7763eb98aded82976fa36181c79ac4e833df385af5ee860ca1f20df4cb72",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 118,
+          "comment" : "edge case value for x-coordinate",
+          "public" : "04dd607e954556c62e39b432d1f1b2fe6652d75a1fe33cd15c799ffac9d13d5d521899d25940da653d0824ad8456ddfb629f4142e08a3bd1d87bf6119a9ef4b0a80dc712a4d6c001bcb2794c4d1a03b1f1d392dc088c89ef844f93adb139d956b8",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "60d597a99c86a432e144bc2b0e0a89b91c4a72f3e1ff8e56e7f07d53b2e563e979c09e27b34be98bb19865e808d4290e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 119,
+          "comment" : "edge case value for x-coordinate",
+          "public" : "04826d71ae4f7b3ecbb2a9bdf59512949542d0116f616440a550168f4b58812fd6c1ab94f310385fdf246db5efc0fd13995de099bdfcea355ee63827cf2a2e2d868f5cf0b487e41245df54fdc735eed6eb726cfc928bd5b4d01719d1644967ed1f",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "85961906edaa9adfa9c9b8279da66158f57fb350ff9b15dc4d75b8cab64b9d34f5ce912f1aa512a54c71821c6e31ff8f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 120,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04fa8919e4524e7040489cc17aa3d620f88276ef248d1ecd1e9a6637c7a06765f6f1d593b1febe331b9f696e82c5be61a4a074a912309662f44ce0825bf134582116cac3310577d5a00722ba513e6334cc17101091223346db67063cf6e7bffbff",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "43484dcf01492eab684d39881908da7f40119fe7183bba625c32fdc14da3c4236dc3397234e7db41857495cd0d09491b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 121,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04aecb8f15ab87579a03f5b8fcf33aa094337e4c362359c9f2727634909c6913c321be69f3f8aed693a31059989997fb32d4f4a37ff236d8f6237186a3a721a82a2ba22f8a628d7273ef3173e21ecc69969a47e669383ecf0cf5396eb02f46c3ed",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "65e6133929c8b061c25fe0bec9142c93d52c9f1695061b105f6c7da1347a967b5a3f1183565645f7b8fad8863f9a6345",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 122,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "0440dc66d81c4e15e1a4c009c60c3441725fff08b2543773b0dde00db231f44badd77a8bc9619479bd5288e40da153b8ddc3d530262b169a6fa700ee32a5cd057baf43d29627f342fda8f6f0fb21b1fa35be96a452ab4881f417c9a4e4136b1e6d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "0773673dae337a1688c2c31d1a600c0ed72604a171c665b5307ebaf740fd518e4a7c5c91e4f86f65905640ee37f4f830",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 123,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "0453b5874738275a2e1d734e51f83636f89179c16fe89f46f4d8e71f521c594769d31725f6404122f21112943a1a22ff07586b41bb24bf303ae8545b25f7b98425ea62c4d3bf51d23d9d85e07719b828777efa0a28fb30f33b899980de3c532611",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "ea25b07a161f318a81a693f6604810b8142843c4fd26658d9b64fedb58a5eba58c217c4176569cf33fa47ac9f2b3d7f5",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 124,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "042988addf62149e6ac08219d2f036d3f5720aa862905cf3fe7bdf136dc08b845e8a61be43db86d71a26dc17bf55374a9d53ac99c5d07de10ce74ed3b1c413686ebba700f49260b08357f95daf5b31a555345c076079f25d8690fc1ac20c71528d",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "a8d424068fb7846b0d43a5cc13029d054b11c97e508ee0f92e73d35ac8351a462eedfc9da9dd1279f12812ba46c06053",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 125,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04494b59de1b69534b4b62d75810ee3dad05a19afa41c7836db5ca78630208a800388d04034baf2923ad5af6ac72ee05f989df6d08f9a6400858d084fe770c0ddde298966cdc56a921a43184384d5a13f31c1eb4e834e23bed3069c10dfed6b63c",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "296f5d6fe4ddd8c3c7304beadd45f6cd3e3fcd4230c9d2ba1a13bd9b9498a3c8d1ef0ab6ee2a450b0c68e89a83711fa2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 126,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04b64c49ddf18bce79cff3b8cb7b0e58d48421eb6739f59d271fc4f54dd2fcb1cf56dd3b3c69173a5eab50ab1a2e0616d05d92b864cbc9e4a3f75650eff39e0eacbf87c4c010088f3338842cd97832724f79bb15986bd3fa85255816350473bbd3",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "db1edbbb1f3ac6df9f46128812bce7818b5d745c75322a9abe89983be868aa1aac555f4d60ec272730bb4ad949a53d38",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 127,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04a40b1ca1a51a8ee6bef5b58aaabcffe2e15f74a3087edb2620885d7d933e4f50d625eaad93b87b8dff58f0565792b174ab89717ffe87cd29ffbf3cd7d938b1173747bfc0311b78723684d7c9a1c2be3b597bf9236eed090028eda2146c477e65",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1f84c641ade162a274ab2efc7cf6582f5a5d91ce7993af6956d55eea0e1b7fbf040da9750486b0fbb2bd70d9ccabb785",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 128,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "044e7a82ad74a1b7851995f6e1a18141bb4584ac22e839d4d916018b150fed9cd0cce427bd446798522744d395e90ee4b63445c1a6a4cd467c20cdb298854f1e270afbea053b7784976b504d0e1339c5c86007cec363839958a1fa51e9483de561",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "54efb9bb7269d86b06282b1d7dc28a940cd7789ca4e104c4bb7c5e5736676c3e5370cfd97849e1200a031b668388d8d0",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 129,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "049b54678f8581ce665108abeb0c09cb7985bb5dd858bbb71c88e05344de5b45b4e67f33ab58d359dca2da8df1149dd1bbd09ba7f63a8d35848b40746ed5fec7944ed44fd9a9a2fc3d13ebc5c05ff94d5f500ee15072d1b4c1375fd6ec4f32125c",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1e96c829cc8a79d73fa6434bc159dc432c2ace3b49ad2e74380e7b02feb53b3393446a0331b974f2bf219ae95d2b23e7",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 130,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "0486cb7a3ff3aedb2f39ae22f2e828ec0817d94b831ae654dd66aff31a4d84b33fab46fec1abe1a9e6bbfac5c99565fd3bb2f72d565d2ff5c5c24f375448dd7bb442dfdcb61e073e48402707bbcc26ad43d4788a9f44715f1b8e5b62bf49ceca65",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "84e7af176ddba3ec3ce7b7fc43df1ed59b4e3228fa3f6fb41a01f413b0a6c7404e43f7747118ba264b7b026d714e90d0",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 131,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04ccf5a5b80deba6318b85f57a0d563e95765c7fe30df5ac88837f35329dd51070e29896f4d96ef40bcccf36244df835614e8785f8065f81c5e9270fd559b6a380b483874d298d0d382eee1edb6a59d9c163296ab7a068186b0d23f33737dd0eed",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "82864ef4d5fd25204ae1591c619f3ed813c762baa009ba3b49ac38c57b2f46652f719adceabfbcaf985b29958d1f420c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 132,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04c7f77ad286c68b88ffa64fefe4aaab3dee1f9bae37b7d069bb92bea82089e831a70dd9ed007ba6dce14f9c6d5e744eccb319ad6ec134376cb059a1c86984ea8bd154d826ed3dbae8d8d8e06aa0cbe0127ddfc32621bbc1f731f9d90e687a7cf5",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1d0d3ed8c1e0d28f5e3766f193da7bdca1cc08376293f9bbde7bde0e9b1ebcf4cfa3c683dc63bcb42b2d9ede54242bc2",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 133,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04aac3b4d280fc70a9fe175e1882a69eaca2482a0c9ded9200444028ca3dbf501fc361f7658bffec321ad577b48c9786b07f596bd868d51e73f0f7c25db956b12171cfab11abd4abb00a59ac432c0b0f058f4cca44fb581bc5803e472a05305f33",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "bf19548bb1d7333f46cff4d9d2a81dbb48ca82a52faec2b20c3b27bde392a66b8e44780c2098a7b5253157b014b40e51",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 134,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04747efb595d03dc05dd50c17155e1018ca14715054592906e671a2e2204acae552b6f5d345d3fcf9b4171892afb3e5587d8e709b083a8b5363663492f8a2a9af64c3ad01c64d8fa4764d61f43e6901a2445ce94b586f6090ae0687af0090fcd47",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "32d569310f61af475b6c6d075599625a3381b0a5b6a0b8c27c7165d00e2fd4dc8b2cf8e3b33e28ad4005525384227fb4",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 135,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04ab14764bf24f8313b1c49c4bd6e367231275b303c601c66f7e8b3105c6b02a90b60f38745d755ce4dd40681ed15a1ac93e14cf2fa708300a2b279f2c37fbc0da7175c92c1114c57ef251467f6f3de79fbc38cb1e3db70e4d95225fbd8ad96889",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "266b261b6dd9eb51770f6c4c11b87134abff1629b65171107a9b20e0c7d168e1efc3cbc402464f36aeb3c027b9198e10",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 136,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "041e1fe9730fcd5b87b065fa90a69534036be45758513443f79c6427dbc31fc403e894043fb9c7f9f58c0a3670b1c0d80359db8f6a48970ccb9918cef04f352a4d91a204502119b2b7efc6c671a6ba4537e82c196e6d42685c5a6f559e4e8af704",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "fa9f208dcedee597f51122e6274b86710e36561f2361e76186fcb73d1d7f2928426d98c3f69e4cf48d3001d64970425e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 137,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "0483fcea208c79227cbd97319a86597f85cbfc19ef60c5ba7a92fc521c685e208cec7735be9be27c737d3f9d2faa1c3f4695a32184d58fc9001402436ce00b52b8885bb1150f61e660eceba10768d0f41d5e4e7c21d4fd909aceaf61a7455dd0c6",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "9a1ddf3d9feb190a26f20ed925ffbd35df1017c4a4c9485d344cb8f81c7f452b2ff3aec44baf34e50886f183480b6325",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 138,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "042bf26936c9164ba1072544c410757630b97d4e853fdb7844f1811507d04a687d951fa65a34364e894cf8b0815db95f5e10664627bf6f72330a2d6f212361a233155abb79da54343b8572e30eace8c8f5480200e751c2102078528812c83f3cf4",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "47e4608e9bccf6a3296e41fe34eb7181a1b5ec306a93aabd5fb38e75e3d75e8e2ee4c1c44a7d08660681b9fa66642910",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 139,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04bb583da5de4c352e8a4fad31e9f71297bc963134ec182e96379c6b28a11d25fa4b77a4a0f947085db33b0ea77b9da09be1a0bd1300383ebd60b5aa6eeb20f03d56dd14df46157465146278536ebc28c5471a94f095554c4c085ac9dceb1da55f",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "8393a2689b376a228f3233ac61578be1aa2de1dbfbb28b03ad24f11ad9d77f8543e0977aea9a761d84e115b61507ae59",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 140,
+          "comment" : "edge case value for x-coordinate in left to right addition chain",
+          "public" : "04e37791595b54e9b17cc30726d2425eeacc9672f5fbc91fc108cf8c84fff9b66ea65483841b7618694815e1a415186ba727af3ae6c658eb8c485d6ad8e49c1eade751457562d6003de75cd1f1e13ec15ea1d0413602ed7f6a6b7b84efd8a3056e",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "209417da721b49d64dfa09983a8683520e5e300a52b2e8f1677772ee3c086b339a1da25cab2be6e44de4526c31f4ebbc",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 141,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "047f12cb987b08c235523465146b42258584398062a107429ce486b4b2f26a9628293ae4d30aa61c64bf92f97e6c08aea8d6621cfce5270cd7fa69dcb038ed8ba428afd77d528c230f8e5c9b83ef659c7e573f6671a18d8b8c4ceb20f2d760858e",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "e7eac460eada6eb99988cc39f6129a74d9510d2ec39601adae76b2b8fd6122407b79411f8e7adfbc4f0dc50da9f2b82b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 142,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "04dc4f06d671d86012cd5ce10377ffefbde657da08fa9259e4aeffe6211ac57f6e1c5bf8732989d44c1342a84fa6fd7fba2714ce23cc0f8e0a8bda593ec2b4b5294ffc0363e6e89403d4482f3537dba9e4f36be68d8e2edafd8cc2c01f5f7dcec4",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "5a197a9a8793d94d8b84084c6dc36c36a293ac90337a1cf6a2653435d05e2f563bfd2933f23ed3aefd75555ead76e827",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 143,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "04ca1ec6798c5667813bfc45dd1815e82bec93eaa7081069767bec3685cdfa56267fc24da6c186d8b3271627a852560c5a097d7c41e610e5267dabf525763f4a4a7478c5f9ae4b80baa1e620ac1f22d8689b07ed9a99dce0cd4a11682f07227fc4",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "8bf520337de6e5c6f27005161b3b2f1cf08759527c8fc7935e3621f68936f191ac6e931b794278d3ca1e3772dbfb19bf",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 144,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "0444b9e976b9e89aa31519fc0a35288c55e2d7630a1cd1fffd288cdac8c74bc2edcb0ff878fcccebbb78df9e7eb0afa6b1384782b8a1138946594d8fd3b6c9b4954e73d8c040a7a153f3da5a40f9fdaf3bf31a4522416c316f10dc7cd8afc2849b",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "1e56dc30dad33e34273535688605bb98ad7c6dd51d9267c90a62562d08e47dd684180d4ab7abb6cc14ae4c9bd6ae9e92",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 145,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "04cf661b71c2b8734f7cf5142a66edf787c56a33174303c20741f07e0c348e1b5425705d9ebbb459967621ded6eb56d71037337aa16e1cf6e503182184c9451f9ba457d81a0313fb987343b8b39344f3693298010cd5b73e38bcdece66c67fa508",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "14e3a97e9ee69089410b72459870495a037d4077bba027eff4c499567d7e7f1af2720e1fedd07bd780509a4516fa5c48",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 146,
+          "comment" : "edge case value for x-coordinate in precomputation or right to left addition chain",
+          "public" : "0450790908c043344e1cf42b27e4dc33a35d68a0b93be0ec2be05745b3c83c35f0a3ecc3ed27fb3188a5ed9f24cdbd29d1b0f03ff85fd7fcad4ea5bbd8bd4c42935f0957ca8011cfc93ebeb789c47214e60e5da16e4dd87a53547eedee479b0978",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "85a8ddb9997e2525cd555721f2d5f3b199ff76b57e91eec6fc7d2c95703a1a32f46e3d46952a90b51054c5fd046b3107",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 147,
+          "comment" : "edge case value for x-coordinate in right to left addition chain",
+          "public" : "042395d00779b6c7d4dad8cc9a8918496c28b2d4077e6886d0a1bef515e3125ddd813e5a9ea0f185cd009a69ea92210174b676775f763183c86f6fa50551ba137d79a83e8e32ff2fc09a2c28cdf80cddafcc0f40693e3985f28fe5c7dfe2d8b275",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "c269465cfb336ed8c7e9c0377349193aa4dbdb92a9f4670dbf7fa7a1f7556e8e4b240d5b70edeedd1bf5ce769cb8415e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 148,
+          "comment" : "edge case value for x-coordinate in right to left addition chain",
+          "public" : "045634ee155263c07d7d1e346b868ddd80e9a282fcef93bf6df8e8bc4ea34ff02e119a9f707816d06368ccb94c6e4802fbaadc33991574dde851e547e47027f54353e02d70be6bfa9f73953ca259011f23a4a80cbbaae8805d9d094ef150e0c54a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "6a21f244472522389f084e2e4ae99b747b39cbee996ce9a3fa05353219b60c20fa3834d39b0b826f1096b7a467e8a218",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 149,
+          "comment" : "edge case value for x-coordinate in right to left addition chain",
+          "public" : "0463aa6c3c249a32ebbccce65ffa1c56a205644b2c40b931b1ec9b042b52c1e99cd07e538299fb837fe67586aae71b4706166ac450fbd6d4921b442a11679f7786ba5a772ab33db00543a941bbc015e23581ba625a72c0e4eb44838e5f406ca1dc",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "c469919f58d80b1e45d5d53ee28d616bdf827a88e0b2f499291ec4f76c3c89f276776ea96a6b9053cf02776698864526",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 150,
+          "comment" : "edge case value for x-coordinate in right to left addition chain",
+          "public" : "04a287bd74d501c29df23d786b7c34ea0daf10e4b3fce71d720f61a272f22151db2c5914867493028c01e103820b0ba6b121cb298ff8977ecf21fea8ee1b6ba7d9b98dacc2a45d75c63ec8323001a9bf5f5ba4d3cbfee80482ca1333f4de90a14a",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "18dd1d7b6bbc6311afe5383d796a5fec13844bae25708725554de0b5f03ec0f7d2e63b64db5f83d4ee9890c61e442c41",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 151,
+          "comment" : "edge case value for x-coordinate in right to left addition chain",
+          "public" : "04ba406b46c1d92d4ba3f40b7b1fcf1e182289b84cdb387f28e5ad20f1ed8c43fe5ffa37128462763051e87f0d5ebfcd9d9dd4107ce4d92d783d0f0f81d7a998b76060735b6fd63bfcd971ca70132fe6dc9fbf8534ecc74b501ea01cd2e4f6c564",
+          "private" : "0c1781d86cac2c052b7e4f48cef415c5c133052f4e504397e75e4d7cd0ca149da0b4988b8a6ded5ceae4b580691376187",
+          "shared" : "d639b9c31ad3ceddda7745d19e82fde272a86d31f8e6c203eed53bcb705e9ff58d659f8e9d66aa0492da545a399294ec",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 152,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "3",
@@ -439,7 +1389,7 @@
           "flags" : []
         },
         {
-          "tcId" : 48,
+          "tcId" : 153,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -448,7 +1398,7 @@
           "flags" : []
         },
         {
-          "tcId" : 49,
+          "tcId" : 154,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -457,7 +1407,7 @@
           "flags" : []
         },
         {
-          "tcId" : 50,
+          "tcId" : 155,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -466,7 +1416,7 @@
           "flags" : []
         },
         {
-          "tcId" : 51,
+          "tcId" : 156,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -475,7 +1425,7 @@
           "flags" : []
         },
         {
-          "tcId" : 52,
+          "tcId" : 157,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a779ecec196accc52973",
@@ -484,7 +1434,7 @@
           "flags" : []
         },
         {
-          "tcId" : 53,
+          "tcId" : 158,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecdc196accc52973",
@@ -493,7 +1443,7 @@
           "flags" : []
         },
         {
-          "tcId" : 54,
+          "tcId" : 159,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aece4196accc52973",
@@ -502,7 +1452,7 @@
           "flags" : []
         },
         {
-          "tcId" : 55,
+          "tcId" : 160,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec1969ccc52973",
@@ -511,7 +1461,7 @@
           "flags" : []
         },
         {
-          "tcId" : 56,
+          "tcId" : 161,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52959",
@@ -522,7 +1472,7 @@
           ]
         },
         {
-          "tcId" : 57,
+          "tcId" : 162,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52969",
@@ -533,7 +1483,7 @@
           ]
         },
         {
-          "tcId" : 58,
+          "tcId" : 163,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52970",
@@ -542,7 +1492,7 @@
           "flags" : []
         },
         {
-          "tcId" : 59,
+          "tcId" : 164,
           "comment" : "edge case private key",
           "public" : "04e9dfaaab808b3aac1ccca7cc6242a7ee583249afe8ee8f66b904cc8eec34ad334456e00f33a94de8b5169cf0199550c020156e9651734ff999c5f3ea62b83d0083a6093f234457251ecf72c41e4df7cea2420b5454a7f690034380bac981e92e",
           "private" : "0ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52971",
@@ -553,7 +1503,7 @@
           ]
         },
         {
-          "tcId" : 60,
+          "tcId" : 165,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -562,7 +1512,7 @@
           "flags" : []
         },
         {
-          "tcId" : 61,
+          "tcId" : 166,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -571,7 +1521,7 @@
           "flags" : []
         },
         {
-          "tcId" : 62,
+          "tcId" : 167,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -580,7 +1530,7 @@
           "flags" : []
         },
         {
-          "tcId" : 63,
+          "tcId" : 168,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -589,7 +1539,7 @@
           "flags" : []
         },
         {
-          "tcId" : 64,
+          "tcId" : 169,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -598,7 +1548,7 @@
           "flags" : []
         },
         {
-          "tcId" : 65,
+          "tcId" : 170,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -607,7 +1557,7 @@
           "flags" : []
         },
         {
-          "tcId" : 66,
+          "tcId" : 171,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -616,7 +1566,7 @@
           "flags" : []
         },
         {
-          "tcId" : 67,
+          "tcId" : 172,
           "comment" : "point is not on curve",
           "public" : "04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -625,7 +1575,7 @@
           "flags" : []
         },
         {
-          "tcId" : 68,
+          "tcId" : 173,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -634,7 +1584,7 @@
           "flags" : []
         },
         {
-          "tcId" : 69,
+          "tcId" : 174,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -643,7 +1593,7 @@
           "flags" : []
         },
         {
-          "tcId" : 70,
+          "tcId" : 175,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -652,7 +1602,7 @@
           "flags" : []
         },
         {
-          "tcId" : 71,
+          "tcId" : 176,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -661,7 +1611,7 @@
           "flags" : []
         },
         {
-          "tcId" : 72,
+          "tcId" : 177,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -670,7 +1620,7 @@
           "flags" : []
         },
         {
-          "tcId" : 73,
+          "tcId" : 178,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -679,7 +1629,7 @@
           "flags" : []
         },
         {
-          "tcId" : 74,
+          "tcId" : 179,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -688,7 +1638,7 @@
           "flags" : []
         },
         {
-          "tcId" : 75,
+          "tcId" : 180,
           "comment" : "point is not on curve",
           "public" : "04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -697,7 +1647,7 @@
           "flags" : []
         },
         {
-          "tcId" : 76,
+          "tcId" : 181,
           "comment" : "",
           "public" : "",
           "private" : "0c6cafb74e2a50c82c7a63d13294bfea13d0bc504ba2b08a392c9081bf3815d9e44d969ed7f05ffd1d8594355053c6147",
@@ -706,7 +1656,7 @@
           "flags" : []
         },
         {
-          "tcId" : 77,
+          "tcId" : 182,
           "comment" : "invalid public key",
           "public" : "024424530ea70bace90601f8d5869e4179a6cd689b6a18fdfec50cecf17cb836d24820211ada67815b42c2c2606303f69e",
           "private" : "2b9e57572da6cf4fb58cb94eab8df19383a136f219f2a515776a8bf48e1538dd1d811946c16d9f0184c9ce5cdf1dac51",

@@ -1,20 +1,24 @@
 {
   "algorithm" : "ECDSA",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 364,
+  "header" : [
+    "Test vectors of type EcdsaVerify are meant for the verification",
+    "of ASN encoded ECDSA signatures."
+  ],
   "notes" : {
     "BER" : "This is a signature with correct values for (r, s) but using some alternative BER encoding instead of DER encoding. Implementations should not accept such signatures to limit signature malleability.",
     "EdgeCase" : "Edge case values such as r=1 and s=0 can lead to forgeries if the ECDSA implementation does not check boundaries and computes s^(-1)==0.",
     "MissingZero" : "Some implementations of ECDSA and DSA incorrectly encode r and s by not including leading zeros in the ASN encoding of integers when necessary. Hence, some implementations (e.g. jdk) allow signatures with incorrect ASN encodings assuming that the signature is otherwise valid.",
     "PointDuplication" : "Some implementations of ECDSA do not handle duplication and points at infinity correctly. This is a test vector that has been specially crafted to check for such an omission."
   },
-  "numberOfTests" : 364,
-  "header" : [],
+  "schema" : "ecdsa_verify_schema.json",
   "testGroups" : [
     {
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6ff0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9",
         "wx" : "0b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6f",
         "wy" : "0f0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9"
@@ -22,7 +26,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6ff0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEuDj/ROW8F3vyEYnQdmCC/J2EMiaIf8l2\nA3EQC37iCm/wyddb+6ezGmvKGXRJbutW3jVwcZVdg8Sxutqgshgy6Q==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 1,
@@ -722,6 +726,14 @@
         },
         {
           "tcId" : 86,
+          "comment" : "append garbage with high tag number",
+          "msg" : "313233343030",
+          "sig" : "3048022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31babf7f00",
+          "result" : "invalid",
+          "flags" : []
+        },
+        {
+          "tcId" : 87,
           "comment" : "sequence of sequence",
           "msg" : "313233343030",
           "sig" : "30473045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -729,15 +741,15 @@
           "flags" : []
         },
         {
-          "tcId" : 87,
-          "comment" : "truncated sequence",
+          "tcId" : 88,
+          "comment" : "truncated sequence: removed integer",
           "msg" : "313233343030",
           "sig" : "3023022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365",
           "result" : "invalid",
           "flags" : []
         },
         {
-          "tcId" : 88,
+          "tcId" : 89,
           "comment" : "repeat element in sequence",
           "msg" : "313233343030",
           "sig" : "3067022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba02206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -745,7 +757,7 @@
           "flags" : []
         },
         {
-          "tcId" : 89,
+          "tcId" : 90,
           "comment" : "removing integer",
           "msg" : "313233343030",
           "sig" : "302202206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -753,7 +765,7 @@
           "flags" : []
         },
         {
-          "tcId" : 90,
+          "tcId" : 91,
           "comment" : "lonely integer tag",
           "msg" : "313233343030",
           "sig" : "30230202206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -761,7 +773,7 @@
           "flags" : []
         },
         {
-          "tcId" : 91,
+          "tcId" : 92,
           "comment" : "lonely integer tag",
           "msg" : "313233343030",
           "sig" : "3024022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502",
@@ -769,7 +781,7 @@
           "flags" : []
         },
         {
-          "tcId" : 92,
+          "tcId" : 93,
           "comment" : "appending 0's to integer",
           "msg" : "313233343030",
           "sig" : "3047022300813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365000002206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -777,7 +789,7 @@
           "flags" : []
         },
         {
-          "tcId" : 93,
+          "tcId" : 94,
           "comment" : "appending 0's to integer",
           "msg" : "313233343030",
           "sig" : "3047022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502226ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba0000",
@@ -785,7 +797,7 @@
           "flags" : []
         },
         {
-          "tcId" : 94,
+          "tcId" : 95,
           "comment" : "prepending 0's to integer",
           "msg" : "313233343030",
           "sig" : "30470223000000813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -795,7 +807,7 @@
           ]
         },
         {
-          "tcId" : 95,
+          "tcId" : 96,
           "comment" : "prepending 0's to integer",
           "msg" : "313233343030",
           "sig" : "3047022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365022200006ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -805,7 +817,7 @@
           ]
         },
         {
-          "tcId" : 96,
+          "tcId" : 97,
           "comment" : "appending unused 0's to integer",
           "msg" : "313233343030",
           "sig" : "3047022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365000002206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -813,7 +825,7 @@
           "flags" : []
         },
         {
-          "tcId" : 97,
+          "tcId" : 98,
           "comment" : "appending null value to integer",
           "msg" : "313233343030",
           "sig" : "3047022300813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365050002206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -821,7 +833,7 @@
           "flags" : []
         },
         {
-          "tcId" : 98,
+          "tcId" : 99,
           "comment" : "appending null value to integer",
           "msg" : "313233343030",
           "sig" : "3047022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502226ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba0500",
@@ -829,7 +841,7 @@
           "flags" : []
         },
         {
-          "tcId" : 99,
+          "tcId" : 100,
           "comment" : "truncated length of integer",
           "msg" : "313233343030",
           "sig" : "3024028102206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -837,7 +849,7 @@
           "flags" : []
         },
         {
-          "tcId" : 100,
+          "tcId" : 101,
           "comment" : "truncated length of integer",
           "msg" : "313233343030",
           "sig" : "3025022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc98323650281",
@@ -845,7 +857,7 @@
           "flags" : []
         },
         {
-          "tcId" : 101,
+          "tcId" : 102,
           "comment" : "Replacing integer with NULL",
           "msg" : "313233343030",
           "sig" : "3024050002206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -853,7 +865,7 @@
           "flags" : []
         },
         {
-          "tcId" : 102,
+          "tcId" : 103,
           "comment" : "Replacing integer with NULL",
           "msg" : "313233343030",
           "sig" : "3025022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc98323650500",
@@ -861,7 +873,7 @@
           "flags" : []
         },
         {
-          "tcId" : 103,
+          "tcId" : 104,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045002100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -869,7 +881,7 @@
           "flags" : []
         },
         {
-          "tcId" : 104,
+          "tcId" : 105,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045012100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -877,7 +889,7 @@
           "flags" : []
         },
         {
-          "tcId" : 105,
+          "tcId" : 106,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045032100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -885,7 +897,7 @@
           "flags" : []
         },
         {
-          "tcId" : 106,
+          "tcId" : 107,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045042100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -893,7 +905,7 @@
           "flags" : []
         },
         {
-          "tcId" : 107,
+          "tcId" : 108,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045ff2100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -901,7 +913,7 @@
           "flags" : []
         },
         {
-          "tcId" : 108,
+          "tcId" : 109,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236500206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -909,7 +921,7 @@
           "flags" : []
         },
         {
-          "tcId" : 109,
+          "tcId" : 110,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236501206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -917,7 +929,7 @@
           "flags" : []
         },
         {
-          "tcId" : 110,
+          "tcId" : 111,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236503206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -925,7 +937,7 @@
           "flags" : []
         },
         {
-          "tcId" : 111,
+          "tcId" : 112,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236504206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -933,7 +945,7 @@
           "flags" : []
         },
         {
-          "tcId" : 112,
+          "tcId" : 113,
           "comment" : "changing tag value of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365ff206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -941,7 +953,7 @@
           "flags" : []
         },
         {
-          "tcId" : 113,
+          "tcId" : 114,
           "comment" : "dropping value of integer",
           "msg" : "313233343030",
           "sig" : "3024020002206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -949,7 +961,7 @@
           "flags" : []
         },
         {
-          "tcId" : 114,
+          "tcId" : 115,
           "comment" : "dropping value of integer",
           "msg" : "313233343030",
           "sig" : "3025022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc98323650200",
@@ -957,7 +969,7 @@
           "flags" : []
         },
         {
-          "tcId" : 115,
+          "tcId" : 116,
           "comment" : "using composition for integer",
           "msg" : "313233343030",
           "sig" : "304922250201000220813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -965,7 +977,7 @@
           "flags" : []
         },
         {
-          "tcId" : 116,
+          "tcId" : 117,
           "comment" : "using composition for integer",
           "msg" : "313233343030",
           "sig" : "3049022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832365222402016f021ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -973,7 +985,7 @@
           "flags" : []
         },
         {
-          "tcId" : 117,
+          "tcId" : 118,
           "comment" : "modify first byte of integer",
           "msg" : "313233343030",
           "sig" : "3045022102813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -981,7 +993,7 @@
           "flags" : []
         },
         {
-          "tcId" : 118,
+          "tcId" : 119,
           "comment" : "modify first byte of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206df18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -989,7 +1001,7 @@
           "flags" : []
         },
         {
-          "tcId" : 119,
+          "tcId" : 120,
           "comment" : "modify last byte of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc98323e502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
@@ -997,7 +1009,7 @@
           "flags" : []
         },
         {
-          "tcId" : 120,
+          "tcId" : 121,
           "comment" : "modify last byte of integer",
           "msg" : "313233343030",
           "sig" : "3045022100813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb313a",
@@ -1005,18 +1017,10 @@
           "flags" : []
         },
         {
-          "tcId" : 121,
-          "comment" : "truncate integer",
-          "msg" : "313233343030",
-          "sig" : "3044022000813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832302206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
-          "result" : "invalid",
-          "flags" : []
-        },
-        {
           "tcId" : 122,
           "comment" : "truncate integer",
           "msg" : "313233343030",
-          "sig" : "30440220813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc983236502206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
+          "sig" : "3044022000813ef79ccefa9a56f7ba805f0e478584fe5f0dd5f567bc09b5123ccbc9832302206ff18a52dcc0336f7af62400a6dd9b810732baf1ff758000d6f613a556eb31ba",
           "result" : "invalid",
           "flags" : []
         },
@@ -2354,7 +2358,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0407310f90a9eae149a08402f54194a0f7b4ac427bf8d9bd6c7681071dc47dc36226a6d37ac46d61fd600c0bf1bff87689ed117dda6b0e59318ae010a197a26ca0",
         "wx" : "7310f90a9eae149a08402f54194a0f7b4ac427bf8d9bd6c7681071dc47dc362",
         "wy" : "26a6d37ac46d61fd600c0bf1bff87689ed117dda6b0e59318ae010a197a26ca0"
@@ -2362,7 +2366,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000407310f90a9eae149a08402f54194a0f7b4ac427bf8d9bd6c7681071dc47dc36226a6d37ac46d61fd600c0bf1bff87689ed117dda6b0e59318ae010a197a26ca0",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEBzEPkKnq4UmghAL1QZSg97SsQnv42b1s\ndoEHHcR9w2ImptN6xG1h/WAMC/G/+HaJ7RF92msOWTGK4BChl6JsoA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 271,
@@ -2386,7 +2390,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04bc97e7585eecad48e16683bc4091708e1a930c683fc47001d4b383594f2c4e22705989cf69daeadd4e4e4b8151ed888dfec20fb01728d89d56b3f38f2ae9c8c5",
         "wx" : "0bc97e7585eecad48e16683bc4091708e1a930c683fc47001d4b383594f2c4e22",
         "wy" : "705989cf69daeadd4e4e4b8151ed888dfec20fb01728d89d56b3f38f2ae9c8c5"
@@ -2394,7 +2398,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004bc97e7585eecad48e16683bc4091708e1a930c683fc47001d4b383594f2c4e22705989cf69daeadd4e4e4b8151ed888dfec20fb01728d89d56b3f38f2ae9c8c5",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEvJfnWF7srUjhZoO8QJFwjhqTDGg/xHAB\n1LODWU8sTiJwWYnPadrq3U5OS4FR7YiN/sIPsBco2J1Ws/OPKunIxQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 273,
@@ -2410,7 +2414,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0444ad339afbc21e9abf7b602a5ca535ea378135b6d10d81310bdd8293d1df3252b63ff7d0774770f8fe1d1722fa83acd02f434e4fc110a0cc8f6dddd37d56c463",
         "wx" : "44ad339afbc21e9abf7b602a5ca535ea378135b6d10d81310bdd8293d1df3252",
         "wy" : "0b63ff7d0774770f8fe1d1722fa83acd02f434e4fc110a0cc8f6dddd37d56c463"
@@ -2418,7 +2422,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000444ad339afbc21e9abf7b602a5ca535ea378135b6d10d81310bdd8293d1df3252b63ff7d0774770f8fe1d1722fa83acd02f434e4fc110a0cc8f6dddd37d56c463",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAERK0zmvvCHpq/e2AqXKU16jeBNbbRDYEx\nC92Ck9HfMlK2P/fQd0dw+P4dFyL6g6zQL0NOT8EQoMyPbd3TfVbEYw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 274,
@@ -2434,7 +2438,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "041260c2122c9e244e1af5151bede0c3ae23b54d7c596881d3eebad21f37dd878c5c9a0c1a9ade76737a8811bd6a7f9287c978ee396aa89c11e47229d2ccb552f0",
         "wx" : "1260c2122c9e244e1af5151bede0c3ae23b54d7c596881d3eebad21f37dd878c",
         "wy" : "5c9a0c1a9ade76737a8811bd6a7f9287c978ee396aa89c11e47229d2ccb552f0"
@@ -2442,7 +2446,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200041260c2122c9e244e1af5151bede0c3ae23b54d7c596881d3eebad21f37dd878c5c9a0c1a9ade76737a8811bd6a7f9287c978ee396aa89c11e47229d2ccb552f0",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEEmDCEiyeJE4a9RUb7eDDriO1TXxZaIHT\n7rrSHzfdh4xcmgwamt52c3qIEb1qf5KHyXjuOWqonBHkcinSzLVS8A==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 275,
@@ -2458,7 +2462,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "041877045be25d34a1d0600f9d5c00d0645a2a54379b6ceefad2e6bf5c2a3352ce821a532cc1751ee1d36d41c3d6ab4e9b143e44ec46d73478ea6a79a5c0e54159",
         "wx" : "1877045be25d34a1d0600f9d5c00d0645a2a54379b6ceefad2e6bf5c2a3352ce",
         "wy" : "0821a532cc1751ee1d36d41c3d6ab4e9b143e44ec46d73478ea6a79a5c0e54159"
@@ -2466,7 +2470,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200041877045be25d34a1d0600f9d5c00d0645a2a54379b6ceefad2e6bf5c2a3352ce821a532cc1751ee1d36d41c3d6ab4e9b143e44ec46d73478ea6a79a5c0e54159",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEGHcEW+JdNKHQYA+dXADQZFoqVDebbO76\n0ua/XCozUs6CGlMswXUe4dNtQcPWq06bFD5E7EbXNHjqanmlwOVBWQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 276,
@@ -2482,7 +2486,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04455439fcc3d2deeceddeaece60e7bd17304f36ebb602adf5a22e0b8f1db46a50aec38fb2baf221e9a8d1887c7bf6222dd1834634e77263315af6d23609d04f77",
         "wx" : "455439fcc3d2deeceddeaece60e7bd17304f36ebb602adf5a22e0b8f1db46a50",
         "wy" : "0aec38fb2baf221e9a8d1887c7bf6222dd1834634e77263315af6d23609d04f77"
@@ -2490,7 +2494,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004455439fcc3d2deeceddeaece60e7bd17304f36ebb602adf5a22e0b8f1db46a50aec38fb2baf221e9a8d1887c7bf6222dd1834634e77263315af6d23609d04f77",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAERVQ5/MPS3uzt3q7OYOe9FzBPNuu2Aq31\noi4Ljx20alCuw4+yuvIh6ajRiHx79iIt0YNGNOdyYzFa9tI2CdBPdw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 277,
@@ -2506,7 +2510,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "042e1f466b024c0c3ace2437de09127fed04b706f94b19a21bb1c2acf35cece7180449ae3523d72534e964972cfd3b38af0bddd9619e5af223e4d1a40f34cf9f1d",
         "wx" : "2e1f466b024c0c3ace2437de09127fed04b706f94b19a21bb1c2acf35cece718",
         "wy" : "449ae3523d72534e964972cfd3b38af0bddd9619e5af223e4d1a40f34cf9f1d"
@@ -2514,7 +2518,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200042e1f466b024c0c3ace2437de09127fed04b706f94b19a21bb1c2acf35cece7180449ae3523d72534e964972cfd3b38af0bddd9619e5af223e4d1a40f34cf9f1d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAELh9GawJMDDrOJDfeCRJ/7QS3BvlLGaIb\nscKs81zs5xgESa41I9clNOlklyz9OzivC93ZYZ5a8iPk0aQPNM+fHQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 278,
@@ -2538,7 +2542,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04dda95d7b0698de5d2d0b4f0034dbe35b50f978fcc518a84abf9c99efd96a25305adc08d6a63dbe831ab99cd9146e3c4c45492ad19521612542256d6af60e7888",
         "wx" : "0dda95d7b0698de5d2d0b4f0034dbe35b50f978fcc518a84abf9c99efd96a2530",
         "wy" : "5adc08d6a63dbe831ab99cd9146e3c4c45492ad19521612542256d6af60e7888"
@@ -2546,7 +2550,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004dda95d7b0698de5d2d0b4f0034dbe35b50f978fcc518a84abf9c99efd96a25305adc08d6a63dbe831ab99cd9146e3c4c45492ad19521612542256d6af60e7888",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE3aldewaY3l0tC08ANNvjW1D5ePzFGKhK\nv5yZ79lqJTBa3AjWpj2+gxq5nNkUbjxMRUkq0ZUhYSVCJW1q9g54iA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 280,
@@ -2562,7 +2566,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0402ef4d6d6cfd5a94f1d7784226e3e2a6c0a436c55839619f38fb4472b5f9ee777eb4acd4eebda5cd72875ffd2a2f26229c2dc6b46500919a432c86739f3ae866",
         "wx" : "2ef4d6d6cfd5a94f1d7784226e3e2a6c0a436c55839619f38fb4472b5f9ee77",
         "wy" : "7eb4acd4eebda5cd72875ffd2a2f26229c2dc6b46500919a432c86739f3ae866"
@@ -2570,7 +2574,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000402ef4d6d6cfd5a94f1d7784226e3e2a6c0a436c55839619f38fb4472b5f9ee777eb4acd4eebda5cd72875ffd2a2f26229c2dc6b46500919a432c86739f3ae866",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEAu9NbWz9WpTx13hCJuPipsCkNsVYOWGf\nOPtEcrX57nd+tKzU7r2lzXKHX/0qLyYinC3GtGUAkZpDLIZznzroZg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 281,
@@ -2586,7 +2590,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04464f4ff715729cae5072ca3bd801d3195b67aec65e9b01aad20a2943dcbcb584b1afd29d31a39a11d570aa1597439b3b2d1971bf2f1abf15432d0207b10d1d08",
         "wx" : "464f4ff715729cae5072ca3bd801d3195b67aec65e9b01aad20a2943dcbcb584",
         "wy" : "0b1afd29d31a39a11d570aa1597439b3b2d1971bf2f1abf15432d0207b10d1d08"
@@ -2594,7 +2598,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004464f4ff715729cae5072ca3bd801d3195b67aec65e9b01aad20a2943dcbcb584b1afd29d31a39a11d570aa1597439b3b2d1971bf2f1abf15432d0207b10d1d08",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAERk9P9xVynK5Qcso72AHTGVtnrsZemwGq\n0gopQ9y8tYSxr9KdMaOaEdVwqhWXQ5s7LRlxvy8avxVDLQIHsQ0dCA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 282,
@@ -2610,7 +2614,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04157f8fddf373eb5f49cfcf10d8b853cf91cbcd7d665c3522ba7dd738ddb79a4cdeadf1a5c448ea3c9f4191a8999abfcc757ac6d64567ef072c47fec613443b8f",
         "wx" : "157f8fddf373eb5f49cfcf10d8b853cf91cbcd7d665c3522ba7dd738ddb79a4c",
         "wy" : "0deadf1a5c448ea3c9f4191a8999abfcc757ac6d64567ef072c47fec613443b8f"
@@ -2618,7 +2622,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004157f8fddf373eb5f49cfcf10d8b853cf91cbcd7d665c3522ba7dd738ddb79a4cdeadf1a5c448ea3c9f4191a8999abfcc757ac6d64567ef072c47fec613443b8f",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEFX+P3fNz619Jz88Q2LhTz5HLzX1mXDUi\nun3XON23mkzerfGlxEjqPJ9BkaiZmr/MdXrG1kVn7wcsR/7GE0Q7jw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 283,
@@ -2634,7 +2638,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "040934a537466c07430e2c48feb990bb19fb78cecc9cee424ea4d130291aa237f0d4f92d23b462804b5b68c52558c01c9996dbf727fccabbeedb9621a400535afa",
         "wx" : "0934a537466c07430e2c48feb990bb19fb78cecc9cee424ea4d130291aa237f0",
         "wy" : "0d4f92d23b462804b5b68c52558c01c9996dbf727fccabbeedb9621a400535afa"
@@ -2642,7 +2646,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200040934a537466c07430e2c48feb990bb19fb78cecc9cee424ea4d130291aa237f0d4f92d23b462804b5b68c52558c01c9996dbf727fccabbeedb9621a400535afa",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECTSlN0ZsB0MOLEj+uZC7Gft4zsyc7kJO\npNEwKRqiN/DU+S0jtGKAS1toxSVYwByZltv3J/zKu+7bliGkAFNa+g==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 284,
@@ -2658,7 +2662,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04d6ef20be66c893f741a9bf90d9b74675d1c2a31296397acb3ef174fd0b300c654a0c95478ca00399162d7f0f2dc89efdc2b28a30fbabe285857295a4b0c4e265",
         "wx" : "0d6ef20be66c893f741a9bf90d9b74675d1c2a31296397acb3ef174fd0b300c65",
         "wy" : "4a0c95478ca00399162d7f0f2dc89efdc2b28a30fbabe285857295a4b0c4e265"
@@ -2666,7 +2670,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004d6ef20be66c893f741a9bf90d9b74675d1c2a31296397acb3ef174fd0b300c654a0c95478ca00399162d7f0f2dc89efdc2b28a30fbabe285857295a4b0c4e265",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1u8gvmbIk/dBqb+Q2bdGddHCoxKWOXrL\nPvF0/QswDGVKDJVHjKADmRYtfw8tyJ79wrKKMPur4oWFcpWksMTiZQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 285,
@@ -2682,7 +2686,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04b7291d1404e0c0c07dab9372189f4bd58d2ceaa8d15ede544d9514545ba9ee0629c9a63d5e308769cc30ec276a410e6464a27eeafd9e599db10f053a4fe4a829",
         "wx" : "0b7291d1404e0c0c07dab9372189f4bd58d2ceaa8d15ede544d9514545ba9ee06",
         "wy" : "29c9a63d5e308769cc30ec276a410e6464a27eeafd9e599db10f053a4fe4a829"
@@ -2690,7 +2694,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004b7291d1404e0c0c07dab9372189f4bd58d2ceaa8d15ede544d9514545ba9ee0629c9a63d5e308769cc30ec276a410e6464a27eeafd9e599db10f053a4fe4a829",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEtykdFATgwMB9q5NyGJ9L1Y0s6qjRXt5U\nTZUUVFup7gYpyaY9XjCHacww7CdqQQ5kZKJ+6v2eWZ2xDwU6T+SoKQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 286,
@@ -2706,7 +2710,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04bb79f61857f743bfa1b6e7111ce4094377256969e4e15159123d9548acc3be6c1f9d9f8860dcffd3eb36dd6c31ff2e7226c2009c4c94d8d7d2b5686bf7abd677",
         "wx" : "0bb79f61857f743bfa1b6e7111ce4094377256969e4e15159123d9548acc3be6c",
         "wy" : "1f9d9f8860dcffd3eb36dd6c31ff2e7226c2009c4c94d8d7d2b5686bf7abd677"
@@ -2714,7 +2718,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004bb79f61857f743bfa1b6e7111ce4094377256969e4e15159123d9548acc3be6c1f9d9f8860dcffd3eb36dd6c31ff2e7226c2009c4c94d8d7d2b5686bf7abd677",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEu3n2GFf3Q7+htucRHOQJQ3claWnk4VFZ\nEj2VSKzDvmwfnZ+IYNz/0+s23Wwx/y5yJsIAnEyU2NfStWhr96vWdw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 287,
@@ -2738,7 +2742,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04d533b789a4af890fa7a82a1fae58c404f9a62a50b49adafab349c513b415087401b4171b803e76b34a9861e10f7bc289a066fd01bd29f84c987a10a5fb18c2d4",
         "wx" : "0d533b789a4af890fa7a82a1fae58c404f9a62a50b49adafab349c513b4150874",
         "wy" : "1b4171b803e76b34a9861e10f7bc289a066fd01bd29f84c987a10a5fb18c2d4"
@@ -2746,7 +2750,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004d533b789a4af890fa7a82a1fae58c404f9a62a50b49adafab349c513b415087401b4171b803e76b34a9861e10f7bc289a066fd01bd29f84c987a10a5fb18c2d4",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1TO3iaSviQ+nqCofrljEBPmmKlC0mtr6\ns0nFE7QVCHQBtBcbgD52s0qYYeEPe8KJoGb9Ab0p+EyYehCl+xjC1A==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 289,
@@ -2762,7 +2766,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04feb5163b0ece30ff3e03c7d55c4380fa2fa81ee2c0354942ff6f08c99d0cd82ce87de05ee1bda089d3e4e248fa0f721102acfffdf50e654be281433999df897e",
         "wx" : "0feb5163b0ece30ff3e03c7d55c4380fa2fa81ee2c0354942ff6f08c99d0cd82c",
         "wy" : "0e87de05ee1bda089d3e4e248fa0f721102acfffdf50e654be281433999df897e"
@@ -2770,7 +2774,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004feb5163b0ece30ff3e03c7d55c4380fa2fa81ee2c0354942ff6f08c99d0cd82ce87de05ee1bda089d3e4e248fa0f721102acfffdf50e654be281433999df897e",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE/rUWOw7OMP8+A8fVXEOA+i+oHuLANUlC\n/28IyZ0M2CzofeBe4b2gidPk4kj6D3IRAqz//fUOZUvigUM5md+Jfg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 290,
@@ -2786,7 +2790,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04238ced001cf22b8853e02edc89cbeca5050ba7e042a7a77f9382cd414922897640683d3094643840f295890aa4c18aa39b41d77dd0fb3bb2700e4f9ec284ffc2",
         "wx" : "238ced001cf22b8853e02edc89cbeca5050ba7e042a7a77f9382cd4149228976",
         "wy" : "40683d3094643840f295890aa4c18aa39b41d77dd0fb3bb2700e4f9ec284ffc2"
@@ -2794,7 +2798,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004238ced001cf22b8853e02edc89cbeca5050ba7e042a7a77f9382cd414922897640683d3094643840f295890aa4c18aa39b41d77dd0fb3bb2700e4f9ec284ffc2",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEI4ztABzyK4hT4C7cicvspQULp+BCp6d/\nk4LNQUkiiXZAaD0wlGQ4QPKViQqkwYqjm0HXfdD7O7JwDk+ewoT/wg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 291,
@@ -2810,7 +2814,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04961cf64817c06c0e51b3c2736c922fde18bd8c4906fcd7f5ef66c4678508f35ed2c5d18168cfbe70f2f123bd7419232bb92dd69113e2941061889481c5a027bf",
         "wx" : "0961cf64817c06c0e51b3c2736c922fde18bd8c4906fcd7f5ef66c4678508f35e",
         "wy" : "0d2c5d18168cfbe70f2f123bd7419232bb92dd69113e2941061889481c5a027bf"
@@ -2818,7 +2822,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004961cf64817c06c0e51b3c2736c922fde18bd8c4906fcd7f5ef66c4678508f35ed2c5d18168cfbe70f2f123bd7419232bb92dd69113e2941061889481c5a027bf",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAElhz2SBfAbA5Rs8JzbJIv3hi9jEkG/Nf1\n72bEZ4UI817SxdGBaM++cPLxI710GSMruS3WkRPilBBhiJSBxaAnvw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 292,
@@ -2834,7 +2838,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0413681eae168cd4ea7cf2e2a45d052742d10a9f64e796867dbdcb829fe0b1028816528760d177376c09df79de39557c329cc1753517acffe8fa2ec298026b8384",
         "wx" : "13681eae168cd4ea7cf2e2a45d052742d10a9f64e796867dbdcb829fe0b10288",
         "wy" : "16528760d177376c09df79de39557c329cc1753517acffe8fa2ec298026b8384"
@@ -2842,7 +2846,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000413681eae168cd4ea7cf2e2a45d052742d10a9f64e796867dbdcb829fe0b1028816528760d177376c09df79de39557c329cc1753517acffe8fa2ec298026b8384",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE2gerhaM1Op88uKkXQUnQtEKn2TnloZ9\nvcuCn+CxAogWUodg0Xc3bAnfed45VXwynMF1NRes/+j6LsKYAmuDhA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 293,
@@ -2858,7 +2862,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "045aa7abfdb6b4086d543325e5d79c6e95ce42f866d2bb84909633a04bb1aa31c291c80088794905e1da33336d874e2f91ccf45cc59185bede5dd6f3f7acaae18b",
         "wx" : "5aa7abfdb6b4086d543325e5d79c6e95ce42f866d2bb84909633a04bb1aa31c2",
         "wy" : "091c80088794905e1da33336d874e2f91ccf45cc59185bede5dd6f3f7acaae18b"
@@ -2866,7 +2870,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200045aa7abfdb6b4086d543325e5d79c6e95ce42f866d2bb84909633a04bb1aa31c291c80088794905e1da33336d874e2f91ccf45cc59185bede5dd6f3f7acaae18b",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEWqer/ba0CG1UMyXl15xulc5C+GbSu4SQ\nljOgS7GqMcKRyACIeUkF4dozM22HTi+RzPRcxZGFvt5d1vP3rKrhiw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 294,
@@ -2882,7 +2886,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0400277791b305a45b2b39590b2f05d3392a6c8182cef4eb540120e0f5c206c3e464108233fb0b8c3ac892d79ef8e0fbf92ed133addb4554270132584dc52eef41",
         "wx" : "277791b305a45b2b39590b2f05d3392a6c8182cef4eb540120e0f5c206c3e4",
         "wy" : "64108233fb0b8c3ac892d79ef8e0fbf92ed133addb4554270132584dc52eef41"
@@ -2890,7 +2894,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000400277791b305a45b2b39590b2f05d3392a6c8182cef4eb540120e0f5c206c3e464108233fb0b8c3ac892d79ef8e0fbf92ed133addb4554270132584dc52eef41",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEACd3kbMFpFsrOVkLLwXTOSpsgYLO9OtU\nASDg9cIGw+RkEIIz+wuMOsiS15744Pv5LtEzrdtFVCcBMlhNxS7vQQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 295,
@@ -2906,7 +2910,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "046efa092b68de9460f0bcc919005a5f6e80e19de98968be3cd2c770a9949bfb1ac75e6e5087d6550d5f9beb1e79e5029307bc255235e2d5dc99241ac3ab886c49",
         "wx" : "6efa092b68de9460f0bcc919005a5f6e80e19de98968be3cd2c770a9949bfb1a",
         "wy" : "0c75e6e5087d6550d5f9beb1e79e5029307bc255235e2d5dc99241ac3ab886c49"
@@ -2914,7 +2918,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200046efa092b68de9460f0bcc919005a5f6e80e19de98968be3cd2c770a9949bfb1ac75e6e5087d6550d5f9beb1e79e5029307bc255235e2d5dc99241ac3ab886c49",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEbvoJK2jelGDwvMkZAFpfboDhnemJaL48\n0sdwqZSb+xrHXm5Qh9ZVDV+b6x555QKTB7wlUjXi1dyZJBrDq4hsSQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 296,
@@ -2930,7 +2934,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0472d4a19c4f9d2cf5848ea40445b70d4696b5f02d632c0c654cc7d7eeb0c6d058e8c4cd9943e459174c7ac01fa742198e47e6c19a6bdb0c4f6c237831c1b3f942",
         "wx" : "72d4a19c4f9d2cf5848ea40445b70d4696b5f02d632c0c654cc7d7eeb0c6d058",
         "wy" : "0e8c4cd9943e459174c7ac01fa742198e47e6c19a6bdb0c4f6c237831c1b3f942"
@@ -2938,7 +2942,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000472d4a19c4f9d2cf5848ea40445b70d4696b5f02d632c0c654cc7d7eeb0c6d058e8c4cd9943e459174c7ac01fa742198e47e6c19a6bdb0c4f6c237831c1b3f942",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEctShnE+dLPWEjqQERbcNRpa18C1jLAxl\nTMfX7rDG0FjoxM2ZQ+RZF0x6wB+nQhmOR+bBmmvbDE9sI3gxwbP5Qg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 297,
@@ -2954,7 +2958,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "042a8ea2f50dcced0c217575bdfa7cd47d1c6f100041ec0e35512794c1be7e740258f8c17122ed303fda7143eb58bede70295b653266013b0b0ebd3f053137f6ec",
         "wx" : "2a8ea2f50dcced0c217575bdfa7cd47d1c6f100041ec0e35512794c1be7e7402",
         "wy" : "58f8c17122ed303fda7143eb58bede70295b653266013b0b0ebd3f053137f6ec"
@@ -2962,7 +2966,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200042a8ea2f50dcced0c217575bdfa7cd47d1c6f100041ec0e35512794c1be7e740258f8c17122ed303fda7143eb58bede70295b653266013b0b0ebd3f053137f6ec",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEKo6i9Q3M7QwhdXW9+nzUfRxvEABB7A41\nUSeUwb5+dAJY+MFxIu0wP9pxQ+tYvt5wKVtlMmYBOwsOvT8FMTf27A==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 298,
@@ -2978,7 +2982,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0488de689ce9af1e94be6a2089c8a8b1253ffdbb6c8e9c86249ba220001a4ad3b80c4998e54842f413b9edb1825acbb6335e81e4d184b2b01c8bebdc85d1f28946",
         "wx" : "088de689ce9af1e94be6a2089c8a8b1253ffdbb6c8e9c86249ba220001a4ad3b8",
         "wy" : "0c4998e54842f413b9edb1825acbb6335e81e4d184b2b01c8bebdc85d1f28946"
@@ -2986,7 +2990,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000488de689ce9af1e94be6a2089c8a8b1253ffdbb6c8e9c86249ba220001a4ad3b80c4998e54842f413b9edb1825acbb6335e81e4d184b2b01c8bebdc85d1f28946",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEiN5onOmvHpS+aiCJyKixJT/9u2yOnIYk\nm6IgABpK07gMSZjlSEL0E7ntsYJay7YzXoHk0YSysByL69yF0fKJRg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 299,
@@ -3002,7 +3006,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04fea2d31f70f90d5fb3e00e186ac42ab3c1615cee714e0b4e1131b3d4d8225bf7b037a18df2ac15343f30f74067ddf29e817d5f77f8dce05714da59c094f0cda9",
         "wx" : "0fea2d31f70f90d5fb3e00e186ac42ab3c1615cee714e0b4e1131b3d4d8225bf7",
         "wy" : "0b037a18df2ac15343f30f74067ddf29e817d5f77f8dce05714da59c094f0cda9"
@@ -3010,7 +3014,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004fea2d31f70f90d5fb3e00e186ac42ab3c1615cee714e0b4e1131b3d4d8225bf7b037a18df2ac15343f30f74067ddf29e817d5f77f8dce05714da59c094f0cda9",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE/qLTH3D5DV+z4A4YasQqs8FhXO5xTgtO\nETGz1NgiW/ewN6GN8qwVND8w90Bn3fKegX1fd/jc4FcU2lnAlPDNqQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 300,
@@ -3026,7 +3030,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "047258911e3d423349166479dbe0b8341af7fbd03d0a7e10edccb36b6ceea5a3db17ac2b8992791128fa3b96dc2fbd4ca3bfa782ef2832fc6656943db18e7346b0",
         "wx" : "7258911e3d423349166479dbe0b8341af7fbd03d0a7e10edccb36b6ceea5a3db",
         "wy" : "17ac2b8992791128fa3b96dc2fbd4ca3bfa782ef2832fc6656943db18e7346b0"
@@ -3034,7 +3038,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200047258911e3d423349166479dbe0b8341af7fbd03d0a7e10edccb36b6ceea5a3db17ac2b8992791128fa3b96dc2fbd4ca3bfa782ef2832fc6656943db18e7346b0",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEcliRHj1CM0kWZHnb4Lg0Gvf70D0KfhDt\nzLNrbO6lo9sXrCuJknkRKPo7ltwvvUyjv6eC7ygy/GZWlD2xjnNGsA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 301,
@@ -3050,7 +3054,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "044f28461dea64474d6bb34d1499c97d37b9e95633df1ceeeaacd45016c98b3914c8818810b8cc06ddb40e8a1261c528faa589455d5a6df93b77bc5e0e493c7470",
         "wx" : "4f28461dea64474d6bb34d1499c97d37b9e95633df1ceeeaacd45016c98b3914",
         "wy" : "0c8818810b8cc06ddb40e8a1261c528faa589455d5a6df93b77bc5e0e493c7470"
@@ -3058,7 +3062,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200044f28461dea64474d6bb34d1499c97d37b9e95633df1ceeeaacd45016c98b3914c8818810b8cc06ddb40e8a1261c528faa589455d5a6df93b77bc5e0e493c7470",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAETyhGHepkR01rs00Umcl9N7npVjPfHO7q\nrNRQFsmLORTIgYgQuMwG3bQOihJhxSj6pYlFXVpt+Tt3vF4OSTx0cA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 302,
@@ -3074,7 +3078,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0474f2a814fb5d8eca91a69b5e60712732b3937de32829be974ed7b68c5c2f5d66eff0f07c56f987a657f42196205f588c0f1d96fd8a63a5f238b48f478788fe3b",
         "wx" : "74f2a814fb5d8eca91a69b5e60712732b3937de32829be974ed7b68c5c2f5d66",
         "wy" : "0eff0f07c56f987a657f42196205f588c0f1d96fd8a63a5f238b48f478788fe3b"
@@ -3082,7 +3086,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000474f2a814fb5d8eca91a69b5e60712732b3937de32829be974ed7b68c5c2f5d66eff0f07c56f987a657f42196205f588c0f1d96fd8a63a5f238b48f478788fe3b",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdPKoFPtdjsqRppteYHEnMrOTfeMoKb6X\nTte2jFwvXWbv8PB8VvmHplf0IZYgX1iMDx2W/YpjpfI4tI9Hh4j+Ow==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 303,
@@ -3098,7 +3102,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04195b51a7cc4a21b8274a70a90de779814c3c8ca358328208c09a29f336b82d6ab2416b7c92fffdc29c3b1282dd2a77a4d04df7f7452047393d849989c5cee9ad",
         "wx" : "195b51a7cc4a21b8274a70a90de779814c3c8ca358328208c09a29f336b82d6a",
         "wy" : "0b2416b7c92fffdc29c3b1282dd2a77a4d04df7f7452047393d849989c5cee9ad"
@@ -3106,7 +3110,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004195b51a7cc4a21b8274a70a90de779814c3c8ca358328208c09a29f336b82d6ab2416b7c92fffdc29c3b1282dd2a77a4d04df7f7452047393d849989c5cee9ad",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEGVtRp8xKIbgnSnCpDed5gUw8jKNYMoII\nwJop8za4LWqyQWt8kv/9wpw7EoLdKnek0E3390UgRzk9hJmJxc7prQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 304,
@@ -3122,7 +3126,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04622fc74732034bec2ddf3bc16d34b3d1f7a327dd2a8c19bab4bb4fe3a24b58aa736b2f2fae76f4dfaecc9096333b01328d51eb3fda9c9227e90d0b449983c4f0",
         "wx" : "622fc74732034bec2ddf3bc16d34b3d1f7a327dd2a8c19bab4bb4fe3a24b58aa",
         "wy" : "736b2f2fae76f4dfaecc9096333b01328d51eb3fda9c9227e90d0b449983c4f0"
@@ -3130,7 +3134,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004622fc74732034bec2ddf3bc16d34b3d1f7a327dd2a8c19bab4bb4fe3a24b58aa736b2f2fae76f4dfaecc9096333b01328d51eb3fda9c9227e90d0b449983c4f0",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEYi/HRzIDS+wt3zvBbTSz0fejJ90qjBm6\ntLtP46JLWKpzay8vrnb0367MkJYzOwEyjVHrP9qckifpDQtEmYPE8A==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 305,
@@ -3146,7 +3150,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "041f7f85caf2d7550e7af9b65023ebb4dce3450311692309db269969b834b611c70827f45b78020ecbbaf484fdd5bfaae6870f1184c21581baf6ef82bd7b530f93",
         "wx" : "1f7f85caf2d7550e7af9b65023ebb4dce3450311692309db269969b834b611c7",
         "wy" : "0827f45b78020ecbbaf484fdd5bfaae6870f1184c21581baf6ef82bd7b530f93"
@@ -3154,7 +3158,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200041f7f85caf2d7550e7af9b65023ebb4dce3450311692309db269969b834b611c70827f45b78020ecbbaf484fdd5bfaae6870f1184c21581baf6ef82bd7b530f93",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEH3+FyvLXVQ56+bZQI+u03ONFAxFpIwnb\nJplpuDS2EccIJ/RbeAIOy7r0hP3Vv6rmhw8RhMIVgbr274K9e1MPkw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 306,
@@ -3170,7 +3174,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0449c197dc80ad1da47a4342b93893e8e1fb0bb94fc33a83e783c00b24c781377aefc20da92bac762951f72474becc734d4cc22ba81b895e282fdac4df7af0f37d",
         "wx" : "49c197dc80ad1da47a4342b93893e8e1fb0bb94fc33a83e783c00b24c781377a",
         "wy" : "0efc20da92bac762951f72474becc734d4cc22ba81b895e282fdac4df7af0f37d"
@@ -3178,7 +3182,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000449c197dc80ad1da47a4342b93893e8e1fb0bb94fc33a83e783c00b24c781377aefc20da92bac762951f72474becc734d4cc22ba81b895e282fdac4df7af0f37d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEScGX3ICtHaR6Q0K5OJPo4fsLuU/DOoPn\ng8ALJMeBN3rvwg2pK6x2KVH3JHS+zHNNTMIrqBuJXigv2sTfevDzfQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 307,
@@ -3194,7 +3198,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04d8cb68517b616a56400aa3868635e54b6f699598a2f6167757654980baf6acbe7ec8cf449c849aa03461a30efada41453c57c6e6fbc93bbc6fa49ada6dc0555c",
         "wx" : "0d8cb68517b616a56400aa3868635e54b6f699598a2f6167757654980baf6acbe",
         "wy" : "7ec8cf449c849aa03461a30efada41453c57c6e6fbc93bbc6fa49ada6dc0555c"
@@ -3202,7 +3206,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004d8cb68517b616a56400aa3868635e54b6f699598a2f6167757654980baf6acbe7ec8cf449c849aa03461a30efada41453c57c6e6fbc93bbc6fa49ada6dc0555c",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE2MtoUXthalZACqOGhjXlS29plZii9hZ3\nV2VJgLr2rL5+yM9EnISaoDRhow762kFFPFfG5vvJO7xvpJrabcBVXA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 308,
@@ -3218,7 +3222,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04030713fb63f2aa6fe2cadf1b20efc259c77445dafa87dac398b84065ca347df3b227818de1a39b589cb071d83e5317cccdc2338e51e312fe31d8dc34a4801750",
         "wx" : "30713fb63f2aa6fe2cadf1b20efc259c77445dafa87dac398b84065ca347df3",
         "wy" : "0b227818de1a39b589cb071d83e5317cccdc2338e51e312fe31d8dc34a4801750"
@@ -3226,7 +3230,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004030713fb63f2aa6fe2cadf1b20efc259c77445dafa87dac398b84065ca347df3b227818de1a39b589cb071d83e5317cccdc2338e51e312fe31d8dc34a4801750",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEAwcT+2Pyqm/iyt8bIO/CWcd0Rdr6h9rD\nmLhAZco0ffOyJ4GN4aObWJywcdg+UxfMzcIzjlHjEv4x2Nw0pIAXUA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 309,
@@ -3242,7 +3246,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04babb3677b0955802d8e929a41355640eaf1ea1353f8a771331c4946e3480afa7252f196c87ed3d2a59d3b1b559137fed0013fecefc19fb5a92682b9bca51b950",
         "wx" : "0babb3677b0955802d8e929a41355640eaf1ea1353f8a771331c4946e3480afa7",
         "wy" : "252f196c87ed3d2a59d3b1b559137fed0013fecefc19fb5a92682b9bca51b950"
@@ -3250,7 +3254,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004babb3677b0955802d8e929a41355640eaf1ea1353f8a771331c4946e3480afa7252f196c87ed3d2a59d3b1b559137fed0013fecefc19fb5a92682b9bca51b950",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEurs2d7CVWALY6SmkE1VkDq8eoTU/incT\nMcSUbjSAr6clLxlsh+09KlnTsbVZE3/tABP+zvwZ+1qSaCubylG5UA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 310,
@@ -3266,7 +3270,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "041aab2018793471111a8a0e9b143fde02fc95920796d3a63de329b424396fba60bbe4130705174792441b318d3aa31dfe8577821e9b446ec573d272e036c4ebe9",
         "wx" : "1aab2018793471111a8a0e9b143fde02fc95920796d3a63de329b424396fba60",
         "wy" : "0bbe4130705174792441b318d3aa31dfe8577821e9b446ec573d272e036c4ebe9"
@@ -3274,7 +3278,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200041aab2018793471111a8a0e9b143fde02fc95920796d3a63de329b424396fba60bbe4130705174792441b318d3aa31dfe8577821e9b446ec573d272e036c4ebe9",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEGqsgGHk0cREaig6bFD/eAvyVkgeW06Y9\n4ym0JDlvumC75BMHBRdHkkQbMY06ox3+hXeCHptEbsVz0nLgNsTr6Q==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 311,
@@ -3290,7 +3294,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "048cb0b909499c83ea806cd885b1dd467a0119f06a88a0276eb0cfda274535a8ff47b5428833bc3f2c8bf9d9041158cf33718a69961cd01729bc0011d1e586ab75",
         "wx" : "08cb0b909499c83ea806cd885b1dd467a0119f06a88a0276eb0cfda274535a8ff",
         "wy" : "47b5428833bc3f2c8bf9d9041158cf33718a69961cd01729bc0011d1e586ab75"
@@ -3298,7 +3302,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200048cb0b909499c83ea806cd885b1dd467a0119f06a88a0276eb0cfda274535a8ff47b5428833bc3f2c8bf9d9041158cf33718a69961cd01729bc0011d1e586ab75",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEjLC5CUmcg+qAbNiFsd1GegEZ8GqIoCdu\nsM/aJ0U1qP9HtUKIM7w/LIv52QQRWM8zcYpplhzQFym8ABHR5YardQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 312,
@@ -3314,7 +3318,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "048f03cf1a42272bb1532723093f72e6feeac85e1700e9fbe9a6a2dd642d74bf5d3b89a7189dad8cf75fc22f6f158aa27f9c2ca00daca785be3358f2bda3862ca0",
         "wx" : "08f03cf1a42272bb1532723093f72e6feeac85e1700e9fbe9a6a2dd642d74bf5d",
         "wy" : "3b89a7189dad8cf75fc22f6f158aa27f9c2ca00daca785be3358f2bda3862ca0"
@@ -3322,7 +3326,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200048f03cf1a42272bb1532723093f72e6feeac85e1700e9fbe9a6a2dd642d74bf5d3b89a7189dad8cf75fc22f6f158aa27f9c2ca00daca785be3358f2bda3862ca0",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEjwPPGkInK7FTJyMJP3Lm/urIXhcA6fvp\npqLdZC10v107iacYna2M91/CL28ViqJ/nCygDaynhb4zWPK9o4YsoA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 313,
@@ -3338,7 +3342,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0444de3b9c7a57a8c9e820952753421e7d987bb3d79f71f013805c897e018f8acea2460758c8f98d3fdce121a943659e372c326fff2e5fc2ae7fa3f79daae13c12",
         "wx" : "44de3b9c7a57a8c9e820952753421e7d987bb3d79f71f013805c897e018f8ace",
         "wy" : "0a2460758c8f98d3fdce121a943659e372c326fff2e5fc2ae7fa3f79daae13c12"
@@ -3346,7 +3350,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000444de3b9c7a57a8c9e820952753421e7d987bb3d79f71f013805c897e018f8acea2460758c8f98d3fdce121a943659e372c326fff2e5fc2ae7fa3f79daae13c12",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAERN47nHpXqMnoIJUnU0IefZh7s9efcfAT\ngFyJfgGPis6iRgdYyPmNP9zhIalDZZ43LDJv/y5fwq5/o/edquE8Eg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 314,
@@ -3362,7 +3366,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "046fb8b2b48e33031268ad6a517484dc8839ea90f6669ea0c7ac3233e2ac31394a0ac8bbe7f73c2ff4df9978727ac1dfc2fd58647d20f31f99105316b64671f204",
         "wx" : "6fb8b2b48e33031268ad6a517484dc8839ea90f6669ea0c7ac3233e2ac31394a",
         "wy" : "0ac8bbe7f73c2ff4df9978727ac1dfc2fd58647d20f31f99105316b64671f204"
@@ -3370,7 +3374,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200046fb8b2b48e33031268ad6a517484dc8839ea90f6669ea0c7ac3233e2ac31394a0ac8bbe7f73c2ff4df9978727ac1dfc2fd58647d20f31f99105316b64671f204",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEb7iytI4zAxJorWpRdITciDnqkPZmnqDH\nrDIz4qwxOUoKyLvn9zwv9N+ZeHJ6wd/C/VhkfSDzH5kQUxa2RnHyBA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 315,
@@ -3386,7 +3390,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04bea71122a048693e905ff602b3cf9dd18af69b9fc9d8431d2b1dd26b942c95e6f43c7b8b95eb62082c12db9dbda7fe38e45cbe4a4886907fb81bdb0c5ea9246c",
         "wx" : "0bea71122a048693e905ff602b3cf9dd18af69b9fc9d8431d2b1dd26b942c95e6",
         "wy" : "0f43c7b8b95eb62082c12db9dbda7fe38e45cbe4a4886907fb81bdb0c5ea9246c"
@@ -3394,7 +3398,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004bea71122a048693e905ff602b3cf9dd18af69b9fc9d8431d2b1dd26b942c95e6f43c7b8b95eb62082c12db9dbda7fe38e45cbe4a4886907fb81bdb0c5ea9246c",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEvqcRIqBIaT6QX/YCs8+d0Yr2m5/J2EMd\nKx3Sa5Qsleb0PHuLletiCCwS2529p/445Fy+SkiGkH+4G9sMXqkkbA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 316,
@@ -3410,7 +3414,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04da918c731ba06a20cb94ef33b778e981a404a305f1941fe33666b45b03353156e2bb2694f575b45183be78e5c9b5210bf3bf488fd4c8294516d89572ca4f5391",
         "wx" : "0da918c731ba06a20cb94ef33b778e981a404a305f1941fe33666b45b03353156",
         "wy" : "0e2bb2694f575b45183be78e5c9b5210bf3bf488fd4c8294516d89572ca4f5391"
@@ -3418,7 +3422,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004da918c731ba06a20cb94ef33b778e981a404a305f1941fe33666b45b03353156e2bb2694f575b45183be78e5c9b5210bf3bf488fd4c8294516d89572ca4f5391",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE2pGMcxugaiDLlO8zt3jpgaQEowXxlB/j\nNma0WwM1MVbiuyaU9XW0UYO+eOXJtSEL879Ij9TIKUUW2JVyyk9TkQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 317,
@@ -3434,7 +3438,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "043007e92c3937dade7964dfa35b0eff031f7eb02aed0a0314411106cdeb70fe3d5a7546fc0552997b20e3d6f413e75e2cb66e116322697114b79bac734bfc4dc5",
         "wx" : "3007e92c3937dade7964dfa35b0eff031f7eb02aed0a0314411106cdeb70fe3d",
         "wy" : "5a7546fc0552997b20e3d6f413e75e2cb66e116322697114b79bac734bfc4dc5"
@@ -3442,7 +3446,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200043007e92c3937dade7964dfa35b0eff031f7eb02aed0a0314411106cdeb70fe3d5a7546fc0552997b20e3d6f413e75e2cb66e116322697114b79bac734bfc4dc5",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEMAfpLDk32t55ZN+jWw7/Ax9+sCrtCgMU\nQREGzetw/j1adUb8BVKZeyDj1vQT514stm4RYyJpcRS3m6xzS/xNxQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 318,
@@ -3458,7 +3462,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0460e734ef5624d3cbf0ddd375011bd663d6d6aebc644eb599fdf98dbdcd18ce9bd2d90b3ac31f139af832cccf6ccbbb2c6ea11fa97370dc9906da474d7d8a7567",
         "wx" : "60e734ef5624d3cbf0ddd375011bd663d6d6aebc644eb599fdf98dbdcd18ce9b",
         "wy" : "0d2d90b3ac31f139af832cccf6ccbbb2c6ea11fa97370dc9906da474d7d8a7567"
@@ -3466,7 +3470,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000460e734ef5624d3cbf0ddd375011bd663d6d6aebc644eb599fdf98dbdcd18ce9bd2d90b3ac31f139af832cccf6ccbbb2c6ea11fa97370dc9906da474d7d8a7567",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEYOc071Yk08vw3dN1ARvWY9bWrrxkTrWZ\n/fmNvc0YzpvS2Qs6wx8TmvgyzM9sy7ssbqEfqXNw3JkG2kdNfYp1Zw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 319,
@@ -3482,7 +3486,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0485a900e97858f693c0b7dfa261e380dad6ea046d1f65ddeeedd5f7d8af0ba33769744d15add4f6c0bc3b0da2aec93b34cb8c65f9340ddf74e7b0009eeeccce3c",
         "wx" : "085a900e97858f693c0b7dfa261e380dad6ea046d1f65ddeeedd5f7d8af0ba337",
         "wy" : "69744d15add4f6c0bc3b0da2aec93b34cb8c65f9340ddf74e7b0009eeeccce3c"
@@ -3490,7 +3494,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000485a900e97858f693c0b7dfa261e380dad6ea046d1f65ddeeedd5f7d8af0ba33769744d15add4f6c0bc3b0da2aec93b34cb8c65f9340ddf74e7b0009eeeccce3c",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEhakA6XhY9pPAt9+iYeOA2tbqBG0fZd3u\n7dX32K8LozdpdE0VrdT2wLw7DaKuyTs0y4xl+TQN33TnsACe7szOPA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 320,
@@ -3506,7 +3510,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0438066f75d88efc4c93de36f49e037b234cc18b1de5608750a62cab0345401046a3e84bed8cfcb819ef4d550444f2ce4b651766b69e2e2901f88836ff90034fed",
         "wx" : "38066f75d88efc4c93de36f49e037b234cc18b1de5608750a62cab0345401046",
         "wy" : "0a3e84bed8cfcb819ef4d550444f2ce4b651766b69e2e2901f88836ff90034fed"
@@ -3514,7 +3518,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000438066f75d88efc4c93de36f49e037b234cc18b1de5608750a62cab0345401046a3e84bed8cfcb819ef4d550444f2ce4b651766b69e2e2901f88836ff90034fed",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEOAZvddiO/EyT3jb0ngN7I0zBix3lYIdQ\npiyrA0VAEEaj6EvtjPy4Ge9NVQRE8s5LZRdmtp4uKQH4iDb/kANP7Q==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 321,
@@ -3530,7 +3534,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0498f68177dc95c1b4cbfa5245488ca523a7d5629470d035d621a443c72f39aabfa33d29546fa1c648f2c7d5ccf70cf1ce4ab79b5db1ac059dbecd068dbdff1b89",
         "wx" : "098f68177dc95c1b4cbfa5245488ca523a7d5629470d035d621a443c72f39aabf",
         "wy" : "0a33d29546fa1c648f2c7d5ccf70cf1ce4ab79b5db1ac059dbecd068dbdff1b89"
@@ -3538,7 +3542,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000498f68177dc95c1b4cbfa5245488ca523a7d5629470d035d621a443c72f39aabfa33d29546fa1c648f2c7d5ccf70cf1ce4ab79b5db1ac059dbecd068dbdff1b89",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEmPaBd9yVwbTL+lJFSIylI6fVYpRw0DXW\nIaRDxy85qr+jPSlUb6HGSPLH1cz3DPHOSrebXbGsBZ2+zQaNvf8biQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 322,
@@ -3554,7 +3558,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "045c2bbfa23c9b9ad07f038aa89b4930bf267d9401e4255de9e8da0a5078ec8277e3e882a31d5e6a379e0793983ccded39b95c4353ab2ff01ea5369ba47b0c3191",
         "wx" : "5c2bbfa23c9b9ad07f038aa89b4930bf267d9401e4255de9e8da0a5078ec8277",
         "wy" : "0e3e882a31d5e6a379e0793983ccded39b95c4353ab2ff01ea5369ba47b0c3191"
@@ -3562,7 +3566,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200045c2bbfa23c9b9ad07f038aa89b4930bf267d9401e4255de9e8da0a5078ec8277e3e882a31d5e6a379e0793983ccded39b95c4353ab2ff01ea5369ba47b0c3191",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEXCu/ojybmtB/A4qom0kwvyZ9lAHkJV3p\n6NoKUHjsgnfj6IKjHV5qN54Hk5g8ze05uVxDU6sv8B6lNpukewwxkQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 323,
@@ -3578,7 +3582,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "042ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a3853547808298448edb5e701ade84cd5fb1ac9567ba5e8fb68a6b933ec4b5cc84cc",
         "wx" : "2ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a385",
         "wy" : "3547808298448edb5e701ade84cd5fb1ac9567ba5e8fb68a6b933ec4b5cc84cc"
@@ -3586,7 +3590,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200042ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a3853547808298448edb5e701ade84cd5fb1ac9567ba5e8fb68a6b933ec4b5cc84cc",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAELqcTNDIznGnSf5smcoG9Ld1fGdYzjUAK\nBc02R7FXo4U1R4CCmESO215wGt6EzV+xrJVnul6Ptoprkz7EtcyEzA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 324,
@@ -3604,7 +3608,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "042ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a385cab87f7d67bb7124a18fe5217b32a04e536a9845a1704975946cc13a4a337763",
         "wx" : "2ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a385",
         "wy" : "0cab87f7d67bb7124a18fe5217b32a04e536a9845a1704975946cc13a4a337763"
@@ -3612,7 +3616,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200042ea7133432339c69d27f9b267281bd2ddd5f19d6338d400a05cd3647b157a385cab87f7d67bb7124a18fe5217b32a04e536a9845a1704975946cc13a4a337763",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAELqcTNDIznGnSf5smcoG9Ld1fGdYzjUAK\nBc02R7FXo4XKuH99Z7txJKGP5SF7MqBOU2qYRaFwSXWUbME6SjN3Yw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 325,
@@ -3630,7 +3634,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "048aa2c64fa9c6437563abfbcbd00b2048d48c18c152a2a6f49036de7647ebe82e1ce64387995c68a060fa3bc0399b05cc06eec7d598f75041a4917e692b7f51ff",
         "wx" : "08aa2c64fa9c6437563abfbcbd00b2048d48c18c152a2a6f49036de7647ebe82e",
         "wy" : "1ce64387995c68a060fa3bc0399b05cc06eec7d598f75041a4917e692b7f51ff"
@@ -3638,7 +3642,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200048aa2c64fa9c6437563abfbcbd00b2048d48c18c152a2a6f49036de7647ebe82e1ce64387995c68a060fa3bc0399b05cc06eec7d598f75041a4917e692b7f51ff",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEiqLGT6nGQ3Vjq/vL0AsgSNSMGMFSoqb0\nkDbedkfr6C4c5kOHmVxooGD6O8A5mwXMBu7H1Zj3UEGkkX5pK39R/w==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 326,
@@ -3654,7 +3658,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04391427ff7ee78013c14aec7d96a8a062209298a783835e94fd6549d502fff71fdd6624ec343ad9fcf4d9872181e59f842f9ba4cccae09a6c0972fb6ac6b4c6bd",
         "wx" : "391427ff7ee78013c14aec7d96a8a062209298a783835e94fd6549d502fff71f",
         "wy" : "0dd6624ec343ad9fcf4d9872181e59f842f9ba4cccae09a6c0972fb6ac6b4c6bd"
@@ -3662,7 +3666,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004391427ff7ee78013c14aec7d96a8a062209298a783835e94fd6549d502fff71fdd6624ec343ad9fcf4d9872181e59f842f9ba4cccae09a6c0972fb6ac6b4c6bd",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEORQn/37ngBPBSux9lqigYiCSmKeDg16U\n/WVJ1QL/9x/dZiTsNDrZ/PTZhyGB5Z+EL5ukzMrgmmwJcvtqxrTGvQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 327,
@@ -3678,7 +3682,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04e762b8a219b4f180219cc7a9059245e4961bd191c03899789c7a34b89e8c138ec1533ef0419bb7376e0bfde9319d10a06968791d9ea0eed9c1ce6345aed9759e",
         "wx" : "0e762b8a219b4f180219cc7a9059245e4961bd191c03899789c7a34b89e8c138e",
         "wy" : "0c1533ef0419bb7376e0bfde9319d10a06968791d9ea0eed9c1ce6345aed9759e"
@@ -3686,7 +3690,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004e762b8a219b4f180219cc7a9059245e4961bd191c03899789c7a34b89e8c138ec1533ef0419bb7376e0bfde9319d10a06968791d9ea0eed9c1ce6345aed9759e",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE52K4ohm08YAhnMepBZJF5JYb0ZHAOJl4\nnHo0uJ6ME47BUz7wQZu3N24L/ekxnRCgaWh5HZ6g7tnBzmNFrtl1ng==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 328,
@@ -3702,7 +3706,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "049aedb0d281db164e130000c5697fae0f305ef848be6fffb43ac593fbb950e952fa6f633359bdcd82b56b0b9f965b037789d46b9a8141b791b2aefa713f96c175",
         "wx" : "09aedb0d281db164e130000c5697fae0f305ef848be6fffb43ac593fbb950e952",
         "wy" : "0fa6f633359bdcd82b56b0b9f965b037789d46b9a8141b791b2aefa713f96c175"
@@ -3710,7 +3714,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200049aedb0d281db164e130000c5697fae0f305ef848be6fffb43ac593fbb950e952fa6f633359bdcd82b56b0b9f965b037789d46b9a8141b791b2aefa713f96c175",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEmu2w0oHbFk4TAADFaX+uDzBe+Ei+b/+0\nOsWT+7lQ6VL6b2MzWb3NgrVrC5+WWwN3idRrmoFBt5GyrvpxP5bBdQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 329,
@@ -3726,7 +3730,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "048ad445db62816260e4e687fd1884e48b9fc0636d031547d63315e792e19bfaee1de64f99d5f1cd8b6ec9cb0f787a654ae86993ba3db1008ef43cff0684cb22bd",
         "wx" : "08ad445db62816260e4e687fd1884e48b9fc0636d031547d63315e792e19bfaee",
         "wy" : "1de64f99d5f1cd8b6ec9cb0f787a654ae86993ba3db1008ef43cff0684cb22bd"
@@ -3734,7 +3738,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200048ad445db62816260e4e687fd1884e48b9fc0636d031547d63315e792e19bfaee1de64f99d5f1cd8b6ec9cb0f787a654ae86993ba3db1008ef43cff0684cb22bd",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEitRF22KBYmDk5of9GITki5/AY20DFUfW\nMxXnkuGb+u4d5k+Z1fHNi27Jyw94emVK6GmTuj2xAI70PP8GhMsivQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 330,
@@ -3750,7 +3754,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "041f5799c95be89063b24f26e40cb928c1a868a76fb0094607e8043db409c91c32e75724e813a4191e3a839007f08e2e897388b06d4a00de6de60e536d91fab566",
         "wx" : "1f5799c95be89063b24f26e40cb928c1a868a76fb0094607e8043db409c91c32",
         "wy" : "0e75724e813a4191e3a839007f08e2e897388b06d4a00de6de60e536d91fab566"
@@ -3758,7 +3762,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200041f5799c95be89063b24f26e40cb928c1a868a76fb0094607e8043db409c91c32e75724e813a4191e3a839007f08e2e897388b06d4a00de6de60e536d91fab566",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEH1eZyVvokGOyTybkDLkowahop2+wCUYH\n6AQ9tAnJHDLnVyToE6QZHjqDkAfwji6Jc4iwbUoA3m3mDlNtkfq1Zg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 331,
@@ -3774,7 +3778,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04a3331a4e1b4223ec2c027edd482c928a14ed358d93f1d4217d39abf69fcb5ccc28d684d2aaabcd6383775caa6239de26d4c6937bb603ecb4196082f4cffd509d",
         "wx" : "0a3331a4e1b4223ec2c027edd482c928a14ed358d93f1d4217d39abf69fcb5ccc",
         "wy" : "28d684d2aaabcd6383775caa6239de26d4c6937bb603ecb4196082f4cffd509d"
@@ -3782,7 +3786,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004a3331a4e1b4223ec2c027edd482c928a14ed358d93f1d4217d39abf69fcb5ccc28d684d2aaabcd6383775caa6239de26d4c6937bb603ecb4196082f4cffd509d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEozMaThtCI+wsAn7dSCySihTtNY2T8dQh\nfTmr9p/LXMwo1oTSqqvNY4N3XKpiOd4m1MaTe7YD7LQZYIL0z/1QnQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 332,
@@ -3798,7 +3802,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "043f3952199774c7cf39b38b66cb1042a6260d8680803845e4d433adba3bb248185ea495b68cbc7ed4173ee63c9042dc502625c7eb7e21fb02ca9a9114e0a3a18d",
         "wx" : "3f3952199774c7cf39b38b66cb1042a6260d8680803845e4d433adba3bb24818",
         "wy" : "5ea495b68cbc7ed4173ee63c9042dc502625c7eb7e21fb02ca9a9114e0a3a18d"
@@ -3806,7 +3810,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200043f3952199774c7cf39b38b66cb1042a6260d8680803845e4d433adba3bb248185ea495b68cbc7ed4173ee63c9042dc502625c7eb7e21fb02ca9a9114e0a3a18d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEPzlSGZd0x885s4tmyxBCpiYNhoCAOEXk\n1DOtujuySBhepJW2jLx+1Bc+5jyQQtxQJiXH634h+wLKmpEU4KOhjQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 333,
@@ -3822,7 +3826,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04cdfb8c0f422e144e137c2412c86c171f5fe3fa3f5bbb544e9076288f3ced786e054fd0721b77c11c79beacb3c94211b0a19bda08652efeaf92513a3b0a163698",
         "wx" : "0cdfb8c0f422e144e137c2412c86c171f5fe3fa3f5bbb544e9076288f3ced786e",
         "wy" : "54fd0721b77c11c79beacb3c94211b0a19bda08652efeaf92513a3b0a163698"
@@ -3830,7 +3834,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004cdfb8c0f422e144e137c2412c86c171f5fe3fa3f5bbb544e9076288f3ced786e054fd0721b77c11c79beacb3c94211b0a19bda08652efeaf92513a3b0a163698",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEzfuMD0IuFE4TfCQSyGwXH1/j+j9bu1RO\nkHYojzzteG4FT9ByG3fBHHm+rLPJQhGwoZvaCGUu/q+SUTo7ChY2mA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 334,
@@ -3846,7 +3850,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0473598a6a1c68278fa6bfd0ce4064e68235bc1c0f6b20a928108be336730f87e3cbae612519b5032ecc85aed811271a95fe7939d5d3460140ba318f4d14aba31d",
         "wx" : "73598a6a1c68278fa6bfd0ce4064e68235bc1c0f6b20a928108be336730f87e3",
         "wy" : "0cbae612519b5032ecc85aed811271a95fe7939d5d3460140ba318f4d14aba31d"
@@ -3854,7 +3858,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000473598a6a1c68278fa6bfd0ce4064e68235bc1c0f6b20a928108be336730f87e3cbae612519b5032ecc85aed811271a95fe7939d5d3460140ba318f4d14aba31d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEc1mKahxoJ4+mv9DOQGTmgjW8HA9rIKko\nEIvjNnMPh+PLrmElGbUDLsyFrtgRJxqV/nk51dNGAUC6MY9NFKujHQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 335,
@@ -3870,7 +3874,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0458debd9a7ee2c9d59132478a5440ae4d5d7ed437308369f92ea86c82183f10a16773e76f5edbf4da0e4f1bdffac0f57257e1dfa465842931309a24245fda6a5d",
         "wx" : "58debd9a7ee2c9d59132478a5440ae4d5d7ed437308369f92ea86c82183f10a1",
         "wy" : "6773e76f5edbf4da0e4f1bdffac0f57257e1dfa465842931309a24245fda6a5d"
@@ -3878,7 +3882,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000458debd9a7ee2c9d59132478a5440ae4d5d7ed437308369f92ea86c82183f10a16773e76f5edbf4da0e4f1bdffac0f57257e1dfa465842931309a24245fda6a5d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEWN69mn7iydWRMkeKVECuTV1+1Dcwg2n5\nLqhsghg/EKFnc+dvXtv02g5PG9/6wPVyV+HfpGWEKTEwmiQkX9pqXQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 336,
@@ -3894,7 +3898,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "048b904de47967340c5f8c3572a720924ef7578637feab1949acb241a5a6ac3f5b950904496f9824b1d63f3313bae21b89fae89afdfc811b5ece03fd5aa301864f",
         "wx" : "08b904de47967340c5f8c3572a720924ef7578637feab1949acb241a5a6ac3f5b",
         "wy" : "0950904496f9824b1d63f3313bae21b89fae89afdfc811b5ece03fd5aa301864f"
@@ -3902,7 +3906,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200048b904de47967340c5f8c3572a720924ef7578637feab1949acb241a5a6ac3f5b950904496f9824b1d63f3313bae21b89fae89afdfc811b5ece03fd5aa301864f",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEi5BN5HlnNAxfjDVypyCSTvdXhjf+qxlJ\nrLJBpaasP1uVCQRJb5gksdY/MxO64huJ+uia/fyBG17OA/1aowGGTw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 337,
@@ -3918,7 +3922,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04f4892b6d525c771e035f2a252708f3784e48238604b4f94dc56eaa1e546d941a346b1aa0bce68b1c50e5b52f509fb5522e5c25e028bc8f863402edb7bcad8b1b",
         "wx" : "0f4892b6d525c771e035f2a252708f3784e48238604b4f94dc56eaa1e546d941a",
         "wy" : "346b1aa0bce68b1c50e5b52f509fb5522e5c25e028bc8f863402edb7bcad8b1b"
@@ -3926,7 +3930,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004f4892b6d525c771e035f2a252708f3784e48238604b4f94dc56eaa1e546d941a346b1aa0bce68b1c50e5b52f509fb5522e5c25e028bc8f863402edb7bcad8b1b",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE9IkrbVJcdx4DXyolJwjzeE5II4YEtPlN\nxW6qHlRtlBo0axqgvOaLHFDltS9Qn7VSLlwl4Ci8j4Y0Au23vK2LGw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 338,
@@ -3942,7 +3946,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
         "wx" : "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
         "wy" : "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8"
@@ -3950,7 +3954,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeb5mfvncu6xVoGKVzocLBwKb/NstzijZ\nWfKBWxb4F5hIOtp3JqPEZV2k+/wOEQio/Re0SKaFVBmcR9CP+xDUuA==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 339,
@@ -3974,7 +3978,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b7c52588d95c3b9aa25b0403f1eef75702e84bb7597aabe663b82f6f04ef2777",
         "wx" : "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
         "wy" : "0b7c52588d95c3b9aa25b0403f1eef75702e84bb7597aabe663b82f6f04ef2777"
@@ -3982,7 +3986,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b7c52588d95c3b9aa25b0403f1eef75702e84bb7597aabe663b82f6f04ef2777",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeb5mfvncu6xVoGKVzocLBwKb/NstzijZ\nWfKBWxb4F5i3xSWI2Vw7mqJbBAPx7vdXAuhLt1l6q+ZjuC9vBO8ndw==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 341,
@@ -4006,7 +4010,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04782c8ed17e3b2a783b5464f33b09652a71c678e05ec51e84e2bcfc663a3de963af9acb4280b8c7f7c42f4ef9aba6245ec1ec1712fd38a0fa96418d8cd6aa6152",
         "wx" : "782c8ed17e3b2a783b5464f33b09652a71c678e05ec51e84e2bcfc663a3de963",
         "wy" : "0af9acb4280b8c7f7c42f4ef9aba6245ec1ec1712fd38a0fa96418d8cd6aa6152"
@@ -4014,7 +4018,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004782c8ed17e3b2a783b5464f33b09652a71c678e05ec51e84e2bcfc663a3de963af9acb4280b8c7f7c42f4ef9aba6245ec1ec1712fd38a0fa96418d8cd6aa6152",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeCyO0X47Kng7VGTzOwllKnHGeOBexR6E\n4rz8Zjo96WOvmstCgLjH98QvTvmrpiRewewXEv04oPqWQY2M1qphUg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 343,
@@ -4054,7 +4058,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "046e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40caff00000001060492d5a5673e0f25d8d50fb7e58c49d86d46d4216955e0aa3d40e1",
         "wx" : "6e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40caff",
         "wy" : "1060492d5a5673e0f25d8d50fb7e58c49d86d46d4216955e0aa3d40e1"
@@ -4062,7 +4066,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200046e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40caff00000001060492d5a5673e0f25d8d50fb7e58c49d86d46d4216955e0aa3d40e1",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEboI1VUUpFAmRgsaywdbwtdKNUMzQBa8s\n4bulQapAyv8AAAABBgSS1aVnPg8l2NUPt+WMSdhtRtQhaVXgqj1A4Q==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 347,
@@ -4094,7 +4098,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "046e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40cafffffffffef9fb6d2a5a98c1f0da272af0481a73b62792b92bde96aa1e55c2bb4e",
         "wx" : "6e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40caff",
         "wy" : "0fffffffef9fb6d2a5a98c1f0da272af0481a73b62792b92bde96aa1e55c2bb4e"
@@ -4102,7 +4106,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200046e823555452914099182c6b2c1d6f0b5d28d50ccd005af2ce1bba541aa40cafffffffffef9fb6d2a5a98c1f0da272af0481a73b62792b92bde96aa1e55c2bb4e",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEboI1VUUpFAmRgsaywdbwtdKNUMzQBa8s\n4bulQapAyv/////++fttKlqYwfDaJyrwSBpztieSuSvelqoeVcK7Tg==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 350,
@@ -4134,7 +4138,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04000000013fd22248d64d95f73c29b48ab48631850be503fd00f8468b5f0f70e0f6ee7aa43bc2c6fd25b1d8269241cbdd9dbb0dac96dc96231f430705f838717d",
         "wx" : "13fd22248d64d95f73c29b48ab48631850be503fd00f8468b5f0f70e0",
         "wy" : "0f6ee7aa43bc2c6fd25b1d8269241cbdd9dbb0dac96dc96231f430705f838717d"
@@ -4142,7 +4146,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004000000013fd22248d64d95f73c29b48ab48631850be503fd00f8468b5f0f70e0f6ee7aa43bc2c6fd25b1d8269241cbdd9dbb0dac96dc96231f430705f838717d",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEAAAAAT/SIkjWTZX3PCm0irSGMYUL5QP9\nAPhGi18PcOD27nqkO8LG/SWx2CaSQcvdnbsNrJbcliMfQwcF+DhxfQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 353,
@@ -4174,7 +4178,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "0425afd689acabaed67c1f296de59406f8c550f57146a0b4ec2c97876dfffffffffa46a76e520322dfbc491ec4f0cc197420fc4ea5883d8f6dd53c354bc4f67c35",
         "wx" : "25afd689acabaed67c1f296de59406f8c550f57146a0b4ec2c97876dffffffff",
         "wy" : "0fa46a76e520322dfbc491ec4f0cc197420fc4ea5883d8f6dd53c354bc4f67c35"
@@ -4182,7 +4186,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a0342000425afd689acabaed67c1f296de59406f8c550f57146a0b4ec2c97876dfffffffffa46a76e520322dfbc491ec4f0cc197420fc4ea5883d8f6dd53c354bc4f67c35",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEJa/WiayrrtZ8Hylt5ZQG+MVQ9XFGoLTs\nLJeHbf/////6RqduUgMi37xJHsTwzBl0IPxOpYg9j23VPDVLxPZ8NQ==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 356,
@@ -4214,7 +4218,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "04d12e6c66b67734c3c84d2601cf5d35dc097e27637f0aca4a4fdb74b6aadd3bb93f5bdff88bd5736df898e699006ed750f11cf07c5866cd7ad70c7121ffffffff",
         "wx" : "0d12e6c66b67734c3c84d2601cf5d35dc097e27637f0aca4a4fdb74b6aadd3bb9",
         "wy" : "3f5bdff88bd5736df898e699006ed750f11cf07c5866cd7ad70c7121ffffffff"
@@ -4222,7 +4226,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004d12e6c66b67734c3c84d2601cf5d35dc097e27637f0aca4a4fdb74b6aadd3bb93f5bdff88bd5736df898e699006ed750f11cf07c5866cd7ad70c7121ffffffff",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE0S5sZrZ3NMPITSYBz1013Al+J2N/CspK\nT9t0tqrdO7k/W9/4i9VzbfiY5pkAbtdQ8RzwfFhmzXrXDHEh/////w==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 359,
@@ -4254,7 +4258,7 @@
       "key" : {
         "curve" : "secp256k1",
         "keySize" : 256,
-        "type" : "ECPublicKey",
+        "type" : "EcPublicKey",
         "uncompressed" : "046d4a7f60d4774a4f0aa8bbdedb953c7eea7909407e3164755664bc2800000000e659d34e4df38d9e8c9eaadfba36612c769195be86c77aac3f36e78b538680fb",
         "wx" : "6d4a7f60d4774a4f0aa8bbdedb953c7eea7909407e3164755664bc2800000000",
         "wy" : "0e659d34e4df38d9e8c9eaadfba36612c769195be86c77aac3f36e78b538680fb"
@@ -4262,7 +4266,7 @@
       "keyDer" : "3056301006072a8648ce3d020106052b8104000a034200046d4a7f60d4774a4f0aa8bbdedb953c7eea7909407e3164755664bc2800000000e659d34e4df38d9e8c9eaadfba36612c769195be86c77aac3f36e78b538680fb",
       "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEbUp/YNR3Sk8KqLve25U8fup5CUB+MWR1\nVmS8KAAAAADmWdNOTfONnoyeqt+6NmEsdpGVvobHeqw/NueLU4aA+w==\n-----END PUBLIC KEY-----",
       "sha" : "SHA-256",
-      "type" : "ECDSAVer",
+      "type" : "EcdsaVerify",
       "tests" : [
         {
           "tcId" : 362,

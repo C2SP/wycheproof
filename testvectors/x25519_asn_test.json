@@ -1,6 +1,11 @@
 {
   "algorithm" : "XDH",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 175,
+  "header" : [
+    "Test vectors of type XdhComp are intended for tests that verify the",
+    "computation of and Xdh key exchange."
+  ],
   "notes" : {
     "InvalidPublic" : "The private key and the public key do not use the same underlying group.",
     "LowOrderPublic" : "The curves and its twists contain some points of low order. This test vector contains a public key with such a point. While many libraries reject such public keys, doing so is not a strict requirement according to RFC 7748.",
@@ -8,12 +13,11 @@
     "SmallPublicKey" : "The public key is insecure and does not belong to a valid private key. Some libraries reject such keys.",
     "Twist" : "Public keys are either points on a given curve or points on its twist. The functions X25519 and X448 are defined for points on a twist with the goal that the output of computations do not leak private keys. Implementations may accept or reject points on a twist. If a point multiplication is performed then it is important that the result is correct, since otherwise attacks with invalid keys are possible."
   },
-  "numberOfTests" : 102,
-  "header" : [],
+  "schema" : "xdh_asn_comp_schema.json",
   "testGroups" : [
     {
       "curve" : "curve25519",
-      "type" : "XDHComp",
+      "type" : "XdhAsnComp",
       "tests" : [
         {
           "tcId" : 1,
@@ -863,6 +867,686 @@
         },
         {
           "tcId" : 80,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e05000321000000000000000000000000000000000000000000000000000000000000000000",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "SmallPublicKey",
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 81,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e0500032100585007a5930d77623cf29756038ca197d3ebfd9e4c80a69585efe0274092c115",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "7bd3ad31cce66802f39256b62775149d340ad25b4b6c03dbabd3b6c49ee45b5e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 82,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e0500032100fbffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "29c5c354cbe27f7d7d79c565c72b7203f6089256dfa5a18fdd6065388581d023",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 83,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e05000321000000000000000000000000000000000000000000000000000000000000000020",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "c4dee10af6b33dad4b42e0ac514dab0683c085818773b5122069e9c5c7061521",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 84,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e0500032100f6ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "e9818183f4758a0422cee94e4b0eb02c11edf0a49618a522ec7ce2a5a126c06e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 85,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e0500032100f7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "01062c5b67119c0c2a0548e43215774ece8a69a6da8a07265c5b94907d878931",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 86,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e0500032100f2ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "67ef4c1fef819b410cef5a72bc213fddcbdaefb29fa69d434d231fe7fa73b45f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 87,
+          "comment" : "special case public key",
+          "public" : "302c300706032b656e050003210095aff85a6cf2889dc30d68a9fc735e682c140261b37f596a7a101fd8bf6d3e6a",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "fa24ecaa5fae0ed6750961a1ef2e07baca0e4ae25efc1da6966ac8e2de02e327",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 88,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e05000321000100000000000000000000000000000000000000000000000000000000000000",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "SmallPublicKey",
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 89,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e0500032100bee386527b772490aeb96fc4d23b9304037cb4430f64b228f3d8b3b498319f22",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "b5a29908460e57cd7b28f7838209555f5c97d73f5277d7da80d5e6f2d3430f6b",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 90,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e05000321008a7a939310df7ea768454df51bcd0dfbd7be4fcbb2ffc98429d913ec6911f337",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "2688c8e490e702e3c078b7cdee66a56ef95caffc42ea769a5e9eb3e223f22608",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 91,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e0500032100fe3590fc382da7a82e28d07fafe40d4afc91183a4536e3e6b550fee84a4b7b4b",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "3cdbab4f0f7ad0070e4740ec71d5afd7d15e21f421cc3232feda6be20cb56f35",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 92,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e0500032100fad9ab3e803b49fc81b27ee69db6fc9fdb82e35453b59ef8fab2a3beb5e1134c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "c6a6cbad29d0c5fb109399259b69c404e0137a6b607148c6b55b86e5291da31f",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 93,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e05000321002f1c79ad8488db6f5146903b2dc46cfbfc834bbcf09b4dd70c274c4b67ce605d",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "d0dfbf6b0bc57b68d785e621a6ac8b5d0aa700577d796b8649ad4b56e8e1db4b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 94,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e0500032100e59be4917b3f05b6fc8748c9b90f1b910273c9c6e17ff96ef415ff3d927d987e",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "1289f4d53bcf1439120e957d058091b690dc1a7d21ce79bda06a3dd75f6f9d24",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 95,
+          "comment" : "special case for multiplication by 2",
+          "public" : "302c300706032b656e0500032100ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "LowOrderPublic",
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 96,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e0500032100f5c6311a1dd1b9e0f8cfd034ac6d01bf28d9d0f962a1934ae2cb97cb173dd810",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "38a58ae42dbc16d4f91d234c99c812c6b9eafdbf4d3381fb4bf0c0c48d3a3923",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 97,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e05000321006e0f1d00b1099d2a71f7be86655feb8988bba5577b02f964043a49f00c749613",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "693a9abaa991f7f2e8fc1c937ec67b271b1b75a19ed9adc6b6125a69148d4e08",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 98,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e0500032100a773277ae1029f854749137b0f3a02b5b3560b9c4ca4dbdeb3125ec896b81841",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "dcc3fdcb528e35961657aecdc90f54afea2e595e2f9fb388e0b879380fc20671",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 99,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e050003210080642a3279da6bf5fc13db14a569c7089db014225cfcae7dff5a0d25ecc9235b",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "1dd0b36159b6958a536140dfd28efad9226c94a0cb38de51fe20f8c1042b6a38",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 100,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e05000321001eceb2b3763231bc3c99dc62266a09ab5d3661c756524cddc5aabcedee92da61",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "1bab58a7c86f35952f8ac963091e6ef4d5c86eb429d48da730509a2a68eefb7a",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 101,
+          "comment" : "special case for multiplication by 3",
+          "public" : "302c300706032b656e0500032100d445e1df0083bb6b8e886e6632251807171d4e88c41816fc684373c09d7e5d6e",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "af626e5b45d46f3424454a565d9044f16f2715856175d2e0b52803d15537b76e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 102,
+          "comment" : "special case for multiplication by 4",
+          "public" : "302c300706032b656e0500032100e0eb7a7c3b41b8ae1656e3faf19fc46ada098deb9c32b1fd866205165f49b800",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 103,
+          "comment" : "special case for multiplication by 4",
+          "public" : "302c300706032b656e05000321004959771a931e242d5713d5cb76f33310c6a283df16645604289553809cda6518",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "5c12b93b5fcd26a1de6ae19bc3e983c2b8e8af021381e220de3666a06c10d01d",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 104,
+          "comment" : "special case for multiplication by 4",
+          "public" : "302c300706032b656e05000321002d71e8457099e3f445f9e2a14f18b0f5914bb35f482f9c069b64bf63710d4228",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "5c4bf6f7fbaed37fd185c225bcd52d6e04bef5970b268e70516e868a9e24444c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 105,
+          "comment" : "special case for multiplication by 4",
+          "public" : "302c300706032b656e05000321002fe11d723dba63559e1b96147893cb7ec862711806316daa86cd4da769d4b22d",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "6bac9bafe4c97b566390c581f2a5a85395900fab6008ce3cd90dfe06aafb077c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 106,
+          "comment" : "special case for multiplication by 4",
+          "public" : "302c300706032b656e05000321005f9c95bca3508c24b1d0b1559c83ef5b04445cc4581c8e86d8224eddd09f1157",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b48",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 107,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e050003210033c94be58b0f0e6cf363e1b12a2ebfb93040715be91518f21df2953eeab5fb01",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "6d3f32b0d773e50e5505ee1a978e54cdc265144719a584cd841c106048cf084a",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 108,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e0500032100a218ae9624b07ce05178b9d0cc1b71dee21f27852a2ceb18610b4052b244f00f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "ef22157d60057e4ed83343a2ecabae0e9b3d6acf285f07d27a31919870342d77",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 109,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e050003210047fb78111805a11982a3d6c5d83e8e189e7fcc462c9abf805d3625be7a6eac11",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "f347fe3d61b424e5377688cf232562b145c5803dc4a1d0bd91eb73edf2eb0b70",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 110,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e050003210003b8ca5efd1777d6d625a945db52b81f11214daf015d09fdc9df7d47b9850e31",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "67a359db3640aab2947c3bb71faf0624ec32717cd33bdcf00b3aa92778f7a32b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 111,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e0500032100d7067faeafd3e966e57525f930b3317c9e8b9c9a9ae946e76c1e4602a59a7e33",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "aa86a4e8f48bc3d0bc35a2bc617f6f169f6dfd3f41ca064580a8d21e73d2f217",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 112,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e05000321008df9682cbe8802478a8531377e752cdde54738d528d639bea9eaf47702f8bf3b",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "60d166d9f9a4c2bd61a16f343446f8416e29b5bb41c8dfd98ea73b000e89517d",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 113,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e05000321004eca5f8731b0fa0c106acf578b83a350fa8173a290f1eba803956de34eeb7671",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "562c8a021a2da0085349ec955a65fe89b45a5510315c0f06943f115cf2571450",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 114,
+          "comment" : "special case for multiplication by 5",
+          "public" : "302c300706032b656e050003210013e00dae3b1ccc97ccd649088c4a7f32ca9976214d645667bd082039bbd9ab7a",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b58",
+          "shared" : "18eca2ddf2d25251448a9e66969723faeeca6b3ed77e99646cdaae4d9403c55a",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 115,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100a244413ddc3a205d038d64266833eea1efba51ba62c9c6cdcdbe943be52bb00c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "260c052534f66bc9270c6f538e2663933e3fb826c2117f21fbc7828fb3f7196c",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 116,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100b775e016b32a97f49971121906763f3a0b41689092b9583b6710cf7dee03a61c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "3b08fd8ef201ff496378bc0bf8b22006ebae2673b3ea157e61f4714b918b8b42",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 117,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100ec3c8b0c10b1fa65dbbd17cf1ba5f86381284765709b07c5f0428e3d5bcd3920",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "b83ff0e6daba1e3250f86a1945afb27f5ed045c970a902c4198839abb5024732",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 118,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e05000321006330d3e28a8b6126ace165a9dfccc6e4bd40dbc9768cfb16330cb7f27f906230",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "ba8172ae94e0c98de14ee94b4e709f54896ac92780fa73f17a1247752fba4041",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 119,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e05000321008678aa29cbc06e78b218d22a3e66c38ec0da8fdb0f2570c585c62517c9704f37",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "7fa9f8748f84fdcdf4198ddb95d583479914fd622695e639f44332c0095bf915",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 120,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100f8bd0e7cf6ec6186f205ab03ab72c8f6b3cde8f6ad9b166916a04d43d1d6d546",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "b562a128b3454998d829a37b82c8439a6f9e900b21d634beb0e04c311dcbd703",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 121,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100303289c2b1079ea59412faccfeba8c113d2299b9dcfedeabc42697b0829c4658",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "47bea3fb851ffd8b41f611f4c79ca17d03074bca325b6b9af6afb4d3b6e52355",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 122,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e05000321003e6e16e02d44ebd94680832e065aeddcbb74af64fbb7c6d8367e7605be13ff5b",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "f430a3c5f0a25b935c4bacd73a82de5725d1404a9a2b63c8a74cb91b082a845f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 123,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e0500032100a7c1716a41ed23a8870438714ff9745fb0e46f7a5baeb37c9a2d83fe477d146c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "51cc1ff0585d174e28da9da820636c0b2c9696fc87fe592484731cd7cceb9b04",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 124,
+          "comment" : "special case for multiplication by 6",
+          "public" : "302c300706032b656e05000321008f68bfc57d792c322ebb27f44a37c1c93e7eb15c5d5fcedffc1de850487b3372",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b68",
+          "shared" : "91422ec2549ba027805f6c8580d2531edcf6454cb173bcdceed01807c662ef55",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 125,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e05000321001ee1b9a74604ac31c3db83280170e3811504fcc78c7626b5b2c07a99d80daa0a",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "6fc3d347c5badf48e6ef9862d102aea2d32d0e8ca293674dc89453508ac79b38",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 126,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e0500032100cc275a2cdd9125e52f20ce2abad41f920afa5a643fb7f276ef416f761d689f1e",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "c65ed172cf3058775a562c15aee3717cfba550ca4afb74602cd7dd87ae26356c",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 127,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e05000321001f06cfe464ccc0e27a5ec5f9edd9bc7bc822ad2ff5068ca5c963d20edd1a2d22",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "3c0f612b26cf4522c61e9d061c1c3250e839050e8747e922d5399f7d01a6205b",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 128,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e05000321009d4b2ed7817132af5830e899627ea97dc39bd3772e82f2d05769a918273dc02e",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "02500a52d0e83ffadaf7d93bfd0dd30de60a0fef423313dec716c122d114091e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 129,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e0500032100f226c2d6bd7831eda1b51ee5aec29443a507ef9f7a04e2340f349dbf14933844",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "dce61636e52978764274f8608952cd75c87c92fcc6111e14d82743ba50025603",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 130,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e050003210072c60535e9c423f302d6a10796d954d778032cd4dbd40ca0f359e204d67b6f4c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "589e61d93483d30bf2d96385932d10272387a68eb3964bb01f5d82e596e79131",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 131,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e0500032100590ed0b879319c38a19962a5d216ff2bfaf33555518877969c20c054cbe43e56",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "a0cc7b792cf2cd77f5f801692a854890d019ecc3e20d9522986399200328b956",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 132,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e05000321002488bb6fadb79d46585ff01c160c5b4172799d92bd168edceb65cededc492762",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "91b8616f7e1e7dfd96d452105e026d19955cf5102e27d05fb308e7fb9ef4ab52",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 133,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e0500032100c31e37b04332abca8315f317171566aef38111f622d8bffa29c23c0151cdad6e",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "6fc56bc10ef462c726f4b9e8a4eb1630bda99fdac754802b30e1785c6cf8842e",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 134,
+          "comment" : "special case for multiplication by 7",
+          "public" : "302c300706032b656e05000321007c5f0143a6682f60ccad16f21150c7bb5bc6f807254d08b353fc96ce07bceb6f",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b78",
+          "shared" : "4460276501e6d3e9c65fabc285cfa19fda4e842262d04139c2637c1f6833bd3f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 135,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100c800bf799783275eb93312b43dc032ccdfb00a4b77c8b3772cd2fec8db7e4a09",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "c43a6dde6f653f1cc87d9c05a7fe46fcfd2aaf700500eb1abfba8f9a914ca90a",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 136,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e05000321007bbc504e04d134eedc13f06dfdfc69c518257a3f374040a49a8d21dac109110c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "108d699443c01d1d6bc8ff0816cf08c8466b7db09e5699586ab93d5e9e932f3a",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 137,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100ffc4fe2c2127a309c739565651e9812f834a86dbadbb78776977f786ecdb0217",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "f2fa88f41312664c3ae3fd61b352c23a1f47cde0d198ef2a489cb91bab2a851c",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 138,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e05000321008475babeeab9980d426abd5323dfb335b219e129bddae4d6cebcda50754a6825",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "918da6430bcdedc093627242bcce64193b4d12804834ba0dea8b827c29530b55",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 139,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e050003210081f90a2f6633d30c2b72a25795d2a49463a80b6b0edc5aa68bae4bf738185539",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "63d79ea7611470aa1f33d88b7efb10db50130457cace206d4de08a979647fc4b",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 140,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e050003210041626e33b3c8f48bd19e49ded307f2b63bde705c4f3cdf9d4f92bf37c48cba42",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "41829bef5bfc2708b256f255d251be44e748ea5b07c501298ec71819ef409565",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 141,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100fa75e6f08ca815b4e42af24a8e057c9e00e828e33d12c0e94d1012a758336744",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "20e26744a3c65ce98879bb26bda04266c2d90bdbe2876106ce9bb118bcea6853",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 142,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e05000321004d96320cdb0ca52655e91118c33f93afe4ae69e9e513ff4506750b8ea784ce46",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "43f7f52211ad8ae26db2806ed6a6a23468e68353f65d1234962639d424a2f45a",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 143,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100c0ef1b7c20237db370501f24274e4eba91998ae4545f937007e1c4a2eab63365",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "010d7d9a4925a5e4383aa4f2c53daec032c1329ec32891e261a58621484ae96c",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 144,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100d534d8ff4d56a73ef7615e94523b17e35edb3d0fb87e98c68536f63f114a8d6c",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "34b62aab58c95f0e8ccb3f597da197781458782b895b9b74d647ad496d95f302",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 145,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e0500032100733a711ba01b6e9b64a0be4cdca8c7cf3c66df2435d5248fb4413fec6ee03f70",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "027900788582a7d79c0601b3a3d767afa7ab58adec09cc7359064088c0379005",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 146,
+          "comment" : "special case for multiplication by 8",
+          "public" : "302c300706032b656e050003210035738dd539d60f69cd1a1cffc8a42b6af68fe7de45392d02831e2a77500ea278",
+          "private" : "302e020100300706032b656e05000420203e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b40",
+          "shared" : "4634de473b133e4db364bf5f8cbc78204452bab6f4b8134b07b8b172b0490f6b",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 147,
           "comment" : "checking for overflow",
           "public" : "302c300706032b656e0500032100fd300aeb40e1fa582518412b49b208a7842b1e1f056a040178ea4141534f652d",
           "private" : "302e020100300706032b656e0500042020ce1724704000b26d31703cc97e3a378d56fad8219361c88cca8bd7c5719b52",
@@ -871,7 +1555,7 @@
           "flags" : []
         },
         {
-          "tcId" : 81,
+          "tcId" : 148,
           "comment" : "checking for overflow",
           "public" : "302c300706032b656e0500032100c8ef79b514d7682677bc7931e06ee5c27c9b392b4ae9484473f554e6678ecc2e",
           "private" : "302e020100300706032b656e0500042020ce1724704000b26d31703cc97e3a378d56fad8219361c88cca8bd7c5719b52",
@@ -880,7 +1564,7 @@
           "flags" : []
         },
         {
-          "tcId" : 82,
+          "tcId" : 149,
           "comment" : "checking for overflow",
           "public" : "302c300706032b656e050003210064aeac2504144861532b7bbcb6c87d67dd4c1f07ebc2e06effb95aecc6170b2c",
           "private" : "302e020100300706032b656e0500042020ce1724704000b26d31703cc97e3a378d56fad8219361c88cca8bd7c5719b52",
@@ -889,7 +1573,7 @@
           "flags" : []
         },
         {
-          "tcId" : 83,
+          "tcId" : 150,
           "comment" : "checking for overflow",
           "public" : "302c300706032b656e0500032100bf68e35e9bdb7eee1b50570221860f5dcdad8acbab031b14974cc49013c49831",
           "private" : "302e020100300706032b656e0500042020ce1724704000b26d31703cc97e3a378d56fad8219361c88cca8bd7c5719b52",
@@ -898,7 +1582,7 @@
           "flags" : []
         },
         {
-          "tcId" : 84,
+          "tcId" : 151,
           "comment" : "checking for overflow",
           "public" : "302c300706032b656e05000321005347c491331a64b43ddc683034e677f53dc32b52a52a577c15a83bf298e99f19",
           "private" : "302e020100300706032b656e0500042020ce1724704000b26d31703cc97e3a378d56fad8219361c88cca8bd7c5719b52",
@@ -907,7 +1591,7 @@
           "flags" : []
         },
         {
-          "tcId" : 85,
+          "tcId" : 152,
           "comment" : "private key == -1 (mod order)",
           "public" : "302c300706032b656e05000321006c05871352a451dbe182ed5e6ba554f2034456ffe041a054ff9cc56b8e946376",
           "private" : "302e020100300706032b656e05000420a023cdd083ef5bb82f10d62e59e15a6800000000000000000000000000000050",
@@ -916,7 +1600,7 @@
           "flags" : []
         },
         {
-          "tcId" : 86,
+          "tcId" : 153,
           "comment" : "private key == 1 (mod order) on twist",
           "public" : "302c300706032b656e05000321002eae5ec3dd494e9f2d37d258f873a8e6e9d0dbd1e383ef64d98bb91b3e0be035",
           "private" : "302e020100300706032b656e0500042058083dd261ad91eff952322ec824c682ffffffffffffffffffffffffffffff5f",
@@ -927,7 +1611,61 @@
           ]
         },
         {
-          "tcId" : 87,
+          "tcId" : 154,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e05000321003e3e7708ef72a6dd78d858025089765b1c30a19715ac19e8d917067d208e0666",
+          "private" : "302e020100300706032b656e050004204855555555555555555555555555555555555555555555555555555555555555",
+          "shared" : "63ef7d1c586476ec78bb7f747e321e01102166bf967a9ea9ba9741f49d439510",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 155,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e05000321009f40bb30f68ab67b1c4b8b664982fdab04ff385cd850deac732f7fb705e6013a",
+          "private" : "302e020100300706032b656e050004204855555555555555555555555555555555555555555555555555555555555555",
+          "shared" : "8b98ef4d6bf30df7f88e58d51505d37ed6845a969fe598747c033dcd08014065",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 156,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e0500032100be3b3edeffaf83c54ae526379b23dd79f1cb41446e3687fef347eb9b5f0dc308",
+          "private" : "302e020100300706032b656e050004204855555555555555555555555555555555555555555555555555555555555555",
+          "shared" : "cfa83e098829fe82fd4c14355f70829015219942c01e2b85bdd9ac4889ec2921",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 157,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e05000321003e3e7708ef72a6dd78d858025089765b1c30a19715ac19e8d917067d208e0666",
+          "private" : "302e020100300706032b656e05000420b8aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6a",
+          "shared" : "4782036d6b136ca44a2fd7674d8afb0169943230ac8eab5160a212376c06d778",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 158,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e05000321009f40bb30f68ab67b1c4b8b664982fdab04ff385cd850deac732f7fb705e6013a",
+          "private" : "302e020100300706032b656e05000420b8aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6a",
+          "shared" : "65fc1e7453a3f8c7ebcd577ade4b8efe1035efc181ab3bdb2fcc7484cbcf1e4e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 159,
+          "comment" : "special case private key",
+          "public" : "302c300706032b656e0500032100be3b3edeffaf83c54ae526379b23dd79f1cb41446e3687fef347eb9b5f0dc308",
+          "private" : "302e020100300706032b656e05000420b8aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6a",
+          "shared" : "e3c649beae7cc4a0698d519a0a61932ee5493cbb590dbe14db0274cc8611f914",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 160,
           "comment" : "uses public key for secp224r1",
           "public" : "304e301006072a8648ce3d020106052b81040021033a0004cb8d6a66a8d0580f2d482815f55b8813ad8121b292291ac00f7da8632aa74b5d9ba6a607649f65a157db15b680337f9541fa0735571b99e6",
           "private" : "302e020100300706032b656e05000420a8166f6df2c29b0ac4d604569771e1451fd5ab49acee34cb40d0c8b00f364a4b",
@@ -938,7 +1676,7 @@
           ]
         },
         {
-          "tcId" : 88,
+          "tcId" : 161,
           "comment" : "uses public key for secp256r1",
           "public" : "3059301306072a8648ce3d020106082a8648ce3d03010703420004e79d33f88a5ea86daa7eeab0eb03383adf79372076b15507162e50998b00a85640d5d337b2a8d2f73f9a2d45bedbc65e960fe8d07df6f985a1c3ac0f551d8c8b",
           "private" : "302e020100300706032b656e05000420b814bc9970e6590ec4e7608dd158083a91e67a61abc3430f70782ed1733d977b",
@@ -949,7 +1687,7 @@
           ]
         },
         {
-          "tcId" : 89,
+          "tcId" : 162,
           "comment" : "uses public key for secp384r1",
           "public" : "3076301006072a8648ce3d020106052b8104002203620004d163a091c4047ef209c75d05cbed76ff4f0cb5d688c6081ad43c8002591c3035004c8503c86036aaa585e19f445a275fde2a546e4015ab42a8622dc0ad7e801cb6ddeb0b34c58136dd920704cebf0f7e63078c61dded9b33934f6517a74e1264",
           "private" : "302e020100300706032b656e05000420881e8eeb1a19021962116db22aa2c42f57f9f3d2942dece8389608236a6ed37d",
@@ -960,7 +1698,7 @@
           ]
         },
         {
-          "tcId" : 90,
+          "tcId" : 163,
           "comment" : "uses public key for secp521r1",
           "public" : "30819b301006072a8648ce3d020106052b810400230381860004006d48819a8a9742807a0a4f2b306f6408bccc559461d183269fee981eb59a7435400ec4eb2f858cc2e81277333b95dfbb5546ecc21e1c0e332d23027a8a84b304220142d0d34920c51e31ba981f8bc370b97954cdcc49363cbe1c67f63e3aed5f1715181104dedd4c7c6e3498d964951042f441485a596aff9dbed1807c054e138f06bb",
           "private" : "302e020100300706032b656e050004200821719f98cda7d90d00b601e874b9f7807f1c80feba002de1c11a5965322a6f",
@@ -971,7 +1709,7 @@
           ]
         },
         {
-          "tcId" : 91,
+          "tcId" : 164,
           "comment" : "uses public key for secp256k1",
           "public" : "3056301006072a8648ce3d020106052b8104000a034200048e696d9bfa30fd3ad2da68a12c07e786af2401d2fc7557ed2b0a2a502fe301995ea4b12204a41da59dad5e1c124125d325c68d26ce2c1ed35f7c59c5ef939232",
           "private" : "302e020100300706032b656e05000420b016479f4f74d618cf8d4448964cb1dc738760b70ae900f65ea6eda41dbb2352",
@@ -982,7 +1720,7 @@
           ]
         },
         {
-          "tcId" : 92,
+          "tcId" : 165,
           "comment" : "uses public key for brainpoolP224r1",
           "public" : "3052301406072a8648ce3d020106092b2403030208010105033a0004cc3d88c6e3ee2362b956780c5d4892146761e223c7d96fe7c8e6026988f9a26e33ddb1824d224d3ea527e32dec8f9b8d6c5d81a39b7a5ed9",
           "private" : "302e020100300706032b656e050004203002948078e81efb90b424289ef380ff6ba6774f46f3b5b8bbf489de9d6bb563",
@@ -993,7 +1731,7 @@
           ]
         },
         {
-          "tcId" : 93,
+          "tcId" : 166,
           "comment" : "uses public key for brainpoolP256r1",
           "public" : "305a301406072a8648ce3d020106092b2403030208010107034200042fe4189b9b0d1ab1b1af1da86c257af71c2afcfe1743b1e76c5f4fd5fbf8748f98974e51f28b075b63e871a66a85d0cb0838242262cdb16e94f1a52e32241163",
           "private" : "302e020100300706032b656e0500042078276b8a0a4a96d283c25d63ac27d14c910b9628dce744c3200f65c93b30e166",
@@ -1004,7 +1742,7 @@
           ]
         },
         {
-          "tcId" : 94,
+          "tcId" : 167,
           "comment" : "uses public key for brainpoolP320r1",
           "public" : "306a301406072a8648ce3d020106092b2403030208010109035200047a288252c5b11ad578dac064d579200c67ce5e1fd3531b5b781f8562a6b557edfd651f451e3b88d833461906993d133324f5243be45856448bd6f1426481d7bb8a952da2556953dc050ff2af6c7f4ef8",
           "private" : "302e020100300706032b656e05000420e0cee10d9874674576992d210a347d8cccb0bc11347559fcfc91c287c149bd73",
@@ -1015,7 +1753,7 @@
           ]
         },
         {
-          "tcId" : 95,
+          "tcId" : 168,
           "comment" : "uses public key for brainpoolP384r1",
           "public" : "307a301406072a8648ce3d020106092b240303020801010b0362000405e18f9bbca450fb36e5ba4fdb630fd1739346677edce7ea30711b00be5105a5a7dec725d033308b89eeec3cb664333c1db45b3d9725cfe03b36443df168e943da71f2f14ba183a1ead5058f7e2e7e23e90fb2bd7e2bb6f02cced11cf1be15d9",
           "private" : "302e020100300706032b656e05000420e008e19e3a6dd80d7278fe19a430804e79cf8f11c6f0bc5fe9c087f88da5b878",
@@ -1026,7 +1764,7 @@
           ]
         },
         {
-          "tcId" : 96,
+          "tcId" : 169,
           "comment" : "uses public key for brainpoolP512r1",
           "public" : "30819b301406072a8648ce3d020106092b240303020801010d038182000404ca3d979cb2dc575a260a1a9c3b38cd7ec994b35af27beb1ce7eff5bf8383013d68ff34707db38dd96f878c8764e0cfdecf81d0badf93d741296e1cbdbe8a764548621ccab37255d9d4f61624830389df4b1b3e3f358093e2d45f8843e0f5c7b7cde69455c67212d21d217d5ef1cf95659dcb9fb0e478a1abd7dd65ed24a430",
           "private" : "302e020100300706032b656e05000420d825dfe238430967cf64f92710e3332f3f28d9c564db04a0a8bd964ce0dbb75b",
@@ -1037,7 +1775,7 @@
           ]
         },
         {
-          "tcId" : 97,
+          "tcId" : 170,
           "comment" : "uses public key for brainpoolP224t1",
           "public" : "3052301406072a8648ce3d020106092b2403030208010106033a0004509564e0668cec848a6f7d9d07077936b71d933d5faf06d9124916af186ef33232f79eff118dcf5a84d70d9c5047a81ffc42c249428f1729",
           "private" : "302e020100300706032b656e05000420707607b373eefd46e9711dcf390133086470fea7ee6b4b0d9c7e06abed409143",
@@ -1048,7 +1786,7 @@
           ]
         },
         {
-          "tcId" : 98,
+          "tcId" : 171,
           "comment" : "uses public key for brainpoolP256t1",
           "public" : "305a301406072a8648ce3d020106092b24030302080101080342000492ce1a83bf4e8ebe76880757fdf8eea526e1a1b2e4fc88ce1af3604121eea7e965f3979cc619278c020e84d5ebbd6c34be0df150e8fac1765758266492ba07bc",
           "private" : "302e020100300706032b656e05000420f0d432b8a06015100b9633ec01a7999cbaa85b9f077f35f5dd7a43dccb6b7b42",
@@ -1059,7 +1797,7 @@
           ]
         },
         {
-          "tcId" : 99,
+          "tcId" : 172,
           "comment" : "uses public key for brainpoolP320t1",
           "public" : "306a301406072a8648ce3d020106092b240303020801010a0352000448e47cf59fa535908974b2cfce6d0b32152cd17ef5fb30238651203ff35bb7756dd9d993265b044160c631f96cbda66d364910a90f1d1ec48036a095d13af2fb9786b3ea4805b37ddf1645897cb8133d",
           "private" : "302e020100300706032b656e0500042060cf9e16849df640745c124f98c5d16cffdbbfbc988fc351f947ed20b6cd0f60",
@@ -1070,7 +1808,7 @@
           ]
         },
         {
-          "tcId" : 100,
+          "tcId" : 173,
           "comment" : "uses public key for brainpoolP384t1",
           "public" : "307a301406072a8648ce3d020106092b240303020801010c03620004164eb2795ac0a55bd9ac7fafb727bb306fa7fc4f2b44ad8c7b7718756a8df80d36671263a0169b4e63ff292586ee2f41380eb988ed205c58a52aa211713c0d2a3bb1c28193aa5a93123cc9ef9d1f563eddc3a7dcc2e288ed82765ce64b27c0d8",
           "private" : "302e020100300706032b656e0500042080f694787625201c52e7c72ef5e7f1f496dcf0cfe68e513813b5467e434e9a6f",
@@ -1081,7 +1819,7 @@
           ]
         },
         {
-          "tcId" : 101,
+          "tcId" : 174,
           "comment" : "uses public key for brainpoolP512t1",
           "public" : "30819b301406072a8648ce3d020106092b240303020801010e038182000475c994caf8d094d89a91a45e77b01b68455df33c869b71df3467c736dfda4ab9b5844c65f1fa4a53c118d54e6c849ff98c5715c8053f705894d02b00bac66b06353a6d35a00bd07b42a8bf1ec425d97133cb8e39128565a9afe5005837354f9692b96461bc76dfef4e3f6793fa1d1faa64e826e48acc05175d1ae284bf169976",
           "private" : "302e020100300706032b656e0500042058e1620093709cba9e43afabda462418b0429831a79c30426e2f57c2017e1959",
@@ -1092,7 +1830,7 @@
           ]
         },
         {
-          "tcId" : 102,
+          "tcId" : 175,
           "comment" : "uses public key for brainpoolP512t1",
           "public" : "3044300706032b656f050003390053d33cfaf9c4b4e8376ed240d284cbc894aecae984adf7af7dc2dc335c3496bab453d22e772dba08d5d44aeee763d339f1155b36d707cf29",
           "private" : "302e020100300706032b656e05000420c86bb5d81cdcacb6ea2039f331de9dec157d40bee34709404ee81fcb7f26d76d",

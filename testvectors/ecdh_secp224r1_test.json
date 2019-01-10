@@ -1,6 +1,13 @@
 {
   "algorithm" : "ECDH",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 308,
+  "header" : [
+    "Test vectors of type EcdhTest are intended for",
+    "testing an ECDH implementations using PKCS8 encoded",
+    "public keys and X509 encoded private keys.",
+    "(i.e. what JCA is using as default)."
+  ],
   "notes" : {
     "AddSubChain" : "The private key has a special value. Implementations using addition subtraction chains for the point multiplication may get the point at infinity as an intermediate result. See CVE_2017_10176",
     "CompressedPoint" : "The point in the public key is compressed. Not every library supports points in compressed format.",
@@ -12,13 +19,12 @@
     "WeakPublicKey" : "The vector contains a weak public key. The curve is not a named curve, the public key point has order 3 and has been chosen to be on the same curve as the private key. This test vector is used to check ECC implementations for missing steps in the verification of the public key.",
     "WrongOrder" : "The order of the public key has been modified. If this order is used in a cryptographic primitive instead of the correct order then private keys may leak. E.g. ECDHC in BC 1.52 suffered from this."
   },
-  "numberOfTests" : 307,
-  "header" : [],
+  "schema" : "ecdh_test_schema.json",
   "testGroups" : [
     {
       "curve" : "secp224r1",
       "encoding" : "asn",
-      "type" : "ECDHComp",
+      "type" : "EcdhTest",
       "tests" : [
         {
           "tcId" : 1,
@@ -812,9 +818,9 @@
         {
           "tcId" : 82,
           "comment" : "public key of order 3",
-          "public" : "308201133081d406072a8648ce3d02013081c8020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041cf6db9de7cd50eed6c53f7d9f29f4f384aae785dcad6f6936f429f6ec041ce813ccdea6cd973c6cedbd869c6d60854bb976b1071a5b39c9af98700439045ea6cdbe7d247e9e43dcfdb22cbb1b2fa3c2fc21af002494fc5a0ffc765144e20b4cfd87aa3de2d3d3e32e043b1a2d73edd22e1ef4263940021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a00045ea6cdbe7d247e9e43dcfdb22cbb1b2fa3c2fc21af002494fc5a0ffc89aebb1df4b3027855c21d2c2c1cd1fac4e5d28c122dd1e10bd9c6c1",
+          "public" : "308201133081d406072a8648ce3d02013081c8020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041cb1a348800d66f863e46a66af066a652d18595b6a9f28356107e4f72c041c860e7834e8bf46797111176e3c5cdabfdb1f69f3d03d97637cc08e1b043904958a8c4023db56ec683433033037358907c0cb41c3568215d82a87a1098fcbce953e8b8e7a1f4d3ca2e6486d503ba8266229f2d126e2a761021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a0004958a8c4023db56ec683433033037358907c0cb41c3568215d82a87a1f67034316ac1747185e0b2c35d19b791afc457d99dd60d2ed91d58a0",
           "private" : "0d07629eb653a169ae3231ea1030faaf3e7f8ffe388030ee315d0a1d2",
-          "shared" : "0877230b6a6808627a20a92a99387921e4082493904fe374548bfff8",
+          "shared" : "",
           "result" : "invalid",
           "flags" : [
             "WeakPublicKey",
@@ -2270,17 +2276,6 @@
         },
         {
           "tcId" : 217,
-          "comment" : "indefinite length with no delimiter",
-          "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
-          "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
-          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
-          "result" : "acceptable",
-          "flags" : [
-            "InvalidAsn"
-          ]
-        },
-        {
-          "tcId" : 218,
           "comment" : "indefinite length with truncated delimiter",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6200",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2291,7 +2286,7 @@
           ]
         },
         {
-          "tcId" : 219,
+          "tcId" : 218,
           "comment" : "indefinite length with truncated delimiter",
           "public" : "304f308006072a8648ce3d020106052b8104002100033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2302,7 +2297,7 @@
           ]
         },
         {
-          "tcId" : 220,
+          "tcId" : 219,
           "comment" : "indefinite length with additional element",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6205000000",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2313,7 +2308,7 @@
           ]
         },
         {
-          "tcId" : 221,
+          "tcId" : 220,
           "comment" : "indefinite length with additional element",
           "public" : "3052308006072a8648ce3d020106052b8104002105000000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2324,7 +2319,7 @@
           ]
         },
         {
-          "tcId" : 222,
+          "tcId" : 221,
           "comment" : "indefinite length with truncated element",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62060811220000",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2335,7 +2330,7 @@
           ]
         },
         {
-          "tcId" : 223,
+          "tcId" : 222,
           "comment" : "indefinite length with truncated element",
           "public" : "3054308006072a8648ce3d020106052b81040021060811220000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2346,7 +2341,7 @@
           ]
         },
         {
-          "tcId" : 224,
+          "tcId" : 223,
           "comment" : "indefinite length with garbage",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000fe02beef",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2357,7 +2352,7 @@
           ]
         },
         {
-          "tcId" : 225,
+          "tcId" : 224,
           "comment" : "indefinite length with garbage",
           "public" : "3054308006072a8648ce3d020106052b810400210000fe02beef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2368,7 +2363,7 @@
           ]
         },
         {
-          "tcId" : 226,
+          "tcId" : 225,
           "comment" : "indefinite length with nonempty EOC",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620002beef",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2379,7 +2374,7 @@
           ]
         },
         {
-          "tcId" : 227,
+          "tcId" : 226,
           "comment" : "indefinite length with nonempty EOC",
           "public" : "3052308006072a8648ce3d020106052b810400210002beef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2390,7 +2385,7 @@
           ]
         },
         {
-          "tcId" : 228,
+          "tcId" : 227,
           "comment" : "prepend empty sequence",
           "public" : "30503000301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2401,7 +2396,7 @@
           ]
         },
         {
-          "tcId" : 229,
+          "tcId" : 228,
           "comment" : "prepend empty sequence",
           "public" : "30503012300006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2412,7 +2407,7 @@
           ]
         },
         {
-          "tcId" : 230,
+          "tcId" : 229,
           "comment" : "append empty sequence",
           "public" : "3050301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da623000",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2423,7 +2418,7 @@
           ]
         },
         {
-          "tcId" : 231,
+          "tcId" : 230,
           "comment" : "append empty sequence",
           "public" : "3050301206072a8648ce3d020106052b810400213000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2434,9 +2429,20 @@
           ]
         },
         {
+          "tcId" : 231,
+          "comment" : "append garbage with high tag number",
+          "public" : "3051301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62bf7f00",
+          "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
           "tcId" : 232,
-          "comment" : "sequence of sequence",
-          "public" : "3050304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "comment" : "append garbage with high tag number",
+          "public" : "3051301306072a8648ce3d020106052b81040021bf7f00033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
           "result" : "acceptable",
@@ -2447,7 +2453,7 @@
         {
           "tcId" : 233,
           "comment" : "sequence of sequence",
-          "public" : "30503012301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "public" : "3050304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
           "result" : "acceptable",
@@ -2457,8 +2463,8 @@
         },
         {
           "tcId" : 234,
-          "comment" : "truncated sequence",
-          "public" : "3012301006072a8648ce3d020106052b81040021",
+          "comment" : "sequence of sequence",
+          "public" : "30503012301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
           "result" : "acceptable",
@@ -2468,8 +2474,8 @@
         },
         {
           "tcId" : 235,
-          "comment" : "truncated sequence",
-          "public" : "3047300906072a8648ce3d0201033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "comment" : "truncated sequence: removed bit string",
+          "public" : "3012301006072a8648ce3d020106052b81040021",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
           "result" : "acceptable",
@@ -2501,6 +2507,17 @@
         },
         {
           "tcId" : 238,
+          "comment" : "truncated sequence: removed oid",
+          "public" : "3047300906072a8648ce3d0201033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 239,
           "comment" : "removing oid",
           "public" : "3045300706052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2511,7 +2528,7 @@
           ]
         },
         {
-          "tcId" : 239,
+          "tcId" : 240,
           "comment" : "lonely oid tag",
           "public" : "304630080606052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2522,7 +2539,7 @@
           ]
         },
         {
-          "tcId" : 240,
+          "tcId" : 241,
           "comment" : "lonely oid tag",
           "public" : "3048300a06072a8648ce3d020106033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2533,7 +2550,7 @@
           ]
         },
         {
-          "tcId" : 241,
+          "tcId" : 242,
           "comment" : "appending 0's to oid",
           "public" : "3050301206092a8648ce3d0201000006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2544,7 +2561,7 @@
           ]
         },
         {
-          "tcId" : 242,
+          "tcId" : 243,
           "comment" : "appending 0's to oid",
           "public" : "3050301206072a8648ce3d020106072b810400210000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2555,7 +2572,7 @@
           ]
         },
         {
-          "tcId" : 243,
+          "tcId" : 244,
           "comment" : "prepending 0's to oid",
           "public" : "30503012060900002a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2566,7 +2583,7 @@
           ]
         },
         {
-          "tcId" : 244,
+          "tcId" : 245,
           "comment" : "prepending 0's to oid",
           "public" : "3050301206072a8648ce3d0201060700002b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2577,7 +2594,7 @@
           ]
         },
         {
-          "tcId" : 245,
+          "tcId" : 246,
           "comment" : "appending unused 0's to oid",
           "public" : "3050301206072a8648ce3d0201000006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2588,7 +2605,7 @@
           ]
         },
         {
-          "tcId" : 246,
+          "tcId" : 247,
           "comment" : "appending null value to oid",
           "public" : "3050301206092a8648ce3d0201050006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2599,7 +2616,7 @@
           ]
         },
         {
-          "tcId" : 247,
+          "tcId" : 248,
           "comment" : "appending null value to oid",
           "public" : "3050301206072a8648ce3d020106072b810400210500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2610,7 +2627,7 @@
           ]
         },
         {
-          "tcId" : 248,
+          "tcId" : 249,
           "comment" : "truncated length of oid",
           "public" : "30473009068106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2621,7 +2638,7 @@
           ]
         },
         {
-          "tcId" : 249,
+          "tcId" : 250,
           "comment" : "truncated length of oid",
           "public" : "3049300b06072a8648ce3d02010681033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2632,7 +2649,7 @@
           ]
         },
         {
-          "tcId" : 250,
+          "tcId" : 251,
           "comment" : "Replacing oid with NULL",
           "public" : "30473009050006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2643,7 +2660,7 @@
           ]
         },
         {
-          "tcId" : 251,
+          "tcId" : 252,
           "comment" : "Replacing oid with NULL",
           "public" : "3049300b06072a8648ce3d02010500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2654,7 +2671,7 @@
           ]
         },
         {
-          "tcId" : 252,
+          "tcId" : 253,
           "comment" : "changing tag value of oid",
           "public" : "304e301004072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2665,7 +2682,7 @@
           ]
         },
         {
-          "tcId" : 253,
+          "tcId" : 254,
           "comment" : "changing tag value of oid",
           "public" : "304e301005072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2676,7 +2693,7 @@
           ]
         },
         {
-          "tcId" : 254,
+          "tcId" : 255,
           "comment" : "changing tag value of oid",
           "public" : "304e301007072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2687,7 +2704,7 @@
           ]
         },
         {
-          "tcId" : 255,
+          "tcId" : 256,
           "comment" : "changing tag value of oid",
           "public" : "304e301008072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2698,7 +2715,7 @@
           ]
         },
         {
-          "tcId" : 256,
+          "tcId" : 257,
           "comment" : "changing tag value of oid",
           "public" : "304e3010ff072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2709,7 +2726,7 @@
           ]
         },
         {
-          "tcId" : 257,
+          "tcId" : 258,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020104052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2720,7 +2737,7 @@
           ]
         },
         {
-          "tcId" : 258,
+          "tcId" : 259,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020105052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2731,7 +2748,7 @@
           ]
         },
         {
-          "tcId" : 259,
+          "tcId" : 260,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020107052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2742,7 +2759,7 @@
           ]
         },
         {
-          "tcId" : 260,
+          "tcId" : 261,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020108052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2753,7 +2770,7 @@
           ]
         },
         {
-          "tcId" : 261,
+          "tcId" : 262,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d0201ff052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2764,7 +2781,7 @@
           ]
         },
         {
-          "tcId" : 262,
+          "tcId" : 263,
           "comment" : "dropping value of oid",
           "public" : "30473009060006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2775,7 +2792,7 @@
           ]
         },
         {
-          "tcId" : 263,
+          "tcId" : 264,
           "comment" : "dropping value of oid",
           "public" : "3049300b06072a8648ce3d02010600033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2786,7 +2803,7 @@
           ]
         },
         {
-          "tcId" : 264,
+          "tcId" : 265,
           "comment" : "modify first byte of oid",
           "public" : "304e30100607288648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2797,7 +2814,7 @@
           ]
         },
         {
-          "tcId" : 265,
+          "tcId" : 266,
           "comment" : "modify first byte of oid",
           "public" : "304e301006072a8648ce3d020106052981040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2808,7 +2825,7 @@
           ]
         },
         {
-          "tcId" : 266,
+          "tcId" : 267,
           "comment" : "modify last byte of oid",
           "public" : "304e301006072a8648ce3d028106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2819,7 +2836,7 @@
           ]
         },
         {
-          "tcId" : 267,
+          "tcId" : 268,
           "comment" : "modify last byte of oid",
           "public" : "304e301006072a8648ce3d020106052b810400a1033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2830,7 +2847,7 @@
           ]
         },
         {
-          "tcId" : 268,
+          "tcId" : 269,
           "comment" : "truncate oid",
           "public" : "304d300f06062a8648ce3d0206052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2841,7 +2858,7 @@
           ]
         },
         {
-          "tcId" : 269,
+          "tcId" : 270,
           "comment" : "truncate oid",
           "public" : "304d300f06068648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2852,7 +2869,7 @@
           ]
         },
         {
-          "tcId" : 270,
+          "tcId" : 271,
           "comment" : "truncate oid",
           "public" : "304d300f06072a8648ce3d020106042b810400033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2863,7 +2880,7 @@
           ]
         },
         {
-          "tcId" : 271,
+          "tcId" : 272,
           "comment" : "truncate oid",
           "public" : "304d300f06072a8648ce3d0201060481040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2874,7 +2891,7 @@
           ]
         },
         {
-          "tcId" : 272,
+          "tcId" : 273,
           "comment" : "wrong oid",
           "public" : "30513013060a3262306530333032316106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2885,7 +2902,7 @@
           ]
         },
         {
-          "tcId" : 273,
+          "tcId" : 274,
           "comment" : "wrong oid",
           "public" : "3059301b061236303836343830313635303330343032303106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2896,7 +2913,7 @@
           ]
         },
         {
-          "tcId" : 274,
+          "tcId" : 275,
           "comment" : "wrong oid",
           "public" : "3053301506072a8648ce3d0201060a32623065303330323161033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2907,7 +2924,7 @@
           ]
         },
         {
-          "tcId" : 275,
+          "tcId" : 276,
           "comment" : "wrong oid",
           "public" : "305b301d06072a8648ce3d02010612363038363438303136353033303430323031033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2918,7 +2935,7 @@
           ]
         },
         {
-          "tcId" : 276,
+          "tcId" : 277,
           "comment" : "longer oid",
           "public" : "3057301906103261383634386365336430323031303106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2929,7 +2946,7 @@
           ]
         },
         {
-          "tcId" : 277,
+          "tcId" : 278,
           "comment" : "longer oid",
           "public" : "3055301706072a8648ce3d0201060c326238313034303032313031033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2940,7 +2957,7 @@
           ]
         },
         {
-          "tcId" : 278,
+          "tcId" : 279,
           "comment" : "oid with modified node",
           "public" : "30553017060e326138363438636533643032313106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2951,7 +2968,7 @@
           ]
         },
         {
-          "tcId" : 279,
+          "tcId" : 280,
           "comment" : "oid with modified node",
           "public" : "305d301f06163261383634386365336430323838383038303830303106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2962,7 +2979,7 @@
           ]
         },
         {
-          "tcId" : 280,
+          "tcId" : 281,
           "comment" : "oid with modified node",
           "public" : "3053301506072a8648ce3d0201060a32623831303430303331033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2973,7 +2990,7 @@
           ]
         },
         {
-          "tcId" : 281,
+          "tcId" : 282,
           "comment" : "oid with modified node",
           "public" : "305b301d06072a8648ce3d02010612326238313034303038383830383038303231033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2984,7 +3001,7 @@
           ]
         },
         {
-          "tcId" : 282,
+          "tcId" : 283,
           "comment" : "large integer in oid",
           "public" : "306730290620326138363438636533643032383238303830383038303830383038303830303106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2995,7 +3012,7 @@
           ]
         },
         {
-          "tcId" : 283,
+          "tcId" : 284,
           "comment" : "large integer in oid",
           "public" : "3065302706072a8648ce3d0201061c32623831303430303832383038303830383038303830383038303231033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3006,7 +3023,7 @@
           ]
         },
         {
-          "tcId" : 284,
+          "tcId" : 285,
           "comment" : "oid with invalid node",
           "public" : "3058301a0611326138363438636533643032303165303306052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3017,7 +3034,7 @@
           ]
         },
         {
-          "tcId" : 285,
+          "tcId" : 286,
           "comment" : "oid with invalid node",
           "public" : "304f301106082a808648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3028,7 +3045,7 @@
           ]
         },
         {
-          "tcId" : 286,
+          "tcId" : 287,
           "comment" : "oid with invalid node",
           "public" : "3056301806072a8648ce3d0201060d32623831303430303231653033033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3039,7 +3056,7 @@
           ]
         },
         {
-          "tcId" : 287,
+          "tcId" : 288,
           "comment" : "oid with invalid node",
           "public" : "304f301106072a8648ce3d020106062b8081040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3050,7 +3067,7 @@
           ]
         },
         {
-          "tcId" : 288,
+          "tcId" : 289,
           "comment" : "lonely bit string tag",
           "public" : "3013301006072a8648ce3d020106052b8104002103",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3061,7 +3078,7 @@
           ]
         },
         {
-          "tcId" : 289,
+          "tcId" : 290,
           "comment" : "appending 0's to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3072,7 +3089,7 @@
           ]
         },
         {
-          "tcId" : 290,
+          "tcId" : 291,
           "comment" : "prepending 0's to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c0000000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3083,7 +3100,7 @@
           ]
         },
         {
-          "tcId" : 291,
+          "tcId" : 292,
           "comment" : "appending null value to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620500",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3094,7 +3111,7 @@
           ]
         },
         {
-          "tcId" : 292,
+          "tcId" : 293,
           "comment" : "truncated length of bit string",
           "public" : "3014301006072a8648ce3d020106052b810400210381",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3105,7 +3122,7 @@
           ]
         },
         {
-          "tcId" : 293,
+          "tcId" : 294,
           "comment" : "Replacing bit string with NULL",
           "public" : "3014301006072a8648ce3d020106052b810400210500",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3116,7 +3133,7 @@
           ]
         },
         {
-          "tcId" : 294,
+          "tcId" : 295,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021013a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3127,7 +3144,7 @@
           ]
         },
         {
-          "tcId" : 295,
+          "tcId" : 296,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021023a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3138,7 +3155,7 @@
           ]
         },
         {
-          "tcId" : 296,
+          "tcId" : 297,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021043a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3149,7 +3166,7 @@
           ]
         },
         {
-          "tcId" : 297,
+          "tcId" : 298,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021053a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3160,7 +3177,7 @@
           ]
         },
         {
-          "tcId" : 298,
+          "tcId" : 299,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021ff3a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3171,7 +3188,7 @@
           ]
         },
         {
-          "tcId" : 299,
+          "tcId" : 300,
           "comment" : "dropping value of bit string",
           "public" : "3014301006072a8648ce3d020106052b810400210300",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3182,7 +3199,7 @@
           ]
         },
         {
-          "tcId" : 300,
+          "tcId" : 301,
           "comment" : "modify first byte of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a020486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3193,7 +3210,7 @@
           ]
         },
         {
-          "tcId" : 301,
+          "tcId" : 302,
           "comment" : "modify last byte of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3dae2",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3204,7 +3221,7 @@
           ]
         },
         {
-          "tcId" : 302,
+          "tcId" : 303,
           "comment" : "truncate bit string",
           "public" : "304d301006072a8648ce3d020106052b810400210339000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3215,7 +3232,7 @@
           ]
         },
         {
-          "tcId" : 303,
+          "tcId" : 304,
           "comment" : "truncate bit string",
           "public" : "304d301006072a8648ce3d020106052b8104002103390486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3226,7 +3243,7 @@
           ]
         },
         {
-          "tcId" : 304,
+          "tcId" : 305,
           "comment" : "declaring bits as unused in a bit-string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a010486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3237,7 +3254,7 @@
           ]
         },
         {
-          "tcId" : 305,
+          "tcId" : 306,
           "comment" : "unused bits in a bit-string",
           "public" : "3052301006072a8648ce3d020106052b81040021033e200486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6201020304",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3248,7 +3265,7 @@
           ]
         },
         {
-          "tcId" : 306,
+          "tcId" : 307,
           "comment" : "unused bits in empty bit-string",
           "public" : "3015301006072a8648ce3d020106052b81040021030103",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3259,7 +3276,7 @@
           ]
         },
         {
-          "tcId" : 307,
+          "tcId" : 308,
           "comment" : "128 unused bits",
           "public" : "304e301006072a8648ce3d020106052b81040021033a800486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "0a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",

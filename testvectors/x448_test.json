@@ -1,18 +1,22 @@
 {
   "algorithm" : "XDH",
-  "generatorVersion" : "0.6",
+  "generatorVersion" : "0.7",
+  "numberOfTests" : 134,
+  "header" : [
+    "Test vectors of type XdhComp are intended for tests that verify the",
+    "computation of and Xdh key exchange."
+  ],
   "notes" : {
     "LowOrderPublic" : "The curves and its twists contain some points of low order. This test vector contains a public key with such a point. While many libraries reject such public keys, doing so is not a strict requirement according to RFC 7748.",
     "NonCanonicalPublic" : "The public key is in non-canonical form. RFC 7749, section 5 defines the value that this public key represents. Section 7 of the same RFC recommends accepting such keys. If a non-canonical key is accepted then it must follow the RFC.",
     "SmallPublicKey" : "The public key is insecure and does not belong to a valid private key. Some libraries reject such keys.",
     "Twist" : "Public keys are either points on a given curve or points on its twist. The functions X25519 and X448 are defined for points on a twist with the goal that the output of computations do not leak private keys. Implementations may accept or reject points on a twist. If a point multiplication is performed then it is important that the result is correct, since otherwise attacks with invalid keys are possible."
   },
-  "numberOfTests" : 61,
-  "header" : [],
+  "schema" : "xdh_comp_schema.json",
   "testGroups" : [
     {
       "curve" : "curve448",
-      "type" : "XDHComp",
+      "type" : "XdhComp",
       "tests" : [
         {
           "tcId" : 1,
@@ -645,6 +649,674 @@
         },
         {
           "tcId" : 60,
+          "comment" : "special case public key",
+          "public" : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "SmallPublicKey",
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 61,
+          "comment" : "special case public key",
+          "public" : "6d60598c36cd2f1af78e8ae94651e1066ced61139c34b0a81ec4ea278c86efd984fc65e9dc5827681426d257d77f448524b7074dee4bde32",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "5fcb88ac7ba2c4aff52fa8c393e87f4c5779954fc2284b5bc321c556a649453895b223192711fe9f4c899fad552366d9d11f9d937fb6dc6d",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 62,
+          "comment" : "special case public key",
+          "public" : "000000000000000000000000000000000000000000000000000000c0ffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "192acaa82748d3ec2003e23f87f17c722d55c47c09b490fd291df11f9d349bb608319f323f8ba297c1b8a5b51751f41b855f2d38dd83e393",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 63,
+          "comment" : "special case public key",
+          "public" : "ffffffffffffffffffffffffffffffffffffffffffffffffffffff7fffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "5116bf8a4860bbfa28c2c8c96a1105cc9c139130417ed2226f2fe29a3d0b39096b0456faf34dab950bf430bb58c8c8b9320f39c7766c9fc1",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 64,
+          "comment" : "special case public key",
+          "public" : "00000000000000000000000000000000000000000000000000000080ffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "9fe4a6f810098a4faf078cdc888988bae53234d9dac49e0c39186789d8ce4b35530bfbe4e8a5520b84028f3c6d2234f6bf2e07375e927e48",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 65,
+          "comment" : "special case public key",
+          "public" : "ffffffffffffffffffffffffffffffffffffffffffffffffffffff3fffffffffffffffffffffffffffffffffffffffffffffffffffffffbf",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "f2bcf10485563dfe6f4467ce84da47e027e17a3f55b7742c65474c0ad4ca2baa400aa9ebe566a3cf46311dc8ef5a8824b792579116c371eb",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 66,
+          "comment" : "special case public key",
+          "public" : "04000000000000000000000000000000000000000000000000000040ffffffffffffffffffffffffffffffffffffffffffffffffffffffbf",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "e382d256d0a23e26ad0125583a0ad0a4e6e098e41f4700c19f9ca403d8244253a3c60e53fb5d32e3384dc5a0ce7c022ccf1490947d24f72f",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 67,
+          "comment" : "special case public key",
+          "public" : "929fa673c932d0e508717516b9ae1ef993129eec63cb4f57e13b15d8727910267b039a1623a7d897ebd92da82880bb7adb48f8b211b421cd",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "afe443bc2e4cd27645cd9c2e8f43735063e7cc978a28daee18707287d9990bd65bb8f431ec3f9cd959d2765d60ce77823da7ffc3f12e11f4",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 68,
+          "comment" : "special case for multiplication by 2",
+          "public" : "0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "SmallPublicKey",
+            "LowOrderPublic",
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 69,
+          "comment" : "special case for multiplication by 2",
+          "public" : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "c4d48d87fd6a24dc56a1fa38cd2ea678428d9f84ae82de2304f290a63822fb873980780da300d68f02212dca9b868700f0d3c20eb0d6dcef",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 70,
+          "comment" : "special case for multiplication by 2",
+          "public" : "9b7cf9d0968451dd9141aa4e06dd76f53e540816ad331763932f2cb82f09becc4785cf69e73e41bd6cbf8d0f247f7587357f00d78eb90916",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "1f40725e7f8efbc5fecfab3c9f1e93e0555395ddb5723854d45ffb027d1d500b2ad17bce9c813d1c4071d561068b5822f1cabe209eaf7397",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 71,
+          "comment" : "special case for multiplication by 2",
+          "public" : "83be7fd906b8d3543457ebe51280ccd80bb27ae052f3a03a3f2d789028db25e430a8bccc90e8371e20765ff4798283fb3559deb31c80883a",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "874e8b9ba69ac80380efdc31521302e957d5f3429279d465ab41f7e55dcbdbaf404bb10779ee517392a3ce7155c23aa6d7711f4fe381f23a",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 72,
+          "comment" : "special case for multiplication by 2",
+          "public" : "ced173d5e91d27d119134e3c49a6a32365b78cce3529e9171c13e47e461cfbfd8e77ca349d75f1dbc1c064ce7257b20e6389a20b6aef403b",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "93efec42677de854336356749df75937111eb4ec79f5a1277791e21e4169a1822876c6060ac8ee46b0f742da3fe4b8000874a010e653b299",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 73,
+          "comment" : "special case for multiplication by 2",
+          "public" : "9ae05c7f335fa23fa36358f833fe9e074bc5524135819a9a2f1642d391fbd7dc22778d468c7e03ffd72ed878664e31e3297a9aad33fbc17e",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "fc6152fff01af0f111696981a75325f505d5877e7beba29861b77421218d384ec4d6aea38b6716265a91117d2935473a8a0c50fce935c293",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 74,
+          "comment" : "special case for multiplication by 2",
+          "public" : "651fa380cca05dc05c9ca707cc0161f8b43aadbeca7e6565d0e9bd2c6d042823dd8872b97381fc0028d1278799b1ce1cd6856552cc043e81",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "a8981403fc74d2cdba36319160c92e335ff0c27a13755eaca759eab81be226b77033009ebf8dbe87c6ffb0d5d5b8302e475146c84416100f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 75,
+          "comment" : "special case for multiplication by 2",
+          "public" : "183f07f65f94578fe83092fc2f7558ba2da6882d29f0cc6fc935eeca2fc9b92bc586216f2b07cadde4597a713a4d93eb7bc5554ed602bf9f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "0f9e9187fb8c24eeadede346f932348346b55b8974e35cfb400999bb08f4c8757a7b24a5cb629f0e7b998129daa28761a7fb863e122cfbf4",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 76,
+          "comment" : "special case for multiplication by 2",
+          "public" : "6483062f697bae226ebe55b1f922890ac1abf7e952cce89c6cd0d347cff64133b87a309618c1be42934072f0db808a78ca80ff287146f6e9",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "f1a3d316887bb26e7c35f607f36534318536d48147ba70b4c27b5f11339d486fd0609d0268b8ae2318b05a52503561963d120068624df4f5",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 77,
+          "comment" : "special case for multiplication by 2",
+          "public" : "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffff7fffffffffffffffffffffffffffff",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "5853147668f75c7a90f69e84b03e97eb6bc5d531803899837ad714dda580b3a74615474ed1c84852e631df8cadc74a97fbcd678b0149669a",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 78,
+          "comment" : "special case for multiplication by 2",
+          "public" : "fefffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "acceptable",
+          "flags" : [
+            "LowOrderPublic"
+          ]
+        },
+        {
+          "tcId" : 79,
+          "comment" : "special case for multiplication by 3",
+          "public" : "a0d24b5ed120aabda7c2b04c1d0f3eafeb9ba4e0906632eb797518a394f992a066941bbdd1ea4c823e07b9b2eb49c42965c34e433ec6ec34",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "d519e6ddddcf616314e91e79ce4721308494f0335869017daa93a2ac81849533f554e873a6edfc0463bbe00b6f43c9182fabd6db27021601",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 80,
+          "comment" : "special case for multiplication by 3",
+          "public" : "42b087d5c0ee80c68311592ce600be7737ce36ca1b09d5a054987090ec2e69adddbeff916d11c91026555605b77d36fe7384fd618864b743",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "fad8e5862a208e13e3ee8cb579cee98da5abb85b5e3ef39d0c3fb2c2ecf5c4d59435a877221417a9e05cd703a91afa646e5b96646054db57",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 81,
+          "comment" : "special case for multiplication by 3",
+          "public" : "cb0b2abd194eb1be14d417d5c823a15154cb615a303e25e6474bfd56323a38f7882fbcd7bc148adfd70fc18c96a29569a10ad1aeea67744c",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "10da5048038bb272c63e72282b1c94a8d959f3f1fbd7f91eb88973a18b97ac2a5d742754c37cf21cbd1dc576d67e8e1ff08420f78855285d",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 82,
+          "comment" : "special case for multiplication by 3",
+          "public" : "cc3d3768eaec6bf06bf9f497ce0f57b82716170e45efde3e4a3c447c8b2276cb2c0fa9a089f5600495fdfdae158d8361cd1f84ab9ac7a463",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "af64a422a02d30c4ac9a0a5ab67b952ec228e5f909e69a02c11fc8aa478147272c80aa9fcdc34a66bc46f8ab5275aa87c45c8fadea2c4136",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 83,
+          "comment" : "special case for multiplication by 3",
+          "public" : "7b0186a153dc52444746dd185b9ea274c3972adb97379f858013da1e97a83af4b4d1dad2fe6dbd823ab8287029fc7717c8dc7510ca4d456c",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "9e3e4ecd932cc92c0e66f27308d697bc566090007dbbd4c5809c258607dc4a9eaa9f3ece9737aea96ebc6268a0354a367c80c228118bdbd6",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 84,
+          "comment" : "special case for multiplication by 3",
+          "public" : "39d90df6b5c6941716729da137f58ed68682fefcc964147bcb27551e1d1ed8b5e0bbba2171a4a120b0c8f554f0659d4d81aa64a3f84586d5",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "91ba44c5c45325bd2c62c9796e3f32a210bc7599cd690ac25ed59dc4216e74e9ec4a9ab967b3947015319fe470f6dc3c1afe984737dfab19",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 85,
+          "comment" : "special case for multiplication by 4",
+          "public" : "7ecc90cea306fb137f072e6f3e1b208a11b401c6c93bee082769bc1f7793ddbdb140dc971b8f63904686f4a5a30aa9f807ce38b4e8f6ef10",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "5ad2433e339973a3f860a71f6d515399102895df29620e7d88c0db34db9f094d89cbc240c70aebbde5515eee1aec30db0df7875d92eb85ce",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 86,
+          "comment" : "special case for multiplication by 4",
+          "public" : "549500e664ed2037d20710f427dfae6e20be0ecebd4204206079cb6613012e13725bd236224c68987df0d08afeb84fb89634f2d51172d75c",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "b0a96509d4330f1cb19611c815e592c0d626211fa415e95255c8e7999520d7bc3cdbe169ada3c75998d6772bfbdf42e707f675ffcc2f2540",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 87,
+          "comment" : "special case for multiplication by 4",
+          "public" : "e4f2c8bff87d70cfb1bee7f48c3f63f5995689db27b683039943c70d982e3a0a19d554f03953b7d970a297d6bd65c28930366e6792822d62",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "5086678d89fb30d14da81721f4204a5c6531af473891d81d80090f3dd00f628c3ae67f4e6d35bf725f89f4b60641264c5805b519313792e7",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 88,
+          "comment" : "special case for multiplication by 4",
+          "public" : "91c7e2f3f18b660a3bcc107ac10e6f4b58fd8ef9c57ead82394c99ff89b06953f4fbd3997bcbfd3f78f28f0b0b348af4a35a7f351a29f07d",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "286aa4b1e35ccad1835d2d24cfcc675bb305e60e6dd1e89f74bf6e055b05724140762fdad2e2a7e42fd140b855ab1b67cc852fec1b049c3c",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 89,
+          "comment" : "special case for multiplication by 4",
+          "public" : "cd2af162197034bd20761257628f916cda00035401a520e046e78434b3e4cb51024c92a402deb1c59a1e1a5caa964ab6c5d8bd9aeb69aa86",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "d0ac1e3a91381cc9ecfa59fab0c25258a02bbc7b53d11dc7efe7b0e24fbb9294ff566c62b8b45eccb39702d38f0349c86a2a3b15dbf98ac3",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 90,
+          "comment" : "special case for multiplication by 4",
+          "public" : "a5361d32994882f2ac7f5394448401ac01c59628e5aa059af608f68fc3000af0b0546ba1b868246630358cef66e9fe7bd43cd418b0ab058e",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "7674dda65c0ee54195d10cb6ff81b6fa374789a72542dc9392341c7de1195bd81dda8fd0271e02351b184796ce7c825f0c57cfdd5d366e71",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 91,
+          "comment" : "special case for multiplication by 4",
+          "public" : "c54538c9e62ca03bdddf4d871d324877b5af95cb52b53dc4386f105c68d80ebd73fdb51bc9b2666208658b86c3b5930b81abfa4ac2a21396",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "11daf593dea1893626f76e15083ca581765692f6ca5f2b26727cc90306051076f9c5385a513b236752e4b14a3edd2db02e35f424e633c356",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 92,
+          "comment" : "special case for multiplication by 4",
+          "public" : "5beb90638f80cb50852b510fdfa2c67104b96f39c0f6dc55604522f867dd3844b6c8e1441b7d4b7a5c806c0a9000f37366fc332af5ec51b3",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "f130a5b796bef3a47867ea218cf102a838eea8819093e265285165e54cec695669dae22e5ae285f6cee35cf8c5f06080e003219624dffffd",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 93,
+          "comment" : "special case for multiplication by 4",
+          "public" : "2b4cb8a2db20b16c5013d83f3fe7f2341eabc368d4b311db04fef4a71e3c94c6b0e264a41ff9639415095c74553447c26acc751f1fd261d2",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "813452bd710b6c036cdabf442b045674c25d4b7f1414b84ca50c4b48023a56d331b55cb3f5ecda754c50bbbf0a46eb5c3ec87ebd19248bab",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 94,
+          "comment" : "special case for multiplication by 4",
+          "public" : "4915de4c19670a018146c7c746a407833072612d8ba5758074efa2026283183e58db716a4146608386d97d09a641c03b525eb740624eaae8",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "de9fc2962bf3a912f80842580f199166558ebf658dbcf97d0ead4b7a07adb46c489c5a5c1eaa541adb88160246929b10066eaca773853b9f",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 95,
+          "comment" : "special case for multiplication by 5",
+          "public" : "9663526511519aa6b2015f258ab016aa2ac7ae05125eb1528cb2e00a8b0f0ba7ab43be08ae67f0862bc5127254b2b2923cc82e32bc5d4902",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "e0db89d0c90c65f10bb12b8e03e21e3773a15b8d4e8c82c4f988c9a8d073864f2d026f9bf76ef925bd1fad0197c111665939e40b7c02c2b9",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 96,
+          "comment" : "special case for multiplication by 5",
+          "public" : "f649e25aba9537a81d8dd9e46085e1df8402b5466834a0d92b9d14b42191b5ee0e244ae1d615bb8738e3414966ad10647ee1103539267332",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "4a964ae2192e4c925a7128ebec6e5d3dd98bf2279ab461cefd17f9c42e9a71aa696555322863ad81a173a3250b290143fa3def14b038831f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 97,
+          "comment" : "special case for multiplication by 5",
+          "public" : "f0dd203c95099baf7579e559f2404d21d21dda49f60f079f7715f20c6a5eda381ab5f089a780f40197bb03d70f1f72efa00e49e28eadf946",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "dc4b635eb956af390481a7b6d8c8e724f40d7555399c648f3a07bca59d448cbf4e1686b6fb3a037624a689e35b6c5815138ea3f1dea90fc7",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 98,
+          "comment" : "special case for multiplication by 5",
+          "public" : "eaf105c183fa0e153dfdef1c429278904bd5ebfdd47a2d1e1c0ece02d48cf1359e77fdcb8eccffc4321b1ac5dd740a518b35d462e253d192",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "d141ceaee32103a390e912cabb8a60df404c6a761a4bb4e77293298c9ea9fc76ecab5e04353b2f9df2bf9ba6c85c0eb3fce9192c13c9a744",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 99,
+          "comment" : "special case for multiplication by 5",
+          "public" : "bcc13c5c4c0dce81867bf8f1c1765cd37c494c76e7731a45ad56d90676ade17859a54952939d1fc8cc72743d5008e140e74b0bf82ce3e69a",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "fa6cf7f4daf9a58fadf3c9c3a33fdf93f63f99a1adbeb8759eafb9aa19315a1d773959940bf20963230edd4ca295e61918ac3bcceaab3cdc",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 100,
+          "comment" : "special case for multiplication by 5",
+          "public" : "5c2137bea50f8ff79569a6aec19d2310164f5652a301bd6ab1863dc94ec3c31c2ca3fab62f31da5e334c050af93eb3b3476489150419f4db",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "7b665f94894c3fc4fd98ee4342013723cbad1809a483ff1f1bcd9e541f1c6d1f146a6b9284428e13c039a15ae58f1327d214d1bebe342a7f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 101,
+          "comment" : "special case for multiplication by 5",
+          "public" : "a76db7f792a89e716cb154e43445f21e9196e546f254e827f8f2864b3f74c60ec2f58141950ab1e4918567f20c9a5d8a5341d1c9b67073f4",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9ba8",
+          "shared" : "556a931cf0f8ecce3027319a58fade99e8357b5a37bf8451364419912a131b636349fec5bdae7df6917744345fd5ce3ca908e2030a1afd04",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 102,
+          "comment" : "special case for multiplication by 6",
+          "public" : "1a70d923b5ed73bf71a65b47fee7e795b9c4cf4db618f683fac03a70ba23300247d14cfebaeab6b3abf0f140e3d48d54fd48ba213cc1fd04",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "84e706dde151fc9502788c1fe6b6fa906c98f7029f283800753bcf0df04a988d79628672b74a6d0eb93bbebc3a255f4c3d11969ad4e23788",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 103,
+          "comment" : "special case for multiplication by 6",
+          "public" : "2355aa152236451fdee7a5a3b8b438656368e6c492f74f7d72c706a78bc66b4adbaac8fb73fce3b5906ea18cd5c247c1c9cefb3f36d68b0c",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "758eb5676511dc7c41b5284e8fc5551342bea2e6e4a80739069ff9bb533bdbaa6bb710f774ef3cb6a01acac0221017a6396f86d5a729acac",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 104,
+          "comment" : "special case for multiplication by 6",
+          "public" : "f989fb5094b071e7560e7ff719d558af6a52567d4c0da908c07777029d90f6c97613418c89b3ba5c1883912159f5b3cc15b9eee7ee99fb0f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "499d226745395135b6ea1d34bdd067e4191b3a12e523f44a42adb86acebfe22e0283b1ae2ba748f2c78bd64853ec2c6a2d12a51dd512107d",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 105,
+          "comment" : "special case for multiplication by 6",
+          "public" : "697407b0afaf40107c7c5f264cd8a7030c715c576e7d83c4f5b692fc30f8471e25ebd8955f3f5a74c4970d4119a3e9bd853fc3c589bce119",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "6ef6c3cbb164db718091fd1f192da1e17206daaf1a74b703b976f8e29d7409346f213f92bac40df0ef0a78e170f413424fc4377ff1fb5e73",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 106,
+          "comment" : "special case for multiplication by 6",
+          "public" : "37e5cb2408f021d1ff88b2e5bfbbb7076528eca9940d0b47177ecb01e4ed258d92bf026e5e21cf6d5830ffb0ccd9bda424abb759857ce522",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "2022408fd4e5d5370a37ad26bb53426686904b6f0b8aca60c4f5d9ab6a67c5a8fcc4e84e2b5a3b6121c0540795b35fff1386a64c8eb3f956",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 107,
+          "comment" : "special case for multiplication by 6",
+          "public" : "b67875add6c1f761234e352b70c41d239dd1e52a9fa11e9e845285267f436ac81b7972067e843b03a4c52c7a3b5aeca2fc6d184b8438a653",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "4820f35b0ed7fcc6f8aee07d615f9669daa3ce8e65ecafe97b75d8468d8d06453de73122cb5a7382f2641a0482ad81e4f14c54506fea7810",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 108,
+          "comment" : "special case for multiplication by 6",
+          "public" : "e5f97638779e27a9737e0821d7711585a93f26dd52208ed53637d674ece9664fbbf33e1cc4a31f6430f127c2f60cb76a1defa6b6f7524775",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "36664a41d0f672b5460af3aae95ffe88d08bfeb3c541715c42712a538997875cf17cb264835fdb36ca4262a8123a73bfc948f2726e38df64",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 109,
+          "comment" : "special case for multiplication by 6",
+          "public" : "65ba0dd581dbe17a82906e4dc56a09dbdd54accd86fda490eb618e77277293533ebc70dad70252d3bd6a124bfd99aa3adb831e83c96edc9f",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "da211bd2360d9533fe8a888a3ef8d1ebbe412873c6acaa82238b54c553c2114c34a7576926aac6661facd194a3786fa75cfd49714f382e75",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 110,
+          "comment" : "special case for multiplication by 6",
+          "public" : "9f313a71dd622f8f31324ec84a0353d89b454117af3af7eed30fddaf5f114cb139512ca205b0b23a52417e3fbc14ac41c22d0c1099b570e8",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9bc8",
+          "shared" : "1861185515b2a9f2008fbcf7a390192608fc08ab4bb611e11ff2140002b75211094e2603abe71b6eae77ae8ce360b161a282091d05ce6d57",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 111,
+          "comment" : "special case for multiplication by 7",
+          "public" : "6cef89653ccc1999a5980a537a2da826dd9dd0a3ba4aa3d40b53d4e21ea744b1e98930792b34d74b7e817f15bb2c066f40bbab057aac9a40",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "1f158b41708a119e25dc93347b9ce4ad3a095f747b325e6079127d2086b1e622d85b840d9977ebeae9582db32d70ffeb899e2c7c3941e7a1",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 112,
+          "comment" : "special case for multiplication by 7",
+          "public" : "0f5aa6edae57bd8268f231763b4201ba6e16400cf5ca1898fa7e609f6d121022fccdafe46fe9734be775a2eb855afdfe11f0608dff5b2e49",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "041da39cc8b41fefcb85493125a5780b62ae75c6713860e957e5fe14b465ef1f1e12856a13d15a9fface8f7319c8bda4aa92674d690c289f",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 113,
+          "comment" : "special case for multiplication by 7",
+          "public" : "de5d523a5f68eaf368ffa553305c3f56254ba6090ba9d81579208b6725b2b4e437ec0c357fcccd5e835ea32e333bac6d85d88658c1ae5861",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "86c74f68ecc88be570697937d98cb80453b5e1d9794c93ed84c7d159a4545f56df853ee9c05f819b336a4a3cf87ef135cec8e9663e897d35",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 114,
+          "comment" : "special case for multiplication by 7",
+          "public" : "c7c142b68d6dfade018cf3f1d412b829f22095119530020c2f223e599ec42c42875fd7add66530d0f9072db266a39f988e57d99ff1c3c590",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "c77d08636007151891cff2c3fcf233cc3f0c469cb86ee2cc407007bf9317a401c5524f7537cfc916c631ab30f99f183fda072043ea940d67",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 115,
+          "comment" : "special case for multiplication by 7",
+          "public" : "13989f9344c110fb0a216a2337c53aded339d86001e5c00fc883313499b4c117487ff49fcda1c36ac080b2a5edf0e62826ce016b7b68f6a0",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "ff16e96ac57e3216356ec64b8a78120ee0d0ac139948b12931b0e7c1b8c49403fff0647e423db6f265c333ef387ae6f0d4b4e999ec154f95",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 116,
+          "comment" : "special case for multiplication by 7",
+          "public" : "9291f926890aa86969978c09e9ecad9686657f451c931ebe37498dcb0e028041e8447f91fd873477b457cbd9a3932fb287f945fe7213fca4",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9be8",
+          "shared" : "2fa161dab02e97bbcc7f9fb2c44973682a3f75b9001e7ed7a4989b72f95c3a0ad2264deb92a630c18787eed2effcceedf4ec52888c73cfcb",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 117,
+          "comment" : "special case for multiplication by 8",
+          "public" : "9ca054ab300f6b389cd53cbf011e8666f592f9c14f1e1387ccf78ec436462e7ac1e8118196ee731bc2a20b2408a6bd49d15a8a104162f706",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "30dc14b9a3292e6da648fc4bce814cd4613d2fa1d677b1495c104861452179faf0fdc4fe5989bd26a30111d4e5b827e0f14dc25e018a55c9",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 118,
+          "comment" : "special case for multiplication by 8",
+          "public" : "6f56f2b65a56092fcece41797f1b5313a2e7ae5e60b92a2211e2d634808e109cd684d4554763b4864d67681da48d75f5dcf869346a104a0d",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "6ed0cd082310f1a8a118202afaf7d52b49b34c6de08107128f8f1235d8871f192e9dff49750bfd88a3c12213bd82f55c88ad974bad175177",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 119,
+          "comment" : "special case for multiplication by 8",
+          "public" : "2b12cbc3bc20fc1892f5b0236b71e728e1e4adc72d5261e6df2177bb53101d1440dbd8699d2e83a08e3e9e6fbebeff59ad43a4277f970310",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "83fe6298315d33db226d2923677e0b4fd959537d9c013f214b9bb0a43e4d0d3036bce68c74fb97404351885f6d1b68b532dacff6800b3d61",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 120,
+          "comment" : "special case for multiplication by 8",
+          "public" : "5629ec6fcb5260019d9551b63085d25000a59c12947bc8d8985d68caba08efed9ede76de2f6c5b762801c3650615edb96fd473b17cd0382e",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "c34ca146ab983f42986226dd803f4ce2589ed5d711305d28fc04886ee7f2596359714cb88c4e50ea6cb63ee1eef9d6da091fdb9c0b643a38",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 121,
+          "comment" : "special case for multiplication by 8",
+          "public" : "183eb1ee975346ce7f22db1bb52bdf85d419cc42e786d300fdc56030617a41debc294407def40b36603171c5805e14ff64eda5b35eb83346",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "711d9d0354fd8a4a74c42fb65c9fdc9b14869911d2c2f1b8a8e35b5544b21353f1f010c630634092e0aac0f75198059e072041377448439e",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 122,
+          "comment" : "special case for multiplication by 8",
+          "public" : "67488d65dce853b8a73e4b1cc069fad73d8b8556800067aec1bf31ef6ac9bf0be63a35ba048cca4f38435ba5108d9a151fecbedcd948b570",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "c65d29235b799a547b8862af46829c9b9e592e4f2eb21d0bc4c8d67118334ffb120dc3fb16045589b51c292a2ab45f40d57b2522bc376444",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 123,
+          "comment" : "special case for multiplication by 8",
+          "public" : "c8a8d5f87d638fa0ac763ee1c84706cf3bb2996e95eed9f378b263cd5590193d6e3c1592e01d04008813b337703a62defbc80c26573af9a1",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "bced5690c753e6ea5415d1e208b9ef3bf9ec1cfe5fec60bb725729857bb378e1234fa5d18125093360982b8af2a2ede9f5cd8b12497cb26d",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 124,
+          "comment" : "special case for multiplication by 8",
+          "public" : "5deb8cb571f9deea6f4ca6ddef789cf092bb7e33bbb8160c0cc83affc6c037db17ff3dbd128e3e5d78047da6b9a05851f127dd0f27beabaa",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "db16bb4eab2d611107e546699e7305225392f6b89b8c133dee4d3361e06130a32395301c04c064e40d83089400edec8f4a7052268ef4697e",
+          "result" : "acceptable",
+          "flags" : [
+            "Twist"
+          ]
+        },
+        {
+          "tcId" : 125,
+          "comment" : "special case for multiplication by 8",
+          "public" : "a634fb53d2802e8df5bf108ab7c6f4df1babed438dc79e1fa6ee1489bf7caa0348e22bc6654b5be384a2c917a3d58e13ecd4f8a0688e92b4",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "9ef146f8281763904a1fe54c6a82c47ef68d45fe7f8be253a58bc54735a6342e46ef07b1ea9445691cd029a871a4efdbea0f53c5667ec122",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 126,
+          "comment" : "special case for multiplication by 8",
+          "public" : "051183aefd0ab21a0791c8b2917bdf23be5b25f1f4b30c64c37a256f8cdeca54ccee9dcd1e24af2420d32bc5576091fd1ff3f80da35436de",
+          "private" : "244534ab5f22108381d4a35f308d51b19e20ce997d7e9dff253e1d5faf1a8ad6ab73ff586d1eee6dac0fe7b5593c3123c6f1424800fa9b88",
+          "shared" : "1da04cd14c52e845ef776d7e323111dbfa45d1748366c510fb1ded2c8a7b6c5be2379c0ed6b13218f3c55e1451baf7d1374cfd7fa72ce0e4",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 127,
           "comment" : "private key == -1 (mod order)",
           "public" : "a71742c472d8eee636a974dd98f554ad2f89911f80abdb3d8fa03bbb981917b19d925581bcce7193c8839f6b2e0ff6c1da7c202970b3da46",
           "private" : "be58b958ddcc5bb1a9ccdbc43ccc1fa7d0102f6a70488ad590b3f26ffdffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
@@ -653,7 +1325,7 @@
           "flags" : []
         },
         {
-          "tcId" : 61,
+          "tcId" : 128,
           "comment" : "private key == 1 (mod order) on twist",
           "public" : "a8dea38f7ffae78bb69fbe455026297c9873829494d2aa664fad64417fb2ae8ea13849bdab0152e1e059f4d9ba7f22cf60ba130a29f17857",
           "private" : "2831f7fd47b895950052af56a8b8b99b4f5c7df3226e13b34294a109000000000000000000000000000000000000000000000000000000c0",
@@ -662,6 +1334,60 @@
           "flags" : [
             "Twist"
           ]
+        },
+        {
+          "tcId" : 129,
+          "comment" : "special case private key",
+          "public" : "f8de0d52427ddc57d9fe1d9bf9f3704d7d43a2633307374a8b05bb6e422a7085a8dbee3ccc28ad328ea3c8cea637ad3c2913ae4ffc1f7638",
+          "private" : "fcffffffffffffffffffffffffffffffffffffffffffffffffffffffa9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "shared" : "5232fe8457ba910cb886bda0da97754bf7132f61481939808673db29e318cbdce8561c78062ad94864ba5c820454766d0255bec1db695147",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 130,
+          "comment" : "special case private key",
+          "public" : "dc81ef1956cd123f034ad6bb835849e1d45e6fa917c1510f66e3d8ce55f3a7d6754314c589a35dd8ef28c8276203d12c6525b8ae7fec3493",
+          "private" : "fcffffffffffffffffffffffffffffffffffffffffffffffffffffffa9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "shared" : "341c3aeb0551108fc80d22d98c2683a6eb68967420c1e033fc22c41f4f3ab8d82d643425d2675f44f42d03b998484e62f35b915c1d4bf434",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 131,
+          "comment" : "special case private key",
+          "public" : "a667c6ac3de44c8d89c8f82025dab50470fa2da4efa153fb03adb167cef143cdffb825e927e0badfd720f28c1033f3e9d86de7158f00718c",
+          "private" : "fcffffffffffffffffffffffffffffffffffffffffffffffffffffffa9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "shared" : "b2ba5057f1f1183b1970b7844537784670da55c5e3207de1d0f76427b2663811426107941022d9bf85a373a7840eb017cf8fa23e53067a7d",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 132,
+          "comment" : "special case private key",
+          "public" : "f8de0d52427ddc57d9fe1d9bf9f3704d7d43a2633307374a8b05bb6e422a7085a8dbee3ccc28ad328ea3c8cea637ad3c2913ae4ffc1f7638",
+          "private" : "00000000000000000000000000000000000000000000000000000000565555555555555555555555555555555555555555555555555555d5",
+          "shared" : "5666a72276a9c4f3849f62888d8590e0aee115e9a231b1ca743ee7a02af7377e4030521091d173941c9a701753eca4d5823fbd86747dc0fa",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 133,
+          "comment" : "special case private key",
+          "public" : "dc81ef1956cd123f034ad6bb835849e1d45e6fa917c1510f66e3d8ce55f3a7d6754314c589a35dd8ef28c8276203d12c6525b8ae7fec3493",
+          "private" : "00000000000000000000000000000000000000000000000000000000565555555555555555555555555555555555555555555555555555d5",
+          "shared" : "8bd67fe2102f52d861ec6798ed279b0ff9a4f2a89e83429f69753d2a9b1a23bd940ea664490cdc32c86e3ecbd993847ed3ea780c48397fb6",
+          "result" : "valid",
+          "flags" : []
+        },
+        {
+          "tcId" : 134,
+          "comment" : "special case private key",
+          "public" : "a667c6ac3de44c8d89c8f82025dab50470fa2da4efa153fb03adb167cef143cdffb825e927e0badfd720f28c1033f3e9d86de7158f00718c",
+          "private" : "00000000000000000000000000000000000000000000000000000000565555555555555555555555555555555555555555555555555555d5",
+          "shared" : "b7da87a0546689eff6fe5dbb1cad3d3f282653af32e2e965b3004b6d5273e04be242af3cbcf9bbdc69d774005bd856c7f740ebf6cef0df0d",
+          "result" : "valid",
+          "flags" : []
         }
       ]
     }
