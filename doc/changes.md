@@ -21,10 +21,49 @@
     not accept them. This happens when the parameters are weak (e.g. using SHA-1
     for signatures) or when the encoding is slightly non-standard.
 
-### Some plans for version 0.7
+### Version 0.7
 
-*   Adding JSON schemas for the test vectors.
-*   Adding documentation. In particular, there needs to be a definition
-    for usages of the  vectors.
-*   Adding some tests and test vectors using SHA-3.
-*   Adding new primitives, e.g. HKDF, X963KDF, ED448 ...
+Format changes\:
+
+*   All test vector files contain a new field `"schema"`, which points to a JSON
+    schema definition in the directory `wycheproof/schema/`.
+*   More consistent type definition: E.g. the field `"type"` in a `testGroup` is
+    now describing the type of the test the vectors are intended for
+    [types.md](types.md). The type of the test defines formatting (e.g. whether
+    signatures use P1363 encoding or ASN encoding) and the tested operation
+    (e.g. whether the test vectors signatures are primarily are meant for
+    verification or signature generation).
+*   The format of test vectors have been slightly unified: In particular,
+    RSA-PKCS#1 v1.5 signatures no longer have a field "padding".
+*   Public and private keys in jwk format were added to other formats when the
+    jwk format for these keys is defined.
+
+Additional test vectors\:
+
+*   Added vectors for edge cases that can occur in ECDH computations with
+    projective or Jacobian coordinates. In particular this implement a detection
+    for the attack in "Zero-Value Point Attacks on Elliptic Curve Cryptosystem"
+    by T.Akishita and T Takagi, ISC 2003.
+*   Added more edge cases for Xdh.
+*   Added more test cases for ASN parsing (e.g. high number tags)
+*   Added test vectors for CVE-2017-18330 to CCM and EAX.
+*   Added more edge cases for poly1305.
+*   Added test vectors for HKDF.
+*   Added new test vectors for ED448.
+*   Added some test vectors using SHA-3.
+*   Added documentation of the tests intended by the test vector files:
+    [files.md](files.md)
+*   Removed some duplicates in the test vectors.
+
+### Some potential plans for version 0.8
+
+*   Test vectors for long hashes and MACs. I.e. the inputs are strings and
+    number of repetitions. This allows to add tests for primitives like
+    HMAC('a' * (2**32+12345)).
+*   New algorithms: PMAC, X963KDF
+*   Adding code for capabilities of the providers. Currently this is written in
+    unstructured form into the logs. Better would be a standalone binary that
+    writes, JSON or html or text.
+*   Adding a component for the analysis of key generation and signature
+    generation. Currently, such tests only run against Java providers. The goal
+    is to allow any library to be tested.
