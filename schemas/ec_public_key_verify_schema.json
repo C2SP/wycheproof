@@ -1,0 +1,152 @@
+{
+  "type": "object",
+  "definitions": {
+    "EcPublicKeyTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcPublicKeyVerify"
+          ]
+        },
+        "encoding": {
+          "type": "string",
+          "format": "Der",
+          "description": "the encoding of the encoded keys",
+          "enum": [
+            "asn",
+            "pem",
+            "webcrypto"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EcPublicKeyTestVector"
+          }
+        }
+      }
+    },
+    "EcPublicKeyTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "encoded": {
+          "type": "string",
+          "format": "Asn",
+          "description": "Encoded EC public key over a prime order field"
+        },
+        "p": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The order of underlying field"
+        },
+        "n": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The order of the generator"
+        },
+        "a": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The value a of the Weierstrass equation"
+        },
+        "b": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The value b of the Weierstrass equation"
+        },
+        "gx": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "x-coordinate of the generator"
+        },
+        "gy": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "y-coordinate of the generator"
+        },
+        "h": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "the cofactor"
+        },
+        "wx": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "x-coordinate of the public point"
+        },
+        "wy": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "y-coordinate of the public point"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "ec_public_key_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcPublicKeyTestGroup"
+      }
+    }
+  }
+}

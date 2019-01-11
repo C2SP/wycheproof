@@ -1,0 +1,203 @@
+{
+  "type": "object",
+  "definitions": {
+    "EcdsaTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcdsaVerify"
+          ]
+        },
+        "key": {
+          "$ref": "#/definitions/EcPublicKey",
+          "description": "unenocded EC public key"
+        },
+        "keyDer": {
+          "type": "string",
+          "format": "Der",
+          "description": "DER encoded public key"
+        },
+        "keyPem": {
+          "type": "string",
+          "format": "Pem",
+          "description": "Pem encoded public key"
+        },
+        "sha": {
+          "type": "string",
+          "description": "the hash function used for ECDSA"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AsnSignatureTestVector"
+          }
+        }
+      }
+    },
+    "EcPublicKey": {
+      "type": "object",
+      "properties": {
+        "curve": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EcUnnamedGroup"
+            },
+            {
+              "type": "string",
+              "description": "the name of the EC group"
+            }
+          ],
+          "description": "the EC group used by this public key"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the key size in bits"
+        },
+        "type": {
+          "type": "string",
+          "description": "the key type",
+          "enum": [
+            "EcPublicKey"
+          ]
+        },
+        "uncompressed": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "encoded public key point"
+        },
+        "wx": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the x-coordinate of the public key point"
+        },
+        "wy": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the y-coordinate of the public key point"
+        }
+      }
+    },
+    "EcUnnamedGroup": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "coefficient a of the elliptic curve equation"
+        },
+        "b": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "coefficient b of the elliptic curve equation"
+        },
+        "gx": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the x-coordinate of the generator"
+        },
+        "gy": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the y-coordinate of the generator"
+        },
+        "h": {
+          "type": "integer",
+          "description": "the cofactor"
+        },
+        "n": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the order of the generator"
+        },
+        "p": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the order of the underlying field"
+        },
+        "type": {
+          "type": "string",
+          "description": "an unnamed EC group over a prime field in Weierstrass form",
+          "enum": [
+            "PrimeOrderCurve"
+          ]
+        }
+      }
+    },
+    "AsnSignatureTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to sign"
+        },
+        "sig": {
+          "type": "string",
+          "format": "Asn",
+          "description": "An ASN encoded signature for msg"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "ecdsa_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcdsaTestGroup"
+      }
+    }
+  }
+}

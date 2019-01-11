@@ -1,0 +1,103 @@
+{
+  "type": "object",
+  "definitions": {
+    "RsaKeyTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "RsaKeyTest"
+          ]
+        },
+        "encoding": {
+          "type": "string",
+          "description": "the encoding of the public key in the test vectors.",
+          "enum": [
+            "asn",
+            "pem"
+          ]
+        },
+        "private": {
+          "type": "object",
+          "description": "the private key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RsaKeyTestVector"
+          }
+        }
+      }
+    },
+    "RsaKeyTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "public": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the encoded public key"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "rsa_key_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RsaKeyTestGroup"
+      }
+    }
+  }
+}
