@@ -126,8 +126,8 @@ func newGcmTestVector(tcId int, message string, keyMaterial string, nonce string
 	if err != nil {
 		return gcmTestVector{}, err
 	}
-	tlib := 4 * len(tag)
-	nlib := 4 * len(nonce)
+	tagLengthInBits := 4 * len(tag)
+	nonceLengthInBits := 4 * len(nonce)
 	keytest, err := hex.DecodeString(keyMaterial)
 	if err != nil {
 		return gcmTestVector{}, err
@@ -136,7 +136,7 @@ func newGcmTestVector(tcId int, message string, keyMaterial string, nonce string
 	if !contains(acceptable_values, result) {
 		return gcmTestVector{}, errors.New("Invalid result status.")
 	}
-	return gcmTestVector{tcId, pttest, aadtest, cttest, message, ciphertext + tag, parametertest, keytest, nlib, tlib, result}, nil
+	return gcmTestVector{tcId, pttest, aadtest, cttest, message, ciphertext + tag, parametertest, keytest, nonceLengthInBits, tagLengthInBits, result}, nil
 }
 
 func newGCMWrapper(test gcmTestVector, block cipher.Block) (cipher.AEAD, error) {
