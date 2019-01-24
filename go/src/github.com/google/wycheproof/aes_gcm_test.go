@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"os"
 	"testing"
 )
@@ -62,7 +63,26 @@ type gcmTestVector struct {
 
 var gcmTestVectors []gcmTestVector
 
+var acceptable_values_slice = []string{"valid", "invalid", "acceptable"}
+
+var acceptable_values map[string]struct{}
+
+func sliceToMap(slice []string) map[string]struct{} {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+	return set
+}
+
+func contains(set map[string]struct{}, item string) bool {
+	_, ok := set[item]
+	return ok
+}
+
 func init() {
+	acceptable_values = sliceToMap(acceptable_values_slice)
+
 	file, err := os.Open("testvectors/aes_gcm_test.json")
 	if err != nil {
 		panic(err.Error())
@@ -76,43 +96,47 @@ func init() {
 	}
 	for _, tg := range tf.TestGroups {
 		for _, t := range tg.Tests {
-			gcmTestVectors = append(gcmTestVectors, NewGcmTestVector(t.TcId, t.Msg, t.Key, t.Iv, t.Aad, t.Ct, t.Tag, t.Result))
+			tv, err := newGcmTestVector(t.TcId, t.Msg, t.Key, t.Iv, t.Aad, t.Ct, t.Tag, t.Result)
+			if err != nil {
+				panic(err)
+			}
+			gcmTestVectors = append(gcmTestVectors, tv)
 		}
 	}
 	if len(gcmTestVectors) == 0 {
 		panic("No vectors")
 	}
+
 }
 
-func NewGcmTestVector(tcId int, message string, keyMaterial string, nonce string, aad string, ciphertext string, tag string, result string) gcmTestVector {
+func newGcmTestVector(tcId int, message string, keyMaterial string, nonce string, aad string, ciphertext string, tag string, result string) (gcmTestVector, error) {
 	pttest, err := hex.DecodeString(message)
 	if err != nil {
-		panic(err.Error())
+		return gcmTestVector{}, err
 	}
 	aadtest, err := hex.DecodeString(aad)
 	if err != nil {
-		panic(err.Error())
+		return gcmTestVector{}, err
 	}
 	cttest, err := hex.DecodeString(ciphertext + tag)
 	if err != nil {
-		panic(err.Error())
+		return gcmTestVector{}, err
 	}
 	parametertest, err := hex.DecodeString(nonce)
 	if err != nil {
-		panic(err.Error())
+		return gcmTestVector{}, err
 	}
 	tlib := 4 * len(tag)
 	nlib := 4 * len(nonce)
 	keytest, err := hex.DecodeString(keyMaterial)
 	if err != nil {
-		panic(err.Error())
+		return gcmTestVector{}, err
 	}
 
-	if result != "valid" && result != "invalid" && result != "acceptable" {
-		panic("Invalid result status.")
+	if !contains(acceptable_values, result) {
+		return gcmTestVector{}, errors.New("Invalid result status.")
 	}
-	e := gcmTestVector{tcId, pttest, aadtest, cttest, message, ciphertext + tag, parametertest, keytest, nlib, tlib, result}
-	return e
+	return gcmTestVector{tcId, pttest, aadtest, cttest, message, ciphertext + tag, parametertest, keytest, nlib, tlib, result}, nil
 }
 
 func newGCMWrapper(test gcmTestVector, block cipher.Block) (cipher.AEAD, error) {
@@ -129,17 +153,18 @@ func TestAllVectors(t *testing.T) {
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 		agcm, err := newGCMWrapper(test, block)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 
 		ct := agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		if !(bytes.Equal(ct, test.ct)) != (test.result == "invalid") {
 			t.Errorf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
 			if testing.Short() {
+				//To minimise length of output give up after the first test fails.
 				t.Skipf("Skipping remainder of test cases in short mode")
 			}
 		}
@@ -159,17 +184,18 @@ func TestIVReuse(t *testing.T) {
 		}()
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 		agcm, err := newGCMWrapper(test, block)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 
 		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		t.Errorf("Fail %d: AES-GCM should not allow IV reuse.", test.tcId)
 		if testing.Short() {
+			//To minimise length of output give up after the first test fails.
 			t.Skipf("Skipping remainder of test cases in short mode")
 		}
 	}
@@ -180,17 +206,18 @@ func TestByteBufferSize(t *testing.T) {
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 		agcm, err := newGCMWrapper(test, block)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 
 		outputSize := agcm.Overhead() + len(test.pt)
 		if len(test.ct) != outputSize {
 			t.Errorf("Fail %d: \n\tComputed length = %d\n\tExpected length = %d\n", test.tcId, len(test.ct), outputSize)
 			if testing.Short() {
+				//To minimise length of output give up after the first test fails.
 				t.Skipf("Skipping remainder of test cases in short mode")
 			}
 		}
@@ -205,7 +232,7 @@ func TestLargeArrayAlias(t *testing.T) {
 	ptVector := make([]byte, ptLength)
 	_, err := rand.Read(ptVector)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 	for outputOffset := -32; outputOffset <= 32; outputOffset++ {
 		func(outputOffset int) {
@@ -220,11 +247,11 @@ func TestLargeArrayAlias(t *testing.T) {
 			}()
 			block, err := aes.NewCipher(make([]byte, 16))
 			if err != nil {
-				panic(err.Error())
+				t.Errorf(err.Error())
 			}
 			agcm, err := cipher.NewGCM(block)
 			if err != nil {
-				panic(err.Error())
+				t.Errorf(err.Error())
 			}
 
 			inputOffsetInBuffer := 32
@@ -249,7 +276,7 @@ func TestLargeArrayAlias(t *testing.T) {
 
 			_, err = agcm.Open(outBuf[:outputOffsetInBuffer], make([]byte, 12), inBuf[inputOffsetInBuffer:inputOffsetInBuffer+ctLength], nil)
 			if err != nil {
-				panic(err.Error())
+				t.Errorf(err.Error())
 			}
 			if !bytes.Equal(outBuf[outputOffsetInBuffer:outputOffsetInBuffer+ptLength], ptVector) {
 				t.Errorf("Large arrays are not copy safe:Offset   : %d\n\tPtVector : %x\n\tInBuf    : %x\n\tOutBuf   : %x", outputOffset, ptVector, inBuf, outBuf)
@@ -270,11 +297,11 @@ func TestByteArrayTooShort(t *testing.T) {
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 		agcm, err := newGCMWrapper(test, block)
 		if err != nil {
-			panic(err.Error())
+			t.Errorf(err.Error())
 		}
 		ctshort := make([]byte, len(test.ct)-1)
 		agcm.Seal(ctshort[:0], test.parameters, test.pt, test.aad)
@@ -283,6 +310,7 @@ func TestByteArrayTooShort(t *testing.T) {
 		if !(bytes.Equal(ctshort, test.ct)) != (test.result == "invalid") {
 			t.Errorf("Fail %d: \n\tGot ciphertext : %x,\n\tExpected       : %x", test.tcId, ctshort, test.ct)
 			if testing.Short() {
+				//To minimise length of output give up after the first test fails.
 				t.Skipf("Skipping remainder of test cases in short mode")
 			}
 		}
@@ -299,11 +327,11 @@ func TestDefaultTagSizeIvParameterSpec(t *testing.T) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 	agcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	ct := agcm.Seal(nil, nonce, input, nil)
@@ -321,6 +349,7 @@ func TestWrappedAroundCounter(t *testing.T) {
 		}
 	}()
 	if testing.Short() {
+		//This test uses a lot of memory. Skipping prevents the test from fatally crashing on low memory machines.
 		t.Skip("Skipping wrap around counter test in short mode")
 	}
 	iv := make([]byte, 12)
@@ -328,16 +357,16 @@ func TestWrappedAroundCounter(t *testing.T) {
 	input := make([]byte, input_size)
 	key := make([]byte, 16)
 	if _, err := rand.Read(key); err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm.Seal(input[:0], iv, input[:input_size-16], nil)
@@ -354,17 +383,17 @@ func TestEncryptEmptyPlaintextWithEmptyIV(t *testing.T) {
 	input := make([]byte, 16)
 	key, err := hex.DecodeString("56aae7bd5cbefc71d31c4338e6ddd6c5")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	hashkey := make([]byte, 16)
@@ -382,27 +411,27 @@ func TestDecryptWithEmptyIV(t *testing.T) {
 	emptyIV := make([]byte, 0)
 	key, err := hex.DecodeString("56aae7bd5cbefc71d31c4338e6ddd6c5")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	ct, err := hex.DecodeString("2b65876c00d77facf8f3d0e5be792b129bab10b25bcb739b92d6e2eab241245ff449")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	tag, err := hex.DecodeString("c2b2d7086e7fa84ca795a881b540")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	_, _ = agcm.Open(nil, emptyIV, append(ct, tag...), nil)
@@ -419,17 +448,17 @@ func TestEncryptEmptyPlaintextWithEmptyIVForced(t *testing.T) {
 	input := make([]byte, 16)
 	key, err := hex.DecodeString("56aae7bd5cbefc71d31c4338e6ddd6c5")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm, err := cipher.NewGCMWithNonceSize(block, 0)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	hashkey := make([]byte, 16)
@@ -447,27 +476,27 @@ func TestDecryptWithEmptyIVForced(t *testing.T) {
 	emptyIV := make([]byte, 0)
 	key, err := hex.DecodeString("56aae7bd5cbefc71d31c4338e6ddd6c5")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	agcm, err := cipher.NewGCMWithNonceSize(block, 0)
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	ct, err := hex.DecodeString("2b65876c00d77facf8f3d0e5be792b129bab10b25bcb739b92d6e2eab241245ff449")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	tag, err := hex.DecodeString("c2b2d7086e7fa84ca795a881b540")
 	if err != nil {
-		panic(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	_, _ = agcm.Open(nil, emptyIV, append(ct, tag...), nil)
