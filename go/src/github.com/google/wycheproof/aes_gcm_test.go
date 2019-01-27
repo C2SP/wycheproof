@@ -162,7 +162,7 @@ func TestAllVectors(t *testing.T) {
 		}
 
 		ct := agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		if !(bytes.Equal(ct, test.ct)) != (test.result == "invalid") {
+		if (!bytes.Equal(ct, test.ct) && (test.result != "invalid")) || (bytes.Equal(ct, test.ct) && (test.result == "invalid")) {
 			failures += 1
 			if testing.Verbose() {
 				t.Logf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
@@ -321,13 +321,13 @@ func TestByteArrayTooShort(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 		ctshort := make([]byte, len(test.ct)-1)
-		agcm.Seal(ctshort[:0], test.parameters, test.pt, test.aad)
+		ctshort = agcm.Seal(ctshort[:0], test.parameters, test.pt, test.aad)
 		//This construction expands the byte array as necessary.
 		//ctshort = agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		if !(bytes.Equal(ctshort, test.ct)) != (test.result == "invalid") {
+		if (!bytes.Equal(ctshort, test.ct) && (test.result != "invalid")) || (bytes.Equal(ctshort, test.ct) && (test.result == "invalid")) {
 			failures += 1
 			if testing.Verbose() {
-				t.Errorf("Fail %d: \n\tGot ciphertext : %x,\n\tExpected       : %x", test.tcId, ctshort, test.ct)
+				t.Logf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ctshort, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
 			}
 		}
 	}
@@ -414,7 +414,8 @@ func TestEncryptEmptyPlaintextWithEmptyIV(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-
+	//A block encrypted with an empty IV leaks the hash subkey.
+	//If the encryption is allowed to succeed then the hashkey will equal the ciphertext.
 	hashkey := make([]byte, 16)
 	block.Encrypt(hashkey, input)
 	_ = agcm.Seal(nil, emptyIV, input, nil)
@@ -480,6 +481,8 @@ func TestEncryptEmptyPlaintextWithEmptyIVForced(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	//A block encrypted with an empty IV leaks the hash subkey.
+	//If the encryption is allowed to succeed then the hashkey will equal the ciphertext.
 	hashkey := make([]byte, 16)
 	block.Encrypt(hashkey, input)
 	_ = agcm.Seal(nil, emptyIV, input, nil)
