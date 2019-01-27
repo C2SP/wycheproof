@@ -150,6 +150,7 @@ func newGCMWrapper(test gcmTestVector, block cipher.Block) (cipher.AEAD, error) 
 }
 
 func TestAllVectors(t *testing.T) {
+	failures := 0
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
@@ -162,12 +163,14 @@ func TestAllVectors(t *testing.T) {
 
 		ct := agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		if !(bytes.Equal(ct, test.ct)) != (test.result == "invalid") {
-			t.Errorf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
-			if testing.Short() {
-				//To minimise length of output give up after the first test fails.
-				t.Skipf("Skipping remainder of test cases in short mode")
+			failures += 1
+			if testing.Verbose() {
+				t.Logf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
 			}
 		}
+	}
+	if failures > 0 {
+		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
 	}
 }
 
@@ -176,9 +179,10 @@ func TestAllVectors(t *testing.T) {
 //cipher does not support the updateAAD operation, thus we cannot test late updates to the AAD.
 
 func TestIVReuse(t *testing.T) {
+	failures := 0
 	for _, test := range gcmTestVectors {
 		defer func() {
-			if r := recover(); r != nil {
+			if r := recover(); r != nil && testing.Verbose() {
 				t.Logf("Test %d correctly panics.", test.tcId)
 			}
 		}()
@@ -193,16 +197,19 @@ func TestIVReuse(t *testing.T) {
 
 		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		t.Errorf("Fail %d: AES-GCM should not allow IV reuse.", test.tcId)
-		if testing.Short() {
-			//To minimise length of output give up after the first test fails.
-			t.Skipf("Skipping remainder of test cases in short mode")
+		failures += 1
+		if testing.Verbose() {
+			t.Logf("Fail %d: AES-GCM should not allow IV reuse.", test.tcId)
 		}
+	}
+	if failures > 0 {
+		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
 	}
 
 }
 
 func TestByteBufferSize(t *testing.T) {
+	failures := 0
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
@@ -215,12 +222,14 @@ func TestByteBufferSize(t *testing.T) {
 
 		outputSize := agcm.Overhead() + len(test.pt)
 		if len(test.ct) != outputSize {
-			t.Errorf("Fail %d: \n\tComputed length = %d\n\tExpected length = %d\n", test.tcId, len(test.ct), outputSize)
-			if testing.Short() {
-				//To minimise length of output give up after the first test fails.
-				t.Skipf("Skipping remainder of test cases in short mode")
+			failures += 1
+			if testing.Verbose() {
+				t.Logf("Fail %d: \n\tComputed length = %d\n\tExpected length = %d\n", test.tcId, len(test.ct), outputSize)
 			}
 		}
+	}
+	if failures > 0 {
+		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
 	}
 }
 
@@ -228,6 +237,7 @@ func TestByteBufferSize(t *testing.T) {
 //cipher does not support the use of byte buffers for encryption or decryption, thus we cannot test byte buffer aliasing.
 
 func TestLargeArrayAlias(t *testing.T) {
+	failures := 0
 	const ptLength = 8192
 	ptVector := make([]byte, ptLength)
 	_, err := rand.Read(ptVector)
@@ -239,7 +249,9 @@ func TestLargeArrayAlias(t *testing.T) {
 			defer func() {
 				if r := recover(); r != nil {
 					if r == "crypto/cipher: invalid buffer overlap" {
-						t.Logf("Correctly panics when buffers overlap")
+						if testing.Verbose() {
+							t.Logf("Correctly panics when buffers overlap")
+						}
 					} else {
 						t.Errorf("Failed with error %s.", r)
 					}
@@ -279,11 +291,15 @@ func TestLargeArrayAlias(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 			if !bytes.Equal(outBuf[outputOffsetInBuffer:outputOffsetInBuffer+ptLength], ptVector) {
-				t.Errorf("Large arrays are not copy safe:Offset   : %d\n\tPtVector : %x\n\tInBuf    : %x\n\tOutBuf   : %x", outputOffset, ptVector, inBuf, outBuf)
-			} else {
-				t.Logf("Test passed")
+				failures += 1
+				if testing.Verbose() {
+					t.Logf("Large arrays are not copy safe:Offset   : %d\n\tPtVector : %x\n\tInBuf    : %x\n\tOutBuf   : %x", outputOffset, ptVector, inBuf, outBuf)
+				}
 			}
 		}(outputOffset)
+	}
+	if failures > 0 {
+		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
 	}
 }
 
@@ -294,6 +310,7 @@ func TestLargeArrayAlias(t *testing.T) {
 //cipher does not support the use of byte buffers for encryption or decryption, thus we cannot test the use of byte buffers that are too short. We test instead the behaviour when byte arrays are too short.
 
 func TestByteArrayTooShort(t *testing.T) {
+	failures := 0
 	for _, test := range gcmTestVectors {
 		block, err := aes.NewCipher(test.key)
 		if err != nil {
@@ -308,12 +325,14 @@ func TestByteArrayTooShort(t *testing.T) {
 		//This construction expands the byte array as necessary.
 		//ctshort = agcm.Seal(nil, test.parameters, test.pt, test.aad)
 		if !(bytes.Equal(ctshort, test.ct)) != (test.result == "invalid") {
-			t.Errorf("Fail %d: \n\tGot ciphertext : %x,\n\tExpected       : %x", test.tcId, ctshort, test.ct)
-			if testing.Short() {
-				//To minimise length of output give up after the first test fails.
-				t.Skipf("Skipping remainder of test cases in short mode")
+			failures += 1
+			if testing.Verbose() {
+				t.Errorf("Fail %d: \n\tGot ciphertext : %x,\n\tExpected       : %x", test.tcId, ctshort, test.ct)
 			}
 		}
+	}
+	if failures > 0 {
+		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
 	}
 }
 
