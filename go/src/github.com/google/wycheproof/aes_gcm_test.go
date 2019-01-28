@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -149,88 +150,89 @@ func newGCMWrapper(test gcmTestVector, block cipher.Block) (cipher.AEAD, error) 
 	return cipher.NewGCM(block)
 }
 
-func TestAllVectors(t *testing.T) {
+func TestVectorsRunner(t *testing.T) {
+	t.Run("TestAllVectors", func(t *testing.T) { invokeTest(t, "TestAllVectors", testSingleVector) })
+	t.Run("TestIVReuse", func(t *testing.T) { invokeTest(t, "TestIVReuse", testSingleIVReuse) })
+	t.Run("TestByteBufferSize", func(t *testing.T) { invokeTest(t, "TestByteBufferSize", testSingleByteBufferSize) })
+	t.Run("TestByteArrayTooShort", func(t *testing.T) { invokeTest(t, "TestByteArrayTooShort", testSingleByteArrayTooShort) })
+}
+
+func invokeTest(t *testing.T, testName string, testFunction func(gcmTestVector) (bool, string)) {
 	failures := 0
 	for _, test := range gcmTestVectors {
-		block, err := aes.NewCipher(test.key)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		agcm, err := newGCMWrapper(test, block)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-
-		ct := agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		if (!bytes.Equal(ct, test.ct) && (test.result != "invalid")) || (bytes.Equal(ct, test.ct) && (test.result == "invalid")) {
+		res, msg := testFunction(test)
+		if !res {
 			failures += 1
-			if testing.Verbose() {
-				t.Logf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
-			}
+		}
+		if !res && testing.Verbose() {
+			t.Logf(msg)
 		}
 	}
 	if failures > 0 {
-		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
+		t.Errorf("%s: %d / %d tests failed.", testName, failures, len(gcmTestVectors))
 	}
+}
+
+func testSingleVector(test gcmTestVector) (result bool, msg string) {
+	block, err := aes.NewCipher(test.key)
+	if err != nil {
+		return false, err.Error()
+	}
+	agcm, err := newGCMWrapper(test, block)
+	if err != nil {
+		return false, err.Error()
+	}
+
+	ct := agcm.Seal(nil, test.parameters, test.pt, test.aad)
+
+	result = (bytes.Equal(ct, test.ct) && (test.result != "invalid")) || (!bytes.Equal(ct, test.ct) && (test.result == "invalid"))
+	msg = fmt.Sprintf("Test %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ct, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
+	return
 }
 
 //cipher does not support the update operation, thus we cannot test encryption with empty arrays.
 //cipher does not support the update operation, thus we cannot test decryption with empty arrays.
 //cipher does not support the updateAAD operation, thus we cannot test late updates to the AAD.
 
-func TestIVReuse(t *testing.T) {
-	failures := 0
-	for _, test := range gcmTestVectors {
-		defer func() {
-			if r := recover(); r != nil && testing.Verbose() {
-				t.Logf("Test %d correctly panics.", test.tcId)
-			}
-		}()
-		block, err := aes.NewCipher(test.key)
-		if err != nil {
-			t.Errorf(err.Error())
+func testSingleIVReuse(test gcmTestVector) (result bool, msg string) {
+	defer func() {
+		if r := recover(); r != nil {
+			result = true
+			msg = fmt.Sprintf("Test %d correctly panics.", test.tcId)
 		}
-		agcm, err := newGCMWrapper(test, block)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-
-		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		failures += 1
-		if testing.Verbose() {
-			t.Logf("Fail %d: AES-GCM should not allow IV reuse.", test.tcId)
-		}
+	}()
+	block, err := aes.NewCipher(test.key)
+	if err != nil {
+		return false, err.Error()
 	}
-	if failures > 0 {
-		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
+	agcm, err := newGCMWrapper(test, block)
+	if err != nil {
+		return false, err.Error()
 	}
 
+	_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
+	_ = agcm.Seal(nil, test.parameters, test.pt, test.aad)
+	output := fmt.Sprintf("Fail %d: AES-GCM should not allow IV reuse.", test.tcId)
+	return false, output
 }
 
-func TestByteBufferSize(t *testing.T) {
-	failures := 0
-	for _, test := range gcmTestVectors {
-		block, err := aes.NewCipher(test.key)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		agcm, err := newGCMWrapper(test, block)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
+func testSingleByteBufferSize(test gcmTestVector) (result bool, msg string) {
+	block, err := aes.NewCipher(test.key)
+	if err != nil {
+		return false, err.Error()
+	}
+	agcm, err := newGCMWrapper(test, block)
+	if err != nil {
+		return false, err.Error()
+	}
 
-		outputSize := agcm.Overhead() + len(test.pt)
-		if len(test.ct) != outputSize {
-			failures += 1
-			if testing.Verbose() {
-				t.Logf("Fail %d: \n\tComputed length = %d\n\tExpected length = %d\n", test.tcId, len(test.ct), outputSize)
-			}
-		}
+	outputSize := agcm.Overhead() + len(test.pt)
+	if len(test.ct) != outputSize {
+		result = false
+		msg = fmt.Sprintf("Fail %d: \n\tComputed length = %d\n\tExpected length = %d\n", test.tcId, len(test.ct), outputSize)
+		return
 	}
-	if failures > 0 {
-		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
-	}
+	return true, "Correct buffer size computed"
 }
 
 //cipher does not support the use of byte buffers for encryption or decryption, thus we cannot test byte buffers.
@@ -309,31 +311,20 @@ func TestLargeArrayAlias(t *testing.T) {
 //cipher does not support the use of byte buffers for encryption or decryption, thus we cannot test the use of byte buffers with offsets.
 //cipher does not support the use of byte buffers for encryption or decryption, thus we cannot test the use of byte buffers that are too short. We test instead the behaviour when byte arrays are too short.
 
-func TestByteArrayTooShort(t *testing.T) {
-	failures := 0
-	for _, test := range gcmTestVectors {
-		block, err := aes.NewCipher(test.key)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		agcm, err := newGCMWrapper(test, block)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		ctshort := make([]byte, len(test.ct)-1)
-		ctshort = agcm.Seal(ctshort[:0], test.parameters, test.pt, test.aad)
-		//This construction expands the byte array as necessary.
-		//ctshort = agcm.Seal(nil, test.parameters, test.pt, test.aad)
-		if (!bytes.Equal(ctshort, test.ct) && (test.result != "invalid")) || (bytes.Equal(ctshort, test.ct) && (test.result == "invalid")) {
-			failures += 1
-			if testing.Verbose() {
-				t.Logf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ctshort, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
-			}
-		}
+func testSingleByteArrayTooShort(test gcmTestVector) (result bool, msg string) {
+	block, err := aes.NewCipher(test.key)
+	if err != nil {
+		return false, err.Error()
 	}
-	if failures > 0 {
-		t.Errorf("%d / %d tests failed.", failures, len(gcmTestVectors))
+	agcm, err := newGCMWrapper(test, block)
+	if err != nil {
+		return false, err.Error()
 	}
+	ctshort := make([]byte, len(test.ct)-1)
+	ctshort = agcm.Seal(ctshort[:0], test.parameters, test.pt, test.aad)
+	result = (bytes.Equal(ctshort, test.ct) && (test.result != "invalid")) || (!bytes.Equal(ctshort, test.ct) && (test.result == "invalid"))
+	msg = fmt.Sprintf("Fail %d: \n\tGot ciphertext : %x\n\tExpected       : %x\n\tResult         : %s\n\tIV             : %x\n\tNonce length   : %d\n\tTag length     : %d", test.tcId, ctshort, test.ct, test.result, test.parameters, test.nonceLengthInBits, test.tagLengthInBits)
+	return
 }
 
 //cipher does not support the update operation, thus we cannot test encryption with empty byte buffers.
