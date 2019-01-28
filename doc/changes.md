@@ -57,13 +57,22 @@ Additional test vectors\:
 
 ### Some potential plans for version 0.8
 
-*   Test vectors for long hashes and MACs. I.e. the inputs are strings and
-    number of repetitions. This allows to add tests for primitives like
-    HMAC('a' * (2**32+12345)).
-*   New algorithms: PMAC, X963KDF
-*   Adding code for capabilities of the providers. Currently this is written in
-    unstructured form into the logs. Better would be a standalone binary that
-    writes, JSON or html or text.
 *   Adding a component for the analysis of key generation and signature
     generation. Currently, such tests only run against Java providers. The goal
     is to allow any library to be tested.
+*   Extending tests for timing differences. So far there are only a limited
+    number of tests against Java providers. The statistical analysis of the
+    measurments are relatively simple and could probably be improved. One goal
+    is to separate measuring the timings and doing the statistical analysis by
+    defining a JSON structure for storing the measurements.
+*   Adding test vectors for long hashes and MACs. I.e. the inputs are strings
+    and number of repetitions. This allows to add tests for primitives like
+    HMAC('a' * (2**32+12345)).
+*   New algorithms: PMAC, X963KDF
+
+### Some potential plans for later versions
+*   Adding code for capabilities of the providers. Currently this is written in
+    unstructured form into the logs. Better would be a standalone binary that
+    writes, JSON or html or text.
+*   alternative protocols: PKCS #11, AMD SEV, ...
+
