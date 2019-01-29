@@ -1,12 +1,14 @@
 # AES-GCM
 
+[[AES-GCM]](bib.md#AES-GCM)
+
 ## Nonce reuse
 
 One of the undesirable properties of AES-GCM is that reusing the same IV for the
-same key leaks the authentication key. Typically, implementations can't enforce
-that users don't repeat IVs unless they use restricted interfaces. However,
-implementations should at least avoid features that increase the probability of
-incorrect usages.
+same key leaks the authentication key [[Joux-Gcm]](bib.md#Joux-Gcm). Typically,
+implementations can't enforce that users don't repeat IVs unless they use
+restricted interfaces. However, implementations should at least avoid features
+that increase the probability of incorrect usages.
 
 One such dangerors featur in JCA is that the default behaviour of Cipher.doFinal
 is to reinitialize the cipher with the same parameters as the last encryption.
@@ -39,8 +41,7 @@ them modulo $$2^{128}$$. E.g. if the counter value for a block is
 0xffffffffffffffffffffffffffffffff
 ```
 
-then the counter for the next block in
-AES-GCM is 
+then the counter for the next block in AES-GCM is
 
 ```
 0xffffffffffffffffffffffff00000000
@@ -132,14 +133,14 @@ tag : "5281efc7f13ac8e14ccf5dca7bfbfdd1",
 ```
 
 ### Failing providers
+The AES-GCM implementation in jdk9 handled CTR overflows incorrectly
+[[CVE-2018-2972]](bib.md#CVE-2018-2972).
 
-*   CVE-2018-2972 The AES-GCM implementation in jdk9 handled CTR overflows
-    incorrectly.
 
 ## 0 size IV
 
-AES-GCM allows IVs of bit length $$1 \ldots 2^{64}-1$$. (See [NIST SP 800 38d],
-Section 5.2.1.1)
+AES-GCM allows IVs of bit length $$1 \ldots 2^{64}-1$$. (See
+[[NIST-SP800-38d]](bib.md#NIST-SP800-38d), Section 5.2.1.1)
 
 Disallowing IVs of length 0 is necessary. If an empty IV is used then the tag is
 an evaluation of a polynomial with the hash subkey as the value. Since the
@@ -148,18 +149,3 @@ Therefore, any message encrypted with an empty IV leaks the hash subkey. In
 particular, encrypting an empty plaintext with an empty IV results in a
 ciphertext having a tag that is equal to the hash subkey used in AES-GCM. I.e.
 both are the same as encrypting an all zero block.
-
-## References
-
-[AES-GCM]: David A. McGrew and John Viega. "The Galois/Counter Mode of operation
-(GCM)." http://csrc.nist.gov/CryptoToolkit/modes/proposedmodes/gcm/gcm-spec.pdf.
-
-[NIST SP 800 38d]: "Recommendation for block Cipher Modes of Operation:
-Galois/Counter Mode (GCM) and GMAC",
-http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
-
-[Joux]: Joux, A. "Authentication failures in NIST version of GCM",
-http://csrc.nist.gov/groups/ST/toolkit/BCM/documents/comments/800-38_Series-Drafts/GCM/Joux_comments.pdf.
-
-[Fer05]: Ferguson, N. "Authentication weaknesses in GCM",
-https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf

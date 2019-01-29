@@ -3,28 +3,28 @@
 [TOC]
 
 The digital signature algorithm (DSA) is one of three signature schemes
-descripted in the digital signature standard [DSS].
+descripted in the digital signature standard [[NIST-DSS]]{bib.md#NIST-DSS}.
 
 ## Key generation
 
-4.2 Selection of Parameter Sizes and Hash Functions for DSA
-The DSS specifies the following choices for the pair (L,N),
-where L is the size of p in bits and N is the size of q in bits:
+4.2 Selection of Parameter Sizes and Hash Functions for DSA The DSS specifies
+the following choices for the pair (L,N), where L is the size of p in bits and N
+is the size of q in bits:
 
-L   |  N
----:|----:
-1024| 160
-2048| 224
-2048| 256
-3072| 256
+L    | N
+---: | --:
+1024 | 160
+2048 | 224
+2048 | 256
+3072 | 256
 
-The tests expect the following properties of the parameters used during
-key generation:
+The tests expect the following properties of the parameters used during key
+generation:
 
-* If only the parameter L is specified by the caller then N should be one
-  of the options proposed in [DSS].
-* If no size is specified then L should be at least 2048. This is the minimal
-  key size recommended by NIST for the period up to the year 2030.
+*   If only the parameter L is specified by the caller then N should be one of
+    the options proposed in [[NIST-DSS]]{bib.md#NIST-DSS}.
+*   If no size is specified then L should be at least 2048. This is the minimal
+    key size recommended by NIST for the period up to the year 2030.
 
 ## Signature generation
 
@@ -32,9 +32,10 @@ The DSA signature algorithm requires that each signature is computed with a new
 one-time secret k. This secret value should be close to uniformly distributed.
 If that is not the case then DSA signatures can leak the private key that was
 used to generate the signature. Two methods for generating the one-time secrets
-are described in FIPS PUB 186-4, Section B.5.1 or B.5.2 [DSS]. There is also the
-possibility that the use of mismatched implementations for key generation and
-signature generation are leaking the private keys.
+are described in FIPS PUB 186-4, Section B.5.1 or B.5.2
+[[FIPS-186-4]]{bib.md#FIPS-186-4}. There is also the possibility that the use of
+mismatched implementations for key generation and signature generation are
+leaking the private keys.
 
 ## Signature verification
 
@@ -50,19 +51,18 @@ u2 = w \cdot r \bmod q\\
 \end{array}
 $$
 
-and then verifies that \\(r = (g^{u1}y^{u2} \bmod p) \bmod q\\)
+and then verifies that $$r = (g^{u1}y^{u2} \bmod p) \bmod q$$
 
 ## Incorrect computations and range checks.
 
-Some libraries return 0 as the modular inverse of 0 or q.
-This can happen if the library computes the modular
-inverse of s as \\(w=s^{q-2} \mod q\\) (gpg4browsers) of simply
-if the implementations is buggy (pycrypto). if additionally to such
-a bug the range of r,s is not or incorrectly tested then it might
-be feasible to forge signatures with the values (r=1, s=0) or (r=1, s=q).
-In particular, if a library can be forced to compute \\(s^{-1} \mod q = 0\\)
-then the verification would compute \\( w = u1 = u2 = 0 \\) and hence
-\\( (g^{u1}y^{u2} \mod p) \mod q = 1 .\\)
+Some libraries return 0 as the modular inverse of 0 or q. This can happen if the
+library computes the modular inverse of s as $$w=s^{q-2} \mod q$$ (gpg4browsers)
+of simply if the implementations is buggy (pycrypto). if additionally to such a
+bug the range of r,s is not or incorrectly tested then it might be feasible to
+forge signatures with the values (r=1, s=0) or (r=1, s=q). In particular, if a
+library can be forced to compute $$s^{-1} \mod q = 0$$ then the verification
+would compute $$ w = u1 = u2 = 0 $$ and hence $$ (g^{u1}y^{u2} \mod p) \mod q =
+1 .$$
 
 ## Timing attacks
 
@@ -72,7 +72,8 @@ TBD
 
 ## JDK
 
-The  jdk8 implementation of SHA1withDSA previously checked the key size as follows:
+The jdk8 implementation of SHA1withDSA previously checked the key size as
+follows:
 
 ```java
 @Override
@@ -134,26 +135,29 @@ The next line contains a default in the initialization
 ```java
     Signature s = Signature.getInstance("DSA");
 ```
+
 This line is equivalent to
 
 ```java
     Signature s = Signature.getInstance("SHA1withDSA");
 ```
-Hence the code above uses SHA1 but with DSA parameters generated for SHA-224
-or SHA-256 hashes. Allowing this combination by itself is already a mistake,
-but a flawed implementaion made the situation even worse.
 
-The implementation of SHA1withDSA assumeed that the parameter q is 160 bits
-long and used this assumption to generate a random 160-bit k when generating a
-signature instead of choosing it uniformly in the range (1,q-1).
-Hence, k severely biased. Attacks against DSA with biased k are well known.
-Howgrave-Graham and Smart analyzed such a situation [HS99]. Their results
-show that about 4 signatrues leak enough information to determine
-the private key in a few milliseconds.
-Nguyen analyzed a similar flaw in GPG [N04].
-I.e., Section 3.2 of Nguyens paper describes essentially the same attack as
-used here. More generally, attacks based on lattice reduction were developed
-to break a variety of cryptosystems such as the knapsack cryptosystem [O90].
+Hence the code above uses SHA1 but with DSA parameters generated for SHA-224 or
+SHA-256 hashes. Allowing this combination by itself is already a mistake, but a
+flawed implementation made the situation even worse.
+
+The implementation of SHA1withDSA assumeed that the parameter q is 160 bits long
+and used this assumption to generate a random 160-bit k when generating a
+signature instead of choosing it uniformly in the range (1,q-1). Hence, k
+severely biased. Attacks against DSA with biased k are well known.
+Howgrave-Graham and Smart analyzed such a situation
+[[HowSma99]](bib.md#HowSma99). Their results show that about 4 signatrues leak
+enough information to determine the private key in a few milliseconds. Nguyen
+analyzed a similar flaw in GPG [[Nguyen04]](bib.md#Nguyen04). I.e., Section 3.2
+of Nguyens paper describes essentially the same attack as used here. More
+generally, attacks based on lattice reduction were developed to break a variety
+of cryptosystems such as the knapsack cryptosystem
+[[Odlyzko90]](bib.md#Odlyzko90).
 
 ## Further notes
 
@@ -173,20 +177,3 @@ use one would call one of:
 A possible way to push such a change are code analysis tools. "DSA" is in good
 company with other algorithm names “RSA”, “AES”, “DES”, all of which default to
 weak algorithms.
-
-## References
-
-[HS99]: N.A. Howgrave-Graham, N.P. Smart,
-    “Lattice Attacks on Digital Signature Schemes”
-    http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
-
-[N04]: Phong Nguyen, “Can we trust cryptographic software? Cryptographic flaws
-    in Gnu privacy guard 1.2.3”, Eurocrypt 2004,
-    https://www.iacr.org/archive/eurocrypt2004/30270550/ProcEC04.pdf
-
-[O90]: A. M. Odlyzko, "The rise and fall of knapsack cryptosystems", Cryptology
-    and Computational Number Theory, pp.75-88, 1990
-
-[DSS]: FIPS PUB 186-4, "Digital Signature Standard (DSS)", National Institute
-    of Standards and Technology, July 2013
-    http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
