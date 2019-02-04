@@ -54,12 +54,15 @@ public class JsonEcdhTest {
    * Example for test vector
    * {
    * "algorithm" : "ECDH",
-   * "generatorVersion" : "0.5",
-   * "numberOfTests" : 335,
    * "header" : [],
+   * "notes" : {
+   *   "AddSubChain" : "The private key has a special value....",
+   * }
+   * "generatorVersion" : "0.7",
+   * "numberOfTests" : 308,
    * "testGroups" : [
    *   {
-   *     "type" : "ECDHComp",
+   *     "type" : "EcdhTest",
    *     "tests" : [
    *        {
    *         "comment" : "normal case",
@@ -73,29 +76,15 @@ public class JsonEcdhTest {
    *     ...
    **/
   public void testEcdhComp(String filename) throws Exception {
-    // Testing with old test vectors may a reason for a test failure.
-    // Version number have the format major.minor[.subversion].
-    // Versions before 1.0 are experimental and  use formats that are expected to change.
-    // Versions after 1.0 change the major number if the format changes and change
-    // the minor number if only the test vectors (but not the format) changes.
-    // Subversions are release candidates for the next version.
-    //
-    // Changes:
-    // Version 0.4 test vectors had a duplicate field for the curve (in the test group
-    // and in the test itself). The duplicate has been removed for version 0.5, since all
-    // tests in a test group use the same curve. The field curve describes the curve of
-    // the private key. A test vector can contain a public key using a different curve,
-    // in which case the ECDH implementation is expected to throw an exception.
-    final String expectedVersion = "0.5";
     JsonObject test = JsonUtil.getTestVectors(filename);
-    String generatorVersion = test.get("generatorVersion").getAsString();
-    if (!generatorVersion.equals(expectedVersion)) {
-      System.out.println(
-          "ECDH: expecting test vectors with version "
-              + expectedVersion
-              + " found vectors with version "
-              + generatorVersion);
-    }
+
+    // This test expects test vectors as defined in wycheproof/schemas/ecdh_test_schema.json.
+    // In particular, this means that the public keys use X509 encoding.
+    // Test vectors with different encodings of the keys have a different schema.
+    final String expectedSchema = "ecdh_test_schema.json";
+    String schema = test.get("schema").getAsString();
+    assertEquals("Unexpected schema in file:" + filename, expectedSchema, schema);
+
     int numTests = test.get("numberOfTests").getAsInt();
     int passedTests = 0;
     int rejectedTests = 0;  // invalid test vectors leading to exceptions
@@ -168,7 +157,53 @@ public class JsonEcdhTest {
   }
 
   @Test
-  public void testEcdh() throws Exception {
-    testEcdhComp("ecdh_test.json");
+  public void testSecp224r1() throws Exception {
+    testEcdhComp("ecdh_secp224r1_test.json");
   }
+
+  @Test
+  public void testSecp256r1() throws Exception {
+    testEcdhComp("ecdh_secp256r1_test.json");
+  }
+
+  @Test
+  public void testSecp384r1() throws Exception {
+    testEcdhComp("ecdh_secp384r1_test.json");
+  }
+
+  @Test
+  public void testSecp521r1() throws Exception {
+    testEcdhComp("ecdh_secp521r1_test.json");
+  }
+
+  @Test
+  public void testSecp256k1() throws Exception {
+    testEcdhComp("ecdh_secp256k1_test.json");
+  }
+
+  @Test
+  public void testBrainpoolP224r1() throws Exception {
+    testEcdhComp("ecdh_brainpoolP224r1_test.json");
+  }
+
+  @Test
+  public void testBrainpoolP256r1() throws Exception {
+    testEcdhComp("ecdh_brainpoolP256r1_test.json");
+  }
+
+  @Test
+  public void testBrainpoolP320r1() throws Exception {
+    testEcdhComp("ecdh_brainpoolP320r1_test.json");
+  }
+
+  @Test
+  public void testBrainpoolP384r1() throws Exception {
+    testEcdhComp("ecdh_brainpoolP384r1_test.json");
+  }
+
+  @Test
+  public void testBrainpoolP512r1() throws Exception {
+    testEcdhComp("ecdh_brainpoolP512r1_test.json");
+  }
+
 }

@@ -141,7 +141,12 @@ Ecdh.testKeyDerivation = function() {
         resolve();
       });
     }).catch(function(err) {
-      reject('Failed to import private key: ' + err);
+      // Allow skipping P-256K curve since this curve is not yet supported
+      // by most implementations.
+      if (tc.privKeyData['crv'] == 'P-256K') {
+        resolve();
+      }
+      reject('Failed to import private key ' +tc.id + ":"  + err);
     });
   });
   return promise;
