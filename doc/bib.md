@@ -1,6 +1,8 @@
 # References
 
 <!-- Format for references:
+The labels used in this file are not final. Hence thrid parties should not refer
+to them.
 
 Unfortunately there seems to be no simple way to manage references in markdown.
 This file is an attempt to add a bibliography. Because of the lack of tools it
