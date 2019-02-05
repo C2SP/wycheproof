@@ -36,6 +36,11 @@ D. A. McGrew and J. Viega,
 "The Galois/Counter Mode of operation (GCM).",
 http://csrc.nist.gov/CryptoToolkit/modes/proposedmodes/gcm/gcm-spec.pdf.
 
+### AbVaLo19 {#AbVaLo19}
+R. Abarzúa, C. Valencia and J. López,
+"Survey for Performance & Security Problems of Passive Side-channel Attacks Countermeasures in ECC",
+https://eprint.iacr.org/2019/010.pdf
+
 ### ABMSV03 {#ABMSV03}
 A. Antipa, D. Brown, A. Menezes, R. Struik, S. Vanstone,
 "Validation of Elliptic Curve Public Keys",

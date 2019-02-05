@@ -67,7 +67,8 @@ an attack is possible. The attack has been extended by Akishita and Takagi
 multiplication have similar properties and hence that additional attacks are
 possible. The golang library was susceptible to this attack, since doubling a
 point with x-coordinate 1 typically resulted in an virtually endless loop
-[[CVE-2019-6486]](bib.md#CVE-2019-6486).
+[[CVE-2019-6486]](bib.md#CVE-2019-6486). A recent survey about timing and side
+channel attaks is [[AbVaLo19]](bib.md#AbVaLo19)).
 
 ## Side channel attacks that are not detectable by Wycheproof
 
