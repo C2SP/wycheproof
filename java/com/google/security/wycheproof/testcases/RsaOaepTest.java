@@ -28,8 +28,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.HashSet;
-import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
@@ -168,7 +166,8 @@ public class RsaOaepTest {
    *
    * <p> Example format for test vectors
    * { "algorithm" : "RSA-OAEP",
-   *   "generatorVersion" : "0.5",
+   *   "schema" : "rsaes_oaep_decrypt_schema.json",
+   *   "generatorVersion" : "0.7",
    *   ...
    *   "testGroups" : [
    *     {
@@ -206,27 +205,27 @@ public class RsaOaepTest {
    **/
   public void testOaep(String filename, boolean allowSkippingKeys)
       throws Exception {
-    // Testing with old test vectors may be a reason for a test failure.
-    // Generally mismatched version numbers are of little or no concern, since
-    // the test vector version change much more frequently than the format.
-    //
-    // Version numbers have the format major.minor[status].
-    // Versions before 1.0 are experimental and  use formats that are expected to change.
-    // Versions after 1.0 change the major number if the format changes and change
-    // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.5";
-    JsonObject test = JsonUtil.getTestVectors(filename); 
+    JsonObject test = JsonUtil.getTestVectors(filename);
+
+    // Compares the expected and actual JSON schema of the test vector file.
+    // Mismatched JSON schemas will likely lead to a test failure.
     String generatorVersion = getString(test, "generatorVersion");
-    if (!generatorVersion.equals(expectedVersion)) {
-      System.out.printf("Expecting test vectors with version %s found version %s\n",
-                        expectedVersion, generatorVersion);
+    String expectedSchema = "rsaes_oaep_decrypt_schema.json";
+    String actualSchema = getString(test, "schema");
+    if (!expectedSchema.equals(actualSchema)) {
+      System.out.println(
+          "Expecting test vectors with schema "
+              + expectedSchema
+              + " found vectors with schema "
+              + actualSchema
+              + " generatorVersion:"
+              + generatorVersion);
     }
+
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
     int errors = 0;
     int skippedKeys = 0;
-    Set<String> skippedGroups = new HashSet<String>();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       PrivateKey key;
@@ -288,15 +287,12 @@ public class RsaOaepTest {
         }
       }
     }
-    System.out.println("OAEP: Number of skipped keys:" + skippedKeys);
-    for (String s : skippedGroups) {
-      System.out.println("Skipped groups where " + s);
-    }
     assertEquals(0, errors);
-    if (skippedKeys == 0) {
-      assertEquals(numTests, cntTests);
-    } else {
+    if (skippedKeys > 0) {
+      System.out.println("RSAES-OAEP: file:" + filename + " skipped key:" + skippedKeys);
       assertTrue(allowSkippingKeys);
+    } else {
+      assertEquals(numTests, cntTests);
     }
   }
 
