@@ -159,30 +159,34 @@ The public key for DSA.
 
 Fields in DsaTestGroup are\:
 
-| **name** | **type**               | **desc**                   | **enum**    |
-| -------- | ---------------------- | -------------------------- | ----------- |
-| key      | DsaPublicKey           | unenocded DSA public key   |             |
-| keyDer   | Der                    | DER encoded public key     |             |
-| keyPem   | Pem                    | Pem encoded public key     |             |
-| sha      | str                    | the hash function used for |             |
-:          :                        : DSA                        :             :
-| type     | str                    | the type of the test       | 'DsaVerify' |
-| tests    | List of                | a list of test vectors     |             |
-:          : AsnSignatureTestVector :                            :             :
+| **name** | **type**                    | **desc**             | **enum**    |
+| -------- | --------------------------- | -------------------- | ----------- |
+| key      | DsaPublicKey                | unenocded DSA public |             |
+:          :                             : key                  :             :
+| keyDer   | [Der](formats.md#DataTypes) | DER encoded public   |             |
+:          :                             : key                  :             :
+| keyPem   | Pem                         | Pem encoded public   |             |
+:          :                             : key                  :             :
+| sha      | str                         | the hash function    |             |
+:          :                             : used for DSA         :             :
+| type     | str                         | the type of the test | 'DsaVerify' |
+| tests    | List of                     | a list of test       |             |
+:          : AsnSignatureTestVector      : vectors              :             :
 
 ## EcPointTestGroup {#EcPointTestGroup}
 
 Fields in EcPointTestGroup are\:
 
-| **name** | **type**          | **desc**             | **enum**       |
-| -------- | ----------------- | -------------------- | -------------- |
-| curve    | str               | the name of the      |                |
-:          :                   : elliptic curve       :                :
-| encoding | str               | the encoding used    | 'compressed',  |
-:          :                   :                      : 'uncompressed' :
-| type     | str               | the type of the test | 'EcPointTest'  |
-| tests    | List of           | a list of test       |                |
-:          : EcPointTestVector : vectors              :                :
+| **name** | **type**                      | **desc**        | **enum**       |
+| -------- | ----------------------------- | --------------- | -------------- |
+| curve    | [EcCurve](formats.md#EcCurve) | the name of the |                |
+:          :                               : elliptic curve  :                :
+| encoding | str                           | the encoding    | 'compressed',  |
+:          :                               : used            : 'uncompressed' :
+| type     | str                           | the type of the | 'EcPointTest'  |
+:          :                               : test            :                :
+| tests    | List of EcPointTestVector     | a list of test  |                |
+:          :                               : vectors         :                :
 
 ## EcPointTestVector {#EcPointTestVector}
 
@@ -324,11 +328,14 @@ Fields in EcdhEcpointTestGroup are\:
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type**                         | **desc**                 | **format**   | **ref**
--------- | -------------------------------- | ------------------------ | ------------ | -------
-public   | Asn                              | ASN encoded public point | OCTET STRING | X9.62, Section 4.3.6
-private  | [BigInt](formats.md#DataTypes)   | The private exponent     |              |
-shared   | [HexBytes](formats.md#DataTypes) | The shared secret key    |              |
+| **name** | **type**                         | **desc**     | **ref**        |
+| -------- | -------------------------------- | ------------ | -------------- |
+| public   | [Asn](formats.md#DataTypes)      | ASN encoded  | X9.62, Section |
+:          :                                  : public point : 4.3.6          :
+| private  | [BigInt](formats.md#DataTypes)   | The private  |                |
+:          :                                  : exponent     :                :
+| shared   | [HexBytes](formats.md#DataTypes) | The shared   |                |
+:          :                                  : secret key   :                :
 
 Used in [EcdhEcpointTestGroup](#EcdhEcpointTestGroup).
 
@@ -377,7 +384,7 @@ Fields additional to the fields in TestVector are\:
 
 | **name** | **type**                         | **desc**                       |
 | -------- | -------------------------------- | ------------------------------ |
-| public   | Asn                              | X509 encoded public key. The   |
+| public   | [Asn](formats.md#DataTypes)      | X509 encoded public key. The   |
 :          :                                  : encoding of the public key     :
 :          :                                  : contains the type of the       :
 :          :                                  : public key, the curve and      :
@@ -465,16 +472,22 @@ exception that they may use short keys and weak hash functions such as SHA-1.
 
 Fields in EcdsaTestGroup are\:
 
-| **name** | **type**               | **desc**                | **enum**      |
-| -------- | ---------------------- | ----------------------- | ------------- |
-| key      | EcPublicKey            | unenocded EC public key |               |
-| keyDer   | Der                    | DER encoded public key  |               |
-| keyPem   | Pem                    | Pem encoded public key  |               |
-| sha      | str                    | the hash function used  |               |
-:          :                        : for ECDSA               :               :
-| type     | str                    | the type of the test    | 'EcdsaVerify' |
-| tests    | List of                | a list of test vectors  |               |
-:          : AsnSignatureTestVector :                         :               :
+| **name** | **type**                           | **desc**     | **enum**      |
+| -------- | ---------------------------------- | ------------ | ------------- |
+| key      | EcPublicKey                        | unenocded EC |               |
+:          :                                    : public key   :               :
+| keyDer   | [Der](formats.md#DataTypes)        | DER encoded  |               |
+:          :                                    : public key   :               :
+| keyPem   | Pem                                | Pem encoded  |               |
+:          :                                    : public key   :               :
+| sha      | [MdName](formats.md#HashFunctions) | the hash     |               |
+:          :                                    : function     :               :
+:          :                                    : used for     :               :
+:          :                                    : ECDSA        :               :
+| type     | str                                | the type of  | 'EcdsaVerify' |
+:          :                                    : the test     :               :
+| tests    | List of AsnSignatureTestVector     | a list of    |               |
+:          :                                    : test vectors :               :
 
 ## EddsaTestGroup {#EddsaTestGroup}
 
@@ -484,7 +497,7 @@ Fields in EddsaTestGroup are\:
 -------- | --------------------------- | ----------------------------------- | --------- | ------------------ | --------
 jwk      | Json                        | the private key in webcrypto format | 0.7       | RFC 8037 Section 2 |
 key      | Json                        | unencoded key pair                  |           |                    |
-keyDer   | Asn                         | Asn encoded public key              |           |                    |
+keyDer   | [Der](formats.md#DataTypes) | Asn encoded public key              |           |                    |
 keyPem   | Pem                         | Pem encoded public key              |           |                    |
 type     | str                         | the type of the test                |           |                    | 'EddsaVerify'
 tests    | List of SignatureTestVector | a list of test vectors              |           |                    |
@@ -640,18 +653,18 @@ Used in [RsaKeyTestGroup](#RsaKeyTestGroup).
 
 Fields in RsaesOaepTestGroup are\:
 
-**name**        | **type**                       | **desc**                                                    | **enum**
---------------- | ------------------------------ | ----------------------------------------------------------- | --------
-d               | [BigInt](formats.md#DataTypes) | The private exponent                                        |
-e               | [BigInt](formats.md#DataTypes) | The public exponent                                         |
-mgf             | str                            | the message generating function (e.g. MGF1)                 |
-mgfSha          | str                            | The hash function used for the message generating function. |
-n               | [BigInt](formats.md#DataTypes) | The modulus of the key                                      |
-privateKeyPem   | Pem                            | Pem encoded private key                                     |
-privateKeyPkcs8 | Der                            | Pkcs 8 encoded private key.                                 |
-sha             | str                            | The hash function for hashing the label.                    |
-type            | str                            | the type of the test                                        | 'RsaesOaepDecrypt'
-tests           | List of RsaesOaepTestVector    | a list of test vectors                                      |
+**name**        | **type**                           | **desc**                                                    | **enum**
+--------------- | ---------------------------------- | ----------------------------------------------------------- | --------
+d               | [BigInt](formats.md#DataTypes)     | The private exponent                                        |
+e               | [BigInt](formats.md#DataTypes)     | The public exponent                                         |
+mgf             | str                                | the message generating function (e.g. MGF1)                 |
+mgfSha          | [MdName](formats.md#HashFunctions) | The hash function used for the message generating function. |
+n               | [BigInt](formats.md#DataTypes)     | The modulus of the key                                      |
+privateKeyPem   | Pem                                | Pem encoded private key                                     |
+privateKeyPkcs8 | [Der](formats.md#DataTypes)        | Pkcs 8 encoded private key.                                 |
+sha             | [MdName](formats.md#HashFunctions) | The hash function for hashing the label.                    |
+type            | str                                | the type of the test                                        | 'RsaesOaepDecrypt'
+tests           | List of RsaesOaepTestVector        | a list of test vectors                                      |
 
 ## RsaesOaepTestVector {#RsaesOaepTestVector}
 
@@ -669,83 +682,59 @@ Used in [RsaesOaepTestGroup](#RsaesOaepTestGroup).
 
 Fields in RsassaPkcs1GenTestGroup are\:
 
-**name**      | **type**                       | **desc**                               | **ref**  | **since** | **enum**
-------------- | ------------------------------ | -------------------------------------- | -------- | --------- | --------
-d             | [BigInt](formats.md#DataTypes) | The private exponent                   |          |           |
-e             | [BigInt](formats.md#DataTypes) | The public exponent                    |          |           |
-keyAsn        | Der                            | DER encoding of the sequence [n, e]    |          |           |
-keyDer        | Der                            | DER encoding of the public key         |          |           |
-keyJwk        | Json                           | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
-keyPem        | Pem                            | Pem encoded public key                 |          |           |
-keySize       | int                            | the size of the modulus in bits        |          |           |
-n             | [BigInt](formats.md#DataTypes) | The modulus of the key                 |          |           |
-privateKeyDer | Der                            | DER encoding of the private key        |          |           |
-privateKeyJwk | Json                           | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
-privateKeyPem | Pem                            | Pem encoded private key                |          |           |
-sha           | str                            | the hash function used for the message |          |           |
-type          | str                            | the type of the test                   |          |           | 'RsassaPkcs1Generate'
-tests         | List of SignatureTestVector    | a list of test vectors                 |          |           |
+**name**      | **type**                           | **desc**                               | **ref**  | **since** | **enum**
+------------- | ---------------------------------- | -------------------------------------- | -------- | --------- | --------
+d             | [BigInt](formats.md#DataTypes)     | The private exponent                   |          |           |
+e             | [BigInt](formats.md#DataTypes)     | The public exponent                    |          |           |
+keyAsn        | [Der](formats.md#DataTypes)        | DER encoding of the sequence [n, e]    |          |           |
+keyDer        | [Der](formats.md#DataTypes)        | DER encoding of the public key         |          |           |
+keyJwk        | Json                               | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
+keyPem        | Pem                                | Pem encoded public key                 |          |           |
+keySize       | int                                | the size of the modulus in bits        |          |           |
+n             | [BigInt](formats.md#DataTypes)     | The modulus of the key                 |          |           |
+privateKeyDer | [Der](formats.md#DataTypes)        | DER encoding of the private key        |          |           |
+privateKeyJwk | Json                               | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
+privateKeyPem | Pem                                | Pem encoded private key                |          |           |
+sha           | [MdName](formats.md#HashFunctions) | the hash function used for the message |          |           |
+type          | str                                | the type of the test                   |          |           | 'RsassaPkcs1Generate'
+tests         | List of SignatureTestVector        | a list of test vectors                 |          |           |
 
 ## RsassaPkcs1TestGroup {#RsassaPkcs1TestGroup}
 
 Fields in RsassaPkcs1TestGroup are\:
 
-**name** | **type**                       | **desc**                                                                                                       | **ref**  | **since** | **enum**
--------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- | -------- | --------- | --------
-d        | [BigInt](formats.md#DataTypes) | The private exponent                                                                                           |          |           |
-e        | [BigInt](formats.md#DataTypes) | The public exponent                                                                                            |          |           |
-keyAsn   | Der                            | ASN encoding of the sequence [n, e]                                                                            |          |           |
-keyDer   | Der                            | ASN encoding of the public key                                                                                 |          |           |
-keyJwk   | Json                           | The public key in JWK format. The key is missing if the signature algorithm for the given hash is not defined. | RFC 7517 | 0.7       |
-keyPem   | Pem                            | Pem encoded public key                                                                                         |          |           |
-keySize  | int                            | the size of the modulus in bits                                                                                |          |           |
-n        | [BigInt](formats.md#DataTypes) | The modulus of the key                                                                                         |          |           |
-sha      | str                            | the hash function used for the message                                                                         |          |           |
-type     | str                            | the type of the test                                                                                           |          |           | 'RsassaPkcs1Verify'
-tests    | List of SignatureTestVector    | a list of test vectors                                                                                         |          |           |
+**name** | **type**                           | **desc**                                                                                                       | **ref**  | **since** | **enum**
+-------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------- | --------- | --------
+d        | [BigInt](formats.md#DataTypes)     | The private exponent                                                                                           |          |           |
+e        | [BigInt](formats.md#DataTypes)     | The public exponent                                                                                            |          |           |
+keyAsn   | [Der](formats.md#DataTypes)        | ASN encoding of the sequence [n, e]                                                                            |          |           |
+keyDer   | [Der](formats.md#DataTypes)        | ASN encoding of the public key                                                                                 |          |           |
+keyJwk   | Json                               | The public key in JWK format. The key is missing if the signature algorithm for the given hash is not defined. | RFC 7517 | 0.7       |
+keyPem   | Pem                                | Pem encoded public key                                                                                         |          |           |
+keySize  | int                                | the size of the modulus in bits                                                                                |          |           |
+n        | [BigInt](formats.md#DataTypes)     | The modulus of the key                                                                                         |          |           |
+sha      | [MdName](formats.md#HashFunctions) | the hash function used for the message                                                                         |          |           |
+type     | str                                | the type of the test                                                                                           |          |           | 'RsassaPkcs1Verify'
+tests    | List of SignatureTestVector        | a list of test vectors                                                                                         |          |           |
 
 ## RsassaPssTestGroup {#RsassaPssTestGroup}
 
 Fields in RsassaPssTestGroup are\:
 
-| **name** | **type**                       | **desc**     | **enum**          |
-| -------- | ------------------------------ | ------------ | ----------------- |
-| d        | [BigInt](formats.md#DataTypes) | The private  |                   |
-:          :                                : exponent     :                   :
-| e        | [BigInt](formats.md#DataTypes) | The public   |                   |
-:          :                                : exponent     :                   :
-| keyAsn   | Der                            | ASN encoding |                   |
-:          :                                : of the       :                   :
-:          :                                : sequence [n, :                   :
-:          :                                : e]           :                   :
-| keyDer   | Der                            | ASN encoding |                   |
-:          :                                : of the       :                   :
-:          :                                : public key   :                   :
-| keyPem   | Pem                            | Pem encoded  |                   |
-:          :                                : public key   :                   :
-| keySize  | int                            | the size of  |                   |
-:          :                                : the modulus  :                   :
-:          :                                : in bits      :                   :
-| mgf      | str                            | the message  |                   |
-:          :                                : generating   :                   :
-:          :                                : function     :                   :
-:          :                                : (e.g. MGF1)  :                   :
-| mgfSha   | str                            | The hash     |                   |
-:          :                                : function     :                   :
-:          :                                : used for the :                   :
-:          :                                : message      :                   :
-:          :                                : generating   :                   :
-:          :                                : function.    :                   :
-| n        | [BigInt](formats.md#DataTypes) | The modulus  |                   |
-:          :                                : of the key   :                   :
-| sha      | str                            | The hash     |                   |
-:          :                                : function for :                   :
-:          :                                : hasing the   :                   :
-:          :                                : message.     :                   :
-| type     | str                            | the type of  | 'RsassaPssVerify' |
-:          :                                : the test     :                   :
-| tests    | List of RsassaPssTestVector    | a list of    |                   |
-:          :                                : test vectors :                   :
+**name** | **type**                           | **desc**                                                    | **enum**
+-------- | ---------------------------------- | ----------------------------------------------------------- | --------
+d        | [BigInt](formats.md#DataTypes)     | The private exponent                                        |
+e        | [BigInt](formats.md#DataTypes)     | The public exponent                                         |
+keyAsn   | [Der](formats.md#DataTypes)        | ASN encoding of the sequence [n, e]                         |
+keyDer   | [Der](formats.md#DataTypes)        | ASN encoding of the public key                              |
+keyPem   | Pem                                | Pem encoded public key                                      |
+keySize  | int                                | the size of the modulus in bits                             |
+mgf      | str                                | the message generating function (e.g. MGF1)                 |
+mgfSha   | [MdName](formats.md#HashFunctions) | The hash function used for the message generating function. |
+n        | [BigInt](formats.md#DataTypes)     | The modulus of the key                                      |
+sha      | [MdName](formats.md#HashFunctions) | The hash function for hasing the message.                   |
+type     | str                                | the type of the test                                        | 'RsassaPssVerify'
+tests    | List of RsassaPssTestVector        | a list of test vectors                                      |
 
 ## RsassaPssTestVector {#RsassaPssTestVector}
 
@@ -772,7 +761,7 @@ Fields additional to the fields in TestVector are\:
 msg      | [HexBytes](formats.md#DataTypes) | The message to sign
 sig      | [HexBytes](formats.md#DataTypes) | A signature for msg
 
-Used in
+Used
 [EcdsaP1363TestGroup](#EcdsaP1363TestGroup), [EddsaTestGroup](#EddsaTestGroup),
 [RsassaPkcs1GenTestGroup](#RsassaPkcs1GenTestGroup),
 [RsassaPkcs1TestGroup](#RsassaPkcs1TestGroup).
