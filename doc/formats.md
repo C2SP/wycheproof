@@ -78,6 +78,7 @@ described below
 | Asn      | A hexadecimal encoded array of bytes. This may be a valid or      |
 :          : invalid ASN encoding.                                             :
 | Der      | A valid DER encoding represented as a hexadecimal string.         |
+| Pem      | A valid PEM encoded key                                           |
 
 ## General format
 
