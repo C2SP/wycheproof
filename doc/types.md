@@ -37,22 +37,31 @@ A test vector for authenticated encryption with additional data.
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type** | **desc**                                               |
-| -------- | -------- | ------------------------------------------------------ |
-| key      | HexBytes | the key                                                |
-| iv       | HexBytes | the nonce                                              |
-| aad      | HexBytes | additional authenticated data                          |
-| msg      | HexBytes | the plaintext                                          |
-| ct       | HexBytes | the ciphertext (without iv and tag)                    |
-| tag      | HexBytes | The authenticatian tag. Most encryption append the tag |
-:          :          : to the ciphertext. Encryption results in the           :
-:          :          : concatenation ct || tag and decryption expects ct ||   :
-:          :          : tag as input. There are however some exceptions. For   :
-:          :          : example AEAD-AES-SIV-CMAC (RFC 5297) computes a        :
-:          :          : synthetic IV (SIV), which is used to initialize the    :
-:          :          : counter for AES. The typical encoding here is to       :
-:          :          : prepend the SIV. I.e. implementations would expect     :
-:          :          : ciphertext of the form tag || ct or iv || tag || ct.   :
+| **name** | **type**                         | **desc**                       |
+| -------- | -------------------------------- | ------------------------------ |
+| key      | [HexBytes](formats.md#DataTypes) | the key                        |
+| iv       | [HexBytes](formats.md#DataTypes) | the nonce                      |
+| aad      | [HexBytes](formats.md#DataTypes) | additional authenticated data  |
+| msg      | [HexBytes](formats.md#DataTypes) | the plaintext                  |
+| ct       | [HexBytes](formats.md#DataTypes) | the ciphertext (without iv and |
+:          :                                  : tag)                           :
+| tag      | [HexBytes](formats.md#DataTypes) | The authenticatian tag. Most   |
+:          :                                  : encryption append the tag to   :
+:          :                                  : the ciphertext. Encryption     :
+:          :                                  : results in the concatenation   :
+:          :                                  : ct || tag and decryption       :
+:          :                                  : expects ct || tag as input.    :
+:          :                                  : There are however some         :
+:          :                                  : exceptions. For example        :
+:          :                                  : AEAD-AES-SIV-CMAC (RFC 5297)   :
+:          :                                  : computes a synthetic IV (SIV), :
+:          :                                  : which is used to initialize    :
+:          :                                  : the counter for AES. The       :
+:          :                                  : typical encoding here is to    :
+:          :                                  : prepend the SIV. I.e.          :
+:          :                                  : implementations would expect   :
+:          :                                  : ciphertext of the form tag ||  :
+:          :                                  : ct or iv || tag || ct.         :
 
 Used in [AeadTestGroup](#AeadTestGroup).
 
@@ -69,10 +78,10 @@ is valid.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | --------------------------------
-msg      | HexBytes | The message to sign
-sig      | Asn      | An ASN encoded signature for msg
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | --------------------------------
+msg      | [HexBytes](formats.md#DataTypes) | The message to sign
+sig      | Asn                              | An ASN encoded signature for msg
 
 Used in [DsaTestGroup](#DsaTestGroup), [EcdsaTestGroup](#EcdsaTestGroup).
 
@@ -93,12 +102,12 @@ data.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -----------------------------
-key      | HexBytes | the key
-aad      | HexBytes | additional authenticated data
-msg      | HexBytes | the plaintext
-ct       | HexBytes | the ciphertext including tag
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -----------------------------
+key      | [HexBytes](formats.md#DataTypes) | the key
+aad      | [HexBytes](formats.md#DataTypes) | additional authenticated data
+msg      | [HexBytes](formats.md#DataTypes) | the plaintext
+ct       | [HexBytes](formats.md#DataTypes) | the ciphertext including tag
 
 Used in [DaeadTestGroup](#DaeadTestGroup).
 
@@ -108,30 +117,43 @@ A DSA private key. This implementation of DSA must only be used for testing rsp.
 for generating test vectors. It has not been checked for flaws and in some cases
 may even avoid necessary checks so that it can be used for flawed test vectors.
 
-| **name** | **type** | **desc**                            | **enum**        |
-| -------- | -------- | ----------------------------------- | --------------- |
-| g        | BigInt   | the generator of the multiplicative |                 |
-:          :          : subgroup                            :                 :
-| keySize  | int      | the key size in bits                |                 |
-| p        | BigInt   | the modulus p                       |                 |
-| q        | BigInt   | the order of the generator g        |                 |
-| type     | str      | the key type                        | 'DsaPrivateKey' |
-| x        | BigInt   | the private key value               |                 |
-| y        | BigInt   | the public key value                |                 |
+| **name** | **type**                       | **desc**       | **enum**        |
+| -------- | ------------------------------ | -------------- | --------------- |
+| g        | [BigInt](formats.md#DataTypes) | the generator  |                 |
+:          :                                : of the         :                 :
+:          :                                : multiplicative :                 :
+:          :                                : subgroup       :                 :
+| keySize  | int                            | the key size   |                 |
+:          :                                : in bits        :                 :
+| p        | [BigInt](formats.md#DataTypes) | the modulus p  |                 |
+| q        | [BigInt](formats.md#DataTypes) | the order of   |                 |
+:          :                                : the generator  :                 :
+:          :                                : g              :                 :
+| type     | str                            | the key type   | 'DsaPrivateKey' |
+| x        | [BigInt](formats.md#DataTypes) | the private    |                 |
+:          :                                : key value      :                 :
+| y        | [BigInt](formats.md#DataTypes) | the public key |                 |
+:          :                                : value          :                 :
 
 ## DsaPublicKey {#DsaPublicKey}
 
 The public key for DSA.
 
-| **name** | **type** | **desc**                            | **enum**       |
-| -------- | -------- | ----------------------------------- | -------------- |
-| g        | BigInt   | the generator of the multiplicative |                |
-:          :          : subgroup                            :                :
-| keySize  | int      | the key size in bits                |                |
-| p        | BigInt   | the modulus p                       |                |
-| q        | BigInt   | the order of the generator g        |                |
-| type     | str      | the key type                        | 'DsaPublicKey' |
-| y        | BigInt   | the public key value                |                |
+| **name** | **type**                       | **desc**       | **enum**       |
+| -------- | ------------------------------ | -------------- | -------------- |
+| g        | [BigInt](formats.md#DataTypes) | the generator  |                |
+:          :                                : of the         :                :
+:          :                                : multiplicative :                :
+:          :                                : subgroup       :                :
+| keySize  | int                            | the key size   |                |
+:          :                                : in bits        :                :
+| p        | [BigInt](formats.md#DataTypes) | the modulus p  |                |
+| q        | [BigInt](formats.md#DataTypes) | the order of   |                |
+:          :                                : the generator  :                :
+:          :                                : g              :                :
+| type     | str                            | the key type   | 'DsaPublicKey' |
+| y        | [BigInt](formats.md#DataTypes) | the public key |                |
+:          :                                : value          :                :
 
 ## DsaTestGroup {#DsaTestGroup}
 
@@ -166,11 +188,11 @@ Fields in EcPointTestGroup are\:
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------------------
-encoded  | HexBytes | X509 encoded point on the curve
-x        | BigInt   | x-coordinate of the point
-y        | BigInt   | y-coordiante of the point
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------------------
+encoded  | [HexBytes](formats.md#DataTypes) | X509 encoded point on the curve
+x        | [BigInt](formats.md#DataTypes)   | x-coordinate of the point
+y        | [BigInt](formats.md#DataTypes)   | y-coordiante of the point
 
 Used in [EcPointTestGroup](#EcPointTestGroup).
 
@@ -185,27 +207,23 @@ parameters generator, order and cofactor.
 curve        | typing.Union[ecutil.EcUnnamedGroup, ecutil.EcNamedGroup] | the EC group used by this public key                |
 keySize      | int                                                      | the key size in bits                                |
 type         | str                                                      | the key type                                        | 'EcPublicKey'
-uncompressed | HexBytes                                                 | X509 encoded public key point in hexadecimal format |
-wx           | BigInt                                                   | the x-coordinate of the public key point            |
-wy           | BigInt                                                   | the y-coordinate of the public key point            |
+uncompressed | [HexBytes](formats.md#DataTypes)                         | X509 encoded public key point in hexadecimal format |
+wx           | [BigInt](formats.md#DataTypes)                           | the x-coordinate of the public key point            |
+wy           | [BigInt](formats.md#DataTypes)                           | the y-coordinate of the public key point            |
 
 ## EcPublicKeyOnNamedCurve {#EcPublicKeyOnNamedCurve}
 
 An EC public key. This data type allows only named curves to specify the
 underlying EC parameters.
 
-| **name**     | **type**     | **desc**                       | **enum**      |
-| ------------ | ------------ | ------------------------------ | ------------- |
-| curve        | EcNamedGroup | the EC group used by this      |               |
-:              :              : public key                     :               :
-| keySize      | int          | the key size in bits           |               |
-| type         | str          | the key type                   | 'EcPublicKey' |
-| uncompressed | HexBytes     | X509 encoded public key point  |               |
-:              :              : in hexadecimal format          :               :
-| wx           | BigInt       | the x-coordinate of the public |               |
-:              :              : key point                      :               :
-| wy           | BigInt       | the y-coordinate of the public |               |
-:              :              : key point                      :               :
+**name**     | **type**                         | **desc**                                            | **enum**
+------------ | -------------------------------- | --------------------------------------------------- | --------
+curve        | EcNamedGroup                     | the EC group used by this public key                |
+keySize      | int                              | the key size in bits                                |
+type         | str                              | the key type                                        | 'EcPublicKey'
+uncompressed | [HexBytes](formats.md#DataTypes) | X509 encoded public key point in hexadecimal format |
+wx           | [BigInt](formats.md#DataTypes)   | the x-coordinate of the public key point            |
+wy           | [BigInt](formats.md#DataTypes)   | the y-coordinate of the public key point            |
 
 ## EcPublicKeyTestGroup {#EcPublicKeyTestGroup}
 
@@ -228,18 +246,21 @@ importing the EC public keys notices inconsistencies and bad formatting.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ----------------------------------------------
-encoded  | Asn      | Encoded EC public key over a prime order field
-p        | BigInt   | The order of underlying field
-n        | BigInt   | The order of the generator
-a        | BigInt   | The value a of the Weierstrass equation
-b        | BigInt   | The value b of the Weierstrass equation
-gx       | BigInt   | x-coordinate of the generator
-gy       | BigInt   | y-coordinate of the generator
-h        | int      | [optional] the cofactor
-wx       | BigInt   | x-coordinate of the public point
-wy       | BigInt   | y-coordinate of the public point
+| **name** | **type**                       | **desc**                         |
+| -------- | ------------------------------ | -------------------------------- |
+| encoded  | Asn                            | Encoded EC public key over a     |
+:          :                                : prime order field                :
+| p        | [BigInt](formats.md#DataTypes) | The order of underlying field    |
+| n        | [BigInt](formats.md#DataTypes) | The order of the generator       |
+| a        | [BigInt](formats.md#DataTypes) | The value a of the Weierstrass   |
+:          :                                : equation                         :
+| b        | [BigInt](formats.md#DataTypes) | The value b of the Weierstrass   |
+:          :                                : equation                         :
+| gx       | [BigInt](formats.md#DataTypes) | x-coordinate of the generator    |
+| gy       | [BigInt](formats.md#DataTypes) | y-coordinate of the generator    |
+| h        | int                            | [optional] the cofactor          |
+| wx       | [BigInt](formats.md#DataTypes) | x-coordinate of the public point |
+| wy       | [BigInt](formats.md#DataTypes) | y-coordinate of the public point |
 
 Used in [EcPublicKeyTestGroup](#EcPublicKeyTestGroup).
 
@@ -247,46 +268,67 @@ Used in [EcPublicKeyTestGroup](#EcPublicKeyTestGroup).
 
 An unamed EC group
 
-| **name** | **type** | **desc**                          | **enum**          |
-| -------- | -------- | --------------------------------- | ----------------- |
-| a        | BigInt   | coefficient a of the elliptic     |                   |
-:          :          : curve equation                    :                   :
-| b        | BigInt   | coefficient b of the elliptic     |                   |
-:          :          : curve equation                    :                   :
-| gx       | BigInt   | the x-coordinate of the generator |                   |
-| gy       | BigInt   | the y-coordinate of the generator |                   |
-| h        | int      | the cofactor                      |                   |
-| n        | BigInt   | the order of the generator        |                   |
-| p        | BigInt   | the order of the underlying field |                   |
-| type     | str      | an unnamed EC group over a prime  | 'PrimeOrderCurve' |
-:          :          : field in Weierstrass form         :                   :
+| **name** | **type**                       | **desc**     | **enum**          |
+| -------- | ------------------------------ | ------------ | ----------------- |
+| a        | [BigInt](formats.md#DataTypes) | coefficient  |                   |
+:          :                                : a of the     :                   :
+:          :                                : elliptic     :                   :
+:          :                                : curve        :                   :
+:          :                                : equation     :                   :
+| b        | [BigInt](formats.md#DataTypes) | coefficient  |                   |
+:          :                                : b of the     :                   :
+:          :                                : elliptic     :                   :
+:          :                                : curve        :                   :
+:          :                                : equation     :                   :
+| gx       | [BigInt](formats.md#DataTypes) | the          |                   |
+:          :                                : x-coordinate :                   :
+:          :                                : of the       :                   :
+:          :                                : generator    :                   :
+| gy       | [BigInt](formats.md#DataTypes) | the          |                   |
+:          :                                : y-coordinate :                   :
+:          :                                : of the       :                   :
+:          :                                : generator    :                   :
+| h        | int                            | the cofactor |                   |
+| n        | [BigInt](formats.md#DataTypes) | the order of |                   |
+:          :                                : the          :                   :
+:          :                                : generator    :                   :
+| p        | [BigInt](formats.md#DataTypes) | the order of |                   |
+:          :                                : the          :                   :
+:          :                                : underlying   :                   :
+:          :                                : field        :                   :
+| type     | str                            | an unnamed   | 'PrimeOrderCurve' |
+:          :                                : EC group     :                   :
+:          :                                : over a prime :                   :
+:          :                                : field in     :                   :
+:          :                                : Weierstrass  :                   :
+:          :                                : form         :                   :
 
 ## EcdhEcpointTestGroup {#EcdhEcpointTestGroup}
 
 Fields in EcdhEcpointTestGroup are\:
 
-| **name** | **type**              | **desc**             | **enum**          |
-| -------- | --------------------- | -------------------- | ----------------- |
-| curve    | str                   | the curve of the     |                   |
-:          :                       : private key          :                   :
-| encoding | str                   | the encoding of the  | 'ecpoint'         |
-:          :                       : public key           :                   :
-| type     | str                   | the type of the test | 'EcdhEcpointTest' |
-| tests    | List of               | a list of test       |                   |
-:          : EcdhEcpointTestVector : vectors              :                   :
+| **name** | **type**                      | **desc**      | **enum**          |
+| -------- | ----------------------------- | ------------- | ----------------- |
+| curve    | [EcCurve](formats.md#EcCurve) | the curve of  |                   |
+:          :                               : the private   :                   :
+:          :                               : key           :                   :
+| encoding | str                           | the encoding  | 'ecpoint'         |
+:          :                               : of the public :                   :
+:          :                               : key           :                   :
+| type     | str                           | the type of   | 'EcdhEcpointTest' |
+:          :                               : the test      :                   :
+| tests    | List of EcdhEcpointTestVector | a list of     |                   |
+:          :                               : test vectors  :                   :
 
 ## EcdhEcpointTestVector {#EcdhEcpointTestVector}
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type** | **desc**           | **format**   | **ref**        |
-| -------- | -------- | ------------------ | ------------ | -------------- |
-| public   | Asn      | ASN encoded public | OCTET STRING | X9.62, Section |
-:          :          : point              :              : 4.3.6          :
-| private  | BigInt   | The private        |              |                |
-:          :          : exponent           :              :                :
-| shared   | HexBytes | The shared secret  |              |                |
-:          :          : key                :              :                :
+**name** | **type**                         | **desc**                 | **format**   | **ref**
+-------- | -------------------------------- | ------------------------ | ------------ | -------
+public   | Asn                              | ASN encoded public point | OCTET STRING | X9.62, Section 4.3.6
+private  | [BigInt](formats.md#DataTypes)   | The private exponent     |              |
+shared   | [HexBytes](formats.md#DataTypes) | The shared secret key    |              |
 
 Used in [EcdhEcpointTestGroup](#EcdhEcpointTestGroup).
 
@@ -307,11 +349,11 @@ Fields in EcdhPemTestGroup are\:
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ----------------------
-public   | Pem      | Pem encoded public key
-private  | BigInt   | the private key
-shared   | HexBytes | The shared secret key
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ----------------------
+public   | Pem                              | Pem encoded public key
+private  | [BigInt](formats.md#DataTypes)   | the private key
+shared   | [HexBytes](formats.md#DataTypes) | The shared secret key
 
 Used in [EcdhPemTestGroup](#EcdhPemTestGroup).
 
@@ -319,30 +361,42 @@ Used in [EcdhPemTestGroup](#EcdhPemTestGroup).
 
 Fields in EcdhTestGroup are\:
 
-**name** | **type**               | **desc**                       | **enum**
--------- | ---------------------- | ------------------------------ | ----------
-curve    | str                    | the curve of the private key   |
-encoding | str                    | the encoding of the public key | 'asn'
-type     | str                    | the type of the test           | 'EcdhTest'
-tests    | List of EcdhTestVector | a list of test vectors         |
+| **name** | **type**                      | **desc**             | **enum**   |
+| -------- | ----------------------------- | -------------------- | ---------- |
+| curve    | [EcCurve](formats.md#EcCurve) | the curve of the     |            |
+:          :                               : private key          :            :
+| encoding | str                           | the encoding of the  | 'asn'      |
+:          :                               : public key           :            :
+| type     | str                           | the type of the test | 'EcdhTest' |
+| tests    | List of EcdhTestVector        | a list of test       |            |
+:          :                               : vectors              :            :
 
 ## EcdhTestVector {#EcdhTestVector}
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type** | **desc**                                               |
-| -------- | -------- | ------------------------------------------------------ |
-| public   | Asn      | X509 encoded public key. The encoding of the public    |
-:          :          : key contains the type of the public key, the curve and :
-:          :          : possibly the curve parameters. The test vectors        :
-:          :          : contain cases where these fields do not match the      :
-:          :          : curve in the testGroup.                                :
-| private  | BigInt   | the private key                                        |
-| shared   | HexBytes | The shared secret key. Some invalid test vectors       |
-:          :          : contain a shared secret, which is computed using the   :
-:          :          : curve of the private key. This allows to distinguish   :
-:          :          : between implementations ignoring public key info and   :
-:          :          : implementations using the curve of the public key.     :
+| **name** | **type**                         | **desc**                       |
+| -------- | -------------------------------- | ------------------------------ |
+| public   | Asn                              | X509 encoded public key. The   |
+:          :                                  : encoding of the public key     :
+:          :                                  : contains the type of the       :
+:          :                                  : public key, the curve and      :
+:          :                                  : possibly the curve parameters. :
+:          :                                  : The test vectors contain cases :
+:          :                                  : where these fields do not      :
+:          :                                  : match the curve in the         :
+:          :                                  : testGroup.                     :
+| private  | [BigInt](formats.md#DataTypes)   | the private key                |
+| shared   | [HexBytes](formats.md#DataTypes) | The shared secret key. Some    |
+:          :                                  : invalid test vectors contain a :
+:          :                                  : shared secret, which is        :
+:          :                                  : computed using the curve of    :
+:          :                                  : the private key. This allows   :
+:          :                                  : to distinguish between         :
+:          :                                  : implementations ignoring       :
+:          :                                  : public key info and            :
+:          :                                  : implementations using the      :
+:          :                                  : curve of the public key.       :
 
 Used in [EcdhTestGroup](#EcdhTestGroup).
 
@@ -350,26 +404,30 @@ Used in [EcdhTestGroup](#EcdhTestGroup).
 
 Fields in EcdhWebcryptoTestGroup are\:
 
-| **name** | **type**                | **desc**         | **enum**            |
-| -------- | ----------------------- | ---------------- | ------------------- |
-| curve    | str                     | the curve of the |                     |
-:          :                         : private key      :                     :
-| encoding | str                     | the encoding of  | 'webcrypto'         |
-:          :                         : the public key   :                     :
-| type     | str                     | the type of the  | 'EcdhWebcryptoTest' |
-:          :                         : test             :                     :
-| tests    | List of                 | a list of test   |                     |
-:          : EcdhWebcryptoTestVector : vectors          :                     :
+| **name** | **type**                      | **desc**    | **enum**            |
+| -------- | ----------------------------- | ----------- | ------------------- |
+| curve    | [EcCurve](formats.md#EcCurve) | the curve   |                     |
+:          :                               : of the      :                     :
+:          :                               : private key :                     :
+| encoding | str                           | the         | 'webcrypto'         |
+:          :                               : encoding of :                     :
+:          :                               : the public  :                     :
+:          :                               : key         :                     :
+| type     | str                           | the type of | 'EcdhWebcryptoTest' |
+:          :                               : the test    :                     :
+| tests    | List of                       | a list of   |                     |
+:          : EcdhWebcryptoTestVector       : test        :                     :
+:          :                               : vectors     :                     :
 
 ## EcdhWebcryptoTestVector {#EcdhWebcryptoTestVector}
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------------------
-public   | Json     | Public key in webcrypto format
-private  | Json     | Private key in webcrypto format
-shared   | HexBytes | The shared secret key
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------------------
+public   | Json                             | Public key in webcrypto format
+private  | Json                             | Private key in webcrypto format
+shared   | [HexBytes](formats.md#DataTypes) | The shared secret key
 
 Used in [EcdhWebcryptoTestGroup](#EcdhWebcryptoTestGroup).
 
@@ -451,13 +509,17 @@ salt, info, size
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------------------------------------
-ikm      | HexBytes | the key (input key material)
-salt     | HexBytes | the salt for the key derivation
-info     | HexBytes | additional information used in the key derivation
-size     | int      | the size of the output in bytes
-okm      | HexBytes | the generated bytes (output key material)
+| **name** | **type**                         | **desc**                       |
+| -------- | -------------------------------- | ------------------------------ |
+| ikm      | [HexBytes](formats.md#DataTypes) | the key (input key material)   |
+| salt     | [HexBytes](formats.md#DataTypes) | the salt for the key           |
+:          :                                  : derivation                     :
+| info     | [HexBytes](formats.md#DataTypes) | additional information used in |
+:          :                                  : the key derivation             :
+| size     | int                              | the size of the output in      |
+:          :                                  : bytes                          :
+| okm      | [HexBytes](formats.md#DataTypes) | the generated bytes (output    |
+:          :                                  : key material)                  :
 
 Used in [HkdfTestGroup](#HkdfTestGroup).
 
@@ -484,12 +546,12 @@ block chaining (CBC) is tested using this format.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------------------
-key      | HexBytes | the key
-iv       | HexBytes | the initialization vector
-msg      | HexBytes | the plaintext
-ct       | HexBytes | the raw ciphertext (without IV)
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------------------
+key      | [HexBytes](formats.md#DataTypes) | the key
+iv       | [HexBytes](formats.md#DataTypes) | the initialization vector
+msg      | [HexBytes](formats.md#DataTypes) | the plaintext
+ct       | [HexBytes](formats.md#DataTypes) | the raw ciphertext (without IV)
 
 Used in [IndCpaTestGroup](#IndCpaTestGroup).
 
@@ -513,11 +575,11 @@ entropy. Hence some of the key wrap primitives are deterministic.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ---------------------
-key      | HexBytes | the wrapping key
-msg      | HexBytes | the key bytes to wrap
-ct       | HexBytes | the wrapped key
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ---------------------
+key      | [HexBytes](formats.md#DataTypes) | the wrapping key
+msg      | [HexBytes](formats.md#DataTypes) | the key bytes to wrap
+ct       | [HexBytes](formats.md#DataTypes) | the wrapped key
 
 Used in [KeywrapTestGroup](#KeywrapTestGroup).
 
@@ -539,11 +601,11 @@ A test vector for message authentication codes (MAC).
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ----------------------
-key      | HexBytes | the key
-msg      | HexBytes | the plaintext
-tag      | HexBytes | the authentication tag
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ----------------------
+key      | [HexBytes](formats.md#DataTypes) | the key
+msg      | [HexBytes](formats.md#DataTypes) | the plaintext
+tag      | [HexBytes](formats.md#DataTypes) | the authentication tag
 
 Used in [MacTestGroup](#MacTestGroup).
 
@@ -568,9 +630,9 @@ Fields in RsaKeyTestGroup are\:
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ----------------------
-public   | HexBytes | the encoded public key
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ----------------------
+public   | [HexBytes](formats.md#DataTypes) | the encoded public key
 
 Used in [RsaKeyTestGroup](#RsaKeyTestGroup).
 
@@ -578,45 +640,28 @@ Used in [RsaKeyTestGroup](#RsaKeyTestGroup).
 
 Fields in RsaesOaepTestGroup are\:
 
-| **name**        | **type**            | **desc**        | **enum**           |
-| --------------- | ------------------- | --------------- | ------------------ |
-| d               | BigInt              | The private     |                    |
-:                 :                     : exponent        :                    :
-| e               | BigInt              | The public      |                    |
-:                 :                     : exponent        :                    :
-| mgf             | str                 | the message     |                    |
-:                 :                     : generating      :                    :
-:                 :                     : function (e.g.  :                    :
-:                 :                     : MGF1)           :                    :
-| mgfSha          | str                 | The hash        |                    |
-:                 :                     : function used   :                    :
-:                 :                     : for the message :                    :
-:                 :                     : generating      :                    :
-:                 :                     : function.       :                    :
-| n               | BigInt              | The modulus of  |                    |
-:                 :                     : the key         :                    :
-| privateKeyPem   | Pem                 | Pem encoded     |                    |
-:                 :                     : private key     :                    :
-| privateKeyPkcs8 | Der                 | Pkcs 8 encoded  |                    |
-:                 :                     : private key.    :                    :
-| sha             | str                 | The hash        |                    |
-:                 :                     : function for    :                    :
-:                 :                     : hashing the     :                    :
-:                 :                     : label.          :                    :
-| type            | str                 | the type of the | 'RsaesOaepDecrypt' |
-:                 :                     : test            :                    :
-| tests           | List of             | a list of test  |                    |
-:                 : RsaesOaepTestVector : vectors         :                    :
+**name**        | **type**                       | **desc**                                                    | **enum**
+--------------- | ------------------------------ | ----------------------------------------------------------- | --------
+d               | [BigInt](formats.md#DataTypes) | The private exponent                                        |
+e               | [BigInt](formats.md#DataTypes) | The public exponent                                         |
+mgf             | str                            | the message generating function (e.g. MGF1)                 |
+mgfSha          | str                            | The hash function used for the message generating function. |
+n               | [BigInt](formats.md#DataTypes) | The modulus of the key                                      |
+privateKeyPem   | Pem                            | Pem encoded private key                                     |
+privateKeyPkcs8 | Der                            | Pkcs 8 encoded private key.                                 |
+sha             | str                            | The hash function for hashing the label.                    |
+type            | str                            | the type of the test                                        | 'RsaesOaepDecrypt'
+tests           | List of RsaesOaepTestVector    | a list of test vectors                                      |
 
 ## RsaesOaepTestVector {#RsaesOaepTestVector}
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ---------------------------------
-msg      | HexBytes | The encrypted message
-ct       | HexBytes | An encryption of msg
-label    | HexBytes | The label used for the encryption
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ---------------------------------
+msg      | [HexBytes](formats.md#DataTypes) | The encrypted message
+ct       | [HexBytes](formats.md#DataTypes) | An encryption of msg
+label    | [HexBytes](formats.md#DataTypes) | The label used for the encryption
 
 Used in [RsaesOaepTestGroup](#RsaesOaepTestGroup).
 
@@ -624,76 +669,92 @@ Used in [RsaesOaepTestGroup](#RsaesOaepTestGroup).
 
 Fields in RsassaPkcs1GenTestGroup are\:
 
-**name**      | **type**                    | **desc**                               | **ref**  | **since** | **enum**
-------------- | --------------------------- | -------------------------------------- | -------- | --------- | --------
-d             | BigInt                      | The private exponent                   |          |           |
-e             | BigInt                      | The public exponent                    |          |           |
-keyAsn        | Der                         | DER encoding of the sequence [n, e]    |          |           |
-keyDer        | Der                         | DER encoding of the public key         |          |           |
-keyJwk        | Json                        | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
-keyPem        | Pem                         | Pem encoded public key                 |          |           |
-keySize       | int                         | the size of the modulus in bits        |          |           |
-n             | BigInt                      | The modulus of the key                 |          |           |
-privateKeyDer | Der                         | DER encoding of the private key        |          |           |
-privateKeyJwk | Json                        | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
-privateKeyPem | Pem                         | Pem encoded private key                |          |           |
-sha           | str                         | the hash function used for the message |          |           |
-type          | str                         | the type of the test                   |          |           | 'RsassaPkcs1Generate'
-tests         | List of SignatureTestVector | a list of test vectors                 |          |           |
+**name**      | **type**                       | **desc**                               | **ref**  | **since** | **enum**
+------------- | ------------------------------ | -------------------------------------- | -------- | --------- | --------
+d             | [BigInt](formats.md#DataTypes) | The private exponent                   |          |           |
+e             | [BigInt](formats.md#DataTypes) | The public exponent                    |          |           |
+keyAsn        | Der                            | DER encoding of the sequence [n, e]    |          |           |
+keyDer        | Der                            | DER encoding of the public key         |          |           |
+keyJwk        | Json                           | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
+keyPem        | Pem                            | Pem encoded public key                 |          |           |
+keySize       | int                            | the size of the modulus in bits        |          |           |
+n             | [BigInt](formats.md#DataTypes) | The modulus of the key                 |          |           |
+privateKeyDer | Der                            | DER encoding of the private key        |          |           |
+privateKeyJwk | Json                           | [Optional] Private key in JWK format   | RFC 7517 | 0.7       |
+privateKeyPem | Pem                            | Pem encoded private key                |          |           |
+sha           | str                            | the hash function used for the message |          |           |
+type          | str                            | the type of the test                   |          |           | 'RsassaPkcs1Generate'
+tests         | List of SignatureTestVector    | a list of test vectors                 |          |           |
 
 ## RsassaPkcs1TestGroup {#RsassaPkcs1TestGroup}
 
 Fields in RsassaPkcs1TestGroup are\:
 
-**name** | **type**                    | **desc**                                                                                                       | **ref**  | **since** | **enum**
--------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- | -------- | --------- | --------
-d        | BigInt                      | The private exponent                                                                                           |          |           |
-e        | BigInt                      | The public exponent                                                                                            |          |           |
-keyAsn   | Der                         | ASN encoding of the sequence [n, e]                                                                            |          |           |
-keyDer   | Der                         | ASN encoding of the public key                                                                                 |          |           |
-keyJwk   | Json                        | The public key in JWK format. The key is missing if the signature algorithm for the given hash is not defined. | RFC 7517 | 0.7       |
-keyPem   | Pem                         | Pem encoded public key                                                                                         |          |           |
-keySize  | int                         | the size of the modulus in bits                                                                                |          |           |
-n        | BigInt                      | The modulus of the key                                                                                         |          |           |
-sha      | str                         | the hash function used for the message                                                                         |          |           |
-type     | str                         | the type of the test                                                                                           |          |           | 'RsassaPkcs1Verify'
-tests    | List of SignatureTestVector | a list of test vectors                                                                                         |          |           |
+**name** | **type**                       | **desc**                                                                                                       | **ref**  | **since** | **enum**
+-------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- | -------- | --------- | --------
+d        | [BigInt](formats.md#DataTypes) | The private exponent                                                                                           |          |           |
+e        | [BigInt](formats.md#DataTypes) | The public exponent                                                                                            |          |           |
+keyAsn   | Der                            | ASN encoding of the sequence [n, e]                                                                            |          |           |
+keyDer   | Der                            | ASN encoding of the public key                                                                                 |          |           |
+keyJwk   | Json                           | The public key in JWK format. The key is missing if the signature algorithm for the given hash is not defined. | RFC 7517 | 0.7       |
+keyPem   | Pem                            | Pem encoded public key                                                                                         |          |           |
+keySize  | int                            | the size of the modulus in bits                                                                                |          |           |
+n        | [BigInt](formats.md#DataTypes) | The modulus of the key                                                                                         |          |           |
+sha      | str                            | the hash function used for the message                                                                         |          |           |
+type     | str                            | the type of the test                                                                                           |          |           | 'RsassaPkcs1Verify'
+tests    | List of SignatureTestVector    | a list of test vectors                                                                                         |          |           |
 
 ## RsassaPssTestGroup {#RsassaPssTestGroup}
 
 Fields in RsassaPssTestGroup are\:
 
-| **name** | **type**            | **desc**                | **enum**          |
-| -------- | ------------------- | ----------------------- | ----------------- |
-| d        | BigInt              | The private exponent    |                   |
-| e        | BigInt              | The public exponent     |                   |
-| keyAsn   | Der                 | ASN encoding of the     |                   |
-:          :                     : sequence [n, e]         :                   :
-| keyDer   | Der                 | ASN encoding of the     |                   |
-:          :                     : public key              :                   :
-| keyPem   | Pem                 | Pem encoded public key  |                   |
-| keySize  | int                 | the size of the modulus |                   |
-:          :                     : in bits                 :                   :
-| mgf      | str                 | the message generating  |                   |
-:          :                     : function (e.g. MGF1)    :                   :
-| mgfSha   | str                 | The hash function used  |                   |
-:          :                     : for the message         :                   :
-:          :                     : generating function.    :                   :
-| n        | BigInt              | The modulus of the key  |                   |
-| sha      | str                 | The hash function for   |                   |
-:          :                     : hasing the message.     :                   :
-| type     | str                 | the type of the test    | 'RsassaPssVerify' |
-| tests    | List of             | a list of test vectors  |                   |
-:          : RsassaPssTestVector :                         :                   :
+| **name** | **type**                       | **desc**     | **enum**          |
+| -------- | ------------------------------ | ------------ | ----------------- |
+| d        | [BigInt](formats.md#DataTypes) | The private  |                   |
+:          :                                : exponent     :                   :
+| e        | [BigInt](formats.md#DataTypes) | The public   |                   |
+:          :                                : exponent     :                   :
+| keyAsn   | Der                            | ASN encoding |                   |
+:          :                                : of the       :                   :
+:          :                                : sequence [n, :                   :
+:          :                                : e]           :                   :
+| keyDer   | Der                            | ASN encoding |                   |
+:          :                                : of the       :                   :
+:          :                                : public key   :                   :
+| keyPem   | Pem                            | Pem encoded  |                   |
+:          :                                : public key   :                   :
+| keySize  | int                            | the size of  |                   |
+:          :                                : the modulus  :                   :
+:          :                                : in bits      :                   :
+| mgf      | str                            | the message  |                   |
+:          :                                : generating   :                   :
+:          :                                : function     :                   :
+:          :                                : (e.g. MGF1)  :                   :
+| mgfSha   | str                            | The hash     |                   |
+:          :                                : function     :                   :
+:          :                                : used for the :                   :
+:          :                                : message      :                   :
+:          :                                : generating   :                   :
+:          :                                : function.    :                   :
+| n        | [BigInt](formats.md#DataTypes) | The modulus  |                   |
+:          :                                : of the key   :                   :
+| sha      | str                            | The hash     |                   |
+:          :                                : function for :                   :
+:          :                                : hasing the   :                   :
+:          :                                : message.     :                   :
+| type     | str                            | the type of  | 'RsassaPssVerify' |
+:          :                                : the test     :                   :
+| tests    | List of RsassaPssTestVector    | a list of    |                   |
+:          :                                : test vectors :                   :
 
 ## RsassaPssTestVector {#RsassaPssTestVector}
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------
-msg      | HexBytes | The message to sign
-sig      | HexBytes | a signature for msg
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------
+msg      | [HexBytes](formats.md#DataTypes) | The message to sign
+sig      | [HexBytes](formats.md#DataTypes) | a signature for msg
 
 Used in [RsassaPssTestGroup](#RsassaPssTestGroup).
 
@@ -706,10 +767,10 @@ formatting (e.g. ASN.1 encoded ECDSA signatures) have their separate types.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------
-msg      | HexBytes | The message to sign
-sig      | HexBytes | A signature for msg
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------
+msg      | [HexBytes](formats.md#DataTypes) | The message to sign
+sig      | [HexBytes](formats.md#DataTypes) | A signature for msg
 
 Used in
 [EcdsaP1363TestGroup](#EcdsaP1363TestGroup), [EddsaTestGroup](#EddsaTestGroup),
@@ -877,22 +938,32 @@ type     | str      | the type of the test
 
 Fields in XdhAsnTestGroup are\:
 
-| **name** | **type**         | **desc**                        | **enum**     |
-| -------- | ---------------- | ------------------------------- | ------------ |
-| curve    | str              | The name of the curve. If test  |              |
-:          :                  : vectors encode the curve as     :              :
-:          :                  : part of the public and private  :              :
-:          :                  : key then this field describes   :              :
-:          :                  : the curve of the private key.   :              :
-:          :                  : Test vectors with such encoding :              :
-:          :                  : can contain distinct curves.    :              :
-:          :                  : Such test vectors are of course :              :
-:          :                  : invalid and an attempt to       :              :
-:          :                  : compute a shared secret is      :              :
-:          :                  : expected to fail.               :              :
-| type     | str              | the type of the test            | 'XdhAsnComp' |
-| tests    | List of          | a list of test vectors          |              |
-:          : XdhAsnTestVector :                                 :              :
+| **name** | **type**                      | **desc**           | **enum**     |
+| -------- | ----------------------------- | ------------------ | ------------ |
+| curve    | [EcCurve](formats.md#EcCurve) | The name of the    |              |
+:          :                               : curve. If test     :              :
+:          :                               : vectors encode the :              :
+:          :                               : curve as part of   :              :
+:          :                               : the public and     :              :
+:          :                               : private key then   :              :
+:          :                               : this field         :              :
+:          :                               : describes the      :              :
+:          :                               : curve of the       :              :
+:          :                               : private key. Test  :              :
+:          :                               : vectors with such  :              :
+:          :                               : encoding can       :              :
+:          :                               : contain distinct   :              :
+:          :                               : curves. Such test  :              :
+:          :                               : vectors are of     :              :
+:          :                               : course invalid and :              :
+:          :                               : an attempt to      :              :
+:          :                               : compute a shared   :              :
+:          :                               : secret is expected :              :
+:          :                               : to fail.           :              :
+| type     | str                           | the type of the    | 'XdhAsnComp' |
+:          :                               : test               :              :
+| tests    | List of XdhAsnTestVector      | a list of test     |              |
+:          :                               : vectors            :              :
 
 ## XdhAsnTestVector {#XdhAsnTestVector}
 
@@ -901,11 +972,11 @@ encoded.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | ----------------------------
-public   | Asn      | X.509 encoded the public key
-private  | Der      | PKCS #8 encoded private key
-shared   | HexBytes | the shared secret
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ----------------------------
+public   | Asn                              | X.509 encoded the public key
+private  | Der                              | PKCS #8 encoded private key
+shared   | [HexBytes](formats.md#DataTypes) | the shared secret
 
 Used in [XdhAsnTestGroup](#XdhAsnTestGroup).
 
@@ -913,22 +984,32 @@ Used in [XdhAsnTestGroup](#XdhAsnTestGroup).
 
 Fields in XdhJwkTestGroup are\:
 
-| **name** | **type**         | **desc**                        | **enum**     |
-| -------- | ---------------- | ------------------------------- | ------------ |
-| curve    | str              | The name of the curve. If test  |              |
-:          :                  : vectors encode the curve as     :              :
-:          :                  : part of the public and private  :              :
-:          :                  : key then this field describes   :              :
-:          :                  : the curve of the private key.   :              :
-:          :                  : Test vectors with such encoding :              :
-:          :                  : can contain distinct curves.    :              :
-:          :                  : Such test vectors are of course :              :
-:          :                  : invalid and an attempt to       :              :
-:          :                  : compute a shared secret is      :              :
-:          :                  : expected to fail.               :              :
-| type     | str              | the type of the test            | 'XdhJwkComp' |
-| tests    | List of          | a list of test vectors          |              |
-:          : XdhJwkTestVector :                                 :              :
+| **name** | **type**                      | **desc**           | **enum**     |
+| -------- | ----------------------------- | ------------------ | ------------ |
+| curve    | [EcCurve](formats.md#EcCurve) | The name of the    |              |
+:          :                               : curve. If test     :              :
+:          :                               : vectors encode the :              :
+:          :                               : curve as part of   :              :
+:          :                               : the public and     :              :
+:          :                               : private key then   :              :
+:          :                               : this field         :              :
+:          :                               : describes the      :              :
+:          :                               : curve of the       :              :
+:          :                               : private key. Test  :              :
+:          :                               : vectors with such  :              :
+:          :                               : encoding can       :              :
+:          :                               : contain distinct   :              :
+:          :                               : curves. Such test  :              :
+:          :                               : vectors are of     :              :
+:          :                               : course invalid and :              :
+:          :                               : an attempt to      :              :
+:          :                               : compute a shared   :              :
+:          :                               : secret is expected :              :
+:          :                               : to fail.           :              :
+| type     | str                           | the type of the    | 'XdhJwkComp' |
+:          :                               : test               :              :
+| tests    | List of XdhJwkTestVector      | a list of test     |              |
+:          :                               : vectors            :              :
 
 ## XdhJwkTestVector {#XdhJwkTestVector}
 
@@ -938,11 +1019,13 @@ the jwk format.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**                      | **ref**
--------- | -------- | ----------------------------- | --------
-public   | JSON     | the public key in jwk format  | RFC 8037
-private  | JSON     | the private key in jwk format | RFC 8037
-shared   | HexBytes | the shared secret             |
+| **name** | **type**                         | **desc**           | **ref**  |
+| -------- | -------------------------------- | ------------------ | -------- |
+| public   | JSON                             | the public key in  | RFC 8037 |
+:          :                                  : jwk format         :          :
+| private  | JSON                             | the private key in | RFC 8037 |
+:          :                                  : jwk format         :          :
+| shared   | [HexBytes](formats.md#DataTypes) | the shared secret  |          |
 
 Used in [XdhJwkTestGroup](#XdhJwkTestGroup).
 
@@ -950,22 +1033,28 @@ Used in [XdhJwkTestGroup](#XdhJwkTestGroup).
 
 Fields in XdhTestGroup are\:
 
-| **name** | **type**              | **desc**                      | **enum**  |
-| -------- | --------------------- | ----------------------------- | --------- |
-| curve    | str                   | The name of the curve. If     |           |
-:          :                       : test vectors encode the curve :           :
-:          :                       : as part of the public and     :           :
-:          :                       : private key then this field   :           :
-:          :                       : describes the curve of the    :           :
-:          :                       : private key. Test vectors     :           :
-:          :                       : with such encoding can        :           :
-:          :                       : contain distinct curves. Such :           :
-:          :                       : test vectors are of course    :           :
-:          :                       : invalid and an attempt to     :           :
-:          :                       : compute a shared secret is    :           :
-:          :                       : expected to fail.             :           :
-| type     | str                   | the type of the test          | 'XdhComp' |
-| tests    | List of XdhTestVector | a list of test vectors        |           |
+| **name** | **type**                      | **desc**              | **enum**  |
+| -------- | ----------------------------- | --------------------- | --------- |
+| curve    | [EcCurve](formats.md#EcCurve) | The name of the       |           |
+:          :                               : curve. If test        :           :
+:          :                               : vectors encode the    :           :
+:          :                               : curve as part of the  :           :
+:          :                               : public and private    :           :
+:          :                               : key then this field   :           :
+:          :                               : describes the curve   :           :
+:          :                               : of the private key.   :           :
+:          :                               : Test vectors with     :           :
+:          :                               : such encoding can     :           :
+:          :                               : contain distinct      :           :
+:          :                               : curves. Such test     :           :
+:          :                               : vectors are of course :           :
+:          :                               : invalid and an        :           :
+:          :                               : attempt to compute a  :           :
+:          :                               : shared secret is      :           :
+:          :                               : expected to fail.     :           :
+| type     | str                           | the type of the test  | 'XdhComp' |
+| tests    | List of XdhTestVector         | a list of test        |           |
+:          :                               : vectors               :           :
 
 ## XdhTestVector {#XdhTestVector}
 
@@ -976,10 +1065,10 @@ for X25519 and 56 bytes for X448.
 
 Fields additional to the fields in TestVector are\:
 
-**name** | **type** | **desc**
--------- | -------- | -------------------------------
-public   | HexBytes | the raw bytes of the public key
-private  | HexBytes | the raw bytes of private key
-shared   | HexBytes | the shared secret
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------------------
+public   | [HexBytes](formats.md#DataTypes) | the raw bytes of the public key
+private  | [HexBytes](formats.md#DataTypes) | the raw bytes of private key
+shared   | [HexBytes](formats.md#DataTypes) | the shared secret
 
 Used in [XdhTestGroup](#XdhTestGroup).
