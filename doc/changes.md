@@ -60,6 +60,8 @@ Additional test vectors\:
 *   Adding a component for the analysis of key generation and signature
     generation. Currently, such tests only run against Java providers. The goal
     is to allow any library to be tested.
+*   Testing RSA-key generation. E.g. generate some RSA keys, then check if the
+    keys have patterns that can be used by special case factoring algorithms.
 *   Extending tests for timing differences. So far there are only a limited
     number of tests against Java providers. The statistical analysis of the
     measurments are relatively simple and could probably be improved. One goal
