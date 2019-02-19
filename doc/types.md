@@ -589,18 +589,19 @@ Used in [RsaKeyTestGroup](#RsaKeyTestGroup).
 
 Fields in RsaesOaepTestGroup are\:
 
-**name**        | **type**                                                    | **desc**                                                    | **enum**
---------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | --------
-d               | [BigInt](formats.md#DataTypes)                              | The private exponent                                        |
-e               | [BigInt](formats.md#DataTypes)                              | The public exponent                                         |
-mgf             | str                                                         | the message generating function (e.g. MGF1)                 |
-mgfSha          | [MdName](formats.md#HashFunctions)                          | The hash function used for the message generating function. |
-n               | [BigInt](formats.md#DataTypes)                              | The modulus of the key                                      |
-privateKeyPem   | [Pem](formats.md#DataTypes)                                 | Pem encoded private key                                     |
-privateKeyPkcs8 | [Der](formats.md#DataTypes)                                 | Pkcs 8 encoded private key.                                 |
-sha             | [MdName](formats.md#HashFunctions)                          | The hash function for hashing the label.                    |
-type            | str                                                         | the type of the test                                        | '[RsaesOaepDecrypt](files.md#RsaesOaepDecrypt)'
-tests           | List of [RsaesOaepTestVector](types.md#RsaesOaepTestVector) | a list of test vectors                                      |
+**name**        | **type**                                                    | **desc**                                                    | **since** | **enum**
+--------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | --------- | --------
+d               | [BigInt](formats.md#DataTypes)                              | The private exponent                                        |           |
+e               | [BigInt](formats.md#DataTypes)                              | The public exponent                                         |           |
+mgf             | str                                                         | the message generating function (e.g. MGF1)                 |           |
+mgfSha          | [MdName](formats.md#HashFunctions)                          | The hash function used for the message generating function. |           |
+n               | [BigInt](formats.md#DataTypes)                              | The modulus of the key                                      |           |
+privateKeyJwk   | JSON                                                        | [optional] JSON encoded private key                         | 0.7       |
+privateKeyPem   | [Pem](formats.md#DataTypes)                                 | Pem encoded private key                                     |           |
+privateKeyPkcs8 | [Der](formats.md#DataTypes)                                 | Pkcs 8 encoded private key                                  |           |
+sha             | [MdName](formats.md#HashFunctions)                          | The hash function for hashing the label.                    |           |
+type            | str                                                         | the type of the test                                        |           | '[RsaesOaepDecrypt](files.md#RsaesOaepDecrypt)'
+tests           | List of [RsaesOaepTestVector](types.md#RsaesOaepTestVector) | a list of test vectors                                      |           |
 
 ## RsaesOaepTestVector {#RsaesOaepTestVector}
 
@@ -613,6 +614,32 @@ ct       | [HexBytes](formats.md#DataTypes) | An encryption of msg
 label    | [HexBytes](formats.md#DataTypes) | The label used for the encryption
 
 Used in [RsaesOaepTestGroup](#RsaesOaepTestGroup).
+
+## RsaesPkcs1TestGroup {#RsaesPkcs1TestGroup}
+
+Fields in RsaesPkcs1TestGroup are\:
+
+**name**        | **type**                                                      | **desc**                    | **since** | **enum**
+--------------- | ------------------------------------------------------------- | --------------------------- | --------- | --------
+d               | [BigInt](formats.md#DataTypes)                                | The private exponent        |           |
+e               | [BigInt](formats.md#DataTypes)                                | The public exponent         |           |
+n               | [BigInt](formats.md#DataTypes)                                | The modulus of the key      |           |
+privateKeyJwk   | JSON                                                          | JWK encoded private key     | 0.7       |
+privateKeyPem   | [Pem](formats.md#DataTypes)                                   | Pem encoded private key     |           |
+privateKeyPkcs8 | [Der](formats.md#DataTypes)                                   | Pkcs 8 encoded private key. |           |
+type            | str                                                           | the type of the test        |           | '[RsaesPkcs1Decrypt](files.md#RsaesPkcs1Decrypt)'
+tests           | List of [RsaesPkcs1TestVector](types.md#RsaesPkcs1TestVector) | a list of test vectors      |           |
+
+## RsaesPkcs1TestVector {#RsaesPkcs1TestVector}
+
+Fields additional to the fields in TestVector are\:
+
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | ---------------------
+msg      | [HexBytes](formats.md#DataTypes) | The encrypted message
+ct       | [HexBytes](formats.md#DataTypes) | An encryption of msg
+
+Used in [RsaesPkcs1TestGroup](#RsaesPkcs1TestGroup).
 
 ## RsassaPkcs1GenTestGroup {#RsassaPkcs1GenTestGroup}
 
