@@ -724,8 +724,8 @@ Fields additional to the fields in TestVector are\:
 msg      | [HexBytes](formats.md#DataTypes) | The message to sign
 sig      | [HexBytes](formats.md#DataTypes) | A signature for msg
 
-Used in
-[EcdsaP1363TestGroup](#EcdsaP1363TestGroup), [EddsaTestGroup](#EddsaTestGroup),
+Used in [EcdsaP1363TestGroup](#EcdsaP1363TestGroup),
+[EddsaTestGroup](#EddsaTestGroup),
 [RsassaPkcs1GenTestGroup](#RsassaPkcs1GenTestGroup),
 [RsassaPkcs1TestGroup](#RsassaPkcs1TestGroup).
 
@@ -828,6 +828,25 @@ the same file have the same type and test the same cryptographic primitive.
 :                  :          : code.               :           :
 | testGroups       | List     | a list of test      |           |
 :                  :          : groups              :           :
+
+## TestGroup {#TestGroup}
+
+TestGroup is a base class for all test groups. Each test group contains a list
+of test vectors of the same type. The test group describes parameters that are
+common for all the test vectors. Often some parameters are given in multiple
+formats to simplify testing. For example, asymmetric private key are typically
+given in a raw format, PKCS #8 encoded and in PEM format. All fields in a test
+group are corretly formatted. Incorrectly formatted inputs are always in the
+test vectors. The list below describes the fields that are common to all test
+groups, though generally a test group contains additional fields depending on
+the test for which the test vectors are intended for.
+
+Fields in TestGroup are\:
+
+**name** | **type** | **desc**
+-------- | -------- | ----------------------
+tests    | List     | a list of test vectors
+type     | str      | the type of the test
 
 ## TestVector {#TestVector}
 
