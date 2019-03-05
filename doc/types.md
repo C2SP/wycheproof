@@ -26,31 +26,14 @@ A test vector for authenticated encryption with additional data.
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                         | **desc**                       |
-| -------- | -------------------------------- | ------------------------------ |
-| key      | [HexBytes](formats.md#DataTypes) | the key                        |
-| iv       | [HexBytes](formats.md#DataTypes) | the nonce                      |
-| aad      | [HexBytes](formats.md#DataTypes) | additional authenticated data  |
-| msg      | [HexBytes](formats.md#DataTypes) | the plaintext                  |
-| ct       | [HexBytes](formats.md#DataTypes) | the ciphertext (without iv and |
-:          :                                  : tag)                           :
-| tag      | [HexBytes](formats.md#DataTypes) | The authenticatian tag. Most   |
-:          :                                  : encryption append the tag to   :
-:          :                                  : the ciphertext. Encryption     :
-:          :                                  : results in the concatenation   :
-:          :                                  : ct || tag and decryption       :
-:          :                                  : expects ct || tag as input.    :
-:          :                                  : There are however some         :
-:          :                                  : exceptions. For example        :
-:          :                                  : AEAD-AES-SIV-CMAC (RFC 5297)   :
-:          :                                  : computes a synthetic IV (SIV), :
-:          :                                  : which is used to initialize    :
-:          :                                  : the counter for AES. The       :
-:          :                                  : typical encoding here is to    :
-:          :                                  : prepend the SIV. I.e.          :
-:          :                                  : implementations would expect   :
-:          :                                  : ciphertext of the form tag ||  :
-:          :                                  : ct or iv || tag || ct.         :
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | --------
+key      | [HexBytes](formats.md#DataTypes) | the key
+iv       | [HexBytes](formats.md#DataTypes) | the nonce
+aad      | [HexBytes](formats.md#DataTypes) | additional authenticated data
+msg      | [HexBytes](formats.md#DataTypes) | the plaintext
+ct       | [HexBytes](formats.md#DataTypes) | the ciphertext (without iv and tag)
+tag      | [HexBytes](formats.md#DataTypes) | The authenticatian tag. Most encryption append the tag to the ciphertext. Encryption results in the concatenation ct \|\| tag and decryption expects ct \|\| tag as input. There are however some exceptions. For example AEAD-AES-SIV-CMAC (RFC 5297) computes a synthetic IV (SIV), which is used to initialize the counter for AES. The typical encoding here is to prepend the SIV. I.e. implementations would expect ciphertext of the form tag \|\| ct or iv \|\| tag \|\| ct.
 
 Used in [AeadTestGroup](#AeadTestGroup).
 
@@ -106,43 +89,28 @@ A DSA private key. This implementation of DSA must only be used for testing rsp.
 for generating test vectors. It has not been checked for flaws and in some cases
 may even avoid necessary checks so that it can be used for flawed test vectors.
 
-| **name** | **type**                       | **desc**       | **enum**        |
-| -------- | ------------------------------ | -------------- | --------------- |
-| g        | [BigInt](formats.md#DataTypes) | the generator  |                 |
-:          :                                : of the         :                 :
-:          :                                : multiplicative :                 :
-:          :                                : subgroup       :                 :
-| keySize  | int                            | the key size   |                 |
-:          :                                : in bits        :                 :
-| p        | [BigInt](formats.md#DataTypes) | the modulus p  |                 |
-| q        | [BigInt](formats.md#DataTypes) | the order of   |                 |
-:          :                                : the generator  :                 :
-:          :                                : g              :                 :
-| type     | str                            | the key type   | 'DsaPrivateKey' |
-| x        | [BigInt](formats.md#DataTypes) | the private    |                 |
-:          :                                : key value      :                 :
-| y        | [BigInt](formats.md#DataTypes) | the public key |                 |
-:          :                                : value          :                 :
+**name** | **type**                       | **desc**                                     | **enum**
+-------- | ------------------------------ | -------------------------------------------- | --------
+g        | [BigInt](formats.md#DataTypes) | the generator of the multiplicative subgroup |
+keySize  | int                            | the key size in bits                         |
+p        | [BigInt](formats.md#DataTypes) | the modulus p                                |
+q        | [BigInt](formats.md#DataTypes) | the order of the generator g                 |
+type     | str                            | the key type                                 | 'DsaPrivateKey'
+x        | [BigInt](formats.md#DataTypes) | the private key value                        |
+y        | [BigInt](formats.md#DataTypes) | the public key value                         |
 
 ## DsaPublicKey {#DsaPublicKey}
 
 The public key for DSA.
 
-| **name** | **type**                       | **desc**       | **enum**       |
-| -------- | ------------------------------ | -------------- | -------------- |
-| g        | [BigInt](formats.md#DataTypes) | the generator  |                |
-:          :                                : of the         :                :
-:          :                                : multiplicative :                :
-:          :                                : subgroup       :                :
-| keySize  | int                            | the key size   |                |
-:          :                                : in bits        :                :
-| p        | [BigInt](formats.md#DataTypes) | the modulus p  |                |
-| q        | [BigInt](formats.md#DataTypes) | the order of   |                |
-:          :                                : the generator  :                :
-:          :                                : g              :                :
-| type     | str                            | the key type   | 'DsaPublicKey' |
-| y        | [BigInt](formats.md#DataTypes) | the public key |                |
-:          :                                : value          :                :
+**name** | **type**                       | **desc**                                     | **enum**
+-------- | ------------------------------ | -------------------------------------------- | --------
+g        | [BigInt](formats.md#DataTypes) | the generator of the multiplicative subgroup |
+keySize  | int                            | the key size in bits                         |
+p        | [BigInt](formats.md#DataTypes) | the modulus p                                |
+q        | [BigInt](formats.md#DataTypes) | the order of the generator g                 |
+type     | str                            | the key type                                 | 'DsaPublicKey'
+y        | [BigInt](formats.md#DataTypes) | the public key value                         |
 
 ## DsaTestGroup {#DsaTestGroup}
 
@@ -227,21 +195,18 @@ importing the EC public keys notices inconsistencies and bad formatting.
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                       | **desc**                         |
-| -------- | ------------------------------ | -------------------------------- |
-| encoded  | [Asn](formats.md#DataTypes)    | Encoded EC public key over a     |
-:          :                                : prime order field                :
-| p        | [BigInt](formats.md#DataTypes) | The order of underlying field    |
-| n        | [BigInt](formats.md#DataTypes) | The order of the generator       |
-| a        | [BigInt](formats.md#DataTypes) | The value a of the Weierstrass   |
-:          :                                : equation                         :
-| b        | [BigInt](formats.md#DataTypes) | The value b of the Weierstrass   |
-:          :                                : equation                         :
-| gx       | [BigInt](formats.md#DataTypes) | x-coordinate of the generator    |
-| gy       | [BigInt](formats.md#DataTypes) | y-coordinate of the generator    |
-| h        | int                            | [optional] the cofactor          |
-| wx       | [BigInt](formats.md#DataTypes) | x-coordinate of the public point |
-| wy       | [BigInt](formats.md#DataTypes) | y-coordinate of the public point |
+**name** | **type**                       | **desc**
+-------- | ------------------------------ | --------
+encoded  | [Asn](formats.md#DataTypes)    | Encoded EC public key over a prime order field
+p        | [BigInt](formats.md#DataTypes) | The order of underlying field
+n        | [BigInt](formats.md#DataTypes) | The order of the generator
+a        | [BigInt](formats.md#DataTypes) | The value a of the Weierstrass equation
+b        | [BigInt](formats.md#DataTypes) | The value b of the Weierstrass equation
+gx       | [BigInt](formats.md#DataTypes) | x-coordinate of the generator
+gy       | [BigInt](formats.md#DataTypes) | y-coordinate of the generator
+h        | int                            | [optional] the cofactor
+wx       | [BigInt](formats.md#DataTypes) | x-coordinate of the public point
+wy       | [BigInt](formats.md#DataTypes) | y-coordinate of the public point
 
 Used in [EcPublicKeyTestGroup](#EcPublicKeyTestGroup).
 
@@ -249,40 +214,16 @@ Used in [EcPublicKeyTestGroup](#EcPublicKeyTestGroup).
 
 An unamed EC group
 
-| **name** | **type**                       | **desc**     | **enum**          |
-| -------- | ------------------------------ | ------------ | ----------------- |
-| a        | [BigInt](formats.md#DataTypes) | coefficient  |                   |
-:          :                                : a of the     :                   :
-:          :                                : elliptic     :                   :
-:          :                                : curve        :                   :
-:          :                                : equation     :                   :
-| b        | [BigInt](formats.md#DataTypes) | coefficient  |                   |
-:          :                                : b of the     :                   :
-:          :                                : elliptic     :                   :
-:          :                                : curve        :                   :
-:          :                                : equation     :                   :
-| gx       | [BigInt](formats.md#DataTypes) | the          |                   |
-:          :                                : x-coordinate :                   :
-:          :                                : of the       :                   :
-:          :                                : generator    :                   :
-| gy       | [BigInt](formats.md#DataTypes) | the          |                   |
-:          :                                : y-coordinate :                   :
-:          :                                : of the       :                   :
-:          :                                : generator    :                   :
-| h        | int                            | the cofactor |                   |
-| n        | [BigInt](formats.md#DataTypes) | the order of |                   |
-:          :                                : the          :                   :
-:          :                                : generator    :                   :
-| p        | [BigInt](formats.md#DataTypes) | the order of |                   |
-:          :                                : the          :                   :
-:          :                                : underlying   :                   :
-:          :                                : field        :                   :
-| type     | str                            | an unnamed   | 'PrimeOrderCurve' |
-:          :                                : EC group     :                   :
-:          :                                : over a prime :                   :
-:          :                                : field in     :                   :
-:          :                                : Weierstrass  :                   :
-:          :                                : form         :                   :
+**name** | **type**                       | **desc**                                                   | **enum**
+-------- | ------------------------------ | ---------------------------------------------------------- | --------
+a        | [BigInt](formats.md#DataTypes) | coefficient a of the elliptic curve equation               |
+b        | [BigInt](formats.md#DataTypes) | coefficient b of the elliptic curve equation               |
+gx       | [BigInt](formats.md#DataTypes) | the x-coordinate of the generator                          |
+gy       | [BigInt](formats.md#DataTypes) | the y-coordinate of the generator                          |
+h        | int                            | the cofactor                                               |
+n        | [BigInt](formats.md#DataTypes) | the order of the generator                                 |
+p        | [BigInt](formats.md#DataTypes) | the order of the underlying field                          |
+type     | str                            | an unnamed EC group over a prime field in Weierstrass form | 'PrimeOrderCurve'
 
 ## EcdhEcpointTestGroup {#EcdhEcpointTestGroup}
 
@@ -299,14 +240,11 @@ tests    | List of [EcdhEcpointTestVector](types.md#EcdhEcpointTestVector) | a l
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                         | **desc**     | **ref**        |
-| -------- | -------------------------------- | ------------ | -------------- |
-| public   | [Asn](formats.md#DataTypes)      | ASN encoded  | X9.62, Section |
-:          :                                  : public point : 4.3.6          :
-| private  | [BigInt](formats.md#DataTypes)   | The private  |                |
-:          :                                  : exponent     :                :
-| shared   | [HexBytes](formats.md#DataTypes) | The shared   |                |
-:          :                                  : secret key   :                :
+**name** | **type**                         | **desc**                 | **ref**
+-------- | -------------------------------- | ------------------------ | -------
+public   | [Asn](formats.md#DataTypes)      | ASN encoded public point | X9.62, Section 4.3.6
+private  | [BigInt](formats.md#DataTypes)   | The private exponent     |
+shared   | [HexBytes](formats.md#DataTypes) | The shared secret key    |
 
 Used in [EcdhEcpointTestGroup](#EcdhEcpointTestGroup).
 
@@ -348,28 +286,11 @@ tests    | List of [EcdhTestVector](types.md#EcdhTestVector) | a list of test ve
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                         | **desc**                       |
-| -------- | -------------------------------- | ------------------------------ |
-| public   | [Asn](formats.md#DataTypes)      | X509 encoded public key. The   |
-:          :                                  : encoding of the public key     :
-:          :                                  : contains the type of the       :
-:          :                                  : public key, the curve and      :
-:          :                                  : possibly the curve parameters. :
-:          :                                  : The test vectors contain cases :
-:          :                                  : where these fields do not      :
-:          :                                  : match the curve in the         :
-:          :                                  : testGroup.                     :
-| private  | [BigInt](formats.md#DataTypes)   | the private key                |
-| shared   | [HexBytes](formats.md#DataTypes) | The shared secret key. Some    |
-:          :                                  : invalid test vectors contain a :
-:          :                                  : shared secret, which is        :
-:          :                                  : computed using the curve of    :
-:          :                                  : the private key. This allows   :
-:          :                                  : to distinguish between         :
-:          :                                  : implementations ignoring       :
-:          :                                  : public key info and            :
-:          :                                  : implementations using the      :
-:          :                                  : curve of the public key.       :
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | --------
+public   | [Asn](formats.md#DataTypes)      | X509 encoded public key. The encoding of the public key contains the type of the public key, the curve and possibly the curve parameters. The test vectors contain cases where these fields do not match the curve in the testGroup.
+private  | [BigInt](formats.md#DataTypes)   | the private key
+shared   | [HexBytes](formats.md#DataTypes) | The shared secret key. Some invalid test vectors contain a shared secret, which is computed using the curve of the private key. This allows to distinguish between implementations ignoring public key info and implementations using the curve of the public key.
 
 Used in [EcdhTestGroup](#EcdhTestGroup).
 
@@ -467,17 +388,13 @@ salt, info, size
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                         | **desc**                       |
-| -------- | -------------------------------- | ------------------------------ |
-| ikm      | [HexBytes](formats.md#DataTypes) | the key (input key material)   |
-| salt     | [HexBytes](formats.md#DataTypes) | the salt for the key           |
-:          :                                  : derivation                     :
-| info     | [HexBytes](formats.md#DataTypes) | additional information used in |
-:          :                                  : the key derivation             :
-| size     | int                              | the size of the output in      |
-:          :                                  : bytes                          :
-| okm      | [HexBytes](formats.md#DataTypes) | the generated bytes (output    |
-:          :                                  : key material)                  :
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | --------
+ikm      | [HexBytes](formats.md#DataTypes) | the key (input key material)
+salt     | [HexBytes](formats.md#DataTypes) | the salt for the key derivation
+info     | [HexBytes](formats.md#DataTypes) | additional information used in the key derivation
+size     | int                              | the size of the output in bytes
+okm      | [HexBytes](formats.md#DataTypes) | the generated bytes (output key material)
 
 Used in [HkdfTestGroup](#HkdfTestGroup).
 
@@ -735,99 +652,15 @@ The root type of each JSON file with tests. Each file contains one ore more test
 groups. Each test group contains one ore more test vectors. All test vectors in
 the same file have the same type and test the same cryptographic primitive.
 
-| **name**         | **type** | **desc**            | **since** |
-| ---------------- | -------- | ------------------- | --------- |
-| algorithm        | str      | The primitive       |           |
-:                  :          : tested in the test  :           :
-:                  :          : file. This is       :           :
-:                  :          : mainly a brief      :           :
-:                  :          : description of the  :           :
-:                  :          : algorithm used. So  :           :
-:                  :          : far there is no     :           :
-:                  :          : formal definition   :           :
-:                  :          : of this field and   :           :
-:                  :          : its description may :           :
-:                  :          : change.             :           :
-| generatorVersion | str      | The version of the  |           |
-:                  :          : test vectors. The   :           :
-:                  :          : version number has  :           :
-:                  :          : the format          :           :
-:                  :          : major.minor (or     :           :
-:                  :          : major.minor[release :           :
-:                  :          : candidate]). The    :           :
-:                  :          : plan is to change   :           :
-:                  :          : the format of the   :           :
-:                  :          : test vectors in     :           :
-:                  :          : major versions      :           :
-:                  :          : only, once version  :           :
-:                  :          : 1.0 has been        :           :
-:                  :          : reached.            :           :
-:                  :          : Conversely, version :           :
-:                  :          : 1.0 will be         :           :
-:                  :          : published once we   :           :
-:                  :          : think the format    :           :
-:                  :          : for the test        :           :
-:                  :          : vectors are         :           :
-:                  :          : sufficiently        :           :
-:                  :          : stable.             :           :
-| header           | List     | additional          |           |
-:                  :          : documentation       :           :
-| notes            | JSON     | A description of    |           |
-:                  :          : the labels used in  :           :
-:                  :          : the test vectors.   :           :
-:                  :          : Some test vectors   :           :
-:                  :          : contain labels that :           :
-:                  :          : formally describe   :           :
-:                  :          : the test vector. It :           :
-:                  :          : can be helpful to   :           :
-:                  :          : make test more      :           :
-:                  :          : precise. For        :           :
-:                  :          : example libraries   :           :
-:                  :          : differ in whether   :           :
-:                  :          : they accept ASN     :           :
-:                  :          : encodings different :           :
-:                  :          : from DER. Hence     :           :
-:                  :          : many of the test    :           :
-:                  :          : vectors with        :           :
-:                  :          : alternative BER     :           :
-:                  :          : encoding are rated  :           :
-:                  :          : as acceptable.      :           :
-:                  :          : Labels allow to     :           :
-:                  :          : decide whether      :           :
-:                  :          : tests with          :           :
-:                  :          : alternatve BER      :           :
-:                  :          : encoding should be  :           :
-:                  :          : rejected or         :           :
-:                  :          : accepted when       :           :
-:                  :          : testing a           :           :
-:                  :          : particular library. :           :
-| numberOfTests    | int      | The number of test  |           |
-:                  :          : vectors in this     :           :
-:                  :          : test. Each test     :           :
-:                  :          : vector has a unique :           :
-:                  :          : tcId in the range 1 :           :
-:                  :          : .. tcId.            :           :
-| schema           | str      | The filename of the | 0.7       |
-:                  :          : JSON schema that    :           :
-:                  :          : defines the format  :           :
-:                  :          : of the test vectors :           :
-:                  :          : in this file. If    :           :
-:                  :          : the format of the   :           :
-:                  :          : test vectors        :           :
-:                  :          : changes then a new  :           :
-:                  :          : schema will be      :           :
-:                  :          : generate, so that   :           :
-:                  :          : comparing the name  :           :
-:                  :          : of the schema with  :           :
-:                  :          : an expected name    :           :
-:                  :          : can be used to      :           :
-:                  :          : check for           :           :
-:                  :          : compatibility       :           :
-:                  :          : between test        :           :
-:                  :          : vectors and test    :           :
-:                  :          : code.               :           :
-| testGroups       | List     | a list of test      |           |
-:                  :          : groups              :           :
+**name**         | **type** | **desc**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | **since**
+---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------
+algorithm        | str      | The primitive tested in the test file. This is mainly a brief description of the algorithm used. So far there is no formal definition of this field and its description may change.                                                                                                                                                                                                                                                                                                         |
+generatorVersion | str      | The version of the test vectors. The version number has the format major.minor (or major.minor[release candidate]). The plan is to change the format of the test vectors in major versions only, once version 1.0 has been reached. Conversely, version 1.0 will be published once we think the format for the test vectors are sufficiently stable.                                                                                                                                        |
+header           | List     | additional documentation                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+notes            | JSON     | A description of the labels used in the test vectors. Some test vectors contain labels that formally describe the test vector. It can be helpful to make test more precise. For example libraries differ in whether they accept ASN encodings different from DER. Hence many of the test vectors with alternative BER encoding are rated as acceptable. Labels allow to decide whether tests with alternatve BER encoding should be rejected or accepted when testing a particular library. |
+numberOfTests    | int      | The number of test vectors in this test. Each test vector has a unique tcId in the range 1 .. tcId.                                                                                                                                                                                                                                                                                                                                                                                         |
+schema           | str      | The filename of the JSON schema that defines the format of the test vectors in this file. If the format of the test vectors changes then a new schema will be generate, so that comparing the name of the schema with an expected name can be used to check for compatibility between test vectors and test code.                                                                                                                                                                           | 0.7
+testGroups       | List     | a list of test groups                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ## TestGroup {#TestGroup}
 
@@ -850,43 +683,12 @@ type     | str      | the type of the test
 
 ## TestVector {#TestVector}
 
-| **name** | **type** | **desc**                  | **enum**            |
-| -------- | -------- | ------------------------- | ------------------- |
-| comment  | str      | A brief description of    |                     |
-:          :          : the test case             :                     :
-| flags    | List     | A list of flags for a     |                     |
-:          :          : test case. Flags are      :                     :
-:          :          : described in the header   :                     :
-:          :          : of the test file.         :                     :
-| result   | str      | The test result. The      | 'valid', 'invalid', |
-:          :          : value determines whether  : 'acceptable'        :
-:          :          : the test case is valid,   :                     :
-:          :          : invalid or undefined. The :                     :
-:          :          : value "acceptable" is     :                     :
-:          :          : typically used for legacy :                     :
-:          :          : cases, weak parameters    :                     :
-:          :          : (such as key sizes not    :                     :
-:          :          : reaching 112-bit          :                     :
-:          :          : security) or BER encoding :                     :
-:          :          : that are frequent.        :                     :
-:          :          : Eventually, all test      :                     :
-:          :          : vectors with "result" \:  :                     :
-:          :          : "acceptable" will have    :                     :
-:          :          : flags describing the      :                     :
-:          :          : reason and allowing       :                     :
-:          :          : testers to decide how to  :                     :
-:          :          : treat these test vectors. :                     :
-| tcId     | int      | A unique identifier of    |                     |
-:          :          : the test case in a test   :                     :
-:          :          : file. The identifiers are :                     :
-:          :          : continuous integers. The  :                     :
-:          :          : identifiers of test       :                     :
-:          :          : vectors change between    :                     :
-:          :          : versions of the test      :                     :
-:          :          : file. Hence, the triple   :                     :
-:          :          : (filename, version, tcId) :                     :
-:          :          : uniquely identifies a     :                     :
-:          :          : test vector.              :                     :
+**name** | **type** | **desc**                                                                                                                                                                                                                                                                                                                                                                                                                    | **enum**
+-------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
+comment  | str      | A brief description of the test case                                                                                                                                                                                                                                                                                                                                                                                        |
+flags    | List     | A list of flags for a test case. Flags are described in the header of the test file.                                                                                                                                                                                                                                                                                                                                        |
+result   | str      | The test result. The value determines whether the test case is valid, invalid or undefined. The value "acceptable" is typically used for legacy cases, weak parameters (such as key sizes not reaching 112-bit security) or BER encoding that are frequent. Eventually, all test vectors with "result" : "acceptable" will have flags describing the reason and allowing testers to decide how to treat these test vectors. | 'valid', 'invalid', 'acceptable'
+tcId     | int      | A unique identifier of the test case in a test file. The identifiers are continuous integers. The identifiers of test vectors change between versions of the test file. Hence, the triple (filename, version, tcId) uniquely identifies a test vector.                                                                                                                                                                      |
 
 ## XdhAsnTestGroup {#XdhAsnTestGroup}
 
@@ -931,13 +733,11 @@ the jwk format.
 
 Fields additional to the fields in TestVector are\:
 
-| **name** | **type**                         | **desc**           | **ref**  |
-| -------- | -------------------------------- | ------------------ | -------- |
-| public   | JSON                             | the public key in  | RFC 8037 |
-:          :                                  : jwk format         :          :
-| private  | JSON                             | the private key in | RFC 8037 |
-:          :                                  : jwk format         :          :
-| shared   | [HexBytes](formats.md#DataTypes) | the shared secret  |          |
+**name** | **type**                         | **desc**                      | **ref**
+-------- | -------------------------------- | ----------------------------- | -------
+public   | JSON                             | the public key in jwk format  | RFC 8037
+private  | JSON                             | the private key in jwk format | RFC 8037
+shared   | [HexBytes](formats.md#DataTypes) | the shared secret             |
 
 Used in [XdhJwkTestGroup](#XdhJwkTestGroup).
 

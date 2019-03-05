@@ -446,15 +446,15 @@ Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 
 **name**                            | **tests** | **validity** | **algorithm** {.sortable}
 ----------------------------------- | --------- | ------------ | -------------
-rsa_signature_2048_sha224_test.json | 243       | 7, 1, 235    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha256_test.json | 242       | 7, 3, 232    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha512_test.json | 242       | 7, 2, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha256_test.json | 241       | 7, 2, 232    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha384_test.json | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha512_test.json | 242       | 7, 2, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha384_test.json | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha512_test.json | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_test.json             | 379       | 77, 70, 232  | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha224_test.json | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha256_test.json | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha512_test.json | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha256_test.json | 239       | 7, 2, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha384_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha512_test.json | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha384_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha512_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_test.json             | 377       | 77, 70, 230  | RSASSA-PKCS1-v1_5
 
 ## RsassaPssVerify {#RsassaPssVerify}
 
