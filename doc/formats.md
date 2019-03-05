@@ -68,40 +68,27 @@ algorithm)
 Some data types that don't have an exact match in Json use a specific format as
 described below
 
-| **Type** | **Representation**                                                |
-| :------- | :---------------------------------------------------------------- |
-| HexBytes | This is an array of bytes represented as by hexadecimal string.   |
-| BigInt   | An integer in hexadecimal representation using a twos complement  |
-:          : representation and big-endian order. The integer is negative if   :
-:          : the first byte is greater character is greater than 7. Examples\: :
-:          : 259\: "103", -192\: "f40", 0\: "0"                                :
-| Asn      | A hexadecimal encoded array of bytes. This may be a valid or      |
-:          : invalid ASN encoding.                                             :
-| Der      | A valid DER encoding represented as a hexadecimal string.         |
-| Pem      | A valid PEM encoded key                                           |
+**Type** | **Representation**
+:------- | :-----------------
+HexBytes | This is an array of bytes represented as by hexadecimal string.
+BigInt   | An integer in hexadecimal representation using a twos complement representation and big-endian order. The integer is negative if the first byte is greater character is greater than 7. Examples: 259: "103", -192: "f40", 0: "0"
+Asn      | A hexadecimal encoded array of bytes. This may be a valid or invalid ASN encoding.
+Der      | A valid DER encoding represented as a hexadecimal string.
+Pem      | A valid PEM encoded key
 
 ## General format
 
 This is the format for a file with test vectors.
 
-| **Field name**   | **Type**    | **Explanation**                             |
-| :--------------- | :---------- | :------------------------------------------ |
-| algorithm        | str         | The name of the algorithm                   |
-| schema           | str         | The name of the JSON schema defining the    |
-:                  :             : format of the test vectors.                 :
-| generatorVersion | str         | The version of the generator that generated |
-:                  :             : the test vectors. For releases this has the :
-:                  :             : format “major.minor”, where changes in the  :
-:                  :             : format will be reflected by incrementing    :
-:                  :             : major.                                      :
-| numberOfTests    | int         | the number of test cases in the test vector |
-:                  :             : file.                                       :
-| header           | list of str | description of the file                     |
-| notes            | dictionary  | A dictionary describing flags. (modified in |
-:                  :             : v. 0.3)                                     :
-| testGroups       | list        | a list of test groups. The format of the    |
-:                  :             : test group depends on the algorithm that is :
-:                  :             : tested.                                     :
+**Field name**   | **Type**    | **Explanation**
+:--------------- | :---------- | :--------------
+algorithm        | str         | The name of the algorithm
+schema           | str         | The name of the JSON schema defining the format of the test vectors.
+generatorVersion | str         | The version of the generator that generated the test vectors. For releases this has the format “major.minor”, where changes in the format will be reflected by incrementing major.
+numberOfTests    | int         | the number of test cases in the test vector file.
+header           | list of str | description of the file
+notes            | dictionary  | A dictionary describing flags. (modified in v. 0.3)
+testGroups       | list        | a list of test groups. The format of the test group depends on the algorithm that is tested.
 
 Example:
 
