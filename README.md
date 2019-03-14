@@ -178,9 +178,6 @@ Project Wycheproof:
   - Test: testModifiedPublic and testWrongOrderEcdhc in
 [EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
 
-- Go's P-384 and P-521 scalar multiplication can take minutes of CPU
-  - [Go issue #29903](https://github.com/golang/go/issues/29903), [CVE-2019-6486](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2019-6486) 
-
 ### Maintainers
 
 Project Wycheproof is maintained by:
