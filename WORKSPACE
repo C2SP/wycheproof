@@ -1,10 +1,12 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 # javascript
 http_archive(
     name = "io_bazel_rules_closure",
-    strip_prefix = "rules_closure-f4d0633f14570313b94822223039ebda0f398102",
-    sha256 = "8026155cf296459b63e318ccd230f0ad79eae3b1e339a49ea7122a3c512ed680",
+    strip_prefix = "rules_closure-9b43421460db85773d121414a81ec7d5bec6b7ce",
+    sha256 = "8cecd1241440f7696129027ec85f7c9aad897a3b108bfb92b3eea39e30ca7fd1",
     urls = [
-        "https://github.com/bazelbuild/rules_closure/archive/f4d0633f14570313b94822223039ebda0f398102.tar.gz",
+        "https://github.com/bazelbuild/rules_closure/archive/9b43421460db85773d121414a81ec7d5bec6b7ce.tar.gz",
     ],
 )
 
@@ -13,7 +15,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
 closure_repositories()
 
 # Google End-to-end
-new_http_archive(
+http_archive(
     name = "google_e2e",
     strip_prefix = "end-to-end-a77a8cbd13157139437219a8c87a7e133457c2e7",
     sha256 = "1c0d3678a649c75254e035985a209b9e292befdec733af0a4ad3842acef271eb",
