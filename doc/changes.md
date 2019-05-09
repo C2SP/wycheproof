@@ -33,10 +33,15 @@ Format changes\:
     signatures use P1363 encoding or ASN encoding) and the tested operation
     (e.g. whether the test vectors signatures are primarily are meant for
     verification or signature generation).
+*   RSA keys have been extended to use multi prime variants. The key material
+    is now in a separate structure.
 *   The format of test vectors have been slightly unified: In particular,
     RSA-PKCS#1 v1.5 signatures no longer have a field "padding".
 *   Public and private keys in jwk format were added to other formats when the
     jwk format for these keys is defined.
+*   The size of the encoding of a BigInteger is now always a multiple of 2 to
+    make the enoding closer to the encoding used in ASN.1. (It still uses
+    twos complement, bigendian, hexadecimal endoding).
 
 Additional test vectors\:
 
@@ -53,6 +58,7 @@ Additional test vectors\:
 *   Added some test vectors using SHA-3.
 *   Added documentation of the tests intended by the test vector files:
     [files.md](files.md)
+*   Added test vectors using three prime RSA keys.
 *   Removed some duplicates in the test vectors.
 
 ### Some potential plans for version 0.8
