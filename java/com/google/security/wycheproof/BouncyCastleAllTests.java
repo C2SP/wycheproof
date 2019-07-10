@@ -39,6 +39,7 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonCipherTest.class,
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
+  JsonMacTest.class,
   JsonSignatureTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
