@@ -2,7 +2,7 @@
 
 # Test vector types
 
-Version\: 0.8r4
+Version\: 0.8r7
 
 [TOC]
 
@@ -568,6 +568,33 @@ msg      | [HexBytes](formats.md#DataTypes) | the plaintext
 tag      | [HexBytes](formats.md#DataTypes) | the authentication tag
 
 Used in [MacTestGroup](#MacTestGroup).
+
+## MacWithIvTestGroup {#MacWithIvTestGroup}
+
+Fields in MacWithIvTestGroup are\:
+
+**name** | **type**                                                    | **desc**                             | **enum**
+-------- | ----------------------------------------------------------- | ------------------------------------ | --------
+ivSize   | int                                                         | the IV size in bits                  |
+keySize  | int                                                         | the key size in bits                 |
+tagSize  | int                                                         | the expected size of the tag in bits |
+type     | str                                                         | the type of the test                 | '[MacWithIvTest](files.md#MacWithIvTest)'
+tests    | List of [MacWithIvTestVector](types.md#MacWithIvTestVector) | a list of test vectors               |
+
+## MacWithIvTestVector {#MacWithIvTestVector}
+
+A test vector for message authentication codes (MAC) that use an IV.
+
+Fields additional to the fields in TestVector are\:
+
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -------------------------
+key      | [HexBytes](formats.md#DataTypes) | the key
+iv       | [HexBytes](formats.md#DataTypes) | the initailisation vector
+msg      | [HexBytes](formats.md#DataTypes) | the plaintext
+tag      | [HexBytes](formats.md#DataTypes) | the authentication tag
+
+Used in [MacWithIvTestGroup](#MacWithIvTestGroup).
 
 ## RsaPrivateKey {#RsaPrivateKey}
 

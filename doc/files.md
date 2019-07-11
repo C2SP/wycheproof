@@ -72,7 +72,7 @@ Type of the test vectors\:
 
 **name**      | **tests** | **validity** | **algorithm** {.sortable}
 ------------- | --------- | ------------ | -------------
-dsa_test.json | 888       | 33, 3, 852   | DSA
+dsa_test.json | 906       | 33, 3, 870   | DSA
 
 ## EcPublicKeyVerify {#EcPublicKeyVerify}
 
@@ -183,7 +183,7 @@ Type of the test vectors\:
 
 **name**                                 | **tests** | **validity** | **algorithm** {.sortable}
 ---------------------------------------- | --------- | ------------ | -------------
-ecdsa_secp256k1_sha256_bitcoin_test.json | 374       | 140, 0, 234  | ECDSA
+ecdsa_secp256k1_sha256_bitcoin_test.json | 380       | 140, 0, 240  | ECDSA
 
 ## EcdsaP1363Verify {#EcdsaP1363Verify}
 
@@ -246,32 +246,32 @@ Type of the test vectors\:
 
 **name**                               | **tests** | **validity** | **algorithm** {.sortable}
 -------------------------------------- | --------- | ------------ | -------------
-ecdsa_brainpoolP224r1_sha224_test.json | 353       | 121, 2, 230  | ECDSA
-ecdsa_brainpoolP256r1_sha256_test.json | 383       | 150, 0, 233  | ECDSA
-ecdsa_brainpoolP320r1_sha384_test.json | 386       | 153, 1, 232  | ECDSA
-ecdsa_brainpoolP384r1_sha384_test.json | 414       | 181, 0, 233  | ECDSA
-ecdsa_brainpoolP512r1_sha512_test.json | 456       | 225, 0, 231  | ECDSA
-ecdsa_secp224r1_sha224_test.json       | 350       | 118, 1, 231  | ECDSA
-ecdsa_secp224r1_sha256_test.json       | 378       | 146, 0, 232  | ECDSA
-ecdsa_secp224r1_sha3_224_test.json     | 378       | 146, 2, 230  | ECDSA
-ecdsa_secp224r1_sha3_256_test.json     | 386       | 154, 2, 230  | ECDSA
-ecdsa_secp224r1_sha3_512_test.json     | 451       | 219, 2, 230  | ECDSA
-ecdsa_secp224r1_sha512_test.json       | 447       | 215, 1, 231  | ECDSA
-ecdsa_secp256k1_sha256_test.json       | 374       | 142, 1, 231  | ECDSA
-ecdsa_secp256k1_sha3_256_test.json     | 382       | 150, 1, 231  | ECDSA
-ecdsa_secp256k1_sha3_512_test.json     | 447       | 215, 1, 231  | ECDSA
-ecdsa_secp256k1_sha512_test.json       | 443       | 211, 1, 231  | ECDSA
-ecdsa_secp256r1_sha256_test.json       | 381       | 147, 1, 233  | ECDSA
-ecdsa_secp256r1_sha3_256_test.json     | 389       | 155, 1, 233  | ECDSA
-ecdsa_secp256r1_sha3_512_test.json     | 454       | 220, 2, 232  | ECDSA
-ecdsa_secp256r1_sha512_test.json       | 450       | 216, 1, 233  | ECDSA
-ecdsa_secp384r1_sha384_test.json       | 402       | 168, 1, 233  | ECDSA
-ecdsa_secp384r1_sha3_384_test.json     | 412       | 178, 0, 234  | ECDSA
-ecdsa_secp384r1_sha3_512_test.json     | 443       | 209, 2, 232  | ECDSA
-ecdsa_secp384r1_sha512_test.json       | 439       | 205, 2, 232  | ECDSA
-ecdsa_secp521r1_sha3_512_test.json     | 443       | 210, 0, 233  | ECDSA
-ecdsa_secp521r1_sha512_test.json       | 441       | 206, 0, 235  | ECDSA
-ecdsa_test.json                        | 1559      | 1007, 5, 547 | ECDSA
+ecdsa_brainpoolP224r1_sha224_test.json | 359       | 121, 2, 236  | ECDSA
+ecdsa_brainpoolP256r1_sha256_test.json | 389       | 150, 0, 239  | ECDSA
+ecdsa_brainpoolP320r1_sha384_test.json | 392       | 153, 1, 238  | ECDSA
+ecdsa_brainpoolP384r1_sha384_test.json | 420       | 181, 0, 239  | ECDSA
+ecdsa_brainpoolP512r1_sha512_test.json | 462       | 225, 0, 237  | ECDSA
+ecdsa_secp224r1_sha224_test.json       | 356       | 118, 1, 237  | ECDSA
+ecdsa_secp224r1_sha256_test.json       | 384       | 146, 0, 238  | ECDSA
+ecdsa_secp224r1_sha3_224_test.json     | 384       | 146, 2, 236  | ECDSA
+ecdsa_secp224r1_sha3_256_test.json     | 392       | 154, 2, 236  | ECDSA
+ecdsa_secp224r1_sha3_512_test.json     | 457       | 219, 2, 236  | ECDSA
+ecdsa_secp224r1_sha512_test.json       | 453       | 215, 1, 237  | ECDSA
+ecdsa_secp256k1_sha256_test.json       | 380       | 142, 1, 237  | ECDSA
+ecdsa_secp256k1_sha3_256_test.json     | 388       | 150, 1, 237  | ECDSA
+ecdsa_secp256k1_sha3_512_test.json     | 453       | 215, 1, 237  | ECDSA
+ecdsa_secp256k1_sha512_test.json       | 449       | 211, 1, 237  | ECDSA
+ecdsa_secp256r1_sha256_test.json       | 387       | 147, 1, 239  | ECDSA
+ecdsa_secp256r1_sha3_256_test.json     | 395       | 155, 1, 239  | ECDSA
+ecdsa_secp256r1_sha3_512_test.json     | 460       | 220, 2, 238  | ECDSA
+ecdsa_secp256r1_sha512_test.json       | 456       | 216, 1, 239  | ECDSA
+ecdsa_secp384r1_sha384_test.json       | 408       | 168, 1, 239  | ECDSA
+ecdsa_secp384r1_sha3_384_test.json     | 418       | 178, 0, 240  | ECDSA
+ecdsa_secp384r1_sha3_512_test.json     | 449       | 209, 2, 238  | ECDSA
+ecdsa_secp384r1_sha512_test.json       | 445       | 205, 2, 238  | ECDSA
+ecdsa_secp521r1_sha3_512_test.json     | 449       | 210, 0, 239  | ECDSA
+ecdsa_secp521r1_sha512_test.json       | 447       | 206, 0, 241  | ECDSA
+ecdsa_test.json                        | 1571      | 1007, 5, 559 | ECDSA
 
 ## EddsaVerify {#EddsaVerify}
 
@@ -365,6 +365,26 @@ Type of the test vectors\: [MacTestVector](types.md#MacTestVector)
 ------------------ | --------- | ------------ | -------------
 aes_cmac_test.json | 290       | 42, 0, 248   | AES-CMAC
 
+## MacWithIvTest {#MacWithIvTest}
+
+MacWithIvTest is intended for testing MACs that use an IV for randomization.
+
+In some cases the MAC is only secure if each MAC computation uses a distinct IV.
+Reusing the same IV multiple times may leak key material. Examples are GMAC and
+VMAC.
+
+JSON schema\: mac_with_iv_test_schema.json
+
+Type of the test group\: [MacWithIvTestGroup](types.md#MacWithIvTestGroup)
+
+Type of the test vectors\: [MacWithIvTestVector](types.md#MacWithIvTestVector)
+
+**name**           | **tests** | **validity** | **algorithm** {.sortable}
+------------------ | --------- | ------------ | -------------
+gmac_test.json     | 449       | 102, 0, 347  | AES-GMAC
+vmac_128_test.json | 764       | 424, 0, 340  | VMAC-AES
+vmac_64_test.json  | 764       | 508, 0, 256  | VMAC-AES
+
 ## RsaPublicKeyAsnTest {#RsaPublicKeyAsnTest}
 
 Test vectors of type RsaKeyTest are intended for checking the decoding of X509
@@ -419,7 +439,7 @@ rsa_oaep_4096_sha512_mgf1sha1_test.json                | 29        | 13, 0, 16  
 rsa_oaep_4096_sha512_mgf1sha512_test.json              | 34        | 17, 0, 17    | RSAES-OAEP
 rsa_oaep_misc_test.json                                | 775       | 460, 315, 0  | RSAES-OAEP
 rsa_three_primes_oaep_2048_sha1_mgf1sha1_test.json     | 34        | 17, 0, 17    | RSAES-OAEP
-rsa_three_primes_oaep_3072_sha224_mgf1sha224_test.json | 35        | 19, 0, 16    | RSAES-OAEP
+rsa_three_primes_oaep_3072_sha224_mgf1sha224_test.json | 36        | 19, 0, 17    | RSAES-OAEP
 rsa_three_primes_oaep_4096_sha256_mgf1sha256_test.json | 35        | 18, 0, 17    | RSAES-OAEP
 
 ## RsaesPkcs1Decrypt {#RsaesPkcs1Decrypt}
