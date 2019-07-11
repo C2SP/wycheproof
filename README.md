@@ -75,7 +75,9 @@ default values to be a significant security flaw. We are converting as many
 tests into sets of test vectors to simplify porting the tests to other
 languages. We provide ready-to-use test runners for Java Cryptography
 Architecture providers such as [Bouncy Castle](http://bouncycastle.org),
-[Spongy Castle](https://rtyley.github.io/spongycastle/), and the default
+[Spongy Castle](https://rtyley.github.io/spongycastle/), the
+[Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider)
+and the default
 providers in [OpenJDK](http://openjdk.java.net/).
 
 ### Usage
@@ -138,6 +140,35 @@ BouncyCastle with SpongyCastle in your commands, for example
 
 ```
 bazel test SpongyCastleAllTests
+```
+
+- To test the
+[Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider), replace
+BouncyCastle with Accp in your commands, for example
+
+```
+bazel test AccpAllTests
+```
+
+- To test a local jar for the Amazon Corretto Crypto Provider, set the
+`WYCHEPROOF_ACCP_JAR` environment variable:
+
+```shell
+$ WYCHEPROOF_ACCP_JAR=/path/to/accp
+$ bazel test AccpTestLocal
+$ bazel test AccpAllTestsLocal
+```
+
+Note: bazel does not currently invalidate the build on environment changes. If
+you change the `WYCHEPROOF_ACCP_JAR` environment variable, run `bazel
+clean` to force a rebuild:
+
+```shell
+$ WYCHEPROOF_ACCP_JAR=/path/to/accp
+$ bazel test AccpTestLocal
+$ WYCHEPROOF_ACCP_JAR=/path/to/other/jar
+$ bazel clean
+$ bazel test AccpTestLocal
 ```
 
 - To test your current installation of

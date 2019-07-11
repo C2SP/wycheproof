@@ -421,6 +421,15 @@ java_import_external(
     ],
 )
 
+java_import_external(
+    name = "amazon_corretto_crypto_provider_1_1_0",
+    licenses = ["notice"],  # Apache 2.0
+    jar_sha256 = "8fab9866f88c05b917184ed2fc977409eab8ab48c2dddbefa80364998b913bd3",
+    jar_urls = [
+        "https://repo1.maven.org/maven2/software/amazon/cryptools/AmazonCorrettoCryptoProvider/1.1.0/AmazonCorrettoCryptoProvider-1.1.0-linux-x86_64.jar",
+        ],
+)
+
 load("//tools:local_repository_defs.bzl", "local_jars")
 
 local_jars(name = "local")

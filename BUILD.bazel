@@ -155,6 +155,49 @@ conscrypt_all_tests(
     data = testdata,
 )
 
+# Amazon Corretto Crypto Provider tests
+load("//tools:build_defs.bzl", "accp_tests", "accp_all_tests")
+
+accp_tests(
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/AccpTest.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.AccpTest",
+    deps = common_deps,
+    data = testdata,
+)
+
+java_test(
+    name = "AccpTestLocal",
+    size = "large",
+    srcs = ["java/com/google/security/wycheproof/AccpTest.java"] + test_srcs,
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
+    test_class = "com.google.security.wycheproof.AccpTest",
+    deps = common_deps + ["@local//:accp_jar"],
+    data = testdata,
+)
+
+accp_all_tests(
+    size = "enormous",
+    srcs = ["java/com/google/security/wycheproof/AccpAllTests.java"] + test_srcs,
+    test_class = "com.google.security.wycheproof.AccpAllTests",
+    deps = common_deps,
+    data = testdata,
+)
+
+java_test(
+    name = "AccpAllTestsLocal",
+    size = "enormous",
+    srcs = ["java/com/google/security/wycheproof/AccpAllTests.java"] + test_srcs,
+    # this target requires specifing a shell variable, thus won't work with the wildcard target patterns.
+    # with tags=["manual"] it'll be excluded from said patterns.
+    tags = ["manual"],
+    test_class = "com.google.security.wycheproof.AccpAllTests",
+    deps = common_deps + ["@local//:accp_jar"],
+    data = testdata,
+)
+
 # OpenJDK tests
 java_test(
     name = "OpenJDKTest",
