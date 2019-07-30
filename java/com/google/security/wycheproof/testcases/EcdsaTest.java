@@ -231,7 +231,7 @@ public class EcdsaTest {
       if (k.testBit(0)) {
         countLsb++;
       }
-      if (k.compareTo(qHalf) == 1) {
+      if (k.compareTo(qHalf) > 0) {
         countMsb++;
       }
     }
@@ -266,6 +266,12 @@ public class EcdsaTest {
     double bias3 = bias(kList, q, qHalf); 
     if (bias3 > threshold) {
       fail("Bias for k detected. bias3 = " + bias3);
+    }
+    // Checks whether most significant bytes, words, dwords or qwords are strongly correlated.
+    for (int bits : new int[] {8, 16, 32, 64}) {
+      BigInteger multiplier = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
+      double bias4 = bias(kList, q, multiplier);
+      fail("Bias for k detected. bits = " + bits + " bias4 = " + bias4);
     }
   }
 

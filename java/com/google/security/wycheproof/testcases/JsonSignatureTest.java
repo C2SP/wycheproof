@@ -52,7 +52,7 @@ public class JsonSignatureTest {
   public enum Format { RAW, ASN, P1363 };
 
   /** Convenience method to get a String from a JsonObject */
-  protected static String getString(JsonObject object, String name) throws Exception {
+  protected static String getString(JsonObject object, String name) {
     return object.get(name).getAsString();
   }
 
@@ -62,62 +62,90 @@ public class JsonSignatureTest {
   }
 
   /**
-   * Returns an instance of java.security.Signature for an algorithm name, a digest name and
-   * a signature format. The algorithm names used in JCA are a bit inconsequential. E.g. a dash 
-   * is necessary for message digests (e.g. "SHA-256") but are not used in the corresponding
-   * names for digital signatures (e.g. "SHA256WITHECDSA"). Providers sometimes use distinct
-   * algorithm names for the same cryptographic primitive.
+   * Convert hash names, so that they can be used in an algorithm name for a signature. The
+   * algorithm names used in JCA are a bit inconsequential. E.g. a dash is necessary for message
+   * digests (e.g. "SHA-256") but are not used in the corresponding names for digital signatures
+   * (e.g. "SHA256WITHECDSA"). Providers sometimes use distinct algorithm names for the same
+   * cryptographic primitive. On the other hand, the dash remains for SHA-3. That is, the correct
+   * name for ECDSA with SHA3-256 is "SHA3-256WithECDSA".
    *
    * <p>See https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html
    *
+   * @param md the name of a message digest
+   * @return the name of the message digest when used in a signature algorithm.
+   */
+  protected static String convertMdName(String md) {
+    if (md.equalsIgnoreCase("SHA-1")) {
+      return "SHA1";
+    } else if (md.equalsIgnoreCase("SHA-224")) {
+      return "SHA224";
+    } else if (md.equalsIgnoreCase("SHA-256")) {
+      return "SHA256";
+    } else if (md.equalsIgnoreCase("SHA-384")) {
+      return "SHA384";
+    } else if (md.equalsIgnoreCase("SHA-512")) {
+      return "SHA512";
+    }
+    return md;
+  }
+
+  /**
+   * Returns an instance of java.security.Signature for an algorithm name, a digest name and a
+   * signature format.
+   *
    * @param md the name of the message digest (e.g. "SHA-256")
    * @param signatureAlgorithm the name of the signature algorithm (e.g. "ECDSA")
-   * @param signatureFormat the format of the signatures.  
+   * @param signatureFormat the format of the signatures.
    * @return an instance of java.security.Signature if the algorithm is known
    * @throws NoSuchAlgorithmException if the algorithm is not known
    */
   protected static Signature getSignatureInstance(
-      String md, String signatureAlgorithm, Format signatureFormat)
+      JsonObject group, String signatureAlgorithm, Format signatureFormat)
       throws NoSuchAlgorithmException {
-    // Convert hash names, so that they can be used in an algorithm name for a signature.
-    // I.e. in a number of cases a hyphen needs to be removed to get correct names.
-    // No conversion is necessary for SHA-3 hashes. E.g, "SHA3-256WithECDSA" is the ECDSA
-    // algorithm name for md = "SHA3-256".
-    if (md.equalsIgnoreCase("SHA-1")) {
-      md = "SHA1";
-    } else if (md.equalsIgnoreCase("SHA-224")) {
-      md = "SHA224";
-    } else if (md.equalsIgnoreCase("SHA-256")) {
-      md = "SHA256";
-    } else if (md.equalsIgnoreCase("SHA-384")) {
-      md = "SHA384";
-    } else if (md.equalsIgnoreCase("SHA-512")) {
-      md = "SHA512";
+    String md = "";
+    if (group.has("sha")) {
+      md = convertMdName(getString(group, "sha"));
     }
-    switch (signatureFormat) {
-      case RAW:
-      case ASN:
+    if (signatureAlgorithm.equals("ECDSA") || signatureAlgorithm.equals("DSA")) {
+      if (signatureFormat == Format.ASN) {
         return Signature.getInstance(md + "WITH" + signatureAlgorithm);
-      case P1363:
-        if (signatureAlgorithm.equals("ECDSA") || signatureAlgorithm.equals("DSA")) {
-          // The algorithm names for signature schemes with P1363 format have distinct names
-          // in distinct providers. This is mainly the case since the P1363 format has only
-          // been added in jdk11, while providers such as BouncyCastle added the format earlier
-          // than that. Hence the code below just tries known algorithm names.
-          try {
-            String jdkName = md + "WITH" + signatureAlgorithm + "inP1363Format";
-            return Signature.getInstance(jdkName);
-          } catch (NoSuchAlgorithmException ex) {
-            // jdkName is not known.
-          }
-          try {
-            String bcName = md + "WITHPLAIN-" + signatureAlgorithm;
-            return Signature.getInstance(bcName);
-          } catch (NoSuchAlgorithmException ex) {
-            // bcName is not known.
-          }
+      } else if (signatureFormat == Format.P1363) {
+        // The algorithm names for signature schemes with P1363 format have distinct names
+        // in distinct providers. This is mainly the case since the P1363 format has only
+        // been added in jdk11, while providers such as BouncyCastle added the format earlier
+        // than that. Hence the code below just tries known algorithm names.
+        try {
+          String jdkName = md + "WITH" + signatureAlgorithm + "inP1363Format";
+          return Signature.getInstance(jdkName);
+        } catch (NoSuchAlgorithmException ex) {
+          // jdkName is not known.
         }
-        break;
+        try {
+          String bcName = md + "WITHPLAIN-" + signatureAlgorithm;
+          return Signature.getInstance(bcName);
+        } catch (NoSuchAlgorithmException ex) {
+          // bcName is not known.
+        }
+      }
+    } else if (signatureAlgorithm.equals("RSA")) {
+      if (signatureFormat == Format.RAW) {
+        return Signature.getInstance(md + "WITH" + signatureAlgorithm);
+      }
+    } else if (signatureAlgorithm.equals("ED25519") || signatureAlgorithm.equals("ED448")) {
+      if (signatureFormat == Format.RAW) {
+        // http://openjdk.java.net/jeps/339
+        try {
+          return Signature.getInstance(signatureAlgorithm);
+        } catch (NoSuchAlgorithmException ex) {
+          // signatureAlgorithm is not known.
+        }
+        // An alternative name (e.g. used by BouncyCastle) is "EDDSA".
+        try {
+          return Signature.getInstance("EDDSA");
+        } catch (NoSuchAlgorithmException ex) {
+          // "EDDSA" is not known either.
+        }
+      }
     }
     throw new NoSuchAlgorithmException(
         "Algorithm "
@@ -153,16 +181,31 @@ public class JsonSignatureTest {
       } else if (signatureAlgorithm.equals("RSA")) {
         // Only RSA-PKCS1 is implemented in this unit test.
         // RSA-PSS signatures have their own unit test, because the algorithm parameters
-        // require a setup that is a little different. 
+        // require a setup that is a little different.
         switch (signatureFormat) {
           case RAW: return "rsassa_pkcs1_verify_schema.json";
           default: break;
+        }
+      } else if (signatureAlgorithm.equals("ED25519") || signatureAlgorithm.equals("ED448")) {
+        switch (signatureFormat) {
+          case RAW:
+            return "eddsa_verify_schema.json";
+          default:
+            break;
         }
       }
     } else {
       // signature generation
       if (signatureAlgorithm.equals("RSA")) {
         return "rsassa_pkcs1_generate_schema.json";
+      } else if (signatureAlgorithm.equals("ED25519") || signatureAlgorithm.equals("ED448")) {
+        // TODO(bleichen):
+        switch (signatureFormat) {
+          case RAW:
+            return "eddsa_verify_schema.json";
+          default:
+            break;
+        }
       }
     }
     // If the schema is not defined then the tests below still run. The only drawback is that
@@ -178,14 +221,17 @@ public class JsonSignatureTest {
    */
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
-  protected static PublicKey getPublicKey(JsonObject object, String algorithm) throws Exception {
+  protected static PublicKey getPublicKey(JsonObject group, String algorithm) throws Exception {
     KeyFactory kf;
     if (algorithm.equals("ECDSA")) {
       kf = KeyFactory.getInstance("EC");
+    } else if (algorithm.equals("ED25519") || algorithm.equals("ED448")) {
+      // http://openjdk.java.net/jeps/339
+      kf = KeyFactory.getInstance("EdDSA");
     } else {
       kf = KeyFactory.getInstance(algorithm);
     }
-    byte[] encoded = TestUtil.hexToBytes(getString(object, "keyDer"));
+    byte[] encoded = TestUtil.hexToBytes(getString(group, "keyDer"));
     X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(encoded);
     return kf.generatePublic(x509keySpec);
   }
@@ -196,10 +242,14 @@ public class JsonSignatureTest {
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
   protected static PrivateKey getPrivateKey(JsonObject object, String algorithm) throws Exception {
-    KeyFactory kf = KeyFactory.getInstance(algorithm);
-    byte[] encoded = TestUtil.hexToBytes(getString(object, "privateKeyPkcs8"));
-    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-    return kf.generatePrivate(keySpec);
+    if (algorithm.equals("RSA")) {
+      KeyFactory kf = KeyFactory.getInstance(algorithm);
+      byte[] encoded = TestUtil.hexToBytes(getString(object, "privateKeyPkcs8"));
+      PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+      return kf.generatePrivate(keySpec);
+    } else {
+      throw new NoSuchAlgorithmException("Algorithm " + algorithm + " is not supported");
+    }
   }
 
   /** 
@@ -261,6 +311,7 @@ public class JsonSignatureTest {
     int cntTests = 0;
     int errors = 0;
     int skippedKeys = 0;
+    int supportedKeys = 0;
     Set<String> skippedGroups = new HashSet<String>();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
@@ -268,6 +319,9 @@ public class JsonSignatureTest {
       try {
         key = getPublicKey(group, signatureAlgorithm);
       } catch (GeneralSecurityException ex) {
+        if (!allowSkippingKeys) {
+          throw ex;
+        }
         if (group.has("key")) {
           JsonObject keyStruct = group.getAsJsonObject("key");
           if (keyStruct.has("curve")) {
@@ -277,14 +331,17 @@ public class JsonSignatureTest {
         skippedKeys++;
         continue;
       }
-      String md = getString(group, "sha");
       Signature verifier;
       try {
-        verifier = getSignatureInstance(md, signatureAlgorithm, signatureFormat);
+        verifier = getSignatureInstance(group, signatureAlgorithm, signatureFormat);
       } catch (NoSuchAlgorithmException ex) {
+        if (!allowSkippingKeys) {
+          throw ex;
+        }
         skippedKeys++;
         continue;
       }
+      supportedKeys++;
       for (JsonElement t : group.getAsJsonArray("tests")) {
         cntTests++;
         JsonObject testcase = t.getAsJsonObject();
@@ -359,8 +416,14 @@ public class JsonSignatureTest {
         }
       }
     }
-    if (skippedKeys > 0 || !skippedGroups.isEmpty()) {
-      System.out.println("File:" + filename + " number of skipped keys:" + skippedKeys);
+    if (skippedKeys > 0) {
+      System.out.println(
+          "File:"
+              + filename
+              + " number of skipped keys:"
+              + skippedKeys
+              + " number of supported keys:"
+              + supportedKeys);
       for (String s : skippedGroups) {
         System.out.println("Skipped groups where " + s);
       }
@@ -368,8 +431,6 @@ public class JsonSignatureTest {
     assertEquals(0, errors);
     if (skippedKeys == 0) {
       assertEquals(numTests, cntTests);
-    } else {
-      assertTrue(allowSkippingKeys);
     }
   }
 
@@ -414,10 +475,9 @@ public class JsonSignatureTest {
         skippedKeys++;
         continue;
       }
-      String md = getString(group, "sha");
       Signature signer;
       try {
-        signer = getSignatureInstance(md, signatureAlgorithm, signatureFormat);
+        signer = getSignatureInstance(group, signatureAlgorithm, signatureFormat);
       } catch (NoSuchAlgorithmException ex) {
         skippedKeys++;
         continue;
@@ -685,6 +745,23 @@ public class JsonSignatureTest {
   @Test
   public void testRsaSignatures4096sha512() throws Exception {
     testVerification("rsa_signature_4096_sha512_test.json", "RSA", Format.RAW, false);
+  }
+
+  // EdDSA
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"https://github.com/bcgit/bc-java/issues/508"})
+  @Test
+  public void testEd25519Verify() throws Exception {
+    testVerification("eddsa_test.json", "ED25519", Format.RAW, true);
+  }
+
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"https://github.com/bcgit/bc-java/issues/508"})
+  @Test
+  public void testEd448Verify() throws Exception {
+    testVerification("ed448_test.json", "ED448", Format.RAW, true);
   }
 
   // Testing DSA signatures.
