@@ -70,7 +70,7 @@ wycheproof.BigInteger.fromHex = function(s) {
  */
 wycheproof.BigInteger.prototype.toBase64Url = function(optValue) {
   var bytes = this.toByteArray();
-  if (goog.isDef(optValue) && optValue > bytes.length) {
+  if (optValue !== undefined && optValue > bytes.length) {
     var addingZeros = new Array(optValue-bytes.length).fill(0);
     bytes = addingZeros.concat(bytes);
   }
@@ -89,7 +89,7 @@ wycheproof.BigInteger.prototype.toBase64Url = function(optValue) {
  */
 wycheproof.BigInteger.prototype.toArrayBuffer = function(optValue) {
   var bytes = this.toByteArray();
-  if (goog.isDef(optValue) && optValue > bytes.length) {
+  if (optValue !== undefined && optValue > bytes.length) {
     var addingZeros = new Array(optValue-bytes.length).fill(0);
     bytes = addingZeros.concat(bytes);
   }
