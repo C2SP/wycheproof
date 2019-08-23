@@ -21,6 +21,14 @@ of an "ideal pseudorandom permutation" without a precise definition.
 
 ![Image of the pseudorandom function W](W.svg){style="display:block;margin:auto"}
 
+# Ambiguities
+
+There are some minor differences between NIST SP 800 38f and the RFCs.
+NIST does not define a KWP when the wrapped key is 64-bits long. RFC 3394
+specifies in Section 2, that the input for the key wrap algorithm must be at
+least two blocks and otherwise the constant field and key are simply encrypted
+with ECB as a single block.
+
 # Padding oracles (KWP)
 
 Keys wrapped with KWP are padded before the wrapping. The padding of a key K has
