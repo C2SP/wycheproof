@@ -28,6 +28,10 @@ NIST does not define a KWP when the wrapped key is 64-bits long. RFC 3394
 specifies in Section 2, that the input for the key wrap algorithm must be at
 least two blocks and otherwise the constant field and key are simply encrypted
 with ECB as a single block.
+Other references are more clear about this. E.g.
+https://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html#kw-aes128
+(Though the latest version https://www.w3.org/TR/xmlenc-core/
+simply refers to RFC 3394).
 
 # Padding oracles (KWP)
 

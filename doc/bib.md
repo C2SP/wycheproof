@@ -176,6 +176,12 @@ http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar2.pdf
 ### NIST-SP800-57 {#NIST-SP800-57}
 http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
 
+### NIST SP800-131A {#NIST-SP800-131A}
+Transitioning the Use of Cryptographic Algorithms and Key Lengths
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
+Some notable changes: Keys with less than 112 bit security are now disallowed.
+EdDSA will be added with FIPS 186-5. TDES is disallowed after 2023.
+RSA PKCS 1 v.1.5 for encryption is disallowed after 2023.
 
 ### EnisaKeySize14 {#EnisaKeySize14}
 Enisa,
@@ -233,7 +239,7 @@ elliptic curve parameters during Diffie-Hellman key exchange
 http://www.cs.technion.ac.il/~biham/BT/
 
 ### CVE-2019-6486 {#CVE-2019-6486}
-golang/elliptic ECDH has an arithmetic error that allows to find private key
+golang/elliptic ECDH has an arithmetic error that allows to find private keys
 with an adaptive chosen message attack.
 
 <!-- mdformat on -->
