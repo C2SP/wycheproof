@@ -66,7 +66,7 @@ public class JsonSignatureTest {
    * algorithm names used in JCA are a bit inconsequential. E.g. a dash is necessary for message
    * digests (e.g. "SHA-256") but are not used in the corresponding names for digital signatures
    * (e.g. "SHA256WITHECDSA"). Providers sometimes use distinct algorithm names for the same
-   * cryptographic primitive. On the other hand, the dash remains for SHA-3. That is, the correct
+   * cryptographic primitive. On the other hand, the dash remains for SHA-3. Hence, the correct
    * name for ECDSA with SHA3-256 is "SHA3-256WithECDSA".
    *
    * <p>See https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html
@@ -745,6 +745,38 @@ public class JsonSignatureTest {
   @Test
   public void testRsaSignatures4096sha512() throws Exception {
     testVerification("rsa_signature_4096_sha512_test.json", "RSA", Format.RAW, false);
+  }
+
+  // RSA signatures with SHA-3. Not every provider supports SHA-3. Hence the tests
+  // may be skipped.
+  @Test
+  public void testRsaSignature2048sha3_224() throws Exception {
+    testVerification("rsa_signature_2048_sha3_224_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha3_256() throws Exception {
+    testVerification("rsa_signature_2048_sha3_256_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha3_512() throws Exception {
+    testVerification("rsa_signature_2048_sha3_512_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha3_256() throws Exception {
+    testVerification("rsa_signature_3072_sha3_256_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha3_384() throws Exception {
+    testVerification("rsa_signature_3072_sha3_384_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha3_512() throws Exception {
+    testVerification("rsa_signature_3072_sha3_512_test.json", "RSA", Format.RAW, true);
   }
 
   // EdDSA
