@@ -2,7 +2,7 @@
 
 # Test vector types
 
-Version\: 0.8r7
+Version\: 0.8rc15
 
 [TOC]
 
@@ -120,7 +120,7 @@ Fields in DsaTestGroup are\:
 
 **name** | **type**                                                          | **desc**                       | **enum**
 -------- | ----------------------------------------------------------------- | ------------------------------ | --------
-key      | DsaPublicKey                                                      | unenocded DSA public key       |
+key      | DsaPublicKey                                                      | unencoded DSA public key       |
 keyDer   | [Der](formats.md#DataTypes)                                       | DER encoded public key         |
 keyPem   | [Pem](formats.md#DataTypes)                                       | Pem encoded public key         |
 sha      | [MdName](formats.md#HashFunctions)                                | the hash function used for DSA |
@@ -156,14 +156,14 @@ An EC public key. The EC public key can specify the underlying curve parameters
 in two ways. (1) as a named curve (2) as a structure containing the curve
 parameters generator, order and cofactor.
 
-**name**     | **type**                                                 | **desc**                                            | **enum**
------------- | -------------------------------------------------------- | --------------------------------------------------- | --------
-curve        | typing.Union[ecutil.EcUnnamedGroup, ecutil.EcNamedGroup] | the EC group used by this public key                |
-keySize      | int                                                      | the key size in bits                                |
-type         | str                                                      | the key type                                        | 'EcPublicKey'
-uncompressed | [HexBytes](formats.md#DataTypes)                         | X509 encoded public key point in hexadecimal format |
-wx           | [BigInt](formats.md#DataTypes)                           | the x-coordinate of the public key point            |
-wy           | [BigInt](formats.md#DataTypes)                           | the y-coordinate of the public key point            |
+**name**     | **type**                                                       | **desc**                                            | **enum**
+------------ | -------------------------------------------------------------- | --------------------------------------------------- | --------
+curve        | typing.Union[ec_groups.EcUnnamedGroup, ec_groups.EcNamedGroup] | the EC group used by this public key                |
+keySize      | int                                                            | the key size in bits                                |
+type         | str                                                            | the key type                                        | 'EcPublicKey'
+uncompressed | [HexBytes](formats.md#DataTypes)                               | X509 encoded public key point in hexadecimal format |
+wx           | [BigInt](formats.md#DataTypes)                                 | the x-coordinate of the public key point            |
+wy           | [BigInt](formats.md#DataTypes)                                 | the y-coordinate of the public key point            |
 
 ## EcPublicKeyOnNamedCurve {#EcPublicKeyOnNamedCurve}
 
@@ -254,21 +254,21 @@ Used in [EcdhEcpointTestGroup](#EcdhEcpointTestGroup).
 
 Fields in EcdhPemTestGroup are\:
 
-**name** | **type**                                                | **desc**                       | **enum**
--------- | ------------------------------------------------------- | ------------------------------ | --------
-curve    | [EcCurve](formats.md#EcCurve)                           | the curve of the private key   |
-encoding | str                                                     | the encoding of the public key | 'pem'
-type     | str                                                     | the type of the test           | '[EcdhPemTest](files.md#EcdhPemTest)'
-tests    | List of [EcdhPemTestVector](types.md#EcdhPemTestVector) | a list of test vectors         |
+**name** | **type**                                                | **desc**                     | **enum**
+-------- | ------------------------------------------------------- | ---------------------------- | --------
+curve    | [EcCurve](formats.md#EcCurve)                           | the curve of the private key |
+encoding | str                                                     | the encoding of the keys     | 'pem'
+type     | str                                                     | the type of the test         | '[EcdhPemTest](files.md#EcdhPemTest)'
+tests    | List of [EcdhPemTestVector](types.md#EcdhPemTestVector) | a list of test vectors       |
 
 ## EcdhPemTestVector {#EcdhPemTestVector}
 
 Fields additional to the fields in TestVector are\:
 
 **name** | **type**                         | **desc**
--------- | -------------------------------- | ----------------------
-public   | [Pem](formats.md#DataTypes)      | Pem encoded public key
-private  | [BigInt](formats.md#DataTypes)   | the private key
+-------- | -------------------------------- | --------
+public   | [Pem](formats.md#DataTypes)      | Pem encoded public key. The test vectors check against invalid curve attacks. Hence some test vectors contain keys that are not on the curve, test vectors that use different curve or even public keys from different primitives.
+private  | [Pem](formats.md#DataTypes)      | Pem encoded private key. The key is always valid.
 shared   | [HexBytes](formats.md#DataTypes) | The shared secret key
 
 Used in [EcdhPemTestGroup](#EcdhPemTestGroup).
@@ -277,12 +277,12 @@ Used in [EcdhPemTestGroup](#EcdhPemTestGroup).
 
 Fields in EcdhTestGroup are\:
 
-**name** | **type**                                          | **desc**                       | **enum**
--------- | ------------------------------------------------- | ------------------------------ | --------
-curve    | [EcCurve](formats.md#EcCurve)                     | the curve of the private key   |
-encoding | str                                               | the encoding of the public key | 'asn'
-type     | str                                               | the type of the test           | '[EcdhTest](files.md#EcdhTest)'
-tests    | List of [EcdhTestVector](types.md#EcdhTestVector) | a list of test vectors         |
+**name** | **type**                                          | **desc**                                                                                                                                                                                                                                                                | **enum**
+-------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
+curve    | [EcCurve](formats.md#EcCurve)                     | the curve of the private key                                                                                                                                                                                                                                            |
+encoding | str                                               | the encoding of the keys. There are test vector files for a number of encodings (raw, asn, pem, ...) to simplify testing libraries that only allow keys with certain encodings. This field however, has become somewhat redundant, since the schema defines the format. | 'asn'
+type     | str                                               | the type of the test                                                                                                                                                                                                                                                    | '[EcdhTest](files.md#EcdhTest)'
+tests    | List of [EcdhTestVector](types.md#EcdhTestVector) | a list of test vectors                                                                                                                                                                                                                                                  |
 
 ## EcdhTestVector {#EcdhTestVector}
 
@@ -300,12 +300,12 @@ Used in [EcdhTestGroup](#EcdhTestGroup).
 
 Fields in EcdhWebcryptoTestGroup are\:
 
-**name** | **type**                                                            | **desc**                       | **enum**
--------- | ------------------------------------------------------------------- | ------------------------------ | --------
-curve    | [EcCurve](formats.md#EcCurve)                                       | the curve of the private key   |
-encoding | str                                                                 | the encoding of the public key | 'webcrypto'
-type     | str                                                                 | the type of the test           | '[EcdhWebcryptoTest](files.md#EcdhWebcryptoTest)'
-tests    | List of [EcdhWebcryptoTestVector](types.md#EcdhWebcryptoTestVector) | a list of test vectors         |
+**name** | **type**                                                            | **desc**                     | **enum**
+-------- | ------------------------------------------------------------------- | ---------------------------- | --------
+curve    | [EcCurve](formats.md#EcCurve)                                       | the curve of the private key |
+encoding | str                                                                 | the encoding of the keys     | 'webcrypto'
+type     | str                                                                 | the type of the test         | '[EcdhWebcryptoTest](files.md#EcdhWebcryptoTest)'
+tests    | List of [EcdhWebcryptoTestVector](types.md#EcdhWebcryptoTestVector) | a list of test vectors       |
 
 ## EcdhWebcryptoTestVector {#EcdhWebcryptoTestVector}
 
@@ -330,7 +330,7 @@ Fields in EcdsaBitcoinTestGroup are\:
 
 **name** | **type**                                                          | **desc**                         | **enum**
 -------- | ----------------------------------------------------------------- | -------------------------------- | --------
-key      | EcPublicKey                                                       | unenocded EC public key          |
+key      | EcPublicKey                                                       | unencoded EC public key          |
 keyDer   | [Der](formats.md#DataTypes)                                       | DER encoded public key           |
 keyPem   | [Pem](formats.md#DataTypes)                                       | Pem encoded public key           |
 sha      | [MdName](formats.md#HashFunctions)                                | the hash function used for ECDSA | 'SHA-256'
@@ -350,7 +350,7 @@ Fields in EcdsaP1363TestGroup are\:
 **name** | **type**                                                    | **desc**                                      | **enum**
 -------- | ----------------------------------------------------------- | --------------------------------------------- | --------
 jwk      | JwkEcPublicKey                                              | [optional] the public key in webcrypto format |
-key      | EcPublicKey                                                 | unenocded EC public key                       |
+key      | EcPublicKey                                                 | unencoded EC public key                       |
 keyDer   | [Der](formats.md#DataTypes)                                 | DER encoded public key                        |
 keyPem   | [Pem](formats.md#DataTypes)                                 | Pem encoded public key                        |
 sha      | [MdName](formats.md#HashFunctions)                          | the hash function used for ECDSA              |
@@ -368,7 +368,7 @@ Fields in EcdsaTestGroup are\:
 
 **name** | **type**                                                          | **desc**                         | **enum**
 -------- | ----------------------------------------------------------------- | -------------------------------- | --------
-key      | EcPublicKey                                                       | unenocded EC public key          |
+key      | EcPublicKey                                                       | unencoded EC public key          |
 keyDer   | [Der](formats.md#DataTypes)                                       | DER encoded public key           |
 keyPem   | [Pem](formats.md#DataTypes)                                       | Pem encoded public key           |
 sha      | [MdName](formats.md#HashFunctions)                                | the hash function used for ECDSA |
@@ -907,6 +907,31 @@ private  | JwkXdhPrivateKey                 | the private key in jwk format     
 shared   | [HexBytes](formats.md#DataTypes) | the shared secret                         |
 
 Used in [XdhJwkTestGroup](#XdhJwkTestGroup).
+
+## XdhPemTestGroup {#XdhPemTestGroup}
+
+Fields in XdhPemTestGroup are\:
+
+**name** | **type**                                              | **desc**                                                                                                                                                                                                                                                                                                                  | **enum**
+-------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
+curve    | [EcCurve](formats.md#EcCurve)                         | The name of the curve. If test vectors encode the curve as part of the public and private key then this field describes the curve of the private key. Test vectors with such encoding can contain distinct curves. Such test vectors are of course invalid and an attempt to compute a shared secret is expected to fail. |
+type     | str                                                   | the type of the test                                                                                                                                                                                                                                                                                                      | '[XdhPemComp](files.md#XdhPemComp)'
+tests    | List of [XdhPemTestVector](types.md#XdhPemTestVector) | a list of test vectors                                                                                                                                                                                                                                                                                                    |
+
+## XdhPemTestVector {#XdhPemTestVector}
+
+A test vector for a key exchange using XDH. Public and private keys are pem
+encoded.
+
+Fields additional to the fields in TestVector are\:
+
+**name** | **type**                         | **desc**
+-------- | -------------------------------- | -----------------------
+public   | [Pem](formats.md#DataTypes)      | PEM encoded public key
+private  | [Pem](formats.md#DataTypes)      | PEM encoded private key
+shared   | [HexBytes](formats.md#DataTypes) | the shared secret
+
+Used in [XdhPemTestGroup](#XdhPemTestGroup).
 
 ## XdhTestGroup {#XdhTestGroup}
 

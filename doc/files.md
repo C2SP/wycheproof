@@ -22,8 +22,8 @@ Type of the test vectors\: [AeadTestVector](types.md#AeadTestVector)
 ---------------------------- | --------- | ------------ | -------------
 aead_aes_siv_cmac_test.json  | 828       | 180, 0, 648  | AEAD-AES-SIV-CMAC
 aegis128L_test.json          | 462       | 350, 0, 112  | AEGIS128L
-aegis128_test.json           | 465       | 357, 0, 108  | AEGIS128
-aegis256_test.json           | 460       | 348, 0, 112  | AEGIS256
+aegis128_test.json           | 469       | 361, 0, 108  | AEGIS128
+aegis256_test.json           | 464       | 352, 0, 112  | AEGIS256
 aes_ccm_test.json            | 510       | 366, 0, 144  | AES-CCM
 aes_eax_test.json            | 171       | 78, 12, 81   | AES-EAX
 aes_gcm_siv_test.json        | 155       | 88, 0, 67    | AES-GCM-SIV
@@ -74,27 +74,6 @@ Type of the test vectors\:
 ------------- | --------- | ------------ | -------------
 dsa_test.json | 906       | 33, 3, 870   | DSA
 
-## EcPublicKeyVerify {#EcPublicKeyVerify}
-
-Test vectors of type EcPublicKeyVerify are intended for test that check the
-verification of EC public key.
-
-In particular, implementations are expected to verify that the public key uses a
-correct encoding, that the public key point is on the curve, that the point is
-not a point of low order. If the public key encodes additional parameters e.g.
-cofactor and order then the test expects that these parameters are verified.
-
-JSON schema\: ec_public_key_verify_schema.json
-
-Type of the test group\: [EcPublicKeyTestGroup](types.md#EcPublicKeyTestGroup)
-
-Type of the test vectors\:
-[EcPublicKeyTestVector](types.md#EcPublicKeyTestVector)
-
-**name**        | **tests** | **validity** | **algorithm**   {.sortable}
---------------- | --------- | ------------ | ---------------
-eckey_test.json | 19        | 14, 0, 5     | EcPublicKeyTest
-
 ## EcdhEcpointTest {#EcdhEcpointTest}
 
 Test vectors of type EcdhWebTest are intended for testing an ECDH
@@ -128,17 +107,17 @@ Type of the test vectors\: [EcdhTestVector](types.md#EcdhTestVector)
 
 **name**                       | **tests** | **validity**   | **algorithm** {.sortable}
 ------------------------------ | --------- | -------------- | -------------
-ecdh_brainpoolP224r1_test.json | 475       | 205, 219, 51   | ECDH
-ecdh_brainpoolP256r1_test.json | 521       | 253, 219, 49   | ECDH
-ecdh_brainpoolP320r1_test.json | 426       | 159, 219, 48   | ECDH
-ecdh_brainpoolP384r1_test.json | 365       | 85, 219, 61    | ECDH
-ecdh_brainpoolP512r1_test.json | 377       | 115, 217, 45   | ECDH
-ecdh_secp224r1_test.json       | 339       | 77, 219, 43    | ECDH
-ecdh_secp256k1_test.json       | 445       | 181, 219, 45   | ECDH
-ecdh_secp256r1_test.json       | 459       | 191, 219, 49   | ECDH
-ecdh_secp384r1_test.json       | 426       | 163, 219, 44   | ECDH
-ecdh_secp521r1_test.json       | 479       | 208, 217, 54   | ECDH
-ecdh_test.json                 | 2989      | 2126, 120, 743 | ECDH
+ecdh_brainpoolP224r1_test.json | 476       | 205, 219, 52   | ECDH
+ecdh_brainpoolP256r1_test.json | 522       | 253, 219, 50   | ECDH
+ecdh_brainpoolP320r1_test.json | 427       | 159, 219, 49   | ECDH
+ecdh_brainpoolP384r1_test.json | 366       | 85, 219, 62    | ECDH
+ecdh_brainpoolP512r1_test.json | 378       | 115, 217, 46   | ECDH
+ecdh_secp224r1_test.json       | 340       | 77, 219, 44    | ECDH
+ecdh_secp256k1_test.json       | 446       | 181, 219, 46   | ECDH
+ecdh_secp256r1_test.json       | 460       | 191, 219, 50   | ECDH
+ecdh_secp384r1_test.json       | 427       | 163, 219, 45   | ECDH
+ecdh_secp521r1_test.json       | 480       | 208, 217, 55   | ECDH
+ecdh_test.json                 | 3100      | 2169, 128, 803 | ECDH
 
 ## EcdhWebcryptoTest {#EcdhWebcryptoTest}
 
@@ -156,34 +135,6 @@ Type of the test vectors\:
 **name**                 | **tests** | **validity** | **algorithm** {.sortable}
 ------------------------ | --------- | ------------ | -------------
 ecdh_webcrypto_test.json | 833       | 743, 0, 90   | ECDH
-
-## EcdsaBitcoinVerify {#EcdsaBitcoinVerify}
-
-Test vectors of type EcdsaBitcoinVerify are meant for the verification of a
-ECDSA variant used for bitcoin, that add signature non-malleability.
-
-The bitcoin protocol requires that the signature scheme is non-malleable. It
-must not be possible to format the same signature in multiple ways. This variant
-is described in https\://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
-
-Test vectors with "result" \: "valid" are valid signatures. Test vectors with
-"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
-are signatures that may or may not be rejected.
-
-Compared to normal ECDSA signatures, all alternative BER encodings of the
-signature are invalid. The value s in the signature must be a positive integer
-smaller than n/2.
-
-JSON schema\: ecdsa_bitcoin_verify_schema.json
-
-Type of the test group\: [EcdsaBitcoinTestGroup](types.md#EcdsaBitcoinTestGroup)
-
-Type of the test vectors\:
-[AsnSignatureTestVector](types.md#AsnSignatureTestVector)
-
-**name**                                 | **tests** | **validity** | **algorithm** {.sortable}
----------------------------------------- | --------- | ------------ | -------------
-ecdsa_secp256k1_sha256_bitcoin_test.json | 380       | 140, 0, 240  | ECDSA
 
 ## EcdsaP1363Verify {#EcdsaP1363Verify}
 
@@ -210,18 +161,18 @@ Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 -------------------------------------------- | --------- | ------------ | -------------
 ecdsa_brainpoolP224r1_sha224_p1363_test.json | 190       | 120, 3, 67   | ECDSA
 ecdsa_brainpoolP256r1_sha256_p1363_test.json | 220       | 149, 3, 68   | ECDSA
-ecdsa_brainpoolP320r1_sha384_p1363_test.json | 223       | 152, 3, 68   | ECDSA
+ecdsa_brainpoolP320r1_sha384_p1363_test.json | 224       | 152, 3, 69   | ECDSA
 ecdsa_brainpoolP384r1_sha384_p1363_test.json | 251       | 180, 3, 68   | ECDSA
 ecdsa_brainpoolP512r1_sha512_p1363_test.json | 294       | 224, 3, 67   | ECDSA
 ecdsa_secp224r1_sha224_p1363_test.json       | 187       | 117, 3, 67   | ECDSA
-ecdsa_secp224r1_sha256_p1363_test.json       | 215       | 145, 3, 67   | ECDSA
-ecdsa_secp224r1_sha512_p1363_test.json       | 284       | 214, 3, 67   | ECDSA
+ecdsa_secp224r1_sha256_p1363_test.json       | 216       | 145, 3, 68   | ECDSA
+ecdsa_secp224r1_sha512_p1363_test.json       | 285       | 214, 3, 68   | ECDSA
 ecdsa_secp256k1_sha256_p1363_test.json       | 211       | 141, 3, 67   | ECDSA
-ecdsa_secp256k1_sha512_p1363_test.json       | 280       | 210, 3, 67   | ECDSA
+ecdsa_secp256k1_sha512_p1363_test.json       | 281       | 210, 3, 68   | ECDSA
 ecdsa_secp256r1_sha256_p1363_test.json       | 219       | 146, 4, 69   | ECDSA
-ecdsa_secp256r1_sha512_p1363_test.json       | 288       | 215, 4, 69   | ECDSA
+ecdsa_secp256r1_sha512_p1363_test.json       | 289       | 215, 4, 70   | ECDSA
 ecdsa_secp384r1_sha384_p1363_test.json       | 239       | 167, 3, 69   | ECDSA
-ecdsa_secp384r1_sha512_p1363_test.json       | 276       | 204, 3, 69   | ECDSA
+ecdsa_secp384r1_sha512_p1363_test.json       | 277       | 204, 3, 70   | ECDSA
 ecdsa_secp521r1_sha512_p1363_test.json       | 277       | 205, 3, 69   | ECDSA
 ecdsa_webcrypto_test.json                    | 362       | 270, 10, 82  | ECDSA
 
@@ -248,30 +199,30 @@ Type of the test vectors\:
 -------------------------------------- | --------- | ------------ | -------------
 ecdsa_brainpoolP224r1_sha224_test.json | 359       | 121, 2, 236  | ECDSA
 ecdsa_brainpoolP256r1_sha256_test.json | 389       | 150, 0, 239  | ECDSA
-ecdsa_brainpoolP320r1_sha384_test.json | 392       | 153, 1, 238  | ECDSA
+ecdsa_brainpoolP320r1_sha384_test.json | 393       | 153, 1, 239  | ECDSA
 ecdsa_brainpoolP384r1_sha384_test.json | 420       | 181, 0, 239  | ECDSA
 ecdsa_brainpoolP512r1_sha512_test.json | 462       | 225, 0, 237  | ECDSA
 ecdsa_secp224r1_sha224_test.json       | 356       | 118, 1, 237  | ECDSA
-ecdsa_secp224r1_sha256_test.json       | 384       | 146, 0, 238  | ECDSA
+ecdsa_secp224r1_sha256_test.json       | 385       | 146, 0, 239  | ECDSA
 ecdsa_secp224r1_sha3_224_test.json     | 384       | 146, 2, 236  | ECDSA
-ecdsa_secp224r1_sha3_256_test.json     | 392       | 154, 2, 236  | ECDSA
-ecdsa_secp224r1_sha3_512_test.json     | 457       | 219, 2, 236  | ECDSA
-ecdsa_secp224r1_sha512_test.json       | 453       | 215, 1, 237  | ECDSA
+ecdsa_secp224r1_sha3_256_test.json     | 393       | 154, 2, 237  | ECDSA
+ecdsa_secp224r1_sha3_512_test.json     | 458       | 219, 2, 237  | ECDSA
+ecdsa_secp224r1_sha512_test.json       | 454       | 215, 1, 238  | ECDSA
 ecdsa_secp256k1_sha256_test.json       | 380       | 142, 1, 237  | ECDSA
 ecdsa_secp256k1_sha3_256_test.json     | 388       | 150, 1, 237  | ECDSA
-ecdsa_secp256k1_sha3_512_test.json     | 453       | 215, 1, 237  | ECDSA
-ecdsa_secp256k1_sha512_test.json       | 449       | 211, 1, 237  | ECDSA
+ecdsa_secp256k1_sha3_512_test.json     | 454       | 215, 1, 238  | ECDSA
+ecdsa_secp256k1_sha512_test.json       | 450       | 211, 1, 238  | ECDSA
 ecdsa_secp256r1_sha256_test.json       | 387       | 147, 1, 239  | ECDSA
 ecdsa_secp256r1_sha3_256_test.json     | 395       | 155, 1, 239  | ECDSA
-ecdsa_secp256r1_sha3_512_test.json     | 460       | 220, 2, 238  | ECDSA
-ecdsa_secp256r1_sha512_test.json       | 456       | 216, 1, 239  | ECDSA
+ecdsa_secp256r1_sha3_512_test.json     | 461       | 220, 2, 239  | ECDSA
+ecdsa_secp256r1_sha512_test.json       | 457       | 216, 1, 240  | ECDSA
 ecdsa_secp384r1_sha384_test.json       | 408       | 168, 1, 239  | ECDSA
 ecdsa_secp384r1_sha3_384_test.json     | 418       | 178, 0, 240  | ECDSA
-ecdsa_secp384r1_sha3_512_test.json     | 449       | 209, 2, 238  | ECDSA
-ecdsa_secp384r1_sha512_test.json       | 445       | 205, 2, 238  | ECDSA
+ecdsa_secp384r1_sha3_512_test.json     | 450       | 209, 2, 239  | ECDSA
+ecdsa_secp384r1_sha512_test.json       | 446       | 205, 2, 239  | ECDSA
 ecdsa_secp521r1_sha3_512_test.json     | 449       | 210, 0, 239  | ECDSA
 ecdsa_secp521r1_sha512_test.json       | 447       | 206, 0, 241  | ECDSA
-ecdsa_test.json                        | 1571      | 1007, 5, 559 | ECDSA
+ecdsa_test.json                        | 1575      | 1011, 5, 559 | ECDSA
 
 ## EddsaVerify {#EddsaVerify}
 
@@ -287,7 +238,7 @@ Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 **name**        | **tests** | **validity** | **algorithm** {.sortable}
 --------------- | --------- | ------------ | -------------
 ed448_test.json | 86        | 17, 0, 69    | EDDSA
-eddsa_test.json | 111       | 50, 0, 61    | EDDSA
+eddsa_test.json | 112       | 51, 0, 61    | EDDSA
 
 ## HkdfTest {#HkdfTest}
 
@@ -363,7 +314,7 @@ Type of the test vectors\: [MacTestVector](types.md#MacTestVector)
 
 **name**           | **tests** | **validity** | **algorithm** {.sortable}
 ------------------ | --------- | ------------ | -------------
-aes_cmac_test.json | 290       | 42, 0, 248   | AES-CMAC
+aes_cmac_test.json | 308       | 60, 0, 248   | AES-CMAC
 
 ## MacWithIvTest {#MacWithIvTest}
 
@@ -385,23 +336,6 @@ gmac_test.json     | 449       | 102, 0, 347  | AES-GMAC
 vmac_128_test.json | 764       | 424, 0, 340  | VMAC-AES
 vmac_64_test.json  | 764       | 508, 0, 256  | VMAC-AES
 
-## RsaPublicKeyAsnTest {#RsaPublicKeyAsnTest}
-
-Test vectors of type RsaKeyTest are intended for checking the decoding of X509
-encoded RSA public keys.
-
-JSON schema\: rsa_public_key_asn_test_schema.json
-
-Type of the test group\:
-[RsaPublicKeyAsnTestGroup](types.md#RsaPublicKeyAsnTestGroup)
-
-Type of the test vectors\:
-[RsaPublicKeyAsnTestVector](types.md#RsaPublicKeyAsnTestVector)
-
-**name**      | **tests** | **validity** | **algorithm** {.sortable}
-------------- | --------- | ------------ | -------------
-rsa_test.json | 335       | 1, 334, 0    | RSA
-
 ## RsaesOaepDecrypt {#RsaesOaepDecrypt}
 
 Test vectors of type RsaOeapDecrypt are intended to check the decryption of RSA
@@ -418,29 +352,26 @@ Type of the test group\: [RsaesOaepTestGroup](types.md#RsaesOaepTestGroup)
 
 Type of the test vectors\: [RsaesOaepTestVector](types.md#RsaesOaepTestVector)
 
-**name**                                               | **tests** | **validity** | **algorithm** {.sortable}
------------------------------------------------------- | --------- | ------------ | -------------
-rsa_oaep_2048_sha1_mgf1sha1_test.json                  | 34        | 17, 0, 17    | RSAES-OAEP
-rsa_oaep_2048_sha224_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha224_mgf1sha224_test.json              | 33        | 17, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha256_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha256_mgf1sha256_test.json              | 35        | 18, 0, 17    | RSAES-OAEP
-rsa_oaep_2048_sha384_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha384_mgf1sha384_test.json              | 32        | 16, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha512_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_2048_sha512_mgf1sha512_test.json              | 31        | 14, 0, 17    | RSAES-OAEP
-rsa_oaep_3072_sha256_mgf1sha1_test.json                | 30        | 13, 0, 17    | RSAES-OAEP
-rsa_oaep_3072_sha256_mgf1sha256_test.json              | 35        | 18, 0, 17    | RSAES-OAEP
-rsa_oaep_3072_sha512_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_3072_sha512_mgf1sha512_test.json              | 31        | 15, 0, 16    | RSAES-OAEP
-rsa_oaep_4096_sha256_mgf1sha1_test.json                | 30        | 13, 0, 17    | RSAES-OAEP
-rsa_oaep_4096_sha256_mgf1sha256_test.json              | 35        | 18, 0, 17    | RSAES-OAEP
-rsa_oaep_4096_sha512_mgf1sha1_test.json                | 29        | 13, 0, 16    | RSAES-OAEP
-rsa_oaep_4096_sha512_mgf1sha512_test.json              | 34        | 17, 0, 17    | RSAES-OAEP
-rsa_oaep_misc_test.json                                | 775       | 460, 315, 0  | RSAES-OAEP
-rsa_three_primes_oaep_2048_sha1_mgf1sha1_test.json     | 34        | 17, 0, 17    | RSAES-OAEP
-rsa_three_primes_oaep_3072_sha224_mgf1sha224_test.json | 36        | 19, 0, 17    | RSAES-OAEP
-rsa_three_primes_oaep_4096_sha256_mgf1sha256_test.json | 35        | 18, 0, 17    | RSAES-OAEP
+**name**                                  | **tests** | **validity** | **algorithm** {.sortable}
+----------------------------------------- | --------- | ------------ | -------------
+rsa_oaep_2048_sha1_mgf1sha1_test.json     | 34        | 17, 0, 17    | RSAES-OAEP
+rsa_oaep_2048_sha224_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha224_mgf1sha224_test.json | 33        | 17, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha256_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha256_mgf1sha256_test.json | 35        | 18, 0, 17    | RSAES-OAEP
+rsa_oaep_2048_sha384_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha384_mgf1sha384_test.json | 32        | 16, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha512_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_2048_sha512_mgf1sha512_test.json | 31        | 14, 0, 17    | RSAES-OAEP
+rsa_oaep_3072_sha256_mgf1sha1_test.json   | 30        | 13, 0, 17    | RSAES-OAEP
+rsa_oaep_3072_sha256_mgf1sha256_test.json | 35        | 18, 0, 17    | RSAES-OAEP
+rsa_oaep_3072_sha512_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_3072_sha512_mgf1sha512_test.json | 31        | 15, 0, 16    | RSAES-OAEP
+rsa_oaep_4096_sha256_mgf1sha1_test.json   | 30        | 13, 0, 17    | RSAES-OAEP
+rsa_oaep_4096_sha256_mgf1sha256_test.json | 35        | 18, 0, 17    | RSAES-OAEP
+rsa_oaep_4096_sha512_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
+rsa_oaep_4096_sha512_mgf1sha512_test.json | 34        | 17, 0, 17    | RSAES-OAEP
+rsa_oaep_misc_test.json                   | 775       | 460, 315, 0  | RSAES-OAEP
 
 ## RsaesPkcs1Decrypt {#RsaesPkcs1Decrypt}
 
@@ -479,10 +410,9 @@ Type of the test group\:
 
 Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 
-**name**                                | **tests** | **validity** | **algorithm** {.sortable}
---------------------------------------- | --------- | ------------ | -------------
-rsa_sig_gen_misc_test.json              | 158       | 80, 78, 0    | RSASSA-PKCS1-v1_5
-rsa_sig_gen_misc_three_primes_test.json | 32        | 24, 8, 0     | RSASSA-PKCS1-v1_5
+**name**                   | **tests** | **validity** | **algorithm** {.sortable}
+-------------------------- | --------- | ------------ | -------------
+rsa_sig_gen_misc_test.json | 158       | 80, 78, 0    | RSASSA-PKCS1-v1_5
 
 ## RsassaPkcs1Verify {#RsassaPkcs1Verify}
 
@@ -501,17 +431,24 @@ Type of the test group\: [RsassaPkcs1TestGroup](types.md#RsassaPkcs1TestGroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 
-**name**                            | **tests** | **validity** | **algorithm** {.sortable}
------------------------------------ | --------- | ------------ | -------------
-rsa_signature_2048_sha224_test.json | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha256_test.json | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha512_test.json | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha256_test.json | 239       | 7, 2, 230    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha384_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha512_test.json | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha384_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha512_test.json | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_test.json             | 377       | 84, 63, 230  | RSASSA-PKCS1-v1_5
+**name**                              | **tests** | **validity** | **algorithm** {.sortable}
+------------------------------------- | --------- | ------------ | -------------
+rsa_signature_2048_sha224_test.json   | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha256_test.json   | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_224_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_256_test.json | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_384_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_512_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha512_test.json   | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha256_test.json   | 239       | 7, 2, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha384_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_256_test.json | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_384_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_512_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha512_test.json   | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha384_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha512_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_test.json               | 377       | 84, 63, 230  | RSASSA-PKCS1-v1_5
 
 ## RsassaPssVerify {#RsassaPssVerify}
 
@@ -528,17 +465,15 @@ Type of the test group\: [RsassaPssTestGroup](types.md#RsassaPssTestGroup)
 
 Type of the test vectors\: [RsassaPssTestVector](types.md#RsassaPssTestVector)
 
-**name**                                     | **tests** | **validity** | **algorithm** {.sortable}
--------------------------------------------- | --------- | ------------ | -------------
-rsa_pss_2048_sha1_mgf1_20_test.json          | 49        | 0, 9, 40     | RSASSA-PSS
-rsa_pss_2048_sha256_mgf1_0_test.json         | 46        | 7, 0, 39     | RSASSA-PSS
-rsa_pss_2048_sha256_mgf1_32_params_test.json | 49        | 9, 0, 40     | RSASSA-PSS
-rsa_pss_2048_sha256_mgf1_32_test.json        | 49        | 9, 0, 40     | RSASSA-PSS
-rsa_pss_3072_sha256_mgf1_32_test.json        | 49        | 9, 0, 40     | RSASSA-PSS
-rsa_pss_4096_sha256_mgf1_32_test.json        | 49        | 9, 0, 40     | RSASSA-PSS
-rsa_pss_4096_sha512_mgf1_32_test.json        | 48        | 9, 0, 39     | RSASSA-PSS
-rsa_pss_misc_params_test.json                | 150       | 120, 30, 0   | RSASSA-PSS
-rsa_pss_misc_test.json                       | 150       | 120, 30, 0   | RSASSA-PSS
+**name**                              | **tests** | **validity** | **algorithm** {.sortable}
+------------------------------------- | --------- | ------------ | -------------
+rsa_pss_2048_sha1_mgf1_20_test.json   | 82        | 0, 42, 40    | RSASSA-PSS
+rsa_pss_2048_sha256_mgf1_0_test.json  | 100       | 61, 0, 39    | RSASSA-PSS
+rsa_pss_2048_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_3072_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_4096_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_4096_sha512_mgf1_32_test.json | 171       | 132, 0, 39   | RSASSA-PSS
+rsa_pss_misc_test.json                | 150       | 120, 30, 0   | RSASSA-PSS
 
 ## XdhAsnComp {#XdhAsnComp}
 
@@ -555,8 +490,8 @@ Type of the test vectors\: [XdhAsnTestVector](types.md#XdhAsnTestVector)
 
 **name**             | **tests** | **validity** | **algorithm** {.sortable}
 -------------------- | --------- | ------------ | -------------
-x25519_asn_test.json | 176       | 62, 98, 16   | XDH
-x448_asn_test.json   | 151       | 60, 75, 16   | XDH
+x25519_asn_test.json | 535       | 265, 253, 17 | XDH
+x448_asn_test.json   | 527       | 253, 257, 17 | XDH
 
 ## XdhComp {#XdhComp}
 
@@ -574,8 +509,8 @@ Type of the test vectors\: [XdhTestVector](types.md#XdhTestVector)
 
 **name**         | **tests** | **validity** | **algorithm** {.sortable}
 ---------------- | --------- | ------------ | -------------
-x25519_test.json | 160       | 62, 98, 0    | XDH
-x448_test.json   | 135       | 60, 75, 0    | XDH
+x25519_test.json | 518       | 265, 253, 0  | XDH
+x448_test.json   | 510       | 253, 257, 0  | XDH
 
 ## XdhJwkComp {#XdhJwkComp}
 
@@ -592,5 +527,25 @@ Type of the test vectors\: [XdhJwkTestVector](types.md#XdhJwkTestVector)
 
 **name**             | **tests** | **validity** | **algorithm** {.sortable}
 -------------------- | --------- | ------------ | -------------
-x25519_jwk_test.json | 173       | 62, 98, 13   | XDH
-x448_jwk_test.json   | 148       | 60, 75, 13   | XDH
+x25519_jwk_test.json | 531       | 265, 253, 13 | XDH
+x448_jwk_test.json   | 523       | 253, 257, 13 | XDH
+
+## XdhPemComp {#XdhPemComp}
+
+Test vectors of type XdhPemComp are intended for verifying XDH.
+
+Public and private keys are PEM encoded. The tests inlcude vectors generated for
+edge cases, arithmetic overflows, points on twists and public keys for the wrong
+curve. The tests do not include invalid PEM formats, though such tests may be
+added in the future.
+
+JSON schema\: xdh_pem_comp_schema.json
+
+Type of the test group\: [XdhPemTestGroup](types.md#XdhPemTestGroup)
+
+Type of the test vectors\: [XdhPemTestVector](types.md#XdhPemTestVector)
+
+**name**             | **tests** | **validity** | **algorithm** {.sortable}
+-------------------- | --------- | ------------ | -------------
+x25519_pem_test.json | 518       | 265, 253, 0  | XDH
+x448_pem_test.json   | 510       | 253, 257, 0  | XDH
