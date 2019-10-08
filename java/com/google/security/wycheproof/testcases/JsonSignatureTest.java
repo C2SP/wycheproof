@@ -309,6 +309,7 @@ public class JsonSignatureTest {
     }
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
+    int verifiedSignatures = 0;
     int errors = 0;
     int skippedKeys = 0;
     int supportedKeys = 0;
@@ -401,29 +402,37 @@ public class JsonSignatureTest {
                   + sig
                   + reason);
           errors++;
-        } else if (verified && result.equals("invalid")) {
-          System.out.println(
-              "Invalid"
-                  + signatureAlgorithm
-                  + " signature verified."
-                  + " "
-                  + filename
-                  + " tcId:"
-                  + tcid
-                  + " sig:"
-                  + sig);
-          errors++;
+        } else if (verified) {
+          if (result.equals("invalid")) {
+            System.out.println(
+                "Invalid"
+                    + signatureAlgorithm
+                    + " signature verified."
+                    + " "
+                    + filename
+                    + " tcId:"
+                    + tcid
+                    + " sig:"
+                    + sig);
+            errors++;
+          } else {
+            verifiedSignatures++;
+          }
         }
       }
     }
-    if (skippedKeys > 0) {
+    // Prints some information if tests were skipped. This avoids giving
+    // the impression that algorithms are supported.
+    if (skippedKeys > 0 || verifiedSignatures == 0) {
       System.out.println(
           "File:"
               + filename
               + " number of skipped keys:"
               + skippedKeys
               + " number of supported keys:"
-              + supportedKeys);
+              + supportedKeys
+              + " verified signatures:"
+              + verifiedSignatures);
       for (String s : skippedGroups) {
         System.out.println("Skipped groups where " + s);
       }
@@ -614,6 +623,57 @@ public class JsonSignatureTest {
   @Test
   public void testBrainpoolP512r1Sha512() throws Exception {
     testVerification("ecdsa_brainpoolP512r1_sha512_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  // SHA-3 signatures
+  @Test
+  public void testSecp224r1Sha3_224 () throws Exception {
+    testVerification("ecdsa_secp224r1_sha3_224_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp224r1Sha3_256 () throws Exception {
+    testVerification("ecdsa_secp224r1_sha3_256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp224r1Sha3_512 () throws Exception {
+    testVerification("ecdsa_secp224r1_sha3_512_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp256r1Sha3_256 () throws Exception {
+    testVerification("ecdsa_secp256r1_sha3_256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp256r1Sha3_512 () throws Exception {
+    testVerification("ecdsa_secp256r1_sha3_512_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp256k1Sha3_256 () throws Exception {
+    testVerification("ecdsa_secp256k1_sha3_256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp256k1Sha3_512 () throws Exception {
+    testVerification("ecdsa_secp256k1_sha3_512_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp384r1Sha3_384 () throws Exception {
+    testVerification("ecdsa_secp384r1_sha3_384_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp384r1Sha3_512 () throws Exception {
+    testVerification("ecdsa_secp384r1_sha3_512_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp521r1Sha3_512 () throws Exception {
+    testVerification("ecdsa_secp521r1_sha3_512_test.json", "ECDSA", Format.ASN, true);
   }
 
   // jdk11 adds P1363 encoded signatures.
