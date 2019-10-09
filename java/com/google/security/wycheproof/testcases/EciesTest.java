@@ -378,7 +378,7 @@ public class EciesTest {
     // Decryption
     ctBuffer.flip();
     ByteBuffer decrypted = ByteBuffer.allocate(message.length);
-    cipher.init(Cipher.DECRYPT_MODE, priv);
+    cipher.init(Cipher.DECRYPT_MODE, priv, cipher.getParameters());
     cipher.doFinal(ctBuffer, decrypted);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted.array()));
   }
@@ -414,7 +414,7 @@ public class EciesTest {
     ecies.doFinal(ptBuffer, ctBuffer);
     ctBuffer.flip();
 
-    ecies.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+    ecies.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), ecies.getParameters());
     byte[] decrypted = ecies.doFinal(backingArray, 0, ctBuffer.remaining());
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }
