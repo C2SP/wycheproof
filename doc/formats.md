@@ -30,7 +30,8 @@ these test files are described in [files.md](files.md).
 ### Hash functions {#HashFunctions}
 
 Wycheproof uses the following strings to denote hash functions: SHA-1, SHA-224,
-SHA-256, SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512
+SHA-256, SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHA-512/224
+and SHA-512/256.
 
 ### Elliptic curves {#EcCurve}
 
