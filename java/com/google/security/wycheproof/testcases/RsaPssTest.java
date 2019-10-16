@@ -20,15 +20,21 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.lang.reflect.Constructor;
+import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +47,96 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class RsaPssTest {
+
+  /**
+   * Returns an AlgorithmParameterSpec for generating a RSASSA-PSS key,
+   * which include the PSSParameters.
+   * Requires jdk11.
+   * 
+   * @param keySizeInBits the size of the modulus in bits.
+   * @param sha the name of the hash function for hashing the input (e.g. "SHA-256")
+   * @param mgf the name of the mask generating function (typically "MGF1")
+   * @param mgfSha the name of the hash function for the mask generating function
+   *        (typically the same as sha).
+   * @param saltLength the length of the salt in bytes (typically the digest size of sha,
+   *        i.e. 32 for "SHA-256")
+   * @throws NoSuchMethodException if the AlgorithmParameterSpec is not
+   *   supported (i.e. this happens before jdk11).
+   */
+  public RSAKeyGenParameterSpec getPssAlgorithmParameters(
+      int keySizeInBits,
+      String sha,
+      String mgf,
+      String mgfSha,
+      int saltLength) throws Exception {
+    BigInteger publicExponent = new BigInteger("65537");
+    PSSParameterSpec params = 
+        new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), saltLength, 1);
+    // Uses reflection to call 
+    // public RSAKeyGenParameterSpec(int keysize, BigInteger publicExponent,
+    //        AlgorithmParameterSpec keyParams)
+    // because this method is only supported in jdk11. This throws a NoSuchMethodException
+    // for older jdks.
+    Constructor<RSAKeyGenParameterSpec> c =
+        RSAKeyGenParameterSpec.class.getConstructor(
+            int.class, BigInteger.class, AlgorithmParameterSpec.class);
+    return c.newInstance(keySizeInBits, publicExponent, params);
+  }
+
+  /**
+   * Tries encoding and decoding of RSASSA-PSS keys generated with RSASSA-PSS.
+   * 
+   * RSASSA-PSS keys contain the PSSParameters, hence their encodings are
+   * somewhat different than plain RSA keys.
+   */
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs = {"b/120406853"}
+  )
+  @Test
+  public void testEncodeDecodePublic() throws Exception {
+    int keySizeInBits = 2048;
+    PublicKey pub;
+    try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
+      keyGen.initialize(keySizeInBits);
+      KeyPair keypair = keyGen.genKeyPair();
+      pub = keypair.getPublic();
+    } catch (NoSuchAlgorithmException ex) {
+      System.out.println("Key generation for RSASSA-PSS is not supported.");
+      return;
+    }
+    byte[] encoded = pub.getEncoded();
+    assertEquals(
+        "The test assumes that the public key is in X.509 format", "X.509", pub.getFormat());
+    System.out.println("Generated RSA-PSS key");
+    System.out.println(TestUtil.bytesToHex(encoded));    
+    KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
+    kf.generatePublic(spec);
+    
+    // Tries to generate another pair or keys. This time the generator is given an
+    // RSAKeyGenParameterSpec containing the key size an the PSS parameters.
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLength = 20;
+    try {
+      RSAKeyGenParameterSpec params =
+          getPssAlgorithmParameters(keySizeInBits, sha, mgf, sha, saltLength);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
+      keyGen.initialize(params);
+      KeyPair keypair = keyGen.genKeyPair();
+      pub = keypair.getPublic();
+    } catch (NoSuchAlgorithmException | NoSuchMethodException ex) {
+      System.out.println("Key generation for RSASSA-PSS is not supported.");
+      return;
+    }
+    byte[] encoded2 = pub.getEncoded();
+    System.out.println("Generated RSA-PSS key with PSS parameters");
+    System.out.println(TestUtil.bytesToHex(encoded2));
+    X509EncodedKeySpec spec2 = new X509EncodedKeySpec(encoded2);
+    kf.generatePublic(spec2);
+  }
 
   /**
    * Tests the default parameters used for a given algorithm name.
@@ -128,6 +224,14 @@ public class RsaPssTest {
    * are the same. It expects that the saltLength is the same as the size of the message digest.
    * It expects that the default for the trailerField is 1. These expectations are based on
    * existing implementations. They differ from the ASN defaults in RFC 8017.
+   *
+   * <p>There is no test for defaults for the algorithm name "RSASSA-PSS".
+   * "RSASSA-PSS" does not specify any parameters. Using the default values from RFC 8017
+   * (i.e. SHA-1 for both hashes) leads to potential weaknesses and hence is of course a bad
+   * choice. Other defaults lead to incompatibilities and hence isn't a reasonable choice either.
+   * jdk11 requires that the parameters are always specified. BouncyCastle however uses the SHA-1
+   * default. The behaviour in jdk11 is preferable, since it requires that an implementor chooses
+   * PSSParameters explicitly, and does not default to weak behaviour.
    */
   @Test
   public void testDefaults() throws Exception {
@@ -136,18 +240,14 @@ public class RsaPssTest {
     testDefaultForAlgorithm("SHA256withRSAandMGF1", "SHA-256", "MGF1", "SHA-256", 32, 1);
     testDefaultForAlgorithm("SHA384withRSAandMGF1", "SHA-384", "MGF1", "SHA-384", 48, 1);
     testDefaultForAlgorithm("SHA512withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 64, 1);
-    testDefaultForAlgorithm("SHA512/224withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 28, 1);
-    testDefaultForAlgorithm("SHA512/256withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 32, 1);
+    testDefaultForAlgorithm(
+        "SHA512/224withRSAandMGF1", "SHA-512/224", "MGF1", "SHA-512/224", 28, 1);
+    testDefaultForAlgorithm(
+        "SHA512/256withRSAandMGF1", "SHA-512/256", "MGF1", "SHA-512/256", 32, 1);
     testDefaultForAlgorithm("SHA3-224withRSAandMGF1", "SHA3-224", "MGF1", "SHA3-224", 28, 1);
     testDefaultForAlgorithm("SHA3-256withRSAandMGF1", "SHA3-256", "MGF1", "SHA3-256", 32, 1);
     testDefaultForAlgorithm("SHA3-384withRSAandMGF1", "SHA3-384", "MGF1", "SHA3-384", 48, 1);
     testDefaultForAlgorithm("SHA3-512withRSAandMGF1", "SHA3-512", "MGF1", "SHA3-512", 64, 1);
-    // TODO(bleichen): Should there be any expectations for RSASSA-PSS?
-    //   RSASSA-PSS does not specify any parameters. Using the default values from RFC 8017
-    //   (i.e. SHA-1 for both hashes) leads to potential weaknesses. jdk11 requires that
-    //   the parameters are always specified. BouncyCastle however uses the SHA-1 default.
-    //   Is this a bug?
-    // testDefaultForAlgorithm("RSASSA-PSS", "SHA-256", "MGF1", "SHA-256", 32, 1);
   }
     
   /** Convenience mehtod to get a String from a JsonObject */
@@ -165,9 +265,9 @@ public class RsaPssTest {
    * Oracle previously specified that algorithm names for RSA-PSS are strings like
    * "SHA256WITHRSAandMGF1".
    * See http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
-   * 
-   * <p> But the implementation in jdk11 only support "RSASSA-PSS". This function simply attempts
-   * to return an algorithm name that works.
+   * These algorithm names fail to specify the hash function for the MGF. A cleaner solution 
+   * in jdk11 is to use the algorithm name "RSASSA-PSS" and specify the parameters separately.
+   * This function simply attempts to return an algorithm name that works.
    *
    * @param group A json dictionary containing a field "sha" with message digest (e.g. "SHA-256")
    *              and the a field "mgf" for the mask generation function (e.g. "MGF1").
@@ -192,6 +292,10 @@ public class RsaPssTest {
       md = "SHA384";
     } else if (md.equals("SHA-512")) {
       md = "SHA512";
+    } else if (md.equals("SHA-512/224")) {
+      md = "SHA512/224";
+    } else if (md.equals("SHA-512/256")) {
+      md = "SHA512/256";
     }
     return md + "WITHRSAand" + mgf;
   }
@@ -203,9 +307,14 @@ public class RsaPssTest {
    * the key in ASN encoding encoded hexadecimal "keyPem": the key in Pem format encoded hexadecimal
    * The test can use the format that is most convenient.
    */
-  protected static PublicKey getPublicKey(JsonObject object) throws Exception {
+  protected static PublicKey getPublicKey(JsonObject object, boolean pssParamsIncluded)
+      throws Exception {
     KeyFactory kf;
-    kf = KeyFactory.getInstance("RSA");
+    if (pssParamsIncluded) {
+      kf = KeyFactory.getInstance("RSASSA-PSS");
+    } else {
+      kf = KeyFactory.getInstance("RSA");
+    }
     byte[] encoded = TestUtil.hexToBytes(getString(object, "keyDer"));
     X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(encoded);
     return kf.generatePublic(x509keySpec);
@@ -255,8 +364,16 @@ public class RsaPssTest {
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
    *     This is for example used for files with test vectors that use elliptic curves that are not
    *     commonly supported.
+   * @param paramsIncluded if true then the enoding of the public key contains the PSS parameters.
+   *     The algorithm parameters of PSS are defined in appendix A.2 of RFC 8017. One option is not
+   *     to include the parameters and use { OID rsaEncryption PARAMETERS NULL } for the algorithm
+   *     identifier. Another option is to include the parameters by using 
+   *     { OID id-RSASSA-PSS   PARAMETERS RSASSA-PSS-params } as algorithm identifier.
+   *     The second option requires that an RSAKey contains an AlgorithmParameterSpec. The 
+   *     AlgorithmParameterSpec is a recent addition made in jdk11. Hence many providers are
+   *     currently not supporting this. 
    **/
-  public void testRsaPss(String filename, boolean allowSkippingKeys)
+  public void testRsaPss(String filename, boolean allowSkippingKeys, boolean paramsIncluded)
       throws Exception {
     // Testing with old test vectors may be a reason for a test failure.
     // Generally mismatched version numbers are of little or no concern, since
@@ -281,6 +398,7 @@ public class RsaPssTest {
     int cntTests = 0;
     int errors = 0;
     int skippedKeys = 0;
+    int verifiedTests = 0;
     Set<String> skippedAlgorithms = new HashSet<String>();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
@@ -288,10 +406,12 @@ public class RsaPssTest {
       PublicKey key = null;
       Signature verifier = null;
       try {
-        key = getPublicKey(group);
-        PSSParameterSpec pssParams = getPSSParams(group);
+        key = getPublicKey(group, paramsIncluded);
         verifier = Signature.getInstance(algorithm);
-        verifier.setParameter(pssParams);
+        if (!paramsIncluded) {
+          PSSParameterSpec pssParams = getPSSParams(group);    
+          verifier.setParameter(pssParams);
+        }
       } catch (GeneralSecurityException ex) {
         if (allowSkippingKeys) {
           skippedKeys++;
@@ -359,13 +479,27 @@ public class RsaPssTest {
                   + " sig:"
                   + sig);
           errors++;
+        } else if (verified) {
+          verifiedTests++;
         }
       }
     }
-    System.out.println("Number of skipped keys:" + skippedKeys);
-    for (String s : skippedAlgorithms) {
-      System.out.println("Skipped algorithms " + s);
+
+    // Prints some information if tests were skipped. This avoids giving
+    // the impression that algorithms are supported.
+    if (skippedKeys > 0 || verifiedTests == 0) {
+      System.out.println(
+          "File:"
+              + filename
+              + " number of skipped keys:"
+              + skippedKeys
+              + " verified signatures:"
+              + verifiedTests);
+      for (String s : skippedAlgorithms) {
+        System.out.println("Skipped algorithms " + s);
+      }
     }
+
     assertEquals(0, errors);
     if (skippedKeys == 0) {
       assertEquals(numTests, cntTests);
@@ -376,7 +510,7 @@ public class RsaPssTest {
 
   @Test
   public void testRsaPss2048Sha256() throws Exception {
-    testRsaPss("rsa_pss_2048_sha256_mgf1_32_test.json", true);
+    testRsaPss("rsa_pss_2048_sha256_mgf1_32_test.json", true, false);
   }
 
   @NoPresubmitTest(
@@ -385,22 +519,50 @@ public class RsaPssTest {
   )
   @Test
   public void testRsaPss3072Sha256() throws Exception {
-    testRsaPss("rsa_pss_3072_sha256_mgf1_32_test.json", true);
+    testRsaPss("rsa_pss_3072_sha256_mgf1_32_test.json", true, false);
   }
 
   @Test
   public void testRsaPss4096Sha256() throws Exception {
-    testRsaPss("rsa_pss_4096_sha256_mgf1_32_test.json", true);
+    testRsaPss("rsa_pss_4096_sha256_mgf1_32_test.json", true, false);
   }
 
   @Test
   public void testRsaPss4096Sha512() throws Exception {
-    testRsaPss("rsa_pss_4096_sha512_mgf1_32_test.json", true);
+    testRsaPss("rsa_pss_4096_sha512_mgf1_32_test.json", true, false);
   }
 
   @Test
   public void testRsaPss2048Sha256NoSalt() throws Exception {
-    testRsaPss("rsa_pss_2048_sha256_mgf1_0_test.json", true);
+    testRsaPss("rsa_pss_2048_sha256_mgf1_0_test.json", true, false);
   }
+
+  @Test
+  public void testRsaPss2048Sha512_224() throws Exception {
+    testRsaPss("rsa_pss_2048_sha512_256_mgf1_28_test.json", true, false);
+  }
+
+  @Test
+  public void testRsaPss2048Sha512_256() throws Exception {
+    testRsaPss("rsa_pss_2048_sha512_256_mgf1_32_test.json", true, false);
+  }
+
+  // BouncyCastle and Conscrypt do not support RSA-PSS Parameters in the
+  // encoding of the key. jdk11 should support this, but as long as
+  // testEncodeDecodePublic fails it makes no sense to try this test. 
+  /*
+  @ExcludedTest(
+    providers = {ProviderType.BOUNCY_CASTLE, ProviderType.CONSCRYPT},
+    comment = "RSA-PSS parameters in RSAKeys is added in jdk11"
+  )
+  @NoPresubmitTest(
+    providers = {ProviderType.OPENJDK},
+    bugs={"jdk can't read the keys"}
+  )
+  @Test
+  public void testRsaPss2048Sha256WithParams() throws Exception {
+    testRsaPss("rsa_pss_2048_sha256_mgf1_32_params_test.json", false, true);
+  }
+  */
 }
 

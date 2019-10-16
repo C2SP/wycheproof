@@ -85,6 +85,10 @@ public class JsonSignatureTest {
       return "SHA384";
     } else if (md.equalsIgnoreCase("SHA-512")) {
       return "SHA512";
+    } else if (md.equalsIgnoreCase("SHA-512/224")) {
+      return "SHA512/224";
+    } else if (md.equalsIgnoreCase("SHA-512/256")) {
+      return "SHA512/256";
     }
     return md;
   }
@@ -759,7 +763,7 @@ public class JsonSignatureTest {
   // Testing RSA PKCS#1 v1.5 signatures.
   @Test
   public void testRsaSigning() throws Exception { 
-    testSigning("rsa_sig_gen_misc_test.json", "RSA", Format.RAW, false);
+    testSigning("rsa_sig_gen_misc_test.json", "RSA", Format.RAW, true);
   }
 
   @Test
@@ -775,6 +779,11 @@ public class JsonSignatureTest {
   @Test
   public void testRsaSignatures2048sha256() throws Exception {
     testVerification("rsa_signature_2048_sha256_test.json", "RSA", Format.RAW, false);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha384() throws Exception {
+    testVerification("rsa_signature_2048_sha384_test.json", "RSA", Format.RAW, false);
   }
 
   @Test
@@ -805,6 +814,28 @@ public class JsonSignatureTest {
   @Test
   public void testRsaSignatures4096sha512() throws Exception {
     testVerification("rsa_signature_4096_sha512_test.json", "RSA", Format.RAW, false);
+  }
+
+  // RSA signatures with truncated hashes. Tests may be skipped if the provider
+  // does not support the hash.
+  @Test
+  public void testRsaSignatures2048sha512_224() throws Exception {
+    testVerification("rsa_signature_2048_sha512_224_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures2048sha512_256() throws Exception {
+    testVerification("rsa_signature_2048_sha512_256_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures3072sha512_256() throws Exception {
+    testVerification("rsa_signature_3072_sha512_256_test.json", "RSA", Format.RAW, true);
+  }
+
+  @Test
+  public void testRsaSignatures4096sha512_256() throws Exception {
+    testVerification("rsa_signature_4096_sha512_256_test.json", "RSA", Format.RAW, true);
   }
 
   // RSA signatures with SHA-3. Not every provider supports SHA-3. Hence the tests
