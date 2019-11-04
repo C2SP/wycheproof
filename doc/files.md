@@ -238,7 +238,7 @@ Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 **name**        | **tests** | **validity** | **algorithm** {.sortable}
 --------------- | --------- | ------------ | -------------
 ed448_test.json | 86        | 17, 0, 69    | EDDSA
-eddsa_test.json | 112       | 51, 0, 61    | EDDSA
+eddsa_test.json | 145       | 84, 0, 61    | EDDSA
 
 ## HkdfTest {#HkdfTest}
 
@@ -255,9 +255,9 @@ Type of the test vectors\: [HkdfTestVector](types.md#HkdfTestVector)
 
 **name**              | **tests** | **validity** | **algorithm** {.sortable}
 --------------------- | --------- | ------------ | -------------
-hkdf_sha1_test.json   | 61        | 61, 0, 0     | HKDF-SHA-1
-hkdf_sha256_test.json | 60        | 60, 0, 0     | HKDF-SHA-256
-hkdf_sha512_test.json | 57        | 57, 0, 0     | HKDF-SHA-512
+hkdf_sha1_test.json   | 100       | 100, 0, 0    | HKDF-SHA-1
+hkdf_sha256_test.json | 99        | 99, 0, 0     | HKDF-SHA-256
+hkdf_sha512_test.json | 96        | 96, 0, 0     | HKDF-SHA-512
 
 ## IndCpaTest {#IndCpaTest}
 
@@ -335,6 +335,20 @@ Type of the test vectors\: [MacWithIvTestVector](types.md#MacWithIvTestVector)
 gmac_test.json     | 449       | 102, 0, 347  | AES-GMAC
 vmac_128_test.json | 764       | 424, 0, 340  | VMAC-AES
 vmac_64_test.json  | 764       | 508, 0, 256  | VMAC-AES
+
+## PrimalityTest {#PrimalityTest}
+
+Test vector of type PrimalityTest are intended for testing primality tests.
+
+JSON schema\: primality_test_schema.json
+
+Type of the test group\: [PrimalityTestGroup](types.md#PrimalityTestGroup)
+
+Type of the test vectors\: [PrimalityTestVector](types.md#PrimalityTestVector)
+
+**name**            | **tests** | **validity** | **algorithm** {.sortable}
+------------------- | --------- | ------------ | -------------
+primality_test.json | 280       | 66, 8, 206   | PrimalityTest
 
 ## RsaesOaepDecrypt {#RsaesOaepDecrypt}
 
@@ -431,24 +445,29 @@ Type of the test group\: [RsassaPkcs1TestGroup](types.md#RsassaPkcs1TestGroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
 
-**name**                              | **tests** | **validity** | **algorithm** {.sortable}
-------------------------------------- | --------- | ------------ | -------------
-rsa_signature_2048_sha224_test.json   | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha256_test.json   | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha3_224_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha3_256_test.json | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha3_384_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha3_512_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
-rsa_signature_2048_sha512_test.json   | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha256_test.json   | 239       | 7, 2, 230    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha384_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha3_256_test.json | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha3_384_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha3_512_test.json | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
-rsa_signature_3072_sha512_test.json   | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha384_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_4096_sha512_test.json   | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
-rsa_signature_test.json               | 377       | 84, 63, 230  | RSASSA-PKCS1-v1_5
+**name**                                | **tests** | **validity** | **algorithm** {.sortable}
+--------------------------------------- | --------- | ------------ | -------------
+rsa_signature_2048_sha224_test.json     | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha256_test.json     | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha384_test.json     | 252       | 7, 1, 244    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_224_test.json   | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_256_test.json   | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_384_test.json   | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha3_512_test.json   | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha512_224_test.json | 252       | 7, 1, 244    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha512_256_test.json | 251       | 7, 1, 243    | RSASSA-PKCS1-v1_5
+rsa_signature_2048_sha512_test.json     | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha256_test.json     | 239       | 7, 2, 230    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha384_test.json     | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_256_test.json   | 248       | 7, 1, 240    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_384_test.json   | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha3_512_test.json   | 249       | 7, 1, 241    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha512_256_test.json | 251       | 7, 1, 243    | RSASSA-PKCS1-v1_5
+rsa_signature_3072_sha512_test.json     | 240       | 7, 2, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha384_test.json     | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha512_256_test.json | 251       | 7, 1, 243    | RSASSA-PKCS1-v1_5
+rsa_signature_4096_sha512_test.json     | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
+rsa_signature_test.json                 | 377       | 84, 63, 230  | RSASSA-PKCS1-v1_5
 
 ## RsassaPssVerify {#RsassaPssVerify}
 
@@ -465,15 +484,17 @@ Type of the test group\: [RsassaPssTestGroup](types.md#RsassaPssTestGroup)
 
 Type of the test vectors\: [RsassaPssTestVector](types.md#RsassaPssTestVector)
 
-**name**                              | **tests** | **validity** | **algorithm** {.sortable}
-------------------------------------- | --------- | ------------ | -------------
-rsa_pss_2048_sha1_mgf1_20_test.json   | 82        | 0, 42, 40    | RSASSA-PSS
-rsa_pss_2048_sha256_mgf1_0_test.json  | 100       | 61, 0, 39    | RSASSA-PSS
-rsa_pss_2048_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
-rsa_pss_3072_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
-rsa_pss_4096_sha256_mgf1_32_test.json | 103       | 63, 0, 40    | RSASSA-PSS
-rsa_pss_4096_sha512_mgf1_32_test.json | 171       | 132, 0, 39   | RSASSA-PSS
-rsa_pss_misc_test.json                | 150       | 120, 30, 0   | RSASSA-PSS
+**name**                                  | **tests** | **validity** | **algorithm** {.sortable}
+----------------------------------------- | --------- | ------------ | -------------
+rsa_pss_2048_sha1_mgf1_20_test.json       | 82        | 0, 42, 40    | RSASSA-PSS
+rsa_pss_2048_sha256_mgf1_0_test.json      | 100       | 61, 0, 39    | RSASSA-PSS
+rsa_pss_2048_sha256_mgf1_32_test.json     | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_2048_sha512_256_mgf1_28_test.json | 50        | 9, 0, 41     | RSASSA-PSS
+rsa_pss_2048_sha512_256_mgf1_32_test.json | 49        | 9, 0, 40     | RSASSA-PSS
+rsa_pss_3072_sha256_mgf1_32_test.json     | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_4096_sha256_mgf1_32_test.json     | 103       | 63, 0, 40    | RSASSA-PSS
+rsa_pss_4096_sha512_mgf1_32_test.json     | 171       | 132, 0, 39   | RSASSA-PSS
+rsa_pss_misc_test.json                    | 150       | 120, 30, 0   | RSASSA-PSS
 
 ## XdhAsnComp {#XdhAsnComp}
 
