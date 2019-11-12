@@ -42,7 +42,8 @@ import org.junit.runners.Suite.SuiteClasses;
   RsaKeyTest.class,
   RsaOaepTest.class,
   RsaPssTest.class,
-  RsaSignatureTest.class
+  RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.CONSCRYPT)
 public final class ConscryptAllTests {

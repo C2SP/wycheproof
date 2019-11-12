@@ -45,6 +45,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
   RsaOaepTest.class,
   RsaPssTest.class,
   RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.SPONGY_CASTLE)
 public final class SpongyCastleAllTests {

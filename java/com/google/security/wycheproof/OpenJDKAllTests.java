@@ -46,6 +46,7 @@ import org.junit.runners.Suite.SuiteClasses;
   RsaPssTest.class,
   RsaOaepTest.class,
   RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.OPENJDK)
 public final class OpenJDKAllTests {
