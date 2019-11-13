@@ -36,27 +36,36 @@ and SHA-512/256.
 ### Elliptic curves {#EcCurve}
 
 The following names for elliptic curves are used in Wycheproof. Some of the
-curves have a jwk equivalent.
+curves have a jwk equivalent. Weak curves are curves with a security level below
+112-bits. These curves are typically not tested.
 
-**Curve name**  | **jwk name** | **comments and references**
-:-------------- | :----------- | :--------------------------
-secp224r1       |              |
-secp256r1       | P-256        |
-secp384r1       | P-384        |
-secp521r1       | P-521        |
-secp256k1       | P-256K       | jwk name is proposed in tools.ietf.org/html/draft-jones-webauthn-secp256k1-00
-brainpoolP256r1 |              | [RFC 5639]
-brainpoolP320r1 |              | [RFC 5639]
-brainpoolP384r1 |              | [RFC 5639]
-brainpoolP512r1 |              | [RFC 5639]
-brainpoolP256t1 |              | [RFC 5639]
-brainpoolP320t1 |              | [RFC 5639]
-brainpoolP384t1 |              | [RFC 5639]
-brainpoolP512t1 |              | [RFC 5639]
-curve25519      |              | Section 4.1 [RFC 7748]
-curve448        |              | Section 4.2 [RFC 7748]
-edwards25519    | Ed25519      | A curve that is used in Eddsa. It is isomorphic to curve25519. See [RFC 8032], [RFC 8037]
-edwards448      | Ed448        | A curve that is used in Eddsa. It is isomorphic to curve448. See [RFC 8032], [RFC 8037]
+**Curve name**  | **jwk name** | **oid**               | **comments and references**
+:-------------- | :----------- | :-------------------- | :--------------------------
+secp160k1       |              | 1.3.132.0.9           | weak curve
+secp160r1       |              | 1.3.132.0.8           | weak curve
+secp160r2       |              | 1.3.132.0.30          | weak curve
+secp192k1       |              | 1.3.132.0.31          | weak curve
+secp192r1       |              | 1.2.840.10045.3.1.1   | [RFC 3279], weak curve
+secp224k1       |              | 1.3.132.0.32          |
+secp224r1       |              | 1.3.132.0.33          | [RFC 5480]
+secp256r1       | P-256        | 1.2.840.10045.3.1.7   | [RFC 3279]
+secp256k1       | P-256K       | 1.3.132.0.10          | jwk name is proposed in tools.ietf.org/html/draft-jones-webauthn-secp256k1-00
+secp384r1       | P-384        | 1.3.132.0.34          | [RFC 5480]
+secp521r1       | P-521        | 1.3.132.0.35          | [RFC 5480]
+brainpoolP224r1 |              | 1.3.36.3.3.2.8.1.1.5  | [RFC 5639]
+brainpoolP224t1 |              | 1.3.36.3.3.2.8.1.1.6  | [RFC 5639]
+brainpoolP256r1 |              | 1.3.36.3.3.2.8.1.1.7  | [RFC 5639]
+brainpoolP256t1 |              | 1.3.36.3.3.2.8.1.1.8  | [RFC 5639]
+brainpoolP320r1 |              | 1.3.36.3.3.2.8.1.1.9  | [RFC 5639]
+brainpoolP320t1 |              | 1.3.36.3.3.2.8.1.1.10 | [RFC 5639]
+brainpoolP384r1 |              | 1.3.36.3.3.2.8.1.1.11 | [RFC 5639]
+brainpoolP384t1 |              | 1.3.36.3.3.2.8.1.1.12 | [RFC 5639]
+brainpoolP512r1 |              | 1.3.36.3.3.2.8.1.1.13 | [RFC 5639]
+brainpoolP512t1 |              | 1.3.36.3.3.2.8.1.1.14 | [RFC 5639]
+curve25519      |              |                       | Section 4.1 [RFC 7748]
+curve448        |              |                       | Section 4.2 [RFC 7748]
+edwards25519    | Ed25519      |                       | A curve that is used in Eddsa. It is isomorphic to curve25519. See [RFC 8032], [RFC 8037]
+edwards448      | Ed448        |                       | A curve that is used in Eddsa. It is isomorphic to curve448. See [RFC 8032], [RFC 8037]
 
 ## Test groups and tests
 
