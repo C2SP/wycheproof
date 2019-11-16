@@ -3,7 +3,7 @@
 [TOC]
 
 The digital signature algorithm (DSA) is one of three signature schemes
-descripted in the digital signature standard [[NIST-DSS]]{bib.md#NIST-DSS}.
+descripted in the digital signature standard [[NIST-DSS]](bib.md#NIST-DSS).
 
 ## Key generation
 
@@ -22,7 +22,7 @@ The tests expect the following properties of the parameters used during key
 generation:
 
 *   If only the parameter L is specified by the caller then N should be one of
-    the options proposed in [[NIST-DSS]]{bib.md#NIST-DSS}.
+    the options proposed in [[NIST-DSS]](bib.md#NIST-DSS).
 *   If no size is specified then L should be at least 2048. This is the minimal
     key size recommended by NIST for the period up to the year 2030.
 
@@ -33,7 +33,7 @@ one-time secret k. This secret value should be close to uniformly distributed.
 If that is not the case then DSA signatures can leak the private key that was
 used to generate the signature. Two methods for generating the one-time secrets
 are described in FIPS PUB 186-4, Section B.5.1 or B.5.2
-[[FIPS-186-4]]{bib.md#FIPS-186-4}. There is also the possibility that the use of
+[[FIPS-186-4]](bib.md#FIPS-186-4). There is also the possibility that the use of
 mismatched implementations for key generation and signature generation are
 leaking the private keys.
 
