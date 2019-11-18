@@ -46,7 +46,7 @@ of attacks based on different types of information leakage. Smart even describes
 an attack that only needs about 40 chosen ciphertexts
 [[Smart10]](bib.md#Smart10), though in this case the encryption did not use
 PKCS #1 padding. NIST disallows the use of RSA PKCS #1 v1.5 for key-agreement
-and key-transport after 2023 [[NIST-SP800-131A]]{bib.md#NIST-SP800-131A}.
+and key-transport after 2023 [[NIST-SP800-131A]](bib.md#NIST-SP800-131A).
 
 **Bugs**
 
