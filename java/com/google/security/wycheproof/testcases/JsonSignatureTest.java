@@ -316,6 +316,7 @@ public class JsonSignatureTest {
     int verifiedSignatures = 0;
     int errors = 0;
     int skippedKeys = 0;
+    int skippedAlgorithms = 0;
     int supportedKeys = 0;
     Set<String> skippedGroups = new HashSet<String>();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
@@ -343,7 +344,7 @@ public class JsonSignatureTest {
         if (!allowSkippingKeys) {
           throw ex;
         }
-        skippedKeys++;
+        skippedAlgorithms++;
         continue;
       }
       supportedKeys++;
@@ -427,12 +428,14 @@ public class JsonSignatureTest {
     }
     // Prints some information if tests were skipped. This avoids giving
     // the impression that algorithms are supported.
-    if (skippedKeys > 0 || verifiedSignatures == 0) {
+    if (skippedKeys > 0 || skippedAlgorithms > 0 || verifiedSignatures == 0) {
       System.out.println(
           "File:"
               + filename
               + " number of skipped keys:"
               + skippedKeys
+              + " number of skipped algorithms:"
+              + skippedAlgorithms
               + " number of supported keys:"
               + supportedKeys
               + " verified signatures:"
@@ -442,7 +445,7 @@ public class JsonSignatureTest {
       }
     }
     assertEquals(0, errors);
-    if (skippedKeys == 0) {
+    if (skippedKeys == 0 && skippedAlgorithms == 0) {
       assertEquals(numTests, cntTests);
     }
   }
@@ -887,17 +890,77 @@ public class JsonSignatureTest {
     testVerification("ed448_test.json", "ED448", Format.RAW, true);
   }
 
-  // Testing DSA signatures.
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/33446454"}
-  )
+  // DSA
+  // Two signature encodings for DSA are tested below: ASN encoded signatures
+  // and P1363 encoded signatures.
   @ExcludedTest(
     providers = {ProviderType.CONSCRYPT},
     comment = "Conscrypt does not support DSA.")
   @Test
-  public void testDsa() throws Exception {
-    testVerification("dsa_test.json", "DSA", Format.ASN, false);
+  public void testDsa2048Sha224() throws Exception {
+    testVerification("dsa_2048_224_sha224_test.json", "DSA", Format.ASN, true);
   }
+
+  // NIST allows 2048-bit DSA keys with either a 224-bit q or a 256-bit q.
+  // In both cases the security level is 112-bit.
+  // Jdk generates DSA keys with a 224-bit q (unless specified).
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa2048JdkSha256() throws Exception {
+    testVerification("dsa_2048_224_sha256_test.json", "DSA", Format.ASN, true);
+  }
+
+  // OpenSSL generates DSA keys with a 256-bit q (unless specified).
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa2048Sha256() throws Exception {
+    testVerification("dsa_2048_256_sha256_test.json", "DSA", Format.ASN, true);
+  }
+
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa3072Sha256() throws Exception {
+    testVerification("dsa_3072_256_sha256_test.json", "DSA", Format.ASN, true);
+  }
+
+  // DSA tests using P1363 formated signatures.
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa2048Sha224inP1363Format() throws Exception {
+    testVerification("dsa_2048_224_sha224_p1363_test.json", "DSA", Format.P1363, true);
+  }
+
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa2048JdkSha256inP1363Format() throws Exception {
+    testVerification("dsa_2048_224_sha256_p1363_test.json", "DSA", Format.P1363, true);
+  }
+
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa2048Sha256inP1363Format() throws Exception {
+    testVerification("dsa_2048_256_sha256_p1363_test.json", "DSA", Format.P1363, true);
+  }
+
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt does not support DSA.")
+  @Test
+  public void testDsa3072Sha256inP1363Format() throws Exception {
+    testVerification("dsa_3072_256_sha256_p1363_test.json", "DSA", Format.P1363, true);
+  }
+
 }
 
