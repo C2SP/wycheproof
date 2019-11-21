@@ -7,15 +7,25 @@
 This document contains a general overview over the formats used and conventions
 used for all test test vectors. Test types have specific formats, which are
 defined in [types.md](types.md). The test files and the tests intended with
-these test files are described in [files.md](files.md).
+these test files are described in [files.md](files.md). In a number of cases
+there are distinct tests for distinct output formats. E.g. DSA and ECDSA
+signatures both have separate test vector files for ASN encoded signatures and
+P1363 encoded signatures.
+
+## JSON schemas
+
+All test vector files contain valid JSON. The root structure contains the field
+"schema", which is the file name of the JSON schema for this file. The JSON
+schemas are in the directory `wycheproof/schemas/`. The JSON schemas are still
+in an experimental state. Being unfamiliar with JSON schemas it is often not
+clear which syntax is well supported. Hence some changes in the schemas should
+be expected in the future.
+
+However, the plan is that major changes in the format of a test vector file
+will be reflected by a changed JSON schema file.
 
 ## General conventions
 
-*   All files contain valid JSON. The root structure contains the field
-    "schema", which is the file name of the JSON schema for this file. The JSON
-    schemas are in the directory `wycheproof/schemas/`. Changes in the format of
-    a test vector file that break compatibility will be reflected by a changed
-    JSON schema file.
 *   The data included in the header of the test vector file and the test groups
     are always well formatted. Only inputs contained in the individual tests may
     be malformed.

@@ -96,8 +96,13 @@ https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/
 
 ### HowSma99 {#HowSma99}
 N.A. Howgrave-Graham, N.P. Smart,
-“Lattice Attacks on Digital Signature Schemes”
+"Lattice Attacks on Digital Signature Schemes"
 http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
+
+### Krawczyk10 {#Krawczyk10}
+H. Krawczyk,
+"Cryptographic extraction and key derivation: the HKDF scheme",
+https://eprint.iacr.org/2010/264.pdf
 
 ### Nguyen04 {#Nguyen04}
 P. Nguyen,
@@ -176,11 +181,11 @@ http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar2.pdf
 ### NIST-SP800-57 {#NIST-SP800-57}
 http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
 
-### NIST SP800-131A {#NIST-SP800-131A}
+### NIST SP800-131A Revision 2 {#NIST-SP800-131A}
 Transitioning the Use of Cryptographic Algorithms and Key Lengths
 https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
-Some notable changes: Keys with less than 112 bit security are now disallowed.
-EdDSA will be added with FIPS 186-5. TDES is disallowed after 2023.
+Some notable changes in revision 2: Keys with less than 112 bit security are now
+disallowed. EdDSA will be added with FIPS 186-5. TDES is disallowed after 2023.
 RSA PKCS 1 v.1.5 for encryption is disallowed after 2023.
 
 ### EnisaKeySize14 {#EnisaKeySize14}
