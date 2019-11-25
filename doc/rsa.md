@@ -27,6 +27,20 @@ every implementation of the Java platform is required to implement RSA with both
 1024 and 2048 bit key sizes. Hence a 2048 bit default should not lead to
 compatibility problems.
 
+**Private exponent:**
+The private exponent d has to be an integer satisfying
+$$1 \equiv d e \bmod lcm(p-1, q-1)$$ for RSA to work.
+Standards add different additional restrictions for $$d$$.
+RFC 8017 Section 3.2 specifies that $$1\leq d\leq n-1$$.
+Hence computing $$d=e^{-1} \mod\varphi(n)$$ is acceptable.
+FIPS-PUB-186-4, Appendix B.3.1 specifies that d satisfies
+$$2^{nlen/2}<d<\mbox{lcm}(p-1, q-1).$$
+<!--See also section A.1.1 of FIPS-186-5-draft.-->
+Hence there is at most one valid $$d$$. The lower bound implies
+that $$p-1$$ and $$q-1$$ share a large common factor and therefore
+that factoring the modulus is typically easy.
+
+
 **Cryptographically strong random numbers:** So far the tests check that
 java.util.Random is not used. This needs to be extended.
 

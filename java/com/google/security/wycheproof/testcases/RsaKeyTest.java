@@ -28,6 +28,7 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,17 +40,21 @@ import org.junit.runners.JUnit4;
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
 // TODO(bleichen):
-// - Add checks for bad random numbers
-// - expect keys with e=1 to be rejected
-// - expect keys with e=0 to be rejected
-// - document stuff
-// - Maybe also check encodings of private keys.
+// - Expect keys with e=1 to be rejected
+// - Expect keys with e=0 to be rejected
+// - Document stuff
+// - Check encodings of private keys.
 // - Test multi prime RSA
 // - Tests for alternative representations:
 //    many libraries sort the primes as: p > q (but not all)
 //    some libraries compute d mod lambda(n)
 //    paramaters p,q,... are not really required
-// - checks for bad random number generation
+// - Checks for bad random number generation.
+// - A X509 encoded public key contains a pkcs1algorithm.
+//   This may for example be used to include RSA-PSS parameters into key,
+//   but requires new interfaces.
+// - Convert test vectors into JSON format to test other languages.
+// - Add checks for malformed private keys.
 @RunWith(JUnit4.class)
 public class RsaKeyTest {
 
@@ -1396,6 +1401,59 @@ public class RsaKeyTest {
         + "3236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1f722"
         + "95dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f0203fe"
         + "ffff",
+    // Some encodings that were problematic in jdk before the fix in Jan 2017.
+    "3013300d06092a864886f70d010101050003023000",
+    // dropping value of bit string
+    "3011300d06092a864886f70d01010105000300",
+    // length = 2**31 - 1
+    "30847fffffff300d06092a864886f70d010101050003818d0030818902818100"
+        + "ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc9"
+        + "8590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26"
+        + "c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6feb"
+        + "e1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f"
+        + "0203010001",
+    "3081a330847fffffff06092a864886f70d010101050003818d00308189028181"
+        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
+        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
+        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
+        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
+        + "3f0203010001",
+    "3081a3301106847fffffff2a864886f70d010101050003818d00308189028181"
+        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
+        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
+        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
+        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
+        + "3f0203010001",
+    "3081a3301106092a864886f70d01010105847fffffff03818d00308189028181"
+        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
+        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
+        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
+        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
+        + "3f0203010001",
+    "3081a2300d06092a864886f70d010101050003847fffffff0030818902818100"
+        + "ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc9"
+        + "8590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26"
+        + "c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6feb"
+        + "e1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f"
+        + "0203010001",
+    "3081a1300d06092a864886f70d010101050003818f30847fffffff02818100ab"
+        + "9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc985"
+        + "90467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2"
+        + "f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1"
+        + "f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02"
+        + "03010001",
+    "3081a1300d06092a864886f70d010101050003818f30818c02847fffffff00ab"
+        + "9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc985"
+        + "90467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2"
+        + "f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1"
+        + "f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02"
+        + "03010001",
+    "3081a2300d06092a864886f70d010101050003819030818d02818100ab9014dc"
+        + "47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc98590467d"
+        + "0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2f88232"
+        + "36ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1f72295"
+        + "dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02847fff"
+        + "ffff010001",
   };
 
   /**
@@ -1456,17 +1514,30 @@ public class RsaKeyTest {
     BigInteger q1 = q.subtract(BigInteger.ONE);
     BigInteger phi = p1.multiply(q1);
     BigInteger order = phi.divide(p1.gcd(q1)); // maximal order of elements
-    // A short d may indicate that public and private exponent have been switched
-    // or that the key generation fixed d and then computed e.
-    assertTrue(d.bitLength() > expectedKeySize / 2);
-    // RFC 3447 Section 3.2 specifies that d is a positive integer smaller than n
-    // satisfying e*d == 1 (mod lcm(p-1, q-1)).
+    // RFC 8017 Section 3.2 specifies that d is a positive integer smaller than n satisfying
+    //    e * d == 1 (mod lcm(p-1, q-1)).
+    // FIPS-PUB 186-4 specifies that d is the smallest positive integer satisfying
+    // the equation above and further specifies that key with d < 2^(n.bitlenght()/2) are not
+    // allowed. The second condition is very unlikely to hold if keys are chosen at random.
+    // Hence seeing a small d indicates with high probability a faulty key generation, such
+    // as switching e and d, or selecting the primes p and q incorretly.
+    // Such keys can likely be broken easily. I.e. since lcm(p - 1, q - 1) divides d * e - 1,
+    // it follows that (p - 1) * (q - 1) divides (d * e - 1) * gcd(p - 1, q - 1).
+    // Hence if d * e - 1 is small then p - 1 and q - 1 must have a large common factor g.
     assertEquals(1, d.compareTo(BigInteger.ONE));
-    assertEquals(-1, d.compareTo(n));
+    assertEquals(-1, d.compareTo(n)); // This is the requirement of RFC 8017
+    // The following would be the stricter requirement of FIPS-PUB 186-4.
+    // assertEquals(-1, d.compareTo(order));
+    assertTrue(d.bitLength() > expectedKeySize / 2);
     assertEquals(BigInteger.ONE, d.multiply(e).mod(order));
     assertEquals(d.mod(p1), dp.mod(p1));
     assertEquals(d.mod(q1), dq.mod(q1));
     assertEquals(q.multiply(crtCoeff).mod(p), BigInteger.ONE);
+    // Checks that p - 1 and q - 1 do not have a large common factor g. Since large common
+    // factors are very unlikely to occur at random one has to assume that such an event is caused
+    // by a faulty generation and that g is in fact known. Coppersmith showed how to factor an RSA
+    // modulus if about 1/4 of the low order bits of a factor is known.
+    assertTrue(p1.gcd(q1).bitLength() < expectedKeySize / 4);
   }
 
   private void checkPublicKey(RSAPublicKey pub) {
@@ -1582,87 +1653,35 @@ public class RsaKeyTest {
     assertEquals(ENCODED_PUBLIC_KEY, TestUtil.bytesToHex(pub.getEncoded()));
   }
 
-  /**
-   * A list of problematic RSA public keys. Trying to parse invalid keys should result in an
-   * InvalidKeyException. OpenJdk throws other exceptions for the keys in this list. The list is
-   * based on tests done before Oracles Jan 2017 update, and hence may have shrunk in the meantime.
-   */
-  public static final String[] PROBLEMATIC_PUBLIC_KEY = {
-    // dropping value of sequence
-    "3013300d06092a864886f70d010101050003023000",
-    // dropping value of bit string
-    "3011300d06092a864886f70d01010105000300",
-    // length = 2**31 - 1
-    "30847fffffff300d06092a864886f70d010101050003818d0030818902818100"
-        + "ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc9"
-        + "8590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26"
-        + "c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6feb"
-        + "e1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f"
-        + "0203010001",
-    "3081a330847fffffff06092a864886f70d010101050003818d00308189028181"
-        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
-        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
-        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
-        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
-        + "3f0203010001",
-    "3081a3301106847fffffff2a864886f70d010101050003818d00308189028181"
-        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
-        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
-        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
-        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
-        + "3f0203010001",
-    "3081a3301106092a864886f70d01010105847fffffff03818d00308189028181"
-        + "00ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4ed"
-        + "c98590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a"
-        + "26c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6f"
-        + "ebe1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a2"
-        + "3f0203010001",
-    "3081a2300d06092a864886f70d010101050003847fffffff0030818902818100"
-        + "ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc9"
-        + "8590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26"
-        + "c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6feb"
-        + "e1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f"
-        + "0203010001",
-    "3081a1300d06092a864886f70d010101050003818f30847fffffff02818100ab"
-        + "9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc985"
-        + "90467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2"
-        + "f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1"
-        + "f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02"
-        + "03010001",
-    "3081a1300d06092a864886f70d010101050003818f30818c02847fffffff00ab"
-        + "9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc985"
-        + "90467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2"
-        + "f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1"
-        + "f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02"
-        + "03010001",
-    "3081a2300d06092a864886f70d010101050003819030818d02818100ab9014dc"
-        + "47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc98590467d"
-        + "0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26c2f88232"
-        + "36ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6febe1f72295"
-        + "dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f02847fff"
-        + "ffff010001",
-  };
-
-  // TODO(bleichen): This test is only needed as long as there are open issues.
   @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/32656910"}
+    providers = {ProviderType.CONSCRYPT},
+    bugs = {"b/145113402"}
   )
   @Test
-  public void testProblematicPublicKeyDecoding() throws Exception {
+  public void testEncodeDecodePrivate() throws Exception {
+    int keySizeInBits = 2048;
     KeyFactory kf = KeyFactory.getInstance("RSA");
-    int cnt = 0;
-    for (String encoded : PROBLEMATIC_PUBLIC_KEY) {
-      X509EncodedKeySpec spec = new X509EncodedKeySpec(TestUtil.hexToBytes(encoded));
-      try {
-        RSAPublicKey unusedKey = (RSAPublicKey) kf.generatePublic(spec);
-      } catch (InvalidKeySpecException ex) {
-        // expected
-      } catch (Exception ex) {
-        System.out.println("generatePublic throws:" + ex.getMessage() + " for " + encoded);
-        cnt++;
-      }
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(keySizeInBits);
+    KeyPair keypair = keyGen.genKeyPair();
+    RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
+    assertTrue("Expecting an RSA private key with CRT parameters",
+               priv instanceof RSAPrivateCrtKey);
+    byte[] encoded = priv.getEncoded();
+    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
+    RSAPrivateKey priv2 = (RSAPrivateKey) kf.generatePrivate(spec);
+    // Checks that priv2 equivalent to priv1.
+    assertEquals(priv2.getModulus(), priv.getModulus());
+    assertEquals(priv2.getPrivateExponent(), priv.getPrivateExponent());
+    // Some implementations are not subclasses of RSAPrivateCtrKey.
+    // E.g. org.conscrypt.OpenSSLRSAPrivateKey.
+    // But there is OpenSSLRSAPrivateCrtKey
+    if (priv instanceof RSAPrivateCrtKey) {
+      checkPrivateCrtKey((RSAPrivateCrtKey) priv, keySizeInBits);
+    } else {
+      // Using a CRT key leads to 6-7 times better performance than not using the CRT.
+      fail("Expecting an RSAPrivateCrtKey instead of " + priv.getClass().getName());
     }
-    assertEquals(0, cnt);
   }
+
 }
