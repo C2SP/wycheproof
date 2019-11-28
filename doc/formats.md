@@ -37,13 +37,13 @@ will be reflected by a changed JSON schema file.
 
 ## Naming of primitives and algebraic structures
 
-### Hash functions {#HashFunctions}
+### Hash functions
 
 Wycheproof uses the following strings to denote hash functions: SHA-1, SHA-224,
 SHA-256, SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHA-512/224
 and SHA-512/256.
 
-### Elliptic curves {#EcCurve}
+### Elliptic curves
 
 The following names for elliptic curves are used in Wycheproof. Some of the
 curves have a jwk equivalent. Weak curves are curves with a security level below
@@ -83,7 +83,7 @@ Test vectors are divided into several test groups. A test group is a list of
 test vectors that use some common parameters (e.g. the same public key and
 algorithm)
 
-## Representation of some data types {#DataTypes}
+## Data types
 
 Some data types that don't have an exact match in Json use a specific format as
 described below
