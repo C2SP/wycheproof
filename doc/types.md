@@ -785,7 +785,7 @@ Used in [RsaesPkcs1TestGroup](#RsaesPkcs1TestGroup).
 
 Fields in RsassaPkcs1GenTestGroup are\:
 
-**name**      | **type**                                                    | **desc**                               | **ref**  | **since** | **enum**
+**name**      | **type**                                                    | **desc**                               |g4  **ref**  | **since** | **enum**
 ------------- | ----------------------------------------------------------- | -------------------------------------- | -------- | --------- | --------
 d             | [BigInt](formats.md#DataTypes)                              | The private exponent                   |          |           |
 e             | [BigInt](formats.md#DataTypes)                              | The public exponent                    |          |           |

@@ -6,14 +6,14 @@
 
 **Default size:** If a library supports a key default size for RSA keys then
 this key size should be at least 2048 bits. This limit is based on the minimum
-recommendation of [[NIST-SP800-57]](bib.md#NIST-SP800-57) part1 revision 4,
+recommendation of [[NIST-SP800-57]](bib.md#nist-sp800-57) part1 revision 4,
 Table 2, page 53. NIST recommends a minimal security strength of 112 bits for
 keys used until 2030. 112 bit security strength translates to a minimal key size
 of 2048 bits. Other organizations recommend somewhat different sizes:
-[[EnisaKeySize14]](bib.md#EnisaKeySize14), Section 3.6 also suggests that
+[[EnisaKeySize14]](bib.md#enisakeysize14), Section 3.6 also suggests that
 2048-bit RSA keys provide a security strength of about 112 bits, but recommends
 a security strength of 128 bits for near term systems, hence 3072 bit RSA keys.
-[[ECRYPT-II]](bib.md#ECRYPT-II), Section 13.3 suggests at least 2432 bits for
+[[ECRYPT-II]](bib.md#ecrypt-ii), Section 13.3 suggests at least 2432 bits for
 new keys.
 
 All the references above clearly state that keys smaller than 2048 bits should
@@ -45,22 +45,22 @@ that factoring the modulus is typically easy.
 java.util.Random is not used. This needs to be extended.
 
 **Other bugs:** The public exponent e should be larger than 1
-[[CVE-1999-1444]](bib.md#CVE-1999-1444)
+[[CVE-1999-1444]](bib.md#cve-1999-1444)
 
 ## RSA PKCS #1 v1.5 encryption
 
 PKCS #1 v1.5 padding is susceptible to adaptive chosen ciphertext attacks and
-hence should be avoided [[Bleich98]](bib.md#Bleiche98). The difficulty of
+hence should be avoided [[Bleich98]](bib.md#bleich98). The difficulty of
 exploiting protocols using PKCS #1 v1.5 encryption often depends on the amount
 of information leaked after decrypting corrupt ciphertexts. Implementations
 frequently leak information about the decrypted plaintext in form of error
 messages. The content of the error messages are extremely helpful to potential
-attackers. Bardou et al. [[BFKLSST12]](bib.md#BFKLSST12) analyze the difficult
+attackers. Bardou et al. [[BFKLSST12]](bib.md#bfklsst12) analyze the difficult
 of attacks based on different types of information leakage. Smart even describes
 an attack that only needs about 40 chosen ciphertexts
-[[Smart10]](bib.md#Smart10), though in this case the encryption did not use
+[[Smart10]](bib.md#smart10), though in this case the encryption did not use
 PKCS #1 padding. NIST disallows the use of RSA PKCS #1 v1.5 for key-agreement
-and key-transport after 2023 [[NIST-SP800-131A]](bib.md#NIST-SP800-131A).
+and key-transport after 2023 [[NIST-SP800-131A]](bib.md#nist-sp800-131a).
 
 **Bugs**
 
@@ -76,18 +76,18 @@ information about the padding is leaked.
 
 Due to the nature of unit tests not every attack can be detected this way. Some
 attacks require a large number of ciphertexts to be detected if random
-ciphertexts are used. For example Klima et al. [[KlPoRo03]](bib.md#KlPoRo03)
+ciphertexts are used. For example Klima et al. [[KlPoRo03]](bib.md#klporo03)
 describe an implementation flaw that could not be detected with our test.
 
 Timing leakages because of differences in parsing the padding can leak
-information (e.g. [[CVE-2015-7827]](bib.md#CVE-2015-1827)). Such differences are
+information (e.g. [[CVE-2015-7827]](bib.md#cve-2015-1827)). Such differences are
 too small to be reliably detectable in unit tests.
 
 ## RSA OAEP
 
 Manger describes an chosen ciphertext attack against RSA in
-[[Manger01]](bib.md#Manger01). There are implementations that were susceptible
-to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#CVE-2012-5081).
+[[Manger01]](bib.md#manger01). There are implementations that were susceptible
+to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
 
 ## RSA PKCS #1 v1.5 signatures
 

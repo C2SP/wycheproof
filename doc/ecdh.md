@@ -10,17 +10,17 @@ See https://en.wikipedia.org/wiki/Elliptic_curve_Diffie%E2%80%93Hellman
 
 Some libraries do not check if the elliptic curve points received from another
 party are points on the curve. This can often be exploited to find private keys
-[[BeMeMu00]](bib.md#BeMeMu00)), [[ABMSV03]](bib.md#ABMSV03). Encodings of public
+[[BeMeMu00]](bib.md#bememu00)), [[ABMSV03]](bib.md#abmsv03). Encodings of public
 keys typically contain the curve for the public key point. If such an encoding
 is used in the key exchange then it is important to check that the public and
 secret key used to compute the shared ECDH secret are using the same curve.
 
 Failing to check for these problems is a frequent problem:
-[[CVE-2015-6924]](bib.md#CVE-2015-6924),
-[[CVE-2015-7940]](bib.md#CVE-2015-7940),
-[[CVE-2016-9121]](bib.md#CVE-2016-9121),
-[[CVE-2017-16007]](bib.md#CVE-2017-16007),
-[[CVE-2018-5383]](bib.md#CVE-2018-5383).
+[[CVE-2015-6924]](bib.md#cve-2015-6924),
+[[CVE-2015-7940]](bib.md#cve-2015-7940),
+[[CVE-2016-9121]](bib.md#cve-2016-9121),
+[[CVE-2017-16007]](bib.md#cve-2017-16007),
+[[CVE-2018-5383]](bib.md#cve-2018-5383).
 
 The test vectors check for the following problems:
 
@@ -57,23 +57,23 @@ In a typical attack scenario the malicious party is able to choose the ephemeral
 key, and has means to detect if the computation of the other party triggers a
 special case.
 
-One particular attack has been proposed in [[Goubin03]](bib.md#Goubin03). The
+One particular attack has been proposed in [[Goubin03]](bib.md#goubin03). The
 author pointed out that points with a coordinate 0 keeps this property even if
 the projective or Jacobian coordinates are randomized. If a point multiplication
 that encounters such a point can be distinguished from other point
 multiplication (e.g. because the integer arithmetic is not constant time) then
 an attack is possible. The attack has been extended by Akishita and Takagi
-[[AkiTak03]](bib.md#AkiTak03). The authors showed that other places in a point
+[[AkiTak03]](bib.md#akitak03). The authors showed that other places in a point
 multiplication have similar properties and hence that additional attacks are
 possible. The golang library was susceptible to this attack, since doubling a
 point with x-coordinate 1 typically resulted in an virtually endless loop
-[[CVE-2019-6486]](bib.md#CVE-2019-6486). A recent survey about timing and side
-channel attaks is [[AbVaLo19]](bib.md#AbVaLo19)).
+[[CVE-2019-6486]](bib.md#cve-2019-6486). A recent survey about timing and side
+channel attaks is [[AbVaLo19]](bib.md#abvalo19)).
 
 ## Side channel attacks that are not detectable by Wycheproof
 
 Physical side channel attacks e.g. based on power analsis or electromagnetic
-emanation have been demonstrated [[GPPT16]](bib.md#GPPT16). Testing for such
+emanation have been demonstrated [[GPPT16]](bib.md#gppt16). Testing for such
 side channels is not possible in Wycheproof.
 
 ### Countermeasures

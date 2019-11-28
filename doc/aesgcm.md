@@ -1,11 +1,11 @@
 # AES-GCM
 
-[[AES-GCM]](bib.md#AES-GCM)
+This encryption mode is described in [[AES-GCM]](bib.md#aes-gcm).
 
 ## Nonce reuse
 
 One of the undesirable properties of AES-GCM is that reusing the same IV for the
-same key leaks the authentication key [[Joux-Gcm]](bib.md#Joux-Gcm). Typically,
+same key leaks the authentication key [[Joux-Gcm]](bib.md#joux-gcm). Typically,
 implementations can't enforce that users don't repeat IVs unless they use
 restricted interfaces. However, implementations should at least avoid features
 that increase the probability of incorrect usages.
@@ -134,13 +134,13 @@ tag : "5281efc7f13ac8e14ccf5dca7bfbfdd1",
 
 ### Failing providers
 The AES-GCM implementation in jdk9 handled CTR overflows incorrectly
-[[CVE-2018-2972]](bib.md#CVE-2018-2972).
+[[CVE-2018-2972]](bib.md#cve-2018-2972).
 
 
 ## 0 size IV
 
 AES-GCM allows IVs of bit length $$1 \ldots 2^{64}-1$$. (See
-[[NIST-SP800-38d]](bib.md#NIST-SP800-38d), Section 5.2.1.1)
+[[NIST-SP800-38d]](bib.md#nist-sp800-38d), Section 5.2.1.1)
 
 Disallowing IVs of length 0 is necessary. If an empty IV is used then the tag is
 an evaluation of a polynomial with the hash subkey as the value. Since the

@@ -8,8 +8,8 @@ strong pseudorandom permutation. KW and KWP use AES, TKW uses DES. The input
 size of KW and TKW are limited to a multiple of 8 (rsp 4) bytes, KWP adds a
 padding so that arbitrary length inputs can be processed.
 
-KW is also defined by [RFC 3394](https://tools.ietf.org/html/rfc3394). KWP is
-also defined by [RFC 5649](https://tools.ietf.org/html/rfc5649). TKW is a key
+KW is also defined by [[RFC 3394]](https://tools.ietf.org/html/rfc3394). KWP is
+also defined by [[RFC 5649]](https://tools.ietf.org/html/rfc5649). TKW is a key
 wrap primitive that uses TripleDES instead of AES.
 
 All the key wrap primitives use an underlying permutation (called W by NIST),
@@ -56,7 +56,8 @@ padding oracles are present. So one question is whether this is the case here
 too.
 
 An analysis of cryptographic primitives based on strong pseudorandom
-permutations is [BR00]. Theorem 2 implies that checking redundancy in the
+permutations is [[BelRog00]](bib.md#belrog00).
+Theorem 2 implies that checking redundancy in the
 plaintext gives an integrity check is correct, i.e. any constant part in the
 plaintext is useful as integrity check.
 
@@ -166,8 +167,4 @@ overflow. Implementations are expected to implement this correctly or reject
 longer inputs. Currently the tests do not fail when a padding oracle is present,
 since such oracles are likely harmless.
 
-## Reference list
 
-[BR00]: Bellare, Rogaway, "Encode-Then-Encipher Encryption: How to exploit
-nonces or redundancy in plaintexts for efficient cryptography", Asiacrypt 2000,
-pp.317--330.
