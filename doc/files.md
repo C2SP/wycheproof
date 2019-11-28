@@ -2,7 +2,7 @@
 
 # Test vector files
 
-## AeadTest {#AeadTest}
+## AeadTest
 
 Test vectors of type AeadTest test authenticated encryption with additional
 data. The test vectors are intended for testing both encryption and decryption.
@@ -14,9 +14,9 @@ parameters.
 
 JSON schema\: aead_test_schema.json
 
-Type of the test group\: [AeadTestGroup](types.md#AeadTestGroup)
+Type of the test group\: [AeadTestGroup](types.md#aeadtestgroup)
 
-Type of the test vectors\: [AeadTestVector](types.md#AeadTestVector)
+Type of the test vectors\: [AeadTestVector](types.md#aeadtestvector)
 
 **name**                     | **tests** | **validity** | **algorithm** {.sortable}
 ---------------------------- | --------- | ------------ | -------------
@@ -31,7 +31,7 @@ aes_gcm_test.json            | 256       | 139, 30, 87  | AES-GCM
 chacha20_poly1305_test.json  | 300       | 233, 0, 67   | CHACHA20-POLY1305
 xchacha20_poly1305_test.json | 284       | 220, 0, 64   | XCHACHA20-POLY1305
 
-## DaeadTest {#DaeadTest}
+## DaeadTest
 
 Test vectors of type DaeadTest are intended for verifying encryption and
 decryption of deterministic authenticated encryption with additional data.
@@ -43,15 +43,44 @@ the primitive.
 
 JSON schema\: daead_test_schema.json
 
-Type of the test group\: [DaeadTestGroup](types.md#DaeadTestGroup)
+Type of the test group\: [DaeadTestGroup](types.md#daeadtestgroup)
 
-Type of the test vectors\: [DaeadTestVector](types.md#DaeadTestVector)
+Type of the test vectors\: [DaeadTestVector](types.md#daeadtestvector)
 
 **name**               | **tests** | **validity** | **algorithm** {.sortable}
 ---------------------- | --------- | ------------ | -------------
 aes_siv_cmac_test.json | 442       | 118, 0, 324  | AES-SIV-CMAC
 
-## DsaVerify {#DsaVerify}
+## DsaP1363Verify
+
+Test vectors of type DsaP1363Verify are meant for the verification of IEEE P1363
+encoded DSA signatures.
+
+IEEE P1363 encoded signatures are the concatenation of the values r and s
+encoded as unsigned integers in bigendian order using a fixed size equal to the
+length of the field order. The tests expect that all signatures with other sizes
+(e.g. additional appended bytes) are rejected. (Though there are not a lot of
+test vectors verifying this).
+
+Test vectors with "result" \: "valid" are valid signatures. Test vectors with
+"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
+are signatures that may or may not be rejected. The reasons for potential
+rejection are described with labels.
+
+JSON schema\: dsa_p1363_verify_schema.json
+
+Type of the test group\: [DsaP1363TestGroup](types.md#dsap1363testgroup)
+
+Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
+
+**name**                            | **tests** | **validity** | **algorithm** {.sortable}
+----------------------------------- | --------- | ------------ | -------------
+dsa_2048_224_sha224_p1363_test.json | 127       | 38, 0, 89    | DSA
+dsa_2048_224_sha256_p1363_test.json | 155       | 66, 0, 89    | DSA
+dsa_2048_256_sha256_p1363_test.json | 155       | 66, 0, 89    | DSA
+dsa_3072_256_sha256_p1363_test.json | 155       | 66, 0, 89    | DSA
+
+## DsaVerify
 
 Test vectors of test DsaVerify are intended for checking the signature
 verification of DSA signatures.
@@ -65,26 +94,30 @@ test vectors of this type have a label describing the abnomaly.
 
 JSON schema\: dsa_verify_schema.json
 
-Type of the test group\: [DsaTestGroup](types.md#DsaTestGroup)
+Type of the test group\: [DsaTestGroup](types.md#dsatestgroup)
 
 Type of the test vectors\:
-[AsnSignatureTestVector](types.md#AsnSignatureTestVector)
+[AsnSignatureTestVector](types.md#asnsignaturetestvector)
 
-**name**      | **tests** | **validity** | **algorithm** {.sortable}
-------------- | --------- | ------------ | -------------
-dsa_test.json | 906       | 33, 3, 870   | DSA
+**name**                      | **tests** | **validity** | **algorithm** {.sortable}
+----------------------------- | --------- | ------------ | -------------
+dsa_2048_224_sha224_test.json | 330       | 39, 1, 290   | DSA
+dsa_2048_224_sha256_test.json | 358       | 67, 1, 290   | DSA
+dsa_2048_256_sha256_test.json | 358       | 67, 1, 290   | DSA
+dsa_3072_256_sha256_test.json | 358       | 67, 1, 290   | DSA
+dsa_test.json                 | 906       | 33, 3, 870   | DSA
 
-## EcdhEcpointTest {#EcdhEcpointTest}
+## EcdhEcpointTest
 
 Test vectors of type EcdhWebTest are intended for testing an ECDH
 implementations where the public key is just an ASN encoded point.
 
 JSON schema\: ecdh_ecpoint_test_schema.json
 
-Type of the test group\: [EcdhEcpointTestGroup](types.md#EcdhEcpointTestGroup)
+Type of the test group\: [EcdhEcpointTestGroup](types.md#ecdhecpointtestgroup)
 
 Type of the test vectors\:
-[EcdhEcpointTestVector](types.md#EcdhEcpointTestVector)
+[EcdhEcpointTestVector](types.md#ecdhecpointtestvector)
 
 **name**                         | **tests** | **validity** | **algorithm** {.sortable}
 -------------------------------- | --------- | ------------ | -------------
@@ -93,7 +126,7 @@ ecdh_secp256r1_ecpoint_test.json | 216       | 191, 1, 24   | ECDH
 ecdh_secp384r1_ecpoint_test.json | 182       | 163, 1, 18   | ECDH
 ecdh_secp521r1_ecpoint_test.json | 237       | 208, 1, 28   | ECDH
 
-## EcdhTest {#EcdhTest}
+## EcdhTest
 
 Test vectors of type EcdhTest are intended for testing an ECDH implementations
 using X509 encoded public keys and integers for private keys. Test vectors of
@@ -101,9 +134,9 @@ this format are useful for testing Java providers.
 
 JSON schema\: ecdh_test_schema.json
 
-Type of the test group\: [EcdhTestGroup](types.md#EcdhTestGroup)
+Type of the test group\: [EcdhTestGroup](types.md#ecdhtestgroup)
 
-Type of the test vectors\: [EcdhTestVector](types.md#EcdhTestVector)
+Type of the test vectors\: [EcdhTestVector](types.md#ecdhtestvector)
 
 **name**                       | **tests** | **validity**   | **algorithm** {.sortable}
 ------------------------------ | --------- | -------------- | -------------
@@ -119,7 +152,7 @@ ecdh_secp384r1_test.json       | 427       | 163, 219, 45   | ECDH
 ecdh_secp521r1_test.json       | 480       | 208, 217, 55   | ECDH
 ecdh_test.json                 | 3100      | 2169, 128, 803 | ECDH
 
-## EcdhWebcryptoTest {#EcdhWebcryptoTest}
+## EcdhWebcryptoTest
 
 Test vectors of type EcdhWebTest are intended for testing an ECDH
 implementations using jwk encoded public and private keys.
@@ -127,16 +160,16 @@ implementations using jwk encoded public and private keys.
 JSON schema\: ecdh_webcrypto_test_schema.json
 
 Type of the test group\:
-[EcdhWebcryptoTestGroup](types.md#EcdhWebcryptoTestGroup)
+[EcdhWebcryptoTestGroup](types.md#ecdhwebcryptotestgroup)
 
 Type of the test vectors\:
-[EcdhWebcryptoTestVector](types.md#EcdhWebcryptoTestVector)
+[EcdhWebcryptoTestVector](types.md#ecdhwebcryptotestvector)
 
 **name**                 | **tests** | **validity** | **algorithm** {.sortable}
 ------------------------ | --------- | ------------ | -------------
 ecdh_webcrypto_test.json | 833       | 743, 0, 90   | ECDH
 
-## EcdsaP1363Verify {#EcdsaP1363Verify}
+## EcdsaP1363Verify
 
 Test vectors of type EcdsaVerify are meant for the verification of IEEE P1363
 encoded ECDSA signatures.
@@ -153,9 +186,9 @@ functions weaker than the security of the curve are potential reasons.
 
 JSON schema\: ecdsa_p1363_verify_schema.json
 
-Type of the test group\: [EcdsaP1363TestGroup](types.md#EcdsaP1363TestGroup)
+Type of the test group\: [EcdsaP1363TestGroup](types.md#ecdsap1363testgroup)
 
-Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
+Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
 **name**                                     | **tests** | **validity** | **algorithm** {.sortable}
 -------------------------------------------- | --------- | ------------ | -------------
@@ -176,7 +209,7 @@ ecdsa_secp384r1_sha512_p1363_test.json       | 277       | 204, 3, 70   | ECDSA
 ecdsa_secp521r1_sha512_p1363_test.json       | 277       | 205, 3, 69   | ECDSA
 ecdsa_webcrypto_test.json                    | 362       | 270, 10, 82  | ECDSA
 
-## EcdsaVerify {#EcdsaVerify}
+## EcdsaVerify
 
 Test vectors of type EcdsaVerify are meant for the verification of ASN encoded
 ECDSA signatures.
@@ -190,10 +223,10 @@ Non-standard BER encodings are other reasons.
 
 JSON schema\: ecdsa_verify_schema.json
 
-Type of the test group\: [EcdsaTestGroup](types.md#EcdsaTestGroup)
+Type of the test group\: [EcdsaTestGroup](types.md#ecdsatestgroup)
 
 Type of the test vectors\:
-[AsnSignatureTestVector](types.md#AsnSignatureTestVector)
+[AsnSignatureTestVector](types.md#asnsignaturetestvector)
 
 **name**                               | **tests** | **validity** | **algorithm** {.sortable}
 -------------------------------------- | --------- | ------------ | -------------
@@ -224,23 +257,23 @@ ecdsa_secp521r1_sha3_512_test.json     | 449       | 210, 0, 239  | ECDSA
 ecdsa_secp521r1_sha512_test.json       | 447       | 206, 0, 241  | ECDSA
 ecdsa_test.json                        | 1575      | 1011, 5, 559 | ECDSA
 
-## EddsaVerify {#EddsaVerify}
+## EddsaVerify
 
 Test vectors of type EddsaVerify are intended for testing the verification of
 Eddsa signatures.
 
 JSON schema\: eddsa_verify_schema.json
 
-Type of the test group\: [EddsaTestGroup](types.md#EddsaTestGroup)
+Type of the test group\: [EddsaTestGroup](types.md#eddsatestgroup)
 
-Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
+Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
 **name**        | **tests** | **validity** | **algorithm** {.sortable}
 --------------- | --------- | ------------ | -------------
 ed448_test.json | 86        | 17, 0, 69    | EDDSA
 eddsa_test.json | 145       | 84, 0, 61    | EDDSA
 
-## HkdfTest {#HkdfTest}
+## HkdfTest
 
 Test vector of type HkdfTest are intended for the verification of HKDF.
 
@@ -249,32 +282,33 @@ more parameters. I.e. the input for HKDF is a tuple (ikm, salt, info, size).
 
 JSON schema\: hkdf_test_schema.json
 
-Type of the test group\: [HkdfTestGroup](types.md#HkdfTestGroup)
+Type of the test group\: [HkdfTestGroup](types.md#hkdftestgroup)
 
-Type of the test vectors\: [HkdfTestVector](types.md#HkdfTestVector)
+Type of the test vectors\: [HkdfTestVector](types.md#hkdftestvector)
 
 **name**              | **tests** | **validity** | **algorithm** {.sortable}
 --------------------- | --------- | ------------ | -------------
-hkdf_sha1_test.json   | 100       | 100, 0, 0    | HKDF-SHA-1
-hkdf_sha256_test.json | 99        | 99, 0, 0     | HKDF-SHA-256
-hkdf_sha512_test.json | 96        | 96, 0, 0     | HKDF-SHA-512
+hkdf_sha1_test.json   | 106       | 103, 0, 3    | HKDF-SHA-1
+hkdf_sha256_test.json | 105       | 102, 0, 3    | HKDF-SHA-256
+hkdf_sha384_test.json | 102       | 99, 0, 3     | HKDF-SHA-384
+hkdf_sha512_test.json | 102       | 99, 0, 3     | HKDF-SHA-512
 
-## IndCpaTest {#IndCpaTest}
+## IndCpaTest
 
 Test vectors of type IndCpaTest are intended for test that verify encryption and
 decryption of symmetric ciphers without authentication.
 
 JSON schema\: ind_cpa_test_schema.json
 
-Type of the test group\: [IndCpaTestGroup](types.md#IndCpaTestGroup)
+Type of the test group\: [IndCpaTestGroup](types.md#indcpatestgroup)
 
-Type of the test vectors\: [IndCpaTestVector](types.md#IndCpaTestVector)
+Type of the test vectors\: [IndCpaTestVector](types.md#indcpatestvector)
 
 **name**                | **tests** | **validity** | **algorithm** {.sortable}
 ----------------------- | --------- | ------------ | -------------
 aes_cbc_pkcs5_test.json | 183       | 72, 0, 111   | AES-CBC-PKCS5
 
-## KeywrapTest {#KeywrapTest}
+## KeywrapTest
 
 Test vectors of type Keywrap are intended for tests checking the wrapping and
 unwrapping of key material.
@@ -287,16 +321,16 @@ padding attacks.
 
 JSON schema\: keywrap_test_schema.json
 
-Type of the test group\: [KeywrapTestGroup](types.md#KeywrapTestGroup)
+Type of the test group\: [KeywrapTestGroup](types.md#keywraptestgroup)
 
-Type of the test vectors\: [KeywrapTestVector](types.md#KeywrapTestVector)
+Type of the test vectors\: [KeywrapTestVector](types.md#keywraptestvector)
 
 **name**      | **tests** | **validity** | **algorithm** {.sortable}
 ------------- | --------- | ------------ | -------------
 kw_test.json  | 162       | 36, 0, 126   | KW
 kwp_test.json | 254       | 20, 60, 174  | KWP
 
-## MacTest {#MacTest}
+## MacTest
 
 Test vectors of type MacTest are intended for testing the generation and
 verification of MACs.
@@ -308,15 +342,15 @@ include separate files to simplify such tests.
 
 JSON schema\: mac_test_schema.json
 
-Type of the test group\: [MacTestGroup](types.md#MacTestGroup)
+Type of the test group\: [MacTestGroup](types.md#mactestgroup)
 
-Type of the test vectors\: [MacTestVector](types.md#MacTestVector)
+Type of the test vectors\: [MacTestVector](types.md#mactestvector)
 
 **name**           | **tests** | **validity** | **algorithm** {.sortable}
 ------------------ | --------- | ------------ | -------------
 aes_cmac_test.json | 308       | 60, 0, 248   | AES-CMAC
 
-## MacWithIvTest {#MacWithIvTest}
+## MacWithIvTest
 
 MacWithIvTest is intended for testing MACs that use an IV for randomization.
 
@@ -326,9 +360,9 @@ VMAC.
 
 JSON schema\: mac_with_iv_test_schema.json
 
-Type of the test group\: [MacWithIvTestGroup](types.md#MacWithIvTestGroup)
+Type of the test group\: [MacWithIvTestGroup](types.md#macwithivtestgroup)
 
-Type of the test vectors\: [MacWithIvTestVector](types.md#MacWithIvTestVector)
+Type of the test vectors\: [MacWithIvTestVector](types.md#macwithivtestvector)
 
 **name**           | **tests** | **validity** | **algorithm** {.sortable}
 ------------------ | --------- | ------------ | -------------
@@ -336,21 +370,21 @@ gmac_test.json     | 449       | 102, 0, 347  | AES-GMAC
 vmac_128_test.json | 764       | 424, 0, 340  | VMAC-AES
 vmac_64_test.json  | 764       | 508, 0, 256  | VMAC-AES
 
-## PrimalityTest {#PrimalityTest}
+## PrimalityTest
 
 Test vector of type PrimalityTest are intended for testing primality tests.
 
 JSON schema\: primality_test_schema.json
 
-Type of the test group\: [PrimalityTestGroup](types.md#PrimalityTestGroup)
+Type of the test group\: [PrimalityTestGroup](types.md#primalitytestgroup)
 
-Type of the test vectors\: [PrimalityTestVector](types.md#PrimalityTestVector)
+Type of the test vectors\: [PrimalityTestVector](types.md#primalitytestvector)
 
 **name**            | **tests** | **validity** | **algorithm** {.sortable}
 ------------------- | --------- | ------------ | -------------
 primality_test.json | 280       | 66, 8, 206   | PrimalityTest
 
-## RsaesOaepDecrypt {#RsaesOaepDecrypt}
+## RsaesOaepDecrypt
 
 Test vectors of type RsaOeapDecrypt are intended to check the decryption of RSA
 encrypted ciphertexts.
@@ -362,9 +396,9 @@ separate, new files that only contain ciphertexts with invalid paddings.
 
 JSON schema\: rsaes_oaep_decrypt_schema.json
 
-Type of the test group\: [RsaesOaepTestGroup](types.md#RsaesOaepTestGroup)
+Type of the test group\: [RsaesOaepTestGroup](types.md#rsaesoaeptestgroup)
 
-Type of the test vectors\: [RsaesOaepTestVector](types.md#RsaesOaepTestVector)
+Type of the test vectors\: [RsaesOaepTestVector](types.md#rsaesoaeptestvector)
 
 **name**                                  | **tests** | **validity** | **algorithm** {.sortable}
 ----------------------------------------- | --------- | ------------ | -------------
@@ -387,7 +421,7 @@ rsa_oaep_4096_sha512_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAE
 rsa_oaep_4096_sha512_mgf1sha512_test.json | 34        | 17, 0, 17    | RSAES-OAEP
 rsa_oaep_misc_test.json                   | 775       | 460, 315, 0  | RSAES-OAEP
 
-## RsaesPkcs1Decrypt {#RsaesPkcs1Decrypt}
+## RsaesPkcs1Decrypt
 
 Test vectors of type RsaesPkcs1Decrypt are intended to check the decryption of
 RSA encrypted ciphertexts.
@@ -399,9 +433,9 @@ separate, new files that only contain ciphertexts with invalid paddings.
 
 JSON schema\: rsaes_pkcs1_decrypt_schema.json
 
-Type of the test group\: [RsaesPkcs1TestGroup](types.md#RsaesPkcs1TestGroup)
+Type of the test group\: [RsaesPkcs1TestGroup](types.md#rsaespkcs1testgroup)
 
-Type of the test vectors\: [RsaesPkcs1TestVector](types.md#RsaesPkcs1TestVector)
+Type of the test vectors\: [RsaesPkcs1TestVector](types.md#rsaespkcs1testvector)
 
 **name**                 | **tests** | **validity** | **algorithm** {.sortable}
 ------------------------ | --------- | ------------ | -------------
@@ -409,7 +443,7 @@ rsa_pkcs1_2048_test.json | 65        | 42, 0, 23    | RSAES-PKCS1-v1_5
 rsa_pkcs1_3072_test.json | 65        | 41, 0, 24    | RSAES-PKCS1-v1_5
 rsa_pkcs1_4096_test.json | 65        | 41, 0, 24    | RSAES-PKCS1-v1_5
 
-## RsassaPkcs1Generate {#RsassaPkcs1Generate}
+## RsassaPkcs1Generate
 
 Test vectors of class RsassaPkcs1Generate are intended for checking the
 generation of RSA PKCS #1 v 1.5 signatures.
@@ -420,15 +454,15 @@ a frequent flaw in implementations is to only check the padding partially.
 JSON schema\: rsassa_pkcs1_generate_schema.json
 
 Type of the test group\:
-[RsassaPkcs1GenTestGroup](types.md#RsassaPkcs1GenTestGroup)
+[RsassaPkcs1GenTestGroup](types.md#rsassapkcs1gentestgroup)
 
-Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
+Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
 **name**                   | **tests** | **validity** | **algorithm** {.sortable}
 -------------------------- | --------- | ------------ | -------------
 rsa_sig_gen_misc_test.json | 158       | 80, 78, 0    | RSASSA-PKCS1-v1_5
 
-## RsassaPkcs1Verify {#RsassaPkcs1Verify}
+## RsassaPkcs1Verify
 
 Test vectors of class RsassaPkcs1Verify are intended for checking the
 verification of RSA PKCS #1 v 1.5 signatures.
@@ -441,9 +475,9 @@ legacy behaviour (such as a missing NULL in the encoding) have "result" \:
 
 JSON schema\: rsassa_pkcs1_verify_schema.json
 
-Type of the test group\: [RsassaPkcs1TestGroup](types.md#RsassaPkcs1TestGroup)
+Type of the test group\: [RsassaPkcs1TestGroup](types.md#rsassapkcs1testgroup)
 
-Type of the test vectors\: [SignatureTestVector](types.md#SignatureTestVector)
+Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
 **name**                                | **tests** | **validity** | **algorithm** {.sortable}
 --------------------------------------- | --------- | ------------ | -------------
@@ -469,7 +503,7 @@ rsa_signature_4096_sha512_256_test.json | 251       | 7, 1, 243    | RSASSA-PKCS
 rsa_signature_4096_sha512_test.json     | 239       | 7, 1, 231    | RSASSA-PKCS1-v1_5
 rsa_signature_test.json                 | 377       | 84, 63, 230  | RSASSA-PKCS1-v1_5
 
-## RsassaPssVerify {#RsassaPssVerify}
+## RsassaPssVerify
 
 Test vectors of class RsassaPssVerify are intended for checking the verification
 of RSASSA-PSS signatures.
@@ -480,9 +514,9 @@ padding. Because of this RSASSA-PSS signatures with a modified padding have
 
 JSON schema\: rsassa_pss_verify_schema.json
 
-Type of the test group\: [RsassaPssTestGroup](types.md#RsassaPssTestGroup)
+Type of the test group\: [RsassaPssTestGroup](types.md#rsassapsstestgroup)
 
-Type of the test vectors\: [RsassaPssTestVector](types.md#RsassaPssTestVector)
+Type of the test vectors\: [RsassaPssTestVector](types.md#rsassapsstestvector)
 
 **name**                                  | **tests** | **validity** | **algorithm** {.sortable}
 ----------------------------------------- | --------- | ------------ | -------------
@@ -496,7 +530,7 @@ rsa_pss_4096_sha256_mgf1_32_test.json     | 103       | 63, 0, 40    | RSASSA-PS
 rsa_pss_4096_sha512_mgf1_32_test.json     | 171       | 132, 0, 39   | RSASSA-PSS
 rsa_pss_misc_test.json                    | 150       | 120, 30, 0   | RSASSA-PSS
 
-## XdhAsnComp {#XdhAsnComp}
+## XdhAsnComp
 
 Test vectors of type XdhComp are intended for tests that verify the computation
 of and Xdh key exchange.
@@ -505,16 +539,16 @@ Public and private keys are ASN encoded.
 
 JSON schema\: xdh_asn_comp_schema.json
 
-Type of the test group\: [XdhAsnTestGroup](types.md#XdhAsnTestGroup)
+Type of the test group\: [XdhAsnTestGroup](types.md#xdhasntestgroup)
 
-Type of the test vectors\: [XdhAsnTestVector](types.md#XdhAsnTestVector)
+Type of the test vectors\: [XdhAsnTestVector](types.md#xdhasntestvector)
 
 **name**             | **tests** | **validity** | **algorithm** {.sortable}
 -------------------- | --------- | ------------ | -------------
 x25519_asn_test.json | 535       | 265, 253, 17 | XDH
 x448_asn_test.json   | 527       | 253, 257, 17 | XDH
 
-## XdhComp {#XdhComp}
+## XdhComp
 
 Test vectors of type XdhComp are intended for tests that verify the computation
 of and Xdh key exchange.
@@ -524,16 +558,16 @@ separate files, where the keys are ASN.1 encoded or use the webcrypto encoding.
 
 JSON schema\: xdh_comp_schema.json
 
-Type of the test group\: [XdhTestGroup](types.md#XdhTestGroup)
+Type of the test group\: [XdhTestGroup](types.md#xdhtestgroup)
 
-Type of the test vectors\: [XdhTestVector](types.md#XdhTestVector)
+Type of the test vectors\: [XdhTestVector](types.md#xdhtestvector)
 
 **name**         | **tests** | **validity** | **algorithm** {.sortable}
 ---------------- | --------- | ------------ | -------------
 x25519_test.json | 518       | 265, 253, 0  | XDH
 x448_test.json   | 510       | 253, 257, 0  | XDH
 
-## XdhJwkComp {#XdhJwkComp}
+## XdhJwkComp
 
 Test vectors of type XdhComp are intended for tests that verify the computation
 of and Xdh key exchange.
@@ -542,16 +576,16 @@ The public and private keys in these test vectors use the webcrypto encoding.
 
 JSON schema\: xdh_jwk_comp_schema.json
 
-Type of the test group\: [XdhJwkTestGroup](types.md#XdhJwkTestGroup)
+Type of the test group\: [XdhJwkTestGroup](types.md#xdhjwktestgroup)
 
-Type of the test vectors\: [XdhJwkTestVector](types.md#XdhJwkTestVector)
+Type of the test vectors\: [XdhJwkTestVector](types.md#xdhjwktestvector)
 
 **name**             | **tests** | **validity** | **algorithm** {.sortable}
 -------------------- | --------- | ------------ | -------------
 x25519_jwk_test.json | 531       | 265, 253, 13 | XDH
 x448_jwk_test.json   | 523       | 253, 257, 13 | XDH
 
-## XdhPemComp {#XdhPemComp}
+## XdhPemComp
 
 Test vectors of type XdhPemComp are intended for verifying XDH.
 
@@ -562,9 +596,9 @@ added in the future.
 
 JSON schema\: xdh_pem_comp_schema.json
 
-Type of the test group\: [XdhPemTestGroup](types.md#XdhPemTestGroup)
+Type of the test group\: [XdhPemTestGroup](types.md#xdhpemtestgroup)
 
-Type of the test vectors\: [XdhPemTestVector](types.md#XdhPemTestVector)
+Type of the test vectors\: [XdhPemTestVector](types.md#xdhpemtestvector)
 
 **name**             | **tests** | **validity** | **algorithm** {.sortable}
 -------------------- | --------- | ------------ | -------------
