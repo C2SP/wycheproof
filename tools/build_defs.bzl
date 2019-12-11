@@ -81,7 +81,7 @@ def conscrypt_tests(srcs, deps, size, test_class, data):
     add_tests("ConscryptTest", conscrypt_versions, conscrypt_dep, srcs, deps, size, test_class, data)
 
 # Amazon Corretto Crypto Provider targets
-accp_versions = ["1_1_0"]
+accp_versions = ["1_1_0", "1_1_1", "1_2_0"]
 accp_dep = "@amazon_corretto_crypto_provider"
 
 # These targets run all tests.
