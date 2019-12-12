@@ -346,9 +346,18 @@ Type of the test group\: [MacTestGroup](types.md#mactestgroup)
 
 Type of the test vectors\: [MacTestVector](types.md#mactestvector)
 
-**name**           | **tests** | **validity** | **algorithm** {.sortable}
------------------- | --------- | ------------ | -------------
-aes_cmac_test.json | 308       | 60, 0, 248   | AES-CMAC
+**name**                | **tests** | **validity** | **algorithm** {.sortable}
+----------------------- | --------- | ------------ | -------------
+aes_cmac_test.json      | 308       | 60, 0, 248   | AES-CMAC
+hmac_sha1_test.json     | 170       | 66, 0, 104   | HMACSHA1
+hmac_sha224_test.json   | 172       | 66, 0, 106   | HMACSHA224
+hmac_sha256_test.json   | 174       | 66, 0, 108   | HMACSHA256
+hmac_sha384_test.json   | 174       | 66, 0, 108   | HMACSHA384
+hmac_sha3_224_test.json | 172       | 66, 0, 106   | HMACSHA3-224
+hmac_sha3_256_test.json | 174       | 66, 0, 108   | HMACSHA3-256
+hmac_sha3_384_test.json | 174       | 66, 0, 108   | HMACSHA3-384
+hmac_sha3_512_test.json | 174       | 66, 0, 108   | HMACSHA3-512
+hmac_sha512_test.json   | 174       | 66, 0, 108   | HMACSHA512
 
 ## MacWithIvTest
 
