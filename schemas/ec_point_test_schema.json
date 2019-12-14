@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "definitions": {
+    "EcPointTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcPointTest"
+          ]
+        },
+        "curve": {
+          "type": "string",
+          "description": "the name of the elliptic curve"
+        },
+        "encoding": {
+          "type": "string",
+          "description": "the encoding used",
+          "enum": [
+            "compressed",
+            "uncompressed"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EcPointTestVector"
+          }
+        }
+      }
+    },
+    "EcPointTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "encoded": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "X509 encoded point on the curve"
+        },
+        "x": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "x-coordinate of the point"
+        },
+        "y": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "y-coordiante of the point"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "ec_point_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcPointTestGroup"
+      }
+    }
+  }
+}

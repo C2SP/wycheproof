@@ -37,13 +37,68 @@ import java.util.Arrays;
 public class EcUtil {
   /**
    * Returns the ECParameterSpec for a named curve. Not every provider implements the
-   * AlgorithmParameters. Therefore, most test use alternative functions.
+   * AlgorithmParameters. Therefore, most tests use alternative functions.
    */
   public static ECParameterSpec getCurveSpec(String name)
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
     AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
     parameters.init(new ECGenParameterSpec(name));
     return parameters.getParameterSpec(ECParameterSpec.class);
+  }
+
+  public static void printParameters(ECParameterSpec spec) {
+    System.out.println("cofactor:" + spec.getCofactor());
+    EllipticCurve curve = spec.getCurve();
+    System.out.println("A:" + curve.getA());
+    System.out.println("B:" + curve.getB());
+    ECField field = curve.getField();
+    System.out.println("field size:" + field.getFieldSize());
+    if (field instanceof ECFieldFp) {
+      ECFieldFp fp = (ECFieldFp) field;
+      System.out.println("P:" + fp.getP());
+    }
+    ECPoint generator = spec.getGenerator();
+    System.out.println("Gx:" + generator.getAffineX());
+    System.out.println("Gy:" + generator.getAffineY());
+    System.out.println("order:" + spec.getOrder());
+  }
+
+  /** Returns the bit size of a given curve. TODO(bleichen): add all curves that are tested. */
+  public static int getCurveSize(String name) throws NoSuchAlgorithmException {
+    name = name.toLowerCase();
+    if (name.equals("secp224r1")) {
+      return 224;
+    } else if (name.equals("secp256r1")) {
+      return 256;
+    } else if (name.equals("secp384r1")) {
+      return 384;
+    } else if (name.equals("secp521r1")) {
+      return 521;
+    } else if (name.equals("secp256k1")) {
+      return 256;
+    } else if (name.equals("brainpoolp224r1")) {
+      return 224;
+    } else if (name.equals("brainpoolp224t1")) {
+      return 224;
+    } else if (name.equals("brainpoolp256r1")) {
+      return 256;
+    } else if (name.equals("brainpoolp256t1")) {
+      return 256;
+    } else if (name.equals("brainpoolp320r1")) {
+      return 320;
+    } else if (name.equals("brainpoolp320t1")) {
+      return 320;
+    } else if (name.equals("brainpoolp384r1")) {
+      return 384;
+    } else if (name.equals("brainpoolp384t1")) {
+      return 384;
+    } else if (name.equals("brainpoolp512r1")) {
+      return 512;
+    } else if (name.equals("brainpoolp512t1")) {
+      return 512;
+    } else {
+      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
+    }
   }
 
   /**
@@ -59,6 +114,8 @@ public class EcUtil {
       return getNistP384Params();
     } else if (name.equals("secp521r1")) {
       return getNistP521Params();
+    } else if (name.equals("brainpoolp224r1")) {
+      return getBrainpoolP224r1Params();
     } else if (name.equals("brainpoolp256r1")) {
       return getBrainpoolP256r1Params();
     } else {
@@ -129,6 +186,23 @@ public class EcUtil {
             + "baa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66",
         "11839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e6"
             + "62c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650");
+  }
+
+  public static ECParameterSpec getBrainpoolP224r1Params() {
+    // name = "brainpoolP224r1",
+    // oid = '2b2403030208010105',
+    // ref = "RFC 5639",
+    BigInteger p = new BigInteger("D7C134AA264366862A18302575D1D787B09F075797DA89F57EC8C0FF", 16);
+    BigInteger a = new BigInteger("68A5E62CA9CE6C1C299803A6C1530B514E182AD8B0042A59CAD29F43", 16);
+    BigInteger b = new BigInteger("2580F63CCFE44138870713B1A92369E33E2135D266DBB372386C400B", 16);
+    BigInteger x = new BigInteger("0D9029AD2C7E5CF4340823B2A87DC68C9E4CE3174C1E6EFDEE12C07D", 16);
+    BigInteger y = new BigInteger("58AA56F772C0726F24C6B89E4ECDAC24354B9E99CAA3F6D3761402CD", 16);
+    BigInteger n = new BigInteger("D7C134AA264366862A18302575D0FB98D116BC4B6DDEBCA3A5A7939F", 16);
+    final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
   }
 
   public static ECParameterSpec getBrainpoolP256r1Params() {

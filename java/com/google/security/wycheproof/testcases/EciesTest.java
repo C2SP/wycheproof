@@ -17,8 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
-import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
@@ -50,10 +48,15 @@ import org.junit.runners.JUnit4;
 // allows to specify paddings, but ignores them, encryption using ByteBuffers doesn't even work
 // without exceptions, indicating that this hasn't even tested.
 //
+// <p> The ECIES interface has changed a few times. The current code is written for
+// BouncyCastle v 1.59.
+//
 // <p>TODO(bleichen):
-// - compressed points,
-// - maybe again CipherInputStream, CipherOutputStream,
-// - BouncyCastle has a KeyPairGenerator for ECIES. Is this one different from EC?
+// (1) test compressed points,
+// (2) maybe test with CipherInputStream, CipherOutputStream,
+// (3) BouncyCastle has a KeyPairGenerator for ECIES. Is this one different from EC?
+// (4) the tests below cheat to avoid using BouncyCastle specific classes.
+// (5) consider to move into a BouncyCastle specific package, to avoid test restrictions.
 @RunWith(JUnit4.class)
 public class EciesTest {
 
@@ -88,54 +91,16 @@ public class EciesTest {
     byte[] message = "Hello".getBytes("UTF-8");
     Cipher ecies = Cipher.getInstance("ECIESwithAES-CBC");
     ecies.init(Cipher.ENCRYPT_MODE, pub);
+    // Gets the parameters used.
+    // Getting the parameters here and setting them below for the decryption avoids the use of
+    // org.bouncycastle.jce.spec.IESParameterSpec and hence making the code provider dependent.
+    // The drawback of this approach is that it can only be used in a test environment.
+    AlgorithmParameters params = ecies.getParameters();
     byte[] ciphertext = ecies.doFinal(message);
     System.out.println("testEciesBasic:" + TestUtil.bytesToHex(ciphertext));
-    ecies.init(Cipher.DECRYPT_MODE, priv, ecies.getParameters());
+    ecies.init(Cipher.DECRYPT_MODE, priv, params);
     byte[] decrypted = ecies.doFinal(ciphertext);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
-  }
-
-  /**
-   * ECIES does not allow encryption modes and paddings. If this test fails then we should add
-   * additional tests covering the new algorithms.
-   */
-  // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
-  // expect.
-  @SuppressWarnings("InsecureCryptoUsage")
-  @Test
-  public void testInvalidNames() throws Exception {
-    String[] invalidNames =
-        new String[] {
-          "ECIESWITHAES/CBC/PKCS5PADDING",
-          "ECIESWITHAES/CBC/PKCS7PADDING",
-          /* MOE:insert "ECIESWITHAES/DHAES/NOPADDING", */
-          /* MOE:insert "ECIESWITHDESEDE/DHAES/NOPADDING", */
-          "ECIESWITHAES/ECB/NOPADDING",
-          "ECIESWITHAES/CTR/NOPADDING",
-        };
-    for (String algorithm : invalidNames) {
-      try {
-        Cipher.getInstance(algorithm);
-        fail("unexpected algorithm:" + algorithm);
-      } catch (NoSuchAlgorithmException ex) {
-        // this is expected
-      }
-    }
-  }
-
-  /** Here are a few names that BouncyCastle accepts. */
-  // TODO(bleichen): This test describes BouncyCastles behaviour, but not necessarily what we
-  // expect.
-  @SuppressWarnings("InsecureCryptoUsage")
-  @Test
-  public void testValidNames() throws Exception {
-    String[] validNames =
-        new String[] {
-          "ECIES/DHAES/PKCS7PADDING", "ECIESWITHAES-CBC/NONE/NOPADDING",
-        };
-    for (String algorithm : validNames) {
-      Cipher.getInstance(algorithm);
-    }
   }
 
   /**
@@ -235,14 +200,6 @@ public class EciesTest {
       fail("This should not work");
     } catch (GeneralSecurityException ex) {
       // This is as expected
-      // Bouncy Castle 1.56 throws this exception
-      // MOE:begin_strip
-      // strip this catch from open source release,
-      // until third_party/java/bouncycastle is upgraded to 1.56 or later.
-    } catch (java.lang.IllegalArgumentException ex) {
-      // This is what BouncyCastle < 1.56 throws when the points are not on the curve.
-      // Maybe GeneralSecurityException would be better.
-      // MOE:end_strip
     } catch (Exception ex) {
       fail(
           "Expected subclass of java.security.GeneralSecurityException, but got: "
@@ -285,82 +242,91 @@ public class EciesTest {
   }
 
   /** BouncyCastle v1.52 uses ECB as default for ECIES with AES. */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
-  )
   @Test
   public void testDefaultEciesWithAes() throws Exception {
     testNotEcb("ECIESWithAES");
   }
+
   /** BouncyCastle v1.52 uses ECB as default for ECIES with DESede. */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
-  )
   @Test
   public void testDefaultEciesWithDESede() throws Exception {
     testNotEcb("ECIESwithDESede");
   }
 
   /**
-   * Tests whether algorithmA is an alias of algorithmB by encrypting with algorithmA and decrypting
-   * with algorithmB.
+   * This test tries to detect ECIES whether AlgorithmParameters are deterministic.
    */
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testIsAlias(String algorithmA, String algorithmB) throws Exception {
+  public void testAlgorithmParameters(String algorithm) throws Exception {
     Cipher eciesA;
     Cipher eciesB;
-    // Allowing tests to be skipped, because we don't want to encourage abbreviations.
     try {
-      eciesA = Cipher.getInstance(algorithmA);
+      eciesA = Cipher.getInstance(algorithm);
+      eciesB = Cipher.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Skipping because of:" + ex.toString());
-      return;
-    }
-    try {
-      eciesB = Cipher.getInstance(algorithmB);
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Skipping because of:" + ex.toString());
+      // This test is called with short algorithm names such as just "ECIES".
+      // Requiring full names is typically a good practice. Hence it is OK
+      // to not assigning default algorithms.
+      System.out.println("No implementation for:" + algorithm);
       return;
     }
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
     kf.initialize(ecSpec);
     KeyPair keyPair = kf.generateKeyPair();
-    byte[] message = "Hello".getBytes("UTF-8");
-    eciesA.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-    byte[] ciphertext = eciesA.doFinal(message);
-    eciesB.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), eciesA.getParameters());
-    byte[] decrypted = eciesB.doFinal(ciphertext);
-    assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
+    PublicKey pub = keyPair.getPublic();
+    byte[] message = new byte[512];
+    eciesA.init(Cipher.ENCRYPT_MODE, pub);
+    eciesB.init(Cipher.ENCRYPT_MODE, pub);
+    AlgorithmParameters paramsA = eciesA.getParameters();
+    AlgorithmParameters paramsB = eciesB.getParameters();
+    // byte[] ciphertextA = eciesA.doFinal(message);
+    byte[] ciphertextB = eciesB.doFinal(message);
+    PrivateKey priv = keyPair.getPrivate();
+    eciesB.init(Cipher.DECRYPT_MODE, priv, paramsA);
+    try {
+      byte[] decrypted = eciesB.doFinal(ciphertextB);
+      String messageHex = TestUtil.bytesToHex(message);
+      String decryptedHex = TestUtil.bytesToHex(decrypted);
+      if (messageHex.equals(decryptedHex)) {
+        System.out.println(algorithm + " does (probably) not randomize AlgorithmParameters");
+      } else {
+        // This is the most interesting case.
+        // The algorithm parameters are randomized but are not authenticated.
+        // This is for example the case for the IV in ECIESWithAES-CBC in BouncyCastle.
+        // If the caller attaches the randomized parameters to the ciphertext then
+        // this would result in malleable encryption.
+        System.out.println(
+            algorithm + " uses randomized (unauthenticated) AlgorithmParameters."
+                + " message:" + messageHex
+                + " decrypted:" + decryptedHex
+                + "\nparamsA:" + paramsA.toString()
+                + " " + TestUtil.bytesToHex(paramsA.getEncoded())
+                + "\nparamsB:" + paramsB.toString()
+                + " " + TestUtil.bytesToHex(paramsB.getEncoded()));
+      }
+    } catch (GeneralSecurityException ex) {
+      System.out.println(algorithm + " uses randomized AlgorithmParameters");
+    }
   }
 
-  /** Tests whether two distinct algorithm names implement the same cipher */
   @Test
-  public void testAlias() throws Exception {
-    testIsAlias("ECIESWITHAES-CBC", "ECIESWithAES-CBC");
-    testIsAlias("ECIESWITHAES", "ECIESWithAES");
-    // BouncyCastle v 1.52 ignores mode and padding and considers the following
-    // names as equivalent:
-    // testIsAlias("ECIES/DHAES/PKCS7PADDING", "ECIES");
-    testIsAlias("ECIESWITHAES-CBC/NONE/PKCS7PADDING", "ECIESWITHAES-CBC/NONE/NOPADDING");
+  public void testAlgorithmParameters() throws Exception {
+    testAlgorithmParameters("ECIES");
+    testAlgorithmParameters("ECIESWithAES-CBC");
   }
-
+  
   /**
-   * Encryption with ByteBuffers. This currently fails with BouncyCastle. Possibly this is the same
-   * bug as http://www.bouncycastle.org/jira/browse/BJA-577 and should be fixed in version 1.53.
+   * Encryption with ByteBuffers.
+   * This test failed with BouncyCastle v 1.52 probably because of this bug
+   * http://www.bouncycastle.org/jira/browse/BJA-577
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
-  )
   @Test
   public void testByteBuffer() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     // TODO(bleichen): Not sure what is better here:
     //   BouncyCastle allows EC and ECIES. So far I can't see a difference.
-    //   In both cases the test is broken.
+    //   In both cases the test is broken for version 1.52.
     KeyPairGenerator kf = KeyPairGenerator.getInstance("ECIES");
     kf.initialize(ecSpec);
     KeyPair keyPair = kf.generateKeyPair();
@@ -371,6 +337,7 @@ public class EciesTest {
     // Encryption
     Cipher cipher = Cipher.getInstance("ECIESwithAES-CBC");
     cipher.init(Cipher.ENCRYPT_MODE, pub);
+    AlgorithmParameters params = cipher.getParameters();
     ByteBuffer ptBuffer = ByteBuffer.wrap(message);
     ByteBuffer ctBuffer = ByteBuffer.allocate(1024);
     cipher.doFinal(ptBuffer, ctBuffer);
@@ -378,7 +345,7 @@ public class EciesTest {
     // Decryption
     ctBuffer.flip();
     ByteBuffer decrypted = ByteBuffer.allocate(message.length);
-    cipher.init(Cipher.DECRYPT_MODE, priv);
+    cipher.init(Cipher.DECRYPT_MODE, priv, params);
     cipher.doFinal(ctBuffer, decrypted);
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted.array()));
   }
@@ -389,10 +356,6 @@ public class EciesTest {
    *
    * <p>This test tries to verify this.
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/30424901: won't fix, all BC ECIES modes are banned"}
-  )
   @Test
   public void testByteBufferAlias() throws Exception {
     byte[] message = "Hello".getBytes("UTF-8");
@@ -410,11 +373,12 @@ public class EciesTest {
     ptBuffer.flip();
 
     ecies.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+    AlgorithmParameters params = ecies.getParameters();
     ByteBuffer ctBuffer = ByteBuffer.wrap(backingArray);
     ecies.doFinal(ptBuffer, ctBuffer);
     ctBuffer.flip();
 
-    ecies.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+    ecies.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), params);
     byte[] decrypted = ecies.doFinal(backingArray, 0, ctBuffer.remaining());
     assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted));
   }

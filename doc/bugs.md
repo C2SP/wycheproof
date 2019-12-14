@@ -67,8 +67,3 @@ See [list of issues](issues.md) for details.
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | X25519 incorrect carry handling | Alex Gaynor and Paul Kehrer | N/A | https://github.com/openssl/openssl/issues/6687 |
 | Ed25519 malleable signatures    | Paul Kehrer and Alex Gaynor | N/A | https://github.com/openssl/openssl/issues/7693 |
-
-## Package LibreSSL
-|           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
-|:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
-| Overly lax RSA PKCS1v1.5 parsing | Alex Gaynor and Paul Kehrer | N/A | https://github.com/openbsd/src/commit/4698a0ba0d5547fce37134cb00f204c68f429885#diff-8c6377c3026df41da690063739326043 |

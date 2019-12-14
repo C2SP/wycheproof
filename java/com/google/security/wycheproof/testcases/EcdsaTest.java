@@ -13,7 +13,6 @@
  */
 package com.google.security.wycheproof;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,534 +22,30 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
-import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests ECDSA against invalid signatures.
+ * Tests ECDSA signatures.
+ *
+ * <p>Tests for signature verification with test vectors are in JsonSignatureTest.java toghether
+ * with other signature schemes.
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
-// Tested providers:
-//   SunEC: accepts a few alternative encodings and throws run time exceptions.
-//     The implementation does not protect against timing attacks.
-//   BC: accepts alternative encoding, and additional arguments
-//   AndroidOpenSSL: OK
-// TODO(bleichen):
-//   - CVE-2015-2730: Firefox failed to handle some signatures correctly because of incorrect
-//     point multiplication. (I don't have enough information here.)
 @RunWith(JUnit4.class)
 public class EcdsaTest {
-  // ECDSA-Key1
-  static final String MESSAGE = "Hello";
-  static final String CURVE = "secp256r1";
-  static final BigInteger PubX =
-      new BigInteger(
-          "33903964965861532023650245008903090201819051686264021958530366090984128098564");
-  static final BigInteger PubY =
-      new BigInteger(
-          "113542129898393725739068316260085522189065290079050903091108740065052129055287");
-
-  // Valid signatures for MESSAGE
-  static final String[] VALID_SIGNATURES = {
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-  };
-
-  /**
-   * The following test vectors contain a valid signature that use alternative BER encoding. Whether
-   * such signatures are accepted as valid or rejected depends on the implementation. Allowing
-   * alternative BER encodings is in many cases benign. However, there are cases where this kind of
-   * signature malleability was a problem. See for example
-   * https://en.bitcoin.it/wiki/Transaction_Malleability
-   */
-  // NOTE(bleichen): The following test vectors were generated with some python code.
-  //   New test vectors should best be done by extending this code. Some of the signatures
-  //   can be moved to INVALID_SIGNATURES, when b/31572415 is fixed.
-  static final String[] MODIFIED_SIGNATURES = {
-    // BER:long form encoding of length
-    "308145022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d"
-        + "491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
-        + "85cd59f43260ecce",
-    "304602812100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d"
-        + "491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
-        + "85cd59f43260ecce",
-    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f028120747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
-        + "85cd59f43260ecce",
-    // BER:length contains leading 0
-    "30820045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    "30470282002100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f02820020747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // BER:prepending 0's to integer
-    "30470223000000b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f02220000747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // NOTE (bleichen): belongs into INVALID_SIGNATURES. We only keep these
-    //  sigantures here because of b/31572415.
-    // length = 2**31 - 1
-    "30847fffffff022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304902847fffffff00b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f02847fffffff747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-  };
-
-  /**
-   * Test vectors with invalid signatures. The motivation for these test vectors are previously
-   * broken implementations. E.g.
-   *
-   * <ul>
-   *   <li>The implementation of DSA in gpg4browsers accepted signatures with r=1 and s=q as valid.
-   *       Similar bugs in ECDSA are thinkable, hence the test vectors contain a number of tests
-   *       with edge case integers.
-   *   <li>CVE-2013-2944: strongSwan 5.0.4 accepts invalid ECDSA signatures when openssl is used.
-   *       (Not sure if the following interpretation is correct, because of missing details).
-   *       OpenSSLs error codes are easy to misinterpret. For many functions the result can be 0
-   *       (verification failed), 1 (verification succeded) or -1 (invalid format). A simple <code>
-   *       if (result) { ... }</code> will be incorrect in such situations. The test vectors below
-   *       contain incorrectly encoded signatures.
-   * </ul>
-   *
-   * <p>{@link java.security.Signature#verify(byte[])} should either return false or throw a
-   * SignatureException. Other behaviour such as throwing a RuntimeException might allow a denial of
-   * service attack:
-   *
-   * <ul>
-   *   <li>CVE-2016-5546: OpenJDK8 throwed an OutOfmemoryError on some signatures.
-   * </ul>
-   *
-   * Some of the test vectors were derived from a valid signature by corrupting the DER encoding. If
-   * providers accepts such modified signatures for legacy purpose, then these signatures should be
-   * moved to MODIFIED_SIGNATURES.
-   */
-  // NOTE(bleichen): The following test vectors were generated with some python code. New test
-  // vectors should best be done by extending the python code.
-  static final String[] INVALID_SIGNATURES = {
-    // wrong length
-    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3044022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022200b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022000b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0221747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f021f747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    // uint32 overflow in length
-    "30850100000045022100b7babae9332b54b8a3a05b7004579821a887a1b21465"
-        + "f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c1"
-        + "06a6e76285cd59f43260ecce",
-    "304a0285010000002100b7babae9332b54b8a3a05b7004579821a887a1b21465"
-        + "f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c1"
-        + "06a6e76285cd59f43260ecce",
-    "304a022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f02850100000020747291dd2f3f44af7ace68ea33431d6f94e418c1"
-        + "06a6e76285cd59f43260ecce",
-    // uint64 overflow in length
-    "3089010000000000000045022100b7babae9332b54b8a3a05b7004579821a887"
-        + "a1b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f"
-        + "94e418c106a6e76285cd59f43260ecce",
-    "304e028901000000000000002100b7babae9332b54b8a3a05b7004579821a887"
-        + "a1b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f"
-        + "94e418c106a6e76285cd59f43260ecce",
-    "304e022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0289010000000000000020747291dd2f3f44af7ace68ea33431d6f"
-        + "94e418c106a6e76285cd59f43260ecce",
-    // length = 2**32 - 1
-    "3084ffffffff022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "30490284ffffffff00b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0284ffffffff747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    // length = 2**64 - 1
-    "3088ffffffffffffffff022100b7babae9332b54b8a3a05b7004579821a887a1"
-        + "b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "304d0288ffffffffffffffff00b7babae9332b54b8a3a05b7004579821a887a1"
-        + "b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "304d022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0288ffffffffffffffff747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    // removing sequence
-    "",
-    // appending 0's to sequence
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0000",
-    // prepending 0's to sequence
-    "30470000022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // appending unused 0's
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0000",
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f00000220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // appending null value
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0500",
-    "3047022300b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f05000220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0222747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0500",
-    // including garbage
-    "304949803045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304925003045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "30473045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce0004deadbeef",
-    "304922254980022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304922252500022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304d2223022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0004deadbeef0220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f222449800220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f222425000220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304d022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f22220220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce0004deadbeef",
-    // including undefined tags
-    "304daa00bb00cd003045022100b7babae9332b54b8a3a05b7004579821a887a1"
-        + "b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "304baa02aabb3045022100b7babae9332b54b8a3a05b7004579821a887a1b214"
-        + "65f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418"
-        + "c106a6e76285cd59f43260ecce",
-    "304d2229aa00bb00cd00022100b7babae9332b54b8a3a05b7004579821a887a1"
-        + "b21465f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "304b2227aa02aabb022100b7babae9332b54b8a3a05b7004579821a887a1b214"
-        + "65f7db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418"
-        + "c106a6e76285cd59f43260ecce",
-    "304d022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f2228aa00bb00cd000220747291dd2f3f44af7ace68ea33431d6f94"
-        + "e418c106a6e76285cd59f43260ecce",
-    "304b022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f2226aa02aabb0220747291dd2f3f44af7ace68ea33431d6f94e418"
-        + "c106a6e76285cd59f43260ecce",
-    // changing tag value
-    "2e45022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3245022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "ff45022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045002100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045042100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045ff2100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0020747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0420747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3fff20747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    // dropping value of sequence
-    "3000",
-    // using composition
-    "304930010230442100b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "304922250201000220b7babae9332b54b8a3a05b7004579821a887a1b21465f7"
-        + "db8a3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    "3049022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f2224020174021f7291dd2f3f44af7ace68ea33431d6f94e418c106"
-        + "a6e76285cd59f43260ecce",
-    // truncate sequence
-    "3044022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ec",
-    "30442100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d491b"
-        + "39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd"
-        + "59f43260ecce",
-    // prepend empty sequence
-    "30473000022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // append empty sequence
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce3000",
-    // sequence of sequence
-    "30473045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a"
-        + "3d491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // truncated sequence
-    "3023022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d491b39fd2c3f",
-    // repeat element in sequence
-    "3067022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    // removing integer
-    "30220220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd59f43260ecce",
-    // appending 0's to integer
-    "3047022300b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f00000220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e7"
-        + "6285cd59f43260ecce",
-    "3047022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0222747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce0000",
-    // dropping value of integer
-    "302402000220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd59f43260ecce",
-    "3025022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d491b39fd2c3f0200",
-    // modify first byte of integer
-    "3045022101b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220757291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    // modify last byte of integer
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3e0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260eccf",
-    // truncate integer
-    "3044022000b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd"
-        + "59f43260ecce",
-    "30440220b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d491b"
-        + "39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd"
-        + "59f43260ecce",
-    "3044022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f021f747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ec",
-    "3044022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f021f7291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd"
-        + "59f43260ecce",
-    // leading ff in integer
-    "30460222ff00b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d"
-        + "491b39fd2c3f0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
-        + "85cd59f43260ecce",
-    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f0221ff747291dd2f3f44af7ace68ea33431d6f94e418c106a6e762"
-        + "85cd59f43260ecce",
-    // infinity
-    "30250901800220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd59f43260ecce",
-    "3026022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d491b39fd2c3f090180",
-    // Vectors where r or s have been modified e.g. by adding or subtracting the order of the
-    // group or field and hence violate the range check for r and s required by ECDSA.
-    "30450221ff48454516ccd4ab475c5fa48ffba867de57785e4deb9a082475c2b6"
-        + "e4c602d3c10220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022101b7babae8332b54b9a3a05b7004579821656e9c5fbb7d96607df713"
-        + "de366051900220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3044022048454515ccd4ab485c5fa48ffba867de145f58fb92b1a6a9697c81a7"
-        + "c265f9120220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285cd"
-        + "59f43260ecce",
-    "3045022101b7babae8332b54b9a3a05b7004579821a887a1b31465f7db8a3d49"
-        + "1b39fd2c3e0220747291dd2f3f44af7ace68ea33431d6f94e418c106a6e76285"
-        + "cd59f43260ecce",
-    "3045022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f02208b8d6e22d0c0bb5085319715ccbce2906b1be73ef959189d7a"
-        + "32a60bcd9f1332",
-    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f022101747291dc2f3f44b07ace68ea33431d6f51cb136eadbe85e7"
-        + "798724b72ec4121f",
-    "3046022100b7babae9332b54b8a3a05b7004579821a887a1b21465f7db8a3d49"
-        + "1b39fd2c3f022101747291dc2f3f44b07ace68ea33431d6f94e418c206a6e762"
-        + "85cd59f43260eccd",
-    // Signatures with special case values for r and s (such as 0 and 1). Such values often
-    // uncover implementation errors.
-    "3006020100020100",
-    "3006020100020101",
-    "30060201000201ff",
-    "3026020100022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551",
-    "3026020100022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550",
-    "3026020100022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552",
-    "3026020100022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff",
-    "3026020100022100ffffffff00000001000000000000000000000001000000000000000000000000",
-    "3008020100090380fe01",
-    "3006020101020100",
-    "3006020101020101",
-    "30060201010201ff",
-    "3026020101022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551",
-    "3026020101022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550",
-    "3026020101022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552",
-    "3026020101022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff",
-    "3026020101022100ffffffff00000001000000000000000000000001000000000000000000000000",
-    "3008020101090380fe01",
-    "30060201ff020100",
-    "30060201ff020101",
-    "30060201ff0201ff",
-    "30260201ff022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551",
-    "30260201ff022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550",
-    "30260201ff022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552",
-    "30260201ff022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff",
-    "30260201ff022100ffffffff00000001000000000000000000000001000000000000000000000000",
-    "30080201ff090380fe01",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551020100",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551020101",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325510201ff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632551022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632551",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632551022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632550",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632551022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632552",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632551022100ffffffff00000001000000000000000000000000ffffffff"
-        + "ffffffffffffffff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632551022100ffffffff0000000100000000000000000000000100000000"
-        + "0000000000000000",
-    "3028022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca" + "c2fc632551090380fe01",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550020100",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550020101",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325500201ff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632550022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632551",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632550022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632550",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632550022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632552",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632550022100ffffffff00000001000000000000000000000000ffffffff"
-        + "ffffffffffffffff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632550022100ffffffff0000000100000000000000000000000100000000"
-        + "0000000000000000",
-    "3028022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca" + "c2fc632550090380fe01",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552020100",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552020101",
-    "3026022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325520201ff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632552022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632551",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632552022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632550",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632552022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632552",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632552022100ffffffff00000001000000000000000000000000ffffffff"
-        + "ffffffffffffffff",
-    "3046022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca"
-        + "c2fc632552022100ffffffff0000000100000000000000000000000100000000"
-        + "0000000000000000",
-    "3028022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9ca" + "c2fc632552090380fe01",
-    "3026022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff020100",
-    "3026022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff020101",
-    "3026022100ffffffff00000001000000000000000000000000ffffffffffffffffffffffff0201ff",
-    "3046022100ffffffff00000001000000000000000000000000ffffffffffffff"
-        + "ffffffffff022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632551",
-    "3046022100ffffffff00000001000000000000000000000000ffffffffffffff"
-        + "ffffffffff022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632550",
-    "3046022100ffffffff00000001000000000000000000000000ffffffffffffff"
-        + "ffffffffff022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632552",
-    "3046022100ffffffff00000001000000000000000000000000ffffffffffffff"
-        + "ffffffffff022100ffffffff00000001000000000000000000000000ffffffff"
-        + "ffffffffffffffff",
-    "3046022100ffffffff00000001000000000000000000000000ffffffffffffff"
-        + "ffffffffff022100ffffffff0000000100000000000000000000000100000000"
-        + "0000000000000000",
-    "3028022100ffffffff00000001000000000000000000000000ffffffffffffff" + "ffffffffff090380fe01",
-    "3026022100ffffffff00000001000000000000000000000001000000000000000000000000020100",
-    "3026022100ffffffff00000001000000000000000000000001000000000000000000000000020101",
-    "3026022100ffffffff000000010000000000000000000000010000000000000000000000000201ff",
-    "3046022100ffffffff0000000100000000000000000000000100000000000000"
-        + "0000000000022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632551",
-    "3046022100ffffffff0000000100000000000000000000000100000000000000"
-        + "0000000000022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632550",
-    "3046022100ffffffff0000000100000000000000000000000100000000000000"
-        + "0000000000022100ffffffff00000000ffffffffffffffffbce6faada7179e84"
-        + "f3b9cac2fc632552",
-    "3046022100ffffffff0000000100000000000000000000000100000000000000"
-        + "0000000000022100ffffffff00000001000000000000000000000000ffffffff"
-        + "ffffffffffffffff",
-    "3046022100ffffffff0000000100000000000000000000000100000000000000"
-        + "0000000000022100ffffffff0000000100000000000000000000000100000000"
-        + "0000000000000000",
-    "3028022100ffffffff0000000100000000000000000000000100000000000000" + "0000000000090380fe01",
-  };
 
   /**
    * Determines the Hash name from the ECDSA algorithm. There is a small inconsistency in the naming
@@ -598,134 +93,96 @@ public class EcdsaTest {
     return k;
   }
 
-  public ECPublicKeySpec publicKey1() throws Exception {
-    ECParameterSpec params = EcUtil.getNistP256Params();
-    ECPoint w = new ECPoint(PubX, PubY);
-    return new ECPublicKeySpec(w, params);
-  }
-
-  public void testVectors(
-      String[] signatures,
-      ECPublicKeySpec pubSpec,
-      String message,
-      String algorithm,
-      String signatureType,
-      boolean isValidDER,
-      boolean isValidBER)
-      throws Exception {
-    byte[] messageBytes = message.getBytes("UTF-8");
-    Signature verifier = Signature.getInstance(algorithm);
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPublicKey pub = (ECPublicKey) kf.generatePublic(pubSpec);
-    int errors = 0;
-    for (String signature : signatures) {
-      byte[] signatureBytes = TestUtil.hexToBytes(signature);
-      verifier.initVerify(pub);
-      verifier.update(messageBytes);
-      boolean verified = false;
-      try {
-        verified = verifier.verify(signatureBytes);
-      } catch (SignatureException ex) {
-        // verify can throw SignatureExceptions if the signature is malformed.
-        // We don't flag these cases and simply consider the signature as invalid.
-        verified = false;
-      }
-      if (!verified && isValidDER) {
-        System.out.println(signatureType + " was not verified:" + signature);
-        errors++;
-      }
-      if (verified && !isValidBER) {
-        System.out.println(signatureType + " was verified:" + signature);
-        errors++;
-      }
+  /**
+   * Computes the bias of samples as
+   *
+   * abs(sum(e^(2 pi i s m / modulus) for s in samples) / sqrt(samples.length).
+   *
+   * If the samples are taken from a uniform distribution in the range 0 .. modulus - 1
+   * and the number of samples is significantly larger than L^2
+   * then the probability that the result is larger than L is approximately e^(-L^2).
+   * The approximation can be derived from the assumption that samples taken from
+   * a uniform distribution give a result that approximates a standard complex normal 
+   * distribution Z. I.e. Z has a density f_Z(z) = exp(-abs(z)^2) / pi.
+   * https://en.wikipedia.org/wiki/Complex_normal_distribution
+   */
+  double bias(BigInteger[] samples, BigInteger modulus, BigInteger m) {
+    double sumReal = 0.0;
+    double sumImag = 0.0;
+    for (BigInteger s : samples) {
+      BigInteger r = s.multiply(m).mod(modulus);
+      // multiplier = 2 * pi / 2^52
+      double multiplier = 1.3951473992034527e-15;
+      // computes the quotent 2 * pi * r / modulus
+      double quot = r.shiftLeft(52).divide(modulus).doubleValue() * multiplier;     
+      sumReal += Math.cos(quot);
+      sumImag += Math.sin(quot);
     }
-    assertEquals(0, errors);
-  }
-
-  @Test
-  public void testValidSignatures() throws Exception {
-    testVectors(
-        VALID_SIGNATURES,
-        publicKey1(),
-        "Hello",
-        "SHA256WithECDSA",
-        "Valid ECDSA signature",
-        true,
-        true);
-  }
-
-  @Test
-  public void testModifiedSignatures() throws Exception {
-    testVectors(
-        MODIFIED_SIGNATURES,
-        publicKey1(),
-        "Hello",
-        "SHA256WithECDSA",
-        "Modified ECDSA signature",
-        false,
-        true);
-  }
-
-  @Test
-  public void testInvalidSignatures() throws Exception {
-    testVectors(
-        INVALID_SIGNATURES,
-        publicKey1(),
-        "Hello",
-        "SHA256WithECDSA",
-        "Invalid ECDSA signature",
-        false,
-        false);
+    return Math.sqrt((sumReal * sumReal + sumImag * sumImag) / samples.length);
   }
 
   /**
-   * This test checks the basic functionality of ECDSA. It can also be used to generate simple test
-   * vectors.
+   * This test checks the basic functionality of ECDSA. It simply tries to generate a key, sign and
+   * verify a message for a given, algorithm and curve.
+   *
+   * @param algorithm the algorithm to test (e.g. "SHA256WithECDSA")
+   * @param curve the curve to test (e.g. "secp256r1")
+   * @return whether the algorithm and curve are supported.
+   * @throws Exception if an unexpected error occurred.
    */
-  @Test
-  public void testBasic() throws Exception {
-    String algorithm = "SHA256WithECDSA";
-    String hashAlgorithm = "SHA-256";
-    String message = "Hello";
-    String curve = "secp256r1";
+  boolean testParameters(String algorithm, String curve) throws Exception {
+    String message = "123400";
 
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    keyGen.initialize(ecSpec);
-    KeyPair keyPair = keyGen.generateKeyPair();
+    ECGenParameterSpec ecSpec = new ECGenParameterSpec(curve);
+    KeyPair keyPair;
+    try {
+      keyGen.initialize(ecSpec);
+      keyPair = keyGen.generateKeyPair();
+    } catch (InvalidAlgorithmParameterException ex) {
+      // The curve is not supported.
+      // The documentation does not specify whether the method initialize
+      // has to reject unsupported curves or if only generateKeyPair checks
+      // whether the curve is supported.
+      return false;
+    }
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
 
+    // Print the parameters.
+    System.out.println("Parameters for curve:" + curve);
+    EcUtil.printParameters(pub.getParams());
+
+    Signature signer;
+    Signature verifier;
+    try {
+      signer = Signature.getInstance(algorithm);
+      verifier = Signature.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      // The algorithm is not supported.
+      return false;
+    }
+    // Both algorithm and curve are supported.
+    // Hence, we expect that signing and verifying properly works.
     byte[] messageBytes = message.getBytes("UTF-8");
-    Signature signer = Signature.getInstance(algorithm);
-    Signature verifier = Signature.getInstance(algorithm);
     signer.initSign(priv);
     signer.update(messageBytes);
     byte[] signature = signer.sign();
     verifier.initVerify(pub);
     verifier.update(messageBytes);
     assertTrue(verifier.verify(signature));
+    return true;
+  }
 
-    // Extract some parameters.
-    byte[] rawHash = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
-    ECParameterSpec params = priv.getParams();
-
-    // Print keys and signature, so that it can be used to generate new test vectors.
-    System.out.println("Message:" + message);
-    System.out.println("Hash:" + TestUtil.bytesToHex(rawHash));
-    System.out.println("Curve:" + curve);
-    System.out.println("Order:" + params.getOrder().toString());
-    System.out.println("Private key:");
-    System.out.println("S:" + priv.getS().toString());
-    System.out.println("encoded:" + TestUtil.bytesToHex(priv.getEncoded()));
-    System.out.println("Public key:");
-    ECPoint w = pub.getW();
-    System.out.println("X:" + w.getAffineX().toString());
-    System.out.println("Y:" + w.getAffineY().toString());
-    System.out.println("encoded:" + TestUtil.bytesToHex(pub.getEncoded()));
-    System.out.println("Signature:" + TestUtil.bytesToHex(signature));
-    System.out.println("r:" + extractR(signature).toString());
-    System.out.println("s:" + extractS(signature).toString());
+  /**
+   * This test checks the basic functionality of ECDSA. This mainly checks that the provider follows
+   * the JCA interface.
+   */
+  @Test
+  public void testBasic() throws Exception {
+    String algorithm = "SHA256WithECDSA";
+    String curve = "secp256r1";
+    assertTrue(testParameters(algorithm, curve));
   }
 
   /** Checks whether the one time key k in ECDSA is biased. */
@@ -759,32 +216,64 @@ public class EcdsaTest {
 
     Signature signer = Signature.getInstance(algorithm);
     signer.initSign(priv);
-    int countLsb = 0; // count the number of k's with msb set
-    int countMsb = 0; // count the number of k's with lsb set
+    BigInteger[] kList = new BigInteger[tests];
     for (int i = 0; i < tests; i++) {
       signer.update(messageBytes);
       byte[] signature = signer.sign();
-      BigInteger k = extractK(signature, h, priv);
+      kList[i] = extractK(signature, h, priv);
+    }
+
+    // Checks whether the most significant bits and the least significant bits
+    // of the value k are unbiased.
+    int countMsb = 0; // count the number of k's with lsb set
+    int countLsb = 0; // count the number of k's with msb set
+    for (BigInteger k : kList) {
       if (k.testBit(0)) {
         countLsb++;
       }
-      if (k.compareTo(qHalf) == 1) {
+      if (k.compareTo(qHalf) > 0) {
         countMsb++;
       }
     }
-    System.out.println(
-        signer.getProvider().getName()
-            + " curve:"
-            + curve
-            + " countLsb:"
-            + countLsb
-            + " countMsb:"
-            + countMsb);
     if (countLsb < mincount || countLsb > tests - mincount) {
       fail("Bias detected in the least significant bit of k:" + countLsb);
     }
     if (countMsb < mincount || countMsb > tests - mincount) {
       fail("Bias detected in the most significant bit of k:" + countMsb);
+    }
+
+    // One situation where the bits above are not biased even if k itself is
+    // badly distributed is the case where the signer replaces s by
+    // min(s, q - s). Such a replacement is sometimes done to avoid signature
+    // malleability of ECDSA.
+    // Breitner and Heninger describe such cases in the paper
+    // "Biased Nonce Sense: Lattice Attacks against Weak ECDSA Signatures in Cryptocurrencies",
+    // https://eprint.iacr.org/2019/023.pdf
+    // The following tests should catch the bugs described in this paper.
+    // The threshold below has been chosen to give false positives with probability < 2^{-32}.
+    double threshold = 5;
+
+    // This test detects for example the case when either k or q-k is small.
+    double bias1 = bias(kList, q, BigInteger.ONE);
+    if (bias1 > threshold) {
+      fail("Bias for k detected. bias1 = " + bias1);
+    }
+    // Same as above but shifing by one bit.
+    double bias2 = bias(kList, q, BigInteger.valueOf(2)); 
+    if (bias2 > threshold) {
+      fail("Bias for k detected. bias2 = " + bias2);
+    }
+    double bias3 = bias(kList, q, qHalf);
+    if (bias3 > threshold) {
+      fail("Bias for k detected. bias3 = " + bias3);
+    }
+    // Checks whether most significant bytes, words, dwords or qwords are strongly correlated.
+    for (int bits : new int[] {8, 16, 32, 64}) {
+      BigInteger multiplier = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
+      double bias4 = bias(kList, q, multiplier);
+      if (bias4 > threshold) {
+        fail("Bias for k detected. bits = " + bits + " bias4 = " + bias4);
+      }
     }
   }
 

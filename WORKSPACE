@@ -1,27 +1,37 @@
-# javascript
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Javascript
+
+## Last update: 2019-10-18, to latest release.
 http_archive(
     name = "io_bazel_rules_closure",
-    strip_prefix = "rules_closure-f4d0633f14570313b94822223039ebda0f398102",
-    sha256 = "8026155cf296459b63e318ccd230f0ad79eae3b1e339a49ea7122a3c512ed680",
+    sha256 = "7d206c2383811f378a5ef03f4aacbcf5f47fd8650f6abbc3fa89f3a27dd8b176",
+    strip_prefix = "rules_closure-0.10.0",
     urls = [
-        "https://github.com/bazelbuild/rules_closure/archive/f4d0633f14570313b94822223039ebda0f398102.tar.gz",
+        "https://github.com/bazelbuild/rules_closure/archive/0.10.0.tar.gz",
     ],
 )
 
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
+load(
+    "@io_bazel_rules_closure//closure:repositories.bzl",
+    "rules_closure_dependencies",
+    "rules_closure_toolchains",
+)
 
-closure_repositories()
+rules_closure_dependencies()
 
-# Google End-to-end
-new_http_archive(
+rules_closure_toolchains()
+
+## Google End-to-end
+http_archive(
     name = "google_e2e",
     strip_prefix = "end-to-end-a77a8cbd13157139437219a8c87a7e133457c2e7",
     sha256 = "1c0d3678a649c75254e035985a209b9e292befdec733af0a4ad3842acef271eb",
     url = "https://github.com/google/end-to-end/archive/a77a8cbd13157139437219a8c87a7e133457c2e7.zip",
-    build_file = "third_party/e2e.BUILD.bazel"
+    build_file = "//:third_party/e2e.BUILD.bazel"
 )
 
-# java
+# Java
 
 load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 

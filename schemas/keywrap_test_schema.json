@@ -1,0 +1,105 @@
+{
+  "type": "object",
+  "definitions": {
+    "KeywrapTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "KeywrapTest"
+          ]
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the keySize in bits"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KeywrapTestVector"
+          }
+        }
+      }
+    },
+    "KeywrapTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the wrapping key"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the key bytes to wrap"
+        },
+        "ct": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the wrapped key"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "keywrap_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KeywrapTestGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "type": "object",
+  "definitions": {
+    "DsaTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "DsaVerify"
+          ]
+        },
+        "key": {
+          "$ref": "#/definitions/DsaPublicKey",
+          "description": "unenocded DSA public key"
+        },
+        "keyDer": {
+          "type": "string",
+          "format": "Der",
+          "description": "DER encoded public key"
+        },
+        "keyPem": {
+          "type": "string",
+          "format": "Pem",
+          "description": "Pem encoded public key"
+        },
+        "sha": {
+          "type": "string",
+          "description": "the hash function used for DSA"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AsnSignatureTestVector"
+          }
+        }
+      }
+    },
+    "DsaPublicKey": {
+      "type": "object",
+      "properties": {
+        "g": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the generator of the multiplicative subgroup"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the key size in bits"
+        },
+        "p": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the modulus p"
+        },
+        "q": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the order of the generator g"
+        },
+        "type": {
+          "type": "string",
+          "description": "the key type",
+          "enum": [
+            "DsaPublicKey"
+          ]
+        },
+        "y": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the public key value"
+        }
+      }
+    },
+    "AsnSignatureTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to sign"
+        },
+        "sig": {
+          "type": "string",
+          "format": "Asn",
+          "description": "An ASN encoded signature for msg"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "dsa_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DsaTestGroup"
+      }
+    }
+  }
+}

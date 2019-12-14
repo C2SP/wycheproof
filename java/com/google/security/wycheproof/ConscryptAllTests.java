@@ -36,12 +36,16 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonCipherTest.class,
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
+  JsonMacTest.class,
   JsonSignatureTest.class,
+  MacTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
+  RsaOaepTest.class,
   RsaPssTest.class,
-  RsaSignatureTest.class
+  RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.CONSCRYPT)
 public final class ConscryptAllTests {

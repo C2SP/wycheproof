@@ -1,0 +1,103 @@
+{
+  "type": "object",
+  "definitions": {
+    "XdhJwkTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "XdhJwkComp"
+          ]
+        },
+        "curve": {
+          "type": "string",
+          "description": "the name of the curve"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/XdhJwkTestVector"
+          }
+        }
+      }
+    },
+    "XdhJwkTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "public": {
+          "type": "object",
+          "description": "the public key in jwk format"
+        },
+        "private": {
+          "type": "object",
+          "description": "the private key in jwk format"
+        },
+        "shared": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the shared secret"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "xdh_jwk_comp_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/XdhJwkTestGroup"
+      }
+    }
+  }
+}

@@ -39,12 +39,17 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonCipherTest.class,
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
+  JsonMacTest.class,
   JsonSignatureTest.class,
+  JsonXdhTest.class,
+  MacTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
   RsaPssTest.class,
+  RsaOaepTest.class,
   RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.BOUNCY_CASTLE)
 public final class BouncyCastleAllTests {

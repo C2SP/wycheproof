@@ -21,6 +21,7 @@ import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import org.junit.Test;
@@ -189,6 +190,12 @@ public class MessageDigestTest {
   }
 
   public void testMessageDigest(String algorithm) throws Exception {
+    try {
+      MessageDigest.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      return;
+    }
     testUpdate(algorithm, 48);
     testUpdate(algorithm, 64);
     testUpdate(algorithm, 256);
@@ -225,6 +232,26 @@ public class MessageDigestTest {
   @Test
   public void testSha512() throws Exception {
     testMessageDigest("SHA-512");
+  }
+
+  @Test
+  public void testSha3_224() throws Exception {
+    testMessageDigest("SHA3-224");
+  }
+
+  @Test
+  public void testSha3_256() throws Exception {
+    testMessageDigest("SHA3-256");
+  }
+
+  @Test
+  public void testSha3_384() throws Exception {
+    testMessageDigest("SHA3-384");
+  }
+
+  @Test
+  public void testSha3_512() throws Exception {
+    testMessageDigest("SHA3-512");
   }
 
   /**
@@ -275,6 +302,13 @@ public class MessageDigestTest {
   @SuppressWarnings("InsecureCryptoUsage")
   private void testLongMessage(String algorithm, String message, long repetitions, String expected)
       throws Exception {
+    try {
+      MessageDigest.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      return;
+    }
+
     byte[] bytes = message.getBytes("UTF-8");
     byte[] digest = hashRepeatedMessage(algorithm, bytes, repetitions);
     String hexdigest = TestUtil.bytesToHex(digest);
@@ -363,5 +397,67 @@ public class MessageDigestTest {
         5000000000L,
         "080c2d9527c960c2a4a9124d728d36cd2effcaac73de09221bfc8b4afc6d52e0"
             + "4006f962f4fb31640642aece873f7906180cc3ebf794cd319d27d30889428011");
+  }
+
+  @SlowTest(
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageSha3_224() throws Exception {
+    testLongMessage(
+        "SHA3-224", "a", 2147483647L, "24abc6b4055cea68422fa8d73031f45f73f2afda09be9c0dae2ab88e");
+    testLongMessage(
+        "SHA3-224", "a", 5000000000L, "96ce1138a9f42ba22929594a636404c13a99fe3c31a05fe3a00a8fda");
+  }
+
+  @SlowTest(
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageSha3_256() throws Exception {
+    testLongMessage(
+        "SHA3-256",
+        "a",
+        2147483647L,
+        "8bcd31a0d849cca71991062525ffe8b5dd07b41f686880e6c30bfe4382bb2beb");
+    testLongMessage(
+        "SHA3-256",
+        "a",
+        5000000000L,
+        "ecb2ba5fe2a2632ea91c59ec40b113d843409f3c91cb7ec4cced351cec1202fb");
+  }
+
+  @SlowTest(
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageSha3_384() throws Exception {
+    testLongMessage(
+        "SHA3-384",
+        "a",
+        2147483647L,
+        "23a834892c1bd880e6aa2070b18a73dc8abb744e08446c3cfafb4b07c23a2401"
+            + "06828a950d6ececf9a2901c9afff2260");
+    testLongMessage(
+        "SHA3-384",
+        "a",
+        5000000000L,
+        "70872456924c5791993f18b15cc7170be5b06e609b6925e56972a7451b2e7e2e"
+            + "85c8317579057d90637da979f82e71f3");
+  }
+
+  @SlowTest(
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageSha3_512() throws Exception {
+    testLongMessage(
+        "SHA3-512",
+        "a",
+        2147483647L,
+        "40bd9ee7e496c2e4d086553242175b935cadb2cfc030405f67b11a1fd3dc4926"
+            + "24933e6fe0d8b163a16bd3585401017847673189cffd8250d02af47e4a587745");
+    testLongMessage(
+        "SHA3-512",
+        "a",
+        5000000000L,
+        "348216749aefd183244737248de016fdc113877aad833e0ad4ae5631c5af1362"
+            + "e6cc5a81a5ff634f31be8f71ae8a271369abd86e6baaddfa7b9a016a6084afc2");
   }
 }

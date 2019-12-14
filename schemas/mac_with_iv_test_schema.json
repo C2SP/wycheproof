@@ -1,0 +1,118 @@
+{
+  "type": "object",
+  "definitions": {
+    "MacWithIvTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "MacWithIvTest"
+          ]
+        },
+        "ivSize": {
+          "type": "integer",
+          "description": "the IV size in bits"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the key size in bits"
+        },
+        "tagSize": {
+          "type": "integer",
+          "description": "the expected size of the tag in bits"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MacWithIvTestVector"
+          }
+        }
+      }
+    },
+    "MacWithIvTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the key"
+        },
+        "iv": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the initailisation vector"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the plaintext"
+        },
+        "tag": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the authentication tag"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "mac_with_iv_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MacWithIvTestGroup"
+      }
+    }
+  }
+}

@@ -43,12 +43,16 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
   JsonCipherTest.class,
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
+  JsonMacTest.class,
   JsonSignatureTest.class,
+  MacTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
+  RsaOaepTest.class,
   RsaPssTest.class,
   RsaSignatureTest.class,
+  SecureRandomTest.class,
 })
 @Provider(ProviderType.SPONGY_CASTLE)
 @Fast

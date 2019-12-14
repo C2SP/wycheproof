@@ -1,0 +1,125 @@
+{
+  "type": "object",
+  "definitions": {
+    "RsaesPkcs1TestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "RsaesPkcs1Decrypt"
+          ]
+        },
+        "d": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The private exponent"
+        },
+        "e": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The public exponent"
+        },
+        "n": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "The modulus of the key"
+        },
+        "privateKeyJwk": {
+          "type": "object",
+          "description": "JWK encoded private key"
+        },
+        "privateKeyPem": {
+          "type": "string",
+          "format": "Pem",
+          "description": "Pem encoded private key"
+        },
+        "privateKeyPkcs8": {
+          "type": "string",
+          "format": "Der",
+          "description": "Pkcs 8 encoded private key."
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RsaesPkcs1TestVector"
+          }
+        }
+      }
+    },
+    "RsaesPkcs1TestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The encrypted message"
+        },
+        "ct": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "An encryption of msg"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "rsaes_pkcs1_decrypt_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RsaesPkcs1TestGroup"
+      }
+    }
+  }
+}
