@@ -79,3 +79,19 @@ def conscrypt_tests(srcs, deps, size, test_class, data):
     """Conscrypt version-specific tests."""
 
     add_tests("ConscryptTest", conscrypt_versions, conscrypt_dep, srcs, deps, size, test_class, data)
+
+# Amazon Corretto Crypto Provider targets
+accp_versions = ["1_1_0", "1_1_1", "1_2_0"]
+accp_dep = "@amazon_corretto_crypto_provider"
+
+# These targets run all tests.
+def accp_all_tests(srcs, deps, size, test_class, data):
+    """Amazon Corretto Crypto Provider version-specific tests."""
+
+    add_tests("AccpAllTests", accp_versions, accp_dep, srcs, deps, size, test_class, data)
+
+# These targets exclue @SlowTest
+def accp_tests(srcs, deps, size, test_class, data):
+    """Amazon Corretto Crypto Provider version-specific tests."""
+
+    add_tests("AccpTest", accp_versions, accp_dep, srcs, deps, size, test_class, data)
