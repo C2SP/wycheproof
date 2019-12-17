@@ -263,7 +263,7 @@ public class EcdsaTest {
     if (bias2 > threshold) {
       fail("Bias for k detected. bias2 = " + bias2);
     }
-    double bias3 = bias(kList, q, qHalf); 
+    double bias3 = bias(kList, q, qHalf);
     if (bias3 > threshold) {
       fail("Bias for k detected. bias3 = " + bias3);
     }
@@ -271,7 +271,9 @@ public class EcdsaTest {
     for (int bits : new int[] {8, 16, 32, 64}) {
       BigInteger multiplier = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
       double bias4 = bias(kList, q, multiplier);
-      fail("Bias for k detected. bits = " + bits + " bias4 = " + bias4);
+      if (bias4 > threshold) {
+        fail("Bias for k detected. bits = " + bits + " bias4 = " + bias4);
+      }
     }
   }
 

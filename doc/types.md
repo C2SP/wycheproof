@@ -2,7 +2,7 @@
 
 # Test vector types
 
-Version\: 0.8rc20
+Version\: 0.8rc21
 
 [TOC]
 

@@ -18,8 +18,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * Amazon Corretto Crypto Provider is a Java security provider from Amazon which uses OpenSSL. See {@link https://github.com/corretto/amazon-corretto-crypto-provider}.
- * 
+ * Amazon Corretto Crypto Provider is a Java security provider from Amazon which uses OpenSSL. See
+ * {@link https://github.com/corretto/amazon-corretto-crypto-provider}.
+ *
  * <p>AccpAllTests runs all tests, except that tests that are explicitly excluded.
  */
 @RunWith(WycheproofRunner.class)

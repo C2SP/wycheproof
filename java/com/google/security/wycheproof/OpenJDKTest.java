@@ -18,10 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
-/**
- * Tests for OpenJDK's providers: SunJCE, SunEC, etc.
- * OpenJDKTest excludes slow tests.
- */
+/** Tests for OpenJDK's providers: SunJCE, SunEC, etc. OpenJDKTest excludes slow tests. */
 @RunWith(WycheproofRunner.class)
 @SuiteClasses({
   AesGcmTest.class,
@@ -37,8 +34,10 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonCipherTest.class,
   JsonEcdhTest.class,
   JsonKeyWrapTest.class,
+  JsonMacTest.class,
   JsonSignatureTest.class,
   JsonXdhTest.class,
+  MacTest.class,
   MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
