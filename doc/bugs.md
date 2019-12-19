@@ -56,7 +56,7 @@ See [list of issues](issues.md) for details.
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | GCM wrapped around counter       | Quan Nguyen                |  N/A              |   goo.gl/OdhZcY  |
-| P-384 and P-521 ScalarMult DoS   | Harris Baskaran            | CVE-2019-6486     | [golang/go#29903](https://github.com/golang/go/issues/29903) | ecdh_secp384r1_test.json, ecdh_secp521r1_test.json |
+| P-384 and P-521 ScalarMult DoS   | Daniel Bleichenbacher, Harris Baskaran            | CVE-2019-6486     | [golang/go#29903](https://github.com/golang/go/issues/29903) | ecdh_secp384r1_test.json, ecdh_secp521r1_test.json |
 
 ## Package Nimbus JOSE+JWT (https://connect2id.com/products/nimbus-jose-jwt)
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
