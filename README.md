@@ -51,13 +51,18 @@ Project Wycheproof has tests for the most popular crypto algorithms, including
 
 - AES-EAX
 - AES-GCM
+- Chacha20/Poly1305
 - [DH](doc/dh.md)
 - DHIES
 - [DSA](doc/dsa.md)
 - [ECDH](doc/ecdh.md)
 - ECDSA
+- EdDSA
 - ECIES
+- HKDF
+- HMAC
 - [RSA](doc/rsa.md)
+- X25519, X448
 
 The tests detect whether a library is vulnerable to many attacks, including
 
