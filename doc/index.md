@@ -22,4 +22,5 @@ https://github.com/google/wycheproof
 * [Diffie-Hellman](dh.md)
 * [AES-GCM](aesgcm.md)
 * [Key-wrap](key_wrap.md)
+* [JSON Web Crypto](json_web_crypto.md)
 
