@@ -37,13 +37,34 @@ import java.util.Arrays;
 public class EcUtil {
   /**
    * Returns the ECParameterSpec for a named curve. Not every provider implements the
-   * AlgorithmParameters. Therefore, most tests use alternative functions.
+   * AlgorithmParameters. For such providers this function constructs the parameter specs for the
+   * most popular curves.
    */
   public static ECParameterSpec getCurveSpec(String name)
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
-    AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
-    parameters.init(new ECGenParameterSpec(name));
-    return parameters.getParameterSpec(ECParameterSpec.class);
+    try {
+      AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+      parameters.init(new ECGenParameterSpec(name));
+      return parameters.getParameterSpec(ECParameterSpec.class);
+    } catch (NoSuchAlgorithmException | InvalidParameterSpecException ex) {
+      // The provider does not support algorithm parameters.
+      // Hence the backup parameters are used below.
+    }
+    if (name.equals("secp224r1")) {
+      return getNistP224Params();
+    } else if (name.equals("secp256r1")) {
+      return getNistP256Params();
+    } else if (name.equals("secp384r1")) {
+      return getNistP384Params();
+    } else if (name.equals("secp521r1")) {
+      return getNistP521Params();
+    } else if (name.equals("brainpoolp224r1")) {
+      return getBrainpoolP224r1Params();
+    } else if (name.equals("brainpoolp256r1")) {
+      return getBrainpoolP256r1Params();
+    } else {
+      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
+    }
   }
 
   public static void printParameters(ECParameterSpec spec) {
@@ -61,66 +82,6 @@ public class EcUtil {
     System.out.println("Gx:" + generator.getAffineX());
     System.out.println("Gy:" + generator.getAffineY());
     System.out.println("order:" + spec.getOrder());
-  }
-
-  /** Returns the bit size of a given curve. TODO(bleichen): add all curves that are tested. */
-  public static int getCurveSize(String name) throws NoSuchAlgorithmException {
-    name = name.toLowerCase();
-    if (name.equals("secp224r1")) {
-      return 224;
-    } else if (name.equals("secp256r1")) {
-      return 256;
-    } else if (name.equals("secp384r1")) {
-      return 384;
-    } else if (name.equals("secp521r1")) {
-      return 521;
-    } else if (name.equals("secp256k1")) {
-      return 256;
-    } else if (name.equals("brainpoolp224r1")) {
-      return 224;
-    } else if (name.equals("brainpoolp224t1")) {
-      return 224;
-    } else if (name.equals("brainpoolp256r1")) {
-      return 256;
-    } else if (name.equals("brainpoolp256t1")) {
-      return 256;
-    } else if (name.equals("brainpoolp320r1")) {
-      return 320;
-    } else if (name.equals("brainpoolp320t1")) {
-      return 320;
-    } else if (name.equals("brainpoolp384r1")) {
-      return 384;
-    } else if (name.equals("brainpoolp384t1")) {
-      return 384;
-    } else if (name.equals("brainpoolp512r1")) {
-      return 512;
-    } else if (name.equals("brainpoolp512t1")) {
-      return 512;
-    } else {
-      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
-    }
-  }
-
-  /**
-   * Returns the ECParameterSpec for a named curve. Only a handful curves that are used in the tests
-   * are implemented.
-   */
-  public static ECParameterSpec getCurveSpecRef(String name) throws NoSuchAlgorithmException {
-    if (name.equals("secp224r1")) {
-      return getNistP224Params();
-    } else if (name.equals("secp256r1")) {
-      return getNistP256Params();
-    } else if (name.equals("secp384r1")) {
-      return getNistP384Params();
-    } else if (name.equals("secp521r1")) {
-      return getNistP521Params();
-    } else if (name.equals("brainpoolp224r1")) {
-      return getBrainpoolP224r1Params();
-    } else if (name.equals("brainpoolp256r1")) {
-      return getBrainpoolP256r1Params();
-    } else {
-      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
-    }
   }
 
   public static ECParameterSpec getNistCurveSpec(

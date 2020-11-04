@@ -86,7 +86,7 @@ public class JsonEcdhTest {
     assertEquals("Unexpected schema in file:" + filename, expectedSchema, schema);
 
     int numTests = test.get("numberOfTests").getAsInt();
-    int passedTests = 0;
+    int passedTests = 0; // valid or acceptable tests with matching shared secret
     int rejectedTests = 0;  // invalid test vectors leading to exceptions
     int skippedTests = 0;  // valid test vectors leading to exceptions
     int errors = 0;
@@ -103,7 +103,7 @@ public class JsonEcdhTest {
         String expectedHex = getString(testcase, "shared");
         KeyFactory kf = KeyFactory.getInstance("EC");
         try {
-          ECPrivateKeySpec spec = new ECPrivateKeySpec(priv, EcUtil.getCurveSpecRef(curve));
+          ECPrivateKeySpec spec = new ECPrivateKeySpec(priv, EcUtil.getCurveSpec(curve));
           PrivateKey privKey = kf.generatePrivate(spec);
           X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(publicEncoded);
           PublicKey pubKey = kf.generatePublic(x509keySpec);
@@ -151,6 +151,9 @@ public class JsonEcdhTest {
           errors++;
         }
       }
+    }
+    if (passedTests > 0) {
+      System.out.println(filename + ": passed tests = " + passedTests);
     }
     assertEquals(0, errors);
     assertEquals(numTests, passedTests + rejectedTests + skippedTests);
@@ -206,4 +209,33 @@ public class JsonEcdhTest {
     testEcdhComp("ecdh_brainpoolP512r1_test.json");
   }
 
+  @Test
+  public void testSect283k1() throws Exception {
+    testEcdhComp("ecdh_sect283k1_test.json");
+  }
+
+  @Test
+  public void testSect283r1() throws Exception {
+    testEcdhComp("ecdh_sect283r1_test.json");
+  }
+
+  @Test
+  public void testSect409k1() throws Exception {
+    testEcdhComp("ecdh_sect409k1_test.json");
+  }
+
+  @Test
+  public void testSect409r1() throws Exception {
+    testEcdhComp("ecdh_sect409r1_test.json");
+  }
+
+  @Test
+  public void testSect571k1() throws Exception {
+    testEcdhComp("ecdh_sect571k1_test.json");
+  }
+
+  @Test
+  public void testSect571r1() throws Exception {
+    testEcdhComp("ecdh_sect571r1_test.json");
+  }
 }
