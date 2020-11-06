@@ -314,6 +314,8 @@ public class JsonSignatureTest {
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
     int verifiedSignatures = 0;
+    int validSignatures = 0;
+    int verifiedValidSignatures = 0;
     int errors = 0;
     int skippedKeys = 0;
     int skippedAlgorithms = 0;
@@ -390,6 +392,12 @@ public class JsonSignatureTest {
           failure = ex;
           errors++;
         }
+        if (result.equals("valid")) {
+          validSignatures++;
+          if (verified) {
+            verifiedValidSignatures++;
+          }
+        }
         if (!verified && result.equals("valid")) {
           String reason = "";
           if (failure != null) {
@@ -426,9 +434,12 @@ public class JsonSignatureTest {
         }
       }
     }
-    // Prints some information if tests were skipped. This avoids giving
-    // the impression that algorithms are supported.
-    if (skippedKeys > 0 || skippedAlgorithms > 0 || verifiedSignatures == 0) {
+    // Prints some information if tests were skipped or valid signatures were
+    // rejected. This avoids giving the impression that algorithms are supported.
+    if (skippedKeys > 0
+        || skippedAlgorithms > 0
+        || verifiedSignatures == 0
+        || verifiedValidSignatures < validSignatures) {
       System.out.println(
           "File:"
               + filename
@@ -439,7 +450,11 @@ public class JsonSignatureTest {
               + " number of supported keys:"
               + supportedKeys
               + " verified signatures:"
-              + verifiedSignatures);
+              + verifiedSignatures
+              + " valid signatures:"
+              + validSignatures
+              + " verified valid signatures:"
+              + verifiedValidSignatures);
       for (String s : skippedGroups) {
         System.out.println("Skipped groups where " + s);
       }
@@ -550,6 +565,36 @@ public class JsonSignatureTest {
   @Test
   public void testEcdsa() throws Exception {
     testVerification("ecdsa_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  /**
+   * secp160k1, sepc160r1 and secp160r2 are curves with an order slightly larger than 2^160. This
+   * means that the bitlength of n is 161, and hence that hash digests have to be truncated to 161
+   * bits.
+   */
+  @Test
+  public void testSecp160k1Sha256() throws Exception {
+    testVerification("ecdsa_secp160k1_sha256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp160r1Sha256() throws Exception {
+    testVerification("ecdsa_secp160r1_sha256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp160r2Sha256() throws Exception {
+    testVerification("ecdsa_secp160r2_sha256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp192k1Sha256() throws Exception {
+    testVerification("ecdsa_secp192k1_sha256_test.json", "ECDSA", Format.ASN, true);
+  }
+
+  @Test
+  public void testSecp192r1Sha256() throws Exception {
+    testVerification("ecdsa_secp192r1_sha256_test.json", "ECDSA", Format.ASN, true);
   }
 
   @Test
@@ -684,6 +729,31 @@ public class JsonSignatureTest {
   }
 
   // jdk11 adds P1363 encoded signatures.
+  @Test
+  public void testSecp160k1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp160k1_sha256_p1363_test.json", "ECDSA", Format.P1363, true);
+  }
+
+  @Test
+  public void testSecp160r1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp160r1_sha256_p1363_test.json", "ECDSA", Format.P1363, true);
+  }
+
+  @Test
+  public void testSecp160r2Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp160r2_sha256_p1363_test.json", "ECDSA", Format.P1363, true);
+  }
+
+  @Test
+  public void testSecp192k1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp192k1_sha256_p1363_test.json", "ECDSA", Format.P1363, true);
+  }
+
+  @Test
+  public void testSecp192r1Sha256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp192r1_sha256_p1363_test.json", "ECDSA", Format.P1363, true);
+  }
+
   @Test
   public void testSecp224r1Sha224inP1363Format() throws Exception {
     testVerification("ecdsa_secp224r1_sha224_p1363_test.json", "ECDSA", Format.P1363, true);
