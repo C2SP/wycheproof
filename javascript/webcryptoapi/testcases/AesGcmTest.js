@@ -23,7 +23,7 @@
  * - Tests invalid parameters
  */
 
-goog.provide('wycheproof.webcryptoapi.AES-GCM');
+goog.provide('wycheproof.webcryptoapi.AES_GCM');
 goog.require('goog.testing.TestCase');
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');
