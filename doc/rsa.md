@@ -120,9 +120,12 @@ are based on RFC 8017.
 *   The verification of an RSA-PSS signature contains a number of steps, where
     the correctness of the padding has to be verified. Skipping such checks can
     lead to similar attacks as with RSA PKCS #1 v1.5 signatures. The necessary
-    steps of the verification are detailed in Section 9.1.2 of RFC 8017.
-    Possibly, this detailed description is preventing similar problems as with
-    RSA PKCS #1 v1.5.
+    steps of the verification are detailed in Section 9.1.2 of RFC 8017. For
+    example omitting (or incorrectly implementing) the checks in step 10 might
+    allow signature forgeries with small public exponents.
+    RSA-PSS implementations tend to contain less padding errors than RSA-PKCS #1
+    v.1.5 signatures. Possibly this happends because of the detailed description
+    of the verification in RFC 8017 and related standards.
 
 **Compatibility and weak defaults:**
 
