@@ -21,8 +21,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 
 /** Utilities for reading test vectors in JSON format */
@@ -42,8 +42,7 @@ public class JsonUtil {
     String testVectorsDir = "testvectors/";
     FileInputStream is = new FileInputStream(testVectorsDir + filename);
     JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
-    JsonParser parser = new JsonParser();
-    JsonElement elem = parser.parse(reader);
+    JsonElement elem = JsonParser.parseReader(reader);
     return elem.getAsJsonObject();
   }
 
