@@ -6,8 +6,12 @@ set -e
 # Display commands to stderr.
 set -x
 
-# Change to repo root
+if [[ -n "${KOKORO_ROOT}" ]] ; then
+  use_bazel.sh "4.1.0"
+fi
+
+# Change to the repository root.
 cd git*/wycheproof
 
-# Building should work.
-bazel build ... || exit 1
+# Verify that all targets build successfully.
+bazel build ...
