@@ -16,11 +16,12 @@
 https://github.com/google/wycheproof
 
 ## Some common issues {#issues}
-* [RSA](rsa.md)
-* [DSA](dsa.md)
-* [ECDH](ecdh.md)
-* [Diffie-Hellman](dh.md)
-* [AES-GCM](aesgcm.md)
-* [Key-wrap](key_wrap.md)
-* [JSON Web Crypto](json_web_crypto.md)
 
+*   [RSA](rsa.md)
+*   [DSA](dsa.md)
+*   [ECDH](ecdh.md)
+*   [Diffie-Hellman](dh.md)
+*   [AES-GCM](aesgcm.md)
+*   [AEGIS](aegis.md)
+*   [Key-wrap](key_wrap.md)
+*   [JSON Web Crypto](json_web_crypto.md)

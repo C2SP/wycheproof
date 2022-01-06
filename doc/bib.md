@@ -63,6 +63,14 @@ Bellare, Rogaway,
 "Encode-Then-Encipher Encryption: How to exploit nonces or redundancy in plaintexts for efficient cryptography",
 Asiacrypt 2000, pp.317--330.
 
+### BFKLSST12
+R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
+"Efficient padding oracle attacks on cryptographic hardware" Crypto 2012
+
+### Ferguson05
+N. Ferguson, "Authentication weaknesses in GCM",
+https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
+
 ### FGHT16
 J. Fried, P. Gaudry, N. Heininger, E. Thome,
 "A kilobit hidden SNFS discrete logarithm computation".
@@ -84,25 +92,22 @@ D. Genkin, L. Pachmanov, I. Pipman, E. Tromer,
 "ECDH Key-Extraction via Low-Bandwidth Electromagnetic Attacks on PCs",
 http://cs.tau.ac.il/~tromer/papers/ecdh.pdf
 
-### LimLee98
-C.H. Lim and P.J. Lee,
-"A key recovery attack on discrete log-based schemes using a prime order subgroup",
-CRYPTO' 98, pp 249--263.
+### HowSma99
+N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature Schemes"
+http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
 
 ### Joux-Gcm
 A. Joux,
 "Authentication failures in NIST version of GCM",
 http://csrc.nist.gov/groups/ST/toolkit/BCM/documents/comments/800-38_Series-Drafts/GCM/Joux_comments.pdf.
 
-### Ferguson05
-N. Ferguson,
-"Authentication weaknesses in GCM",
-https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
+### LimLee98
+C.H. Lim and P.J. Lee, "A key recovery attack on discrete log-based schemes
+using a prime order subgroup", CRYPTO' 98, pp 249--263.
 
-### HowSma99
-N.A. Howgrave-Graham, N.P. Smart,
-"Lattice Attacks on Digital Signature Schemes"
-http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
+### KlPoRo03
+V. Klima, O. Pokorny, and T. Rosa, "Attacking RSA-based Sessions in SSL/TLS",
+https://eprint.iacr.org/2003/052/
 
 ### Krawczyk10
 H. Krawczyk,
@@ -135,10 +140,6 @@ A good analysis of various DH implementations. Some misconfigurations pointed
 out in the paper are: p is composite, p-1 contains no large prime factor, q is
 used instead of the generator g.
 
-### Eurocrypt92 panel
-"The Eurocrypt'92 Controversial Issue Trapdoor Primes and Moduli",
-EUROCRYPT '92, LNCS 658, pp. 194-199.
-
 ### Bleich98
 D. Bleichenbacher,
 "Chosen ciphertext attacks against protocols based on the RSA encryption standard PKCS# 1",
@@ -160,15 +161,19 @@ RSA conference, 2010.
 This paper shows that padding oracle attacks can be successful with even a small number
 of queries.
 
-### KlPoRo03
-V. Klima, O. Pokorny, and T. Rosa,
-"Attacking RSA-based Sessions in SSL/TLS",
-https://eprint.iacr.org/2003/052/
+### VauViz17
+S. Vaudenay, D. Vizár, "Under Pressure: Security of Caesar Candidates beyond
+their Guarantees" https://eprint.iacr.org/2017/1147.pdf
 
-### BFKLSST12
-R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
-"Efficient padding oracle attacks on cryptographic hardware"
-Crypto 2012
+### WuPre14
+H. Wu, B. Preneel, "AEGIS: A fast authenticated encryption algorithm" CAESAR
+submission http://competitions.cr.yp.to/round1/aegisv1.pdf
+
+<!-- organizations -->
+
+### Eurocrypt92 panel
+"The Eurocrypt'92 Controversial Issue Trapdoor Primes and Moduli", EUROCRYPT
+'92, LNCS 658, pp. 194-199.
 
 ### ECRYPT-II
 Yearly Report on Algorithms and Keysizes (2011-2012),
