@@ -1,0 +1,4632 @@
+{
+  "algorithm" : "ECDH",
+  "generatorVersion" : "0.9rc5",
+  "numberOfTests" : 190,
+  "header" : [
+    "Test vectors of type EcdhWebTest are intended for",
+    "testing an ECDH implementations using jwk encoded",
+    "public and private keys."
+  ],
+  "notes" : {
+    "AdditionChain" : {
+      "bugType" : "KNOWN_BUG",
+      "description" : "The private key has an unusual bit pattern, such as high or low Hamming weight. The goal is to test edge cases for addition chain implementations."
+    },
+    "EdgeCaseDoubling" : {
+      "bugType" : "EDGE_CASE",
+      "description" : "The test vector contains an EC point that hits an edge case (e.g. a coordinate 0) when doubled. The goal of the test vector is to check for arithmetic errors in these test cases.",
+      "effect" : "The effect of such arithmetic errors is unclear and requires further analysis."
+    },
+    "EdgeCaseEphemeralKey" : {
+      "bugType" : "EDGE_CASE",
+      "description" : "The test vector contains an ephemeral public key that is an edge case."
+    },
+    "EdgeCaseSharedSecret" : {
+      "bugType" : "EDGE_CASE",
+      "description" : "The test vector contains a public key and private key such that the shared ECDH secret is a special case. The goal of this test vector is to detect arithmetic errors.",
+      "effect" : "The seriousness of an arithmetic error is unclear. It requires further analysis to determine if the bug is exploitable."
+    },
+    "InvalidCurveAttack" : {
+      "bugType" : "CONFIDENTIALITY",
+      "description" : "The point of the public key is not on the curve. ",
+      "effect" : "If an implementation does not check whether a point is on the curve then it is likely that the implementation is susceptible to an invalid curve attack. Many implementations compute the shared ECDH secret over a curve defined by the point on the public key. This curve can be weak and hence leak information about the private key."
+    },
+    "InvalidPublic" : {
+      "bugType" : "CAN_OF_WORMS",
+      "description" : "The public key has been modified and is invalid. An implementation should always check whether the public key is valid and on the same curve as the private key. The test vector includes the shared secret computed with the original public key if the public point is on the curve of the private key.",
+      "effect" : "Generating a shared secret other than the one with the original key likely indicates that the bug is exploitable."
+    },
+    "ModifiedGroup" : {
+      "bugType" : "MODIFIED_PARAMETER",
+      "description" : "The EC curve of the public key has been modified. EC curve primitives should always check that the keys are on the expected curve."
+    },
+    "ModifiedPublicPoint" : {
+      "bugType" : "MODIFIED_PARAMETER",
+      "description" : "The public point of the key has been modified and is not on the curve.",
+      "effect" : "Not checking that a public point is on the curve may allow an invalid curve attack."
+    },
+    "Normal" : {
+      "bugType" : "BASIC",
+      "description" : "The test vector contains a pseudorandomly generated, valid test case. Implementations are expected to pass this test."
+    },
+    "WrongCurve" : {
+      "bugType" : "CONFIDENTIALITY",
+      "description" : "The public key and private key use distinct curves. Implementations are expected to reject such parameters.",
+      "effect" : "Computing an ECDH key exchange with public and private keys can in the worst case lead to an invalid curve attack. Hence, it is important that ECDH implementations check the input parameters. The severity of such bugs is typically smaller if an implementation ensures that the point is on the curve and that the ECDH compuation is performed on the curve of the private key. Some of the test vectors with modified public key contain shared ECDH secrets, that were computed over the curve of the private key."
+    }
+  },
+  "schema" : "ecdh_webcrypto_test_schema.json",
+  "testGroups" : [
+    {
+      "curve" : "P-384",
+      "encoding" : "webcrypto",
+      "type" : "EcdhWebcryptoTest",
+      "tests" : [
+        {
+          "tcId" : 1,
+          "comment" : "normal case",
+          "flags" : [
+            "Normal"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "eQpuBZ75pZQBYxg9SngJE10peRZD_EOi8X7ov2d6uE95G2SmvhWWn_oBLdkYXYeW",
+            "y" : "2blUuqinXoLfcRs7Vurf9rD2aMOya0sa6zCKH8wcaA0ymmcFAl8cmKC15b_LFjyq"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "dm5hQlstqfhGwJ_DVkuTpvhgO3OSx4UWW_INqUjEn9H7He5O3WQ1a58hxYi3Xf2B",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "em7I0xHVyliLrtQb4-mPMMkpSETsu2KZlWU2NdvCLaLwg_KXEeD5xZY7wCG9jLIQ",
+            "y" : "na9WpV-IOnIAzqnE3kRIjm3En7nDlPUctaSfxp1-igNHkpY65Oq8Y0g6LPGomejI"
+          },
+          "shared" : "6461defb95d996b24296f5a1832b34db05ed031114fbe7d98d098f93859866e4de1e229da71fef0c77fe49b249190135",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 2,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "SQ6W0X9MbOzNRd70CM6jPpcEpfGwGj3i6qo0Cf0WDXjTldazsAPXH9H1kPrZW_HJ",
+            "y" : "2GZe_CBw0FmqhHElwvcHQ1lVU1x8XfbWwHnsgG3Oa2hJ0zcUDbfKUGFvlFbeEyPE"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 3,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AWEyiQlnUhPjIJjTWmuDCKjVAMyjnc7l6ATnO9uN6vBv5BcpH9l5OyMe9f6GlFRE",
+            "y" : "qXoB8646gxDEr0m1ksspHvcO5bx_VTTTwj3J7v3iMEhCx3N66TfM-b0hXCgQPp_i"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 4,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "r0rpZOO8vZI6zNpdoxddQR_WLRfdPDocQQvvFzCYWmJl2Q6VCsD8UHQ7HtdxkG_z",
+            "y" : "O2jPTT2DqIWocJf90ynOg7GJ-YzsW-RMMdGjoruhD0cZYyMri6dhD6jHIXkFDrht"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 5,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "N_kASYMVa72cR4kedSN7sTAWvX_m9OD3HO8OY_FqZy8NOw4gFlwzQH4Ua2pK5pYt",
+            "y" : "07V8y5nnqvEwMkBRbQ6-COWFUT42ldQsRn3KtTQO92GZDK3I2IQKrMlESBQVwH_r"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "3b5eed80727bcbc5113b8a9e4db1c81b1dddc2d99ff56d9c3c1054348913bde296311c4bd2fa899b4d0e66aaa1b6a0dd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 6,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "llXY5WInGLMXz7wJiUNX91prE_pRa81mMHIbhppiAZbPDD3siGCzLSftm6ws8mOv",
+            "y" : "FzIWmBFtfYEa6NqbnLv5OCweNuK2fWxq-bzqfZ3gDKcrOYYGwJigoPDEuJQZQ-1l"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "6a99a5acd4a7edb1c707d7f8be12e81140338e3e14ba563c703c681a319a3f9ce1f90f032bf840f3758e89cb852ceca6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 7,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "zLE9Qns8S7M91PIM3avGhgDq-X7rLIHowhiukHQ-dP84ylbwwCJDedtGTc9KQPBD",
+            "y" : "UM16ZZssSFGl3PjJkPySDAfU1apQohhXUOa4TELoPP9jUFBILey0eA-BLkxJ_HQE"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "7c25a4f57f76ab13b25cab3c265db9d9bd925fecbf7bf93bef1308778646628decab067ed988a9755cd88e88de367104",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 8,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "21kQKEIXlU9fq1ccLzZjK85uNOPklKjYeTGEENAlnGTyT_gX3iKo6-taoB5TW3az",
+            "y" : "CY7EzpjHDRgvoPmpocu66bWAbf2eVIfBzY-NdcLaZtooEHXQsRWwBkRJ_Re4sLen"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000fffffffffffffffc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 9,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "9jII405-kLtfsDZDJGeomYFEQBBmO4UztHv6lL0rwW84qlFrkwpHJuOHbTCRv7cu",
+            "y" : "x4PtTaDKwGMggX3IvGT1nM8G9Iq8Q4ahUJE_qVdDp7RgEZDhxu6Pi_Y1SyVOys5F"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 10,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AzJx70LZKtR7JzsJ6i9FQBFhuqUmllkNDhdf8tHA36P-pA5CZtRGVGwF5IDVf6vs",
+            "y" : "eInxaovMF2YC9tRlYWFKL0KEq-aXt8uc559-LnGxVcsfFVzpJdFjkaaA7aIxUubh"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 11,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "hjM9MFiT8GdkWC9Tykg3N6lQm05CH2FkHnugRxxEZruaoLgrMFem_49Pjg5B3lpT",
+            "y" : "Cz51qpNmwc25YuClP_zcQJ-CH-TLNMpGDo07rbjNS__r8KMoIQFGaFIWmFIQVb26"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007ffd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 12,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "H_vquD1nxvNLglltX2LqBeG3pkh5TpbO1AzzHtY1fr0wk11PoRJzVO6B-XWl44h9",
+            "y" : "b8NKLF8un-LR421GiFKS-oB433MFvxo24hqCiYn1x5pT-G55nINGWd3hOpMYvTIG"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 13,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "BQMAb6eb-YnwMzFTelWr-cPjUFHjAl3Q_B-GD3zC5wxu_GTQDowIW3V8s3HHtuQI",
+            "y" : "QwRWoWZifG019JplNDwd2bIHI7NwEniaQPvt8wV2XVdVGOhJ7gO5zJizmatZlj1W"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555552",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 14,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "FwXqHMUEXHyPK7osXZic4J7u9ne2wBCtBJZhy2rXz7J7WK46XiIA4QGBYLpZoqq1",
+            "y" : "Ey4rjF5XiL0E-5739-Yt9DWIZK51BjqyZkgfiz5I75dNBO0F4J_zHVNIFcSygvpi"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "7fffffe000000ffffffc000001ffffff8000003ffffff0000007fffffe000000ffffffc000001ffffff8000003fffffb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 15,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "kTV8qH27COhdexrOz9HghgeKgtGfgUdNo4k2Sjn-JUPrk0tEAXPDjmGh2UB4VbXY",
+            "y" : "nvDZ6SB2S213ZbCEz5VB2sxD0dq6o5Cw-4Vgl7DACoVW9OOEhWirSueQw9NGygG2"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "fff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 16,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "sDQanwz4KxsgPo8BF85pCRJwu8tOMIC6qRQ4b_BgLDrqbfyitIWI-yaJxjlzwwxM",
+            "y" : "7z5wtZL1CAyBmqlklhLAwviR45UPCl3bEArmT5xxUJIsk-lmakPmPRbGvRrPkBXk"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "fffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003fffffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 17,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Z1R82n--jxa-WkR3y7ApefGvcvwPOTAnc1UvvPRmeo4jq8DhKFbuYjTe7KXyKuBQ",
+            "y" : "Ok33wGjnQyQXJgy5_g1oucf89-FqKtoFaH2PiQC4RyMQPtv_CkKydRfaJ2C304hD"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "ffffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 18,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "uaHg9Dt6zRefK1B5LF_psXZq7ebdy0-sM2N-NoqqyR9t74gnn0zPK0m5H66zivaB",
+            "y" : "5Du_Hb2IU3Mq7HQWBllG-MWM517oy4GvEII9THbZ3-Cnmr-N1O9QVUqE6ysjgUpo"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "ffffffffffff00000000000000ffffffffffffff00000000000000ffffffffffffff00000000000000fffffffffffffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 19,
+          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 256",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "uivo1xR-JBfC7ICyS0waqURk_9Cq4fouB4s6-8d8FESJyp0GSsu3qc-mGW0PRnt-",
+            "y" : "Ze4coesTUf-ZaPVT3-LkxZ_4ujTCKkKzuqE6mhrcfxOr1A8f0l1GvFMwhSuTcZZq"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "ffffffffffffffffffffffffffffffff00000000000000000000000000000000ffffffffffffffffffffffffffffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 20,
+          "comment" : "x-coordinate of shared secret is p-3",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Vcjmm2QVqF1zVZc9UVHegiMuTny09_y-UZ30PieUSNPmZiqUZVqCbSdkW7RADTsM",
+            "y" : "noQcQZUA8VIy4x7iiDAxrw0qIzGI-C0lgaAUF8dPXKZ7wJoSUsIxdDtVntIK2XOd"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 21,
+          "comment" : "x-coordinate of shared secret is p-1",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "1phQzLrMRzbqIA_y-EiPJiR5RaKrSN03CPSUspPYy6g0F_SJdIgcf7A4VAibv2bM",
+            "y" : "HHc-wDy4zV8AfsOwO90FpAmzUhA_DezyW0FnOrjKPQQzS6vuASGfFXAfK8oi1As3"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 22,
+          "comment" : "y-coordinate of the public key has many trailing 0's",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "b8r4LZgtIi1glrqD5VscfctxpB6I8yMzP0QoTZXEvTYW2nob75KPMcJviFunrbSH",
+            "y" : "gm_eLtn1ZJwRz4Rl-L-K1Q9okUk2_Dlmb2ghnQZlBr6kAB_cgWyakOfir7Gb6ghf"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "000000000000000000000000000000000000000000000000000000001f03123b00000000000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 23,
+          "comment" : "y-coordinate of the public key has many trailing 0's",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8DEjsAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "cb0ecAw0B1w8rejOKdM3JK9op2crJlpOFXBVNgRAq3xGG46ayAJOY6i5wXwAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "ea817dff44f1944a38444498f1b6c1a70a8b913aa326bc2acc5068805d8ddd7a5e41b8ee5b8371a1cf3f7a094258e3a6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 24,
+          "comment" : "y-coordinate of the public key has many trailing 1's",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "b8r4LZgtIi1glrqD5VscfctxpB6I8yMzP0QoTZXEvTYW2nob75KPMcJviFunrbSH",
+            "y" : "fZAh0SYKm2PuMHuaB0B1KvCXbrbJA8aZkJfeYvma-UBb_-AifpNlbxgdUE9kFfeg"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "000000000000000000000000000000000000000000000000000000001f03123b00000000000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 25,
+          "comment" : "y-coordinate of the public key has many trailing 1's",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8DEjsAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "jkLhj_PL-KPDUhcx1izI21CXWJjU2aWx6o-qyfu_VIK55HFkN_2xnFdGPoT_____"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "ea817dff44f1944a38444498f1b6c1a70a8b913aa326bc2acc5068805d8ddd7a5e41b8ee5b8371a1cf3f7a094258e3a6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 26,
+          "comment" : "y-coordinate of the public key is small",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "v-tH-0CmWHjmtkL0C44VAirens-oy2GAQwY0lOK8XS3xDTbzeGm1jvEtzDXjmCg1",
+            "y" : "_S5V7EH9_oyru7e82BY2RaGenaxZYw8_6TsggJT_h81GG1PO9TSC5w4ujqhyAMw_"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "0000000000000000000000000000000000000000000000000000000036a2907c00000000000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 27,
+          "comment" : "y-coordinate of the public key is small",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADaikHwAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "AAAAAH9XtpoBR4Pb-klnsvnPpnim8Lbpz9QWSM7Fs8SY5yFS2j-C09oujp-O83sR"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "bfa93e184f76279fd707d53ddcb3628855cfafb111bcbd0b4df6ef77aee624924d681626a153fa4e59c923b71fc090b3",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 28,
+          "comment" : "y-coordinate of the public key is large",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "v-tH-0CmWHjmtkL0C44VAirens-oy2GAQwY0lOK8XS3xDTbzeGm1jvEtzDXjmCg1",
+            "y" : "AtGqE74CAXNUREhDJ-nJul5hYlOmnPDAFsTff2sAeDG55KwwCst9GPHRcViN_zPA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "orZEKjf4o3WdLLkd9eynWxT1pnZtqANcwZQ7Fajk67YCXzc74zQIDyKrgho1Naan",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X7b8XxfVh97l6VAsTEiO89awbAmBAvYjCiZNC00ZJ8RhYB5HyrbZP68O6YIp1cXd",
+            "y" : "tBbIpSH978yrXL0Uo5sFxriMtl_7SHkIYlI1xpFkw55eJ-w0fH9Y-DEa3kIDSozh"
+          },
+          "shared" : "0000000000000000000000000000000000000000000000000000000036a2907c00000000000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 29,
+          "comment" : "y-coordinate of the public key is large",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADaikHwAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "_____4CoSWX-uHwkBbaYTQYwWYdZD0kWMCvptzE6TDpnGN6sJcB9LCXRcWFxDITu"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "bfa93e184f76279fd707d53ddcb3628855cfafb111bcbd0b4df6ef77aee624924d681626a153fa4e59c923b71fc090b3",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 30,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "PPme8E9RpepjC6P5-WDdWToUyb45_SvSFdO0sIqq-Gu_kn8sRuUqsG-3QriFDlIe"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "6092a1757ddd43a04e185ff9472a0d18c7f7a7dc802f7e059e0c69ae16c802651719406e04de27652ff83da4a780ef2f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 31,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC",
+            "y" : "cyFSRC-27lw-bOHZIMBZvGI1Y4FNeQQrkDzmDx1Eh_zNRQqG2gPz5u1SXQIBe_2z"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "89c804cb81443386b185bcd9e2e6c35ee6177c3b90298985c4e81a89d520cceb17d729540e56ecc343c26bf314f2d052",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 32,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD",
+            "y" : "ZmAEGxx5hGIOjX_XzNtQzDuoFtoU1BpNiv-rqEiIZ_DKWiT41C3X5EtTCifcW1ja"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "35513157e804bd918d04de202778b81a6fc7ad8aa541ee94116a0f18466725d75e71c6942bf044b1b0ecba19db33e0de",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 33,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "O17tgHJ7y8URO4qeTbHIGx3dwtmf9W2cPBBUNIkTveKWMRxL0vqJm00OZqqhtqDd",
+            "y" : "e38PKNVeLzpQ8fG-85doNKBbQ0GOl5MDvANj7RbS0LQBHMN7PAatcxVPrqt5Fc2H"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "1fe6fea5f00d3005abaae2267ff18e430915838d87909ab503885edf38be7618ecb321f0a4df71b0913fbf12c76fc1f0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 34,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "apmlrNSn7bHHB9f4vhLoEUAzjj4UulY8cDxoGjGaP5zh-Q8DK_hA83WOicuFLOym",
+            "y" : "PPme8E9RpepjC6P5-WDdWToUyb45_SvSFdO0sIqq-Gu_kn8sRuUqsG-3QriFDlIe"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "f58adc13ff997d38383910db7befb17670393a33d95b049c2aa19d760c8e728ecedd32168476b90b26a3742dcc121b07",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 35,
+          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "fCWk9X92qxOyXKs8Jl252b2SX-y_e_k77xMId4ZGYo3sqwZ-2YipdVzYjojeNnEE",
+            "y" : "Vi7gxX5x2Wzv4xtMQEW9QIajjoq5rfLVVnvjGAUdcPOqaLdT8nGrAytqvM6Rnili"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "56299684ec5ceb09ba4d94d1231005a826c9c08a5219c757e0136cbe8b6430badd4925172f2939891da7c7893850512f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 36,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAD__________wAAAAAAAAAA__________8AAAAAAAAAAP_________8",
+            "y" : "BeW-1Yu9ovORYPoC9O_aF4ei-bbkfgTRqoSwCyE_gftO8-BoUboJFjGrbHa35jjg"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "d47b1e00af6f32301aa70a6ba660930c3585b4a5e142f8cb28d8ed0a5ed3288dbecec574713ef8f3c9dce281939612e3",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 37,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAP____8AAAAA_____wAAAAD_____AAAAAP____8AAAAA_____wAAAAD_____",
+            "y" : "cDcDhUE9Pv9vo0B7ok9oLCsBtRRF299e97DdCXnxfnE-CQgVcfHpTftmvyggAvOf"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "f689f6e475b4e15162521acab4637a3cdb9cb42aa92f9114b0ee300ddae89d5eafff3463a1f5004a2a1bd4aeffa47b78",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 38,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAD__wAA__8AAP__AAD__wAA__8AAP__AAD__wAA__8AAP__AAD__wAA__8AAP__",
+            "y" : "ES4ZHx94u8VLbMTwseWa6Mb_Ggf1Eo5B36KCjhtlONT6LKI5TGqrNEncs_xOtEwJ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "f3486244119b3632fd55be9e6951eb5d9c8c62f6a27042f94b924155ecfd4ff8744ba3d25bcf85a7b925bd28a12b897f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 39,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AH__AAH__AAH__AAH__AAH__AAH__AAH__AAH__AAH__AAH__AAH__AAH__AAH_9",
+            "y" : "KbBUAKEPSmIWhFkEOSr6FDvIc10mUXYm5TAfle1GGtUYc-GB4kl3-o4x0cFsSIH9"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "3087bf378e4cedbd7572d799b831b55820d8b0864906d7d63b911c9d9c9668dc2320a9f6ff772b292910fdb26f82148c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 40,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Dw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8P",
+            "y" : "GplOmUa9GpIC7mHUH3NtVa28Scp4ua9h_2JClZv23Gm_XOMtNBQQgttAQNcBsYWv"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "ec48e5552f5d908c1239a9918efe4128336215c39cd01bccefa560492e4dc119b4f0c9ee92c322691cab61dcdc0ed0ad",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 41,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVS",
+            "y" : "Di4WdnrcwQ5BG33jEjyAQ5HmU0pY5j7pLVFIzDmDYXnW4m-AgT0emON9Kpaa7Bvj"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "59dd421ec1f56010516604d9f5b94db3c33c5c26f1bc903b89251ef972eb74544d571bdd3c4fcfc0bb2ae0810c8dc6e1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 42,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "f___4AAAD____AAAAf___4AAAD____AAAAf___4AAAD____AAAAf___4AAAD___7",
+            "y" : "XO6OQUd2IGz4B00TF9ekMycSMwqXDMZryDiX4i3Jin6T6hJAeotgL2-ffOY5iXJQ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "310f69a8ab8b6d3ea442e3ceaf744e14941268cc2f25278a7334ad45e92127fdfe5e1a7d0e1b2264331c478544df080f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 43,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__AAAAAf____wAAAAH____8AAAAB_____AAAAAf____wAAAAH____8AAAAB_____",
+            "y" : "bHCJiub7MfovCGViry0QSGukxv1eQd_kqmFZi0cHo7wnamL-sbmFV-OxfAJfet9O"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "88a544a769d5c34a051416bd509dfac911863f604c83ea844bf0e4c5c272dec86d057a88b152a9274701938c705900c3",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 44,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "___wAAAD____AAAAP___8AAAA____wAAAD____AAAAP___8AAAA____wAAAD___-",
+            "y" : "ffZIQmAn9YUTxGkUl0YomyfHkTkGqOV-_tSOm3vk4WSFWVcb03B164i01u0jpbAU"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "1406890875bef685c15de45156eea1660f3e0d58f3a76a2311e23101bd4bad44e3a2cb3feb40968cd411b9bad6ed708f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 45,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "____AAAAA_____AAAAA_____AAAAA_____AAAAA_____AAAAA_____AAAAA_____",
+            "y" : "SYerrkEoCcL6SP0jsb355iL1pgbEQRchX_phsY70blSn-78R-aa6WcmRtK5QH-3O"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "b1e8aab1aa633d98dc6b768594e1e3edb801a9ef483f287c83e19744d2ad343ad3debdc4dc178213ad6876b52284f552",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 46,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "________AAAAAAAAAP________8AAAAAAAAA_________wAAAAAAAAD________-",
+            "y" : "QKKAF5yV28gebCpa-P1zvDKIxiu786bCEmhW0Oa8ujPGnEZeOc3NLZ9nlKyYKx0D"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "7e9c2b64e84baa58bba4ec97a2fdec4e61c888280ee4cbfa4b565500a385b89c79b0b9885fede22d0dd18c2273c33412",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 47,
+          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 256",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "_____________________wAAAAAAAAAAAAAAAAAAAAD_____________________",
+            "y" : "YVhCqgawb3jwpm976ojUtu5ZZT7qoA3F4KK2WPlptxr5DJtOlr08ozhGlVvcy9NZ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "ca8cfa42c5e374914c14d6402b1a99208e47e02ec49818913694ea0822a2cc6c310259a8f3ab7559b9974bc4c2fa337e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 48,
+          "comment" : "x-coordinate of ephemeral key is p-3",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____8",
+            "y" : "LeneCalbdOayxDA2Phr7jf9xZJh6jP4KDVE5JQrAL3l_gQkqm9wOCbV0qPQ7-AwX"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "200aef7a451b8c63ba70c04c6bca08e638d8e790f0f1856f9f627c2ce5000c7ac55e798a8980a59ae08a6ec9035095b8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 49,
+          "comment" : "x-coordinate of ephemeral key is p-1",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "cyFSRC-27lw-bOHZIMBZvGI1Y4FNeQQrkDzmDx1Eh_zNRQqG2gPz5u1SXQIBe_2z"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "K8Fc85geq2ECw5-aklqhMJ21nCwCpUQRko1zw5RdFXhI3DaVnv73SVyFKOooTByX",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y1Kls3Y2tCEAc0JSdEIrCtba2jk3yUYSpIyyiS37wGwyrdu-neoULwnDul5Y8VTu",
+            "y" : "IIqE4Mc6BiCHtJwtE2syzqtJrZ3c-ukkQCnEEgy7n_YIfy6-VojCB5emR8hx0NEE"
+          },
+          "shared" : "edf040bace18d90bf9ce720df2a3b31d76d95b7ed9530a159ac0b24e82a871033eada40552f9e606f7115e6a78927511",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 50,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "cyFSRC-27lw-bOHZIMBZvGI1Y4FNeQQrkDzmDx1Eh_zNRQqG2gPz5u1SXQIBe_2z"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "c3d38450a5dfdbe64f4b5da3add4ac1315f87d11720f29beb6f3616a65ebca1d569c0fae5c5bbb6d146bf9103e645b9f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 51,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "GDwNNlDTWjNCPA0AiWqgr580Ahf0IIa6USA9FYpg-pHug7UgNO5hZ8ZZPOZ6McOK",
+            "y" : "IIE9nn7qcY1GSFZQQgNm3MHP21zek-qygwje91i6TDujhhOdSjo72tZMVBkvK94y"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "18150961859e3efad6267582f97417f19ed8e7e537b692b91050944a6fab8030411dd92e941357c7494af0118840a614",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 52,
+          "comment" : "edge case for Jacobian and projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "zlrYEefrCAJOQOMMHLKcrN_I-An38BEOayJcbYM29gwwpXPvG5EvX9MAsGFen98f",
+            "y" : "YxupdL65VEtKjJlF9y8-X8VpQ4xDA2ciefr6kA5TaQr_dT2pL0AKti3oBn2pn-N7"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "cdfc9463af891682c51b6f4c9656551c33b80739f177612f27a4b1f37c97fd8023495b0bc15c688ab19b7f9880efc8c5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 53,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "QvqsKuK7rUOm5Fp5bx3McMrEROwVcKx2nW6GIHRD24wDozugeGL8xhnOyAbOiCbC",
+            "y" : "d24x3QhsGxkyO1gIRVO7CCXQkf-xI9Jlr6WXDLcsLmgEqzJ4NCmWQecP8UKRl1ux"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "bee46c5518e8e2f5c7fa23f2ab8fc43f5a7419f70373daa1a674630b161ea39c381a1eaaa90efd34aefa9ac6edb53c75",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 54,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "atZvZz2DL4qGz9embSFtI6JlgyNcKOy3tZj_jdETK8bPDcRqmMhkZl8ZWpllY-V3",
+            "y" : "cKqq3L82UxoxjalRINmoACJqyfv_BvR4N5Ece5X1GHxD75WaTqPhF7hH8d0fjMSy"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "1ef2e485531e26d69ab7c7b8c27c1b4be152728961875681042683678c7bb4ef8b59c7c1d62adb5f034bb2886ff691e9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 55,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "-ELo9HFRlJtcts3krMeoPZARc64xbsQj4clmyKOWOP-m3vMWD3vqZkmCuWNvY59y",
+            "y" : "cC_h1ZNFT3PQYFBlXijsuM_f4T3Md1K944_gBwtDvaXmtyA7RQd0cYJd8bgWpCjJ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "a8573b49006362d9b7363c502969b2233b2fc5730cf575d414c50a45f0a5b4d518bd450288c89e81d5171efadbce59c5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 56,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ZOaNio5tRBQv0LM1MnXfS-lbD_lGXRFKGP8jj6TTlH_04_xmlw2Fcx14SwoXFXiH",
+            "y" : "y5Yc9jbA6NS1-NsAYMK2me11DpKgWsTaSXgLikhynGwrhmx1dUr7LHwtZh7PZAzC"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "33f9aa308445cdc2d159cd39c33b495382ff8b9e21b6d1b160577a4b3c5daf00b8dad3c83852f18f27a4402ce94421ee",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 57,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "I35aBaO53RbyfRzATRbxnsPSeIG5DCBJ_SZlzsfqrhys3tTg-Ku6WmTUGDpxRJ2b",
+            "y" : "dBBz3CWU0CrJqImI5R177iIRGWL2N0jv3IwxH2Ma6GgMiZYCjaTpVqwShNDAFhT1"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "ddf7fea52b92e1544fb1c7ce2274409bca1704f44bc0ae1a6a8b388eaf316c90bce99b0c203f7556e5baaa26c6b7ad6d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 58,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "gQ-s6ZUSvsJZ1XUinZWGeRvfsbIh0jwXOOT5rwSY9UsYzAy7AbZM80EexLaEgNtt",
+            "y" : "bAbmIJGI81QyO0229U8rHfxcHD3U_vDLN5p9fqCFrNrJ5g4E-NtIi-l_gd7WbqM-"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "d2287ccb642a76e001124dba6c6ce19e82536690abf542104cbd45c8708e462d8ce06e05ad2a0fea4d68492fcf376afe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 59,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "8LACcaK93kvdvawAQGrfBW0yubA_S9KcxmCT3yLl2gn-SMq_yNRL8Ta1vidcf1P2",
+            "y" : "bM3Q0ANUowf-oAkQcLYfqeLaHi8yn61oATRJ7PR3_jNFgDm6yREQTaYsKcCBkqMV"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "36151b0d1c1b28ac062e0829f41bd55044dae6f1daf30ab3ff4148a83ccbccf507bef7340c9544f047f554c71272ae24",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 60,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "-Cy7rxybYGOhtQVYB2axRGtrWpkBUXA-ev2KMXU4f65WcIEBng_bp5ZO1sDk0ORe",
+            "y" : "zzebwe2jDOT6VgEGs9Cb846fy-w-rcnhLFYiwBEwyHDGE2SY9Sv2LzmH3v0pTfM8"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "2451fd979864169462a77d742adb6f4505f2db956d2d2dea5b05e40f40f2654fc17d1cd1d3b353322bf0d1f3cf828c49",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 61,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "zOwRcCXuzing7Qd9mGeHOP0aXMog5AuzIqQFZoMSQ9rIBlVbhQj06qaL60547ZF2",
+            "y" : "hkFfESMsXsufgFsNzGzga1f99OSuTm2CJHLWclqcHaQcL-4VGVhsUCu7GkziWChj"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "0b3c06fb8c7c31a96fa6dc80250143e39af9e5c201fdbe92245771e345cf787f99234ecc1d6870599ad50a1cadf687e9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 62,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "HoKb29iiwTIdBJMqrNQpcvWyrFtqYbBBIWypSBuw2oq_bVwbY-hoR5-I2RNFy5FT",
+            "y" : "_KLFaY_VtATJvBJb3Dxgj-OFNn7itoQI6Vm4Psi8PsHgWm-5hP7bJWV0iF9d2YlA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "5388905aee7f826b9a5b46faeffe26d49f8566c7a8e8af5a1653fcfbff7c0dfde566f043401248486ff91c390f5cc6ed",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 63,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "TdHhtFSBTzvhxi64fBIHcsIGKj1-VGHVVUs5Y6n7EZDbllaVyvVVpFriW-c-R8N0",
+            "y" : "W6qT_iv7CU_nGMjJvY4ebobNYp3KC7ke6TTpNGnU__MqQd_XjCe6U0o9WXDDiO_7"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "b920299ba26075d2647ccb978d15a54ef48330db3a8794d868ae02bf152b3c24ffa966893ea9eb5d3cce83e0239be02c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 64,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "lHGr9P0bidFN8jJcsKa8kuc8jsjgbEewl42T6SJa3widPuTiXCIrYNAhmcG1gATB",
+            "y" : "0bNbwUdc_PPjphFlk-LKWnA0QSetkHpKodDGYTnyh6f-SM6lhEog31poi4khHxnD"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "705421b36618115fccb7ce6db8575fc4b3f0a2780ce02a3487e4055dd0d51834006270e992e0afaa4c7ce0f699f7fea2",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 65,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "lwRsRDiwQDFb457jhp8-hxHDGWdYR28rTZDNQ5lmXIxch_nPZCicK7ARZnQuGuA2",
+            "y" : "soGSLohytIt9PhOEq00KksYCrOffOpOkfcUMjC5eioddLZJ_cgHOEf2N-BK6oeT4"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "3c510006f8658f3fa414fef9723d634a179db7aaf0b7068b7696cff93f88e04136dfdac68349781bf05a787ae19e9021",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 66,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "jj2uUA_ixkWqsVN5FwaCUDFUrx_Qoh_9LjTwUBxRhQfg6_RdfLhlP9V78fiU8qVS",
+            "y" : "y2mvfgCdQ71uaIvyj14oFfPJ9Pqx2CnSnwUxK62Z11wlGNKjAadNXs7hMzWC15wU"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "248967afa36386cfeaa2214847c7c8c32a891a2438b83665f99e5fe7ab6dd86353ff7a8b15d4be4e1277c721d69cbba7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 67,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "H8qPlpVlCgLW-4BJsVMaN4PkSd91qY1FmZ-5hXw-dWIZ1IsshNUUPwjCqwl7Nloz",
+            "y" : "RaoZfhDGWdnFP6dU8RLXeXMQfuNcOu47CxMis2L6CEl8CXwYgZNONs69XhjpJAy2"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "a454ff4d944587a188e7ebaccd97649ab0cf83f8f8d19b3653a2e621206d3992868b5a5765d1fa762f0e3b0161a6809b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 68,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "cxunhOLtIfSkorTdSHeuwvzVkDH4AZO5VYu8HPf-ZwRGlEP8fzmOi-xAhviKp2qi",
+            "y" : "bDiaz9UfaciaFTv6211wOjbLEqTYX1UXz0Yr9dAqv30Zci9IDq8aJhfLoZQeHHa2"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "99780ed215dc417f798c24327c3caf22f3685e5cf2ab835fc54b428117b7d17f0feb63f1755468157f3237b8117dffa6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 69,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "hyXLdUtVJ6OwU9Y-DEsJfkw0xdcxq1zUcoZQphi03tS_khTXk610z8Rw41xUk6S0",
+            "y" : "IKPFAEmkJ5FyG8UNX2CMsnK2ClVF2wYIhVusj7-pOZDWuA4wQXc-EJN9g3AQyuZA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "d738b7373fe978f27b194f69edd5c421b98922f5e313b76859a9357a1faf42ed0e06dc13d55843357538ce7f4127cee1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 70,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "nHpZTq8t3zyKtsbpTx7AEdrJ-kK9J98vvkAqyUnTosZ2toSiTJn30bfonp-KBjTr",
+            "y" : "O4MJXHoc1qqTMkYOy_JX96-kSWCLng3dFSkrh1rS_QadySfOAKS15nkzgCO9Ok5s"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "d9cc861db305b04a273d6b55348ef9f0a0a2aedf8b3d041a19e263ed6ae2e01e439a46823098f2aaa4867d4f08891e36",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 71,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "IbGqNZ1y_zOoTsliFIPmWIHU-ozm3zZp4Ku7n2v40O49mGKn37RSE-Of-sez4e2H",
+            "y" : "H15ZzaWluGGrPrhsqnxuhZM2du_mYN_4rFYl7Ip2MKnLqes_wUnT7zedSl7BdNI3"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "c59281d09f44f679294aee5668eb538d503ef25aac591614b46f525d8c0b109ab129674963500ad7b6268941a28c0067",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 72,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "4a0raPppRWV03pWx4EiwcVAJQJ71zCcL5R_dQLT2WxreZ5OKam1yWwExDyJTo4z0",
+            "y" : "RPcms-tcXdwlfW2b2pv6YL7GoH_gfa6WdRExQ3DTpOBBw08ctJ_mtwZj8CBIjpio"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "9eb70f8949861c30f2456990abe4d345550008b8531901521361aaa17296dbca06fb3c87e8f4592b7dc5d1997c58c076",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 73,
+          "comment" : "edge case for Jacobian and projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "C61n6gzKlg7T6gWI1e7vNmwkNCqz5GYCiR0a202F2A3SQpYsVlS9avWROurvqyet",
+            "y" : "mge0GXGAyYaa95X2lv328lzcZkafTKfKicXJBGNthfa5oZ57zwVAgxynqkBEbdjh"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "k489vjcTXNjIwEGClS9ub5v-ekz_Tqz5BhKkiGXcQ-m10jD3YdH8TftpviDoTMyP",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ipxSJ9E5Alm2dQlZr275vApRsPCFyZkz9Wp2OmC1kPcRXwxs8eMNNV6752Aey00a",
+            "y" : "u9LfZa45mnF4DeEePPjxqjKVL8SxSIKERS9DqQud0fMaOqynGRFP5wU3-cbewHlR"
+          },
+          "shared" : "45b02fd4dd76496701be3b37e632056cf7f63e9808f627fa858eecc5bac16a01a949741b4de151fe35e774c6d1e389e2",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 74,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "LEBpvIB4I26yOoxNV1vem1N7E7eZiWiMQNidiYqMKb16xhdFeXt-5VrKYOp9bCqE",
+            "y" : "MPz77RiiUEZh4CU8Q-R74BlA6B_LLWWl5QERGXgFmUnF0lsLYN54IUdriKg0Kgvf"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "6ce9bffb8901baa801d1b19e92b5e5f47f5bee10c15fe44b8209977572cc8bd7902ccfc0d7ae98f6b58bb87f316a5792",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 75,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "RLwcstQv-XTnK8iD3_eE6Gl4UB-Rju9NltblJC2m9WUaKc9SBcPcO-MzMvot78NH",
+            "y" : "iPiPVJ7XhzIGMCDdP8uHJRWyXgiHAOPqy5Jd52fp7fbonwicT54PTYhGmAOTZn9t"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "c6dd2d372d5a5173ac63f6d5ab5dec972e8ae44d566c7f826beb7f2693e200c470ddedb1c9929c11ed86d135f44c979f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 76,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "uCTrcsQ-21s86a-U670ztEa0pyM7ia_-HPo761PNGZ-xGaNWdyv-wXjAOwd98S9T",
+            "y" : "-ZhR--uZcf_PKa1hukhL0FgANtyqWfQHvIikcc2GK4ChY8kab2RgK29xOVmy9sL9"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "0299b7fc3e5506926fea66d20f65b9791fb6c88c7179f7d4701d68c13427ab56ac0f9e1da96c1d5f3d1a65ff3122c153",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 77,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "knC4zvthpdUvu15rO2I2Hzr6XRprAUGduSZuLbq6s2rqWxlhMY6vjwvXzKdf8t9b",
+            "y" : "flOMYwEqc_d3sl4XN9RP28KZp2KI17y1fISExxybtkUyRfI5tsbfMomEJDg7TAMJ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "13d78b7a4daf8ddd62e347ba235c36486fb2eb4a75a3e17a137ec6c2de37abaf45da92d1cf1b2966ded8d5381fd2319f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 78,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "GeXChldHnrQdNxj2PgZ4vg2qWFAqVAbWWRNWffe4arJekF7IRniVMNgdjR_CqMre",
+            "y" : "Sq8TGgzPx5okvIiclTJJ7oW0niob-lIWf-IN4pbmSX75AUws0KAq-60fnQCsPZJN"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "7b0863fc6d72c4bd058576cff7a4aedf86482d3d9bc9c5fc55bd8fac84107dd0bf9f27d7e8d624edb0aa6ef1b9cc2246",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 79,
+          "comment" : "edge case for Jacobian and projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "WWZt9EfavDhtjd2uk1Q9x2FR98HASFhmDZyo4GVbUacv7_twhbrL3hU_6nW1cWq1",
+            "y" : "w8eBHQx0Nb6eNtsAzSnGyoee-ZGtsVemtL9W495cs0WYt5poTMPU4j8i0QBj6NGc"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "fba2bdfb54e468a4ff5afbaa54c7037400d76414c98eafaa419adab0df50c9692aac67d44a9efbd00d4f9cfc206d537b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 80,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "O6_OmzJhbzveF_yYnx5Vb5L69cMOLN3rwqukTt82rjlXycYQo0Uh5qxFRlKqWXgR",
+            "y" : "gntP9F-ZH5QF8tjPRdXQh2omDvDetuhgkMW0X1t7F4YQUyT0Cg0rQ97VeGizi0Pv"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "ba9b68d1c00aa1246edafb70db6ddaed8570c465d9a5836d4156a1ac7fda2a209c25471a0df6d7de93f980c89c841620",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 81,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "UzhbkwPSxdHqg-dwCz6BGnyQXRd1w3mkTp5cloIVWXALSS7ihoxaAZUKpOKwWTLu",
+            "y" : "j6G9gwNaq7q8K-e2HziPeLgEbTa-6ZtUibr7Oobe3inBTVNz7ZuscqkquOfDH7hq"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "33c6c7e2c805889caae5679aa024dd79f54456f798eff0a0ddcc1b28d8ad302d2f67092275ff55f8f4d99357ac86ce58",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 82,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "nr-NMT2j5bojfuM-bdW-dwOQ-DfJUo-91ECp6yuhz_sng32GXL4bMv-ceZXV3VEc",
+            "y" : "qkEl7CWNGC7n9xc8odFxOa4T5gcqzZcLpW9tUDTp9F2jay7HdDSb4haPMrvwT5ox"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "0deeb01decaae0eee55e2c29501cdd9cf7d4db2f1679fb72efcaa5db6e05cc4a658480245c59fec9984c613501411b0a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 83,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "1M0i6N-mIMp9aOKQRRsJKFKYodtafKAOqDDW6eycxNA_XNQ_sqmqqhQv5MbiJpzc",
+            "y" : "dH4MoH449MW0EuUst5MMOBEA0qr-VLYZ6_cugaRuEUljXSWjf6ZuLRvJrCX8GoPz"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "d360753c568698d7f7b261dd2f5064ffc8aa9f03343a2291b967632646d51570562f1ae87775648e74f9f30e966e7380",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 84,
+          "comment" : "edge case for Jacobian and projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "IbkbnDdOz1ztxtc0IsZTmyKuXbYb_bBrnInmgRL2Qz6dSXFfR0U0-5zWwsv83vlP",
+            "y" : "tdT-MG1ZAlr06I-Ms93D1k9wfmggtBzfwFXNZ2LaI94BwbMR8aW_cBDE_07Qp-hM"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "596af71209cdd23c386bb861edbd171ea9bc6a858993110c9333a956b3a03fc0f55393ca46bb15bcf9f12b496459c4e6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 85,
+          "comment" : "point with coordinate x = 0",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "PPme8E9RpepjC6P5-WDdWToUyb45_SvSFdO0sIqq-Gu_kn8sRuUqsG-3QriFDlIe"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "96876e9ed89edf3e3dfd8ead06dcba0acdce7763eb98aded82976fa36181c79ac4e833df385af5ee860ca1f20df4cb72",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 86,
+          "comment" : "point with coordinate x = 0",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "3WB-lUVWxi45tDLR8bL-ZlLXWh_jPNFceZ_6ydE9XVIYmdJZQNplPQgkrYRW3fti",
+            "y" : "n0FC4Io70dh79hGanvSwqA3HEqTWwAG8snlMTRoDsfHTktwIjInvhE-TrbE52Va4"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "60d597a99c86a432e144bc2b0e0a89b91c4a72f3e1ff8e56e7f07d53b2e563e979c09e27b34be98bb19865e808d4290e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 87,
+          "comment" : "point with coordinate x = 0",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "gm1xrk97Psuyqb31lRKUlULQEW9hZEClUBaPS1iBL9bBq5TzEDhf3yRtte_A_ROZ",
+            "y" : "XeCZvfzqNV7mOCfPKi4tho9c8LSH5BJF31T9xzXu1utybPySi9W00BcZ0WRJZ-0f"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "85961906edaa9adfa9c9b8279da66158f57fb350ff9b15dc4d75b8cab64b9d34f5ce912f1aa512a54c71821c6e31ff8f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 88,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "-okZ5FJOcEBInMF6o9Yg-IJ27ySNHs0emmY3x6BnZfbx1ZOx_r4zG59pboLFvmGk",
+            "y" : "oHSpEjCWYvRM4IJb8TRYIRbKwzEFd9WgByK6UT5jNMwXEBCRIjNG22cGPPbnv_v_"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "43484dcf01492eab684d39881908da7f40119fe7183bba625c32fdc14da3c4236dc3397234e7db41857495cd0d09491b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 89,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "rsuPFauHV5oD9bj88zqglDN-TDYjWcnycnY0kJxpE8Mhvmnz-K7Wk6MQWZiZl_sy",
+            "y" : "1PSjf_I22PYjcYajpyGoKiuiL4pijXJz7zFz4h7MaZaaR-ZpOD7PDPU5brAvRsPt"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "65e6133929c8b061c25fe0bec9142c93d52c9f1695061b105f6c7da1347a967b5a3f1183565645f7b8fad8863f9a6345",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 90,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "QNxm2BxOFeGkwAnGDDRBcl__CLJUN3Ow3eANsjH0S63XeovJYZR5vVKI5A2hU7jd",
+            "y" : "w9UwJisWmm-nAO4ypc0Fe69D0pYn80L9qPbw-yGx-jW-lqRSq0iB9BfJpOQTax5t"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "0773673dae337a1688c2c31d1a600c0ed72604a171c665b5307ebaf740fd518e4a7c5c91e4f86f65905640ee37f4f830",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 91,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "U7WHRzgnWi4dc05R-DY2-JF5wW_on0b02OcfUhxZR2nTFyX2QEEi8hESlDoaIv8H",
+            "y" : "WGtBuyS_MDroVFsl97mEJepixNO_UdI9nYXgdxm4KHd--goo-zDzO4mZgN48UyYR"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "ea25b07a161f318a81a693f6604810b8142843c4fd26658d9b64fedb58a5eba58c217c4176569cf33fa47ac9f2b3d7f5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 92,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KYit32IUnmrAghnS8DbT9XIKqGKQXPP-e98TbcCLhF6KYb5D24bXGibcF79VN0qd",
+            "y" : "U6yZxdB94QznTtOxxBNobrunAPSSYLCDV_ldr1sxpVU0XAdgefJdhpD8GsIMcVKN"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "a8d424068fb7846b0d43a5cc13029d054b11c97e508ee0f92e73d35ac8351a462eedfc9da9dd1279f12812ba46c06053",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 93,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "SUtZ3htpU0tLYtdYEO49rQWhmvpBx4Nttcp4YwIIqAA4jQQDS68pI61a9qxy7gX5",
+            "y" : "id9tCPmmQAhY0IT-dwwN3eKYlmzcVqkhpDGEOE1aE_McHrToNOI77TBpwQ3-1rY8"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "296f5d6fe4ddd8c3c7304beadd45f6cd3e3fcd4230c9d2ba1a13bd9b9498a3c8d1ef0ab6ee2a450b0c68e89a83711fa2",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 94,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "tkxJ3fGLznnP87jLew5Y1IQh62c59Z0nH8T1TdL8sc9W3Ts8aRc6XqtQqxouBhbQ",
+            "y" : "XZK4ZMvJ5KP3VlDv854OrL-HxMAQCI8zOIQs2Xgyck95uxWYa9P6hSVYFjUEc7vT"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "db1edbbb1f3ac6df9f46128812bce7818b5d745c75322a9abe89983be868aa1aac555f4d60ec272730bb4ad949a53d38",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 95,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "pAscoaUajua-9bWKqrz_4uFfdKMIftsmIIhdfZM-T1DWJeqtk7h7jf9Y8FZXkrF0",
+            "y" : "q4lxf_6HzSn_vzzX2TixFzdHv8AxG3hyNoTXyaHCvjtZe_kjbu0JACjtohRsR35l"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1f84c641ade162a274ab2efc7cf6582f5a5d91ce7993af6956d55eea0e1b7fbf040da9750486b0fbb2bd70d9ccabb785",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 96,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "TnqCrXSht4UZlfbhoYFBu0WErCLoOdTZFgGLFQ_tnNDM5Ce9RGeYUidE05XpDuS2",
+            "y" : "NEXBpqTNRnwgzbKYhU8eJwr76gU7d4SXa1BNDhM5xchgB87DY4OZWKH6UelIPeVh"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "54efb9bb7269d86b06282b1d7dc28a940cd7789ca4e104c4bb7c5e5736676c3e5370cfd97849e1200a031b668388d8d0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 97,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "m1Rnj4WBzmZRCKvrDAnLeYW7XdhYu7cciOBTRN5bRbTmfzOrWNNZ3KLajfEUndG7",
+            "y" : "0Jun9jqNNYSLQHRu1f7HlE7UT9mpovw9E-vFwF_5TV9QDuFQctG0wTdf1uxPMhJc"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1e96c829cc8a79d73fa6434bc159dc432c2ace3b49ad2e74380e7b02feb53b3393446a0331b974f2bf219ae95d2b23e7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 98,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "hst6P_Ou2y85riLy6CjsCBfZS4Ma5lTdZq_zGk2Esz-rRv7Bq-Gp5rv6xcmVZf07",
+            "y" : "svctVl0v9cXCTzdUSN17tELf3LYeBz5IQCcHu8wmrUPUeIqfRHFfG45bYr9Jzspl"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "84e7af176ddba3ec3ce7b7fc43df1ed59b4e3228fa3f6fb41a01f413b0a6c7404e43f7747118ba264b7b026d714e90d0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 99,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "zPWluA3rpjGLhfV6DVY-lXZcf-MN9ayIg381Mp3VEHDimJb02W70C8zPNiRN-DVh",
+            "y" : "ToeF-AZfgcXpJw_VWbajgLSDh00pjQ04Lu4e22pZ2cFjKWq3oGgYaw0j8zc33Q7t"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "82864ef4d5fd25204ae1591c619f3ed813c762baa009ba3b49ac38c57b2f46652f719adceabfbcaf985b29958d1f420c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 100,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "x_d60obGi4j_pk_v5KqrPe4fm643t9Bpu5K-qCCJ6DGnDdntAHum3OFPnG1edE7M",
+            "y" : "sxmtbsE0N2ywWaHIaYTqi9FU2CbtPbro2NjgaqDL4BJ938MmIbvB9zH52Q5oenz1"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1d0d3ed8c1e0d28f5e3766f193da7bdca1cc08376293f9bbde7bde0e9b1ebcf4cfa3c683dc63bcb42b2d9ede54242bc2",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 101,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "qsO00oD8cKn-F14YgqaerKJIKgyd7ZIAREAoyj2_UB_DYfdli__sMhrVd7SMl4aw",
+            "y" : "f1lr2GjVHnPw98JduVaxIXHPqxGr1KuwClmsQywLDwWPTMpE-1gbxYA-RyoFMF8z"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "bf19548bb1d7333f46cff4d9d2a81dbb48ca82a52faec2b20c3b27bde392a66b8e44780c2098a7b5253157b014b40e51",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 102,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "dH77WV0D3AXdUMFxVeEBjKFHFQVFkpBuZxouIgSsrlUrb100XT_Pm0FxiSr7PlWH",
+            "y" : "2OcJsIOotTY2Y0kviiqa9kw60Bxk2PpHZNYfQ-aQGiRFzpS1hvYJCuBoevAJD81H"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "32d569310f61af475b6c6d075599625a3381b0a5b6a0b8c27c7165d00e2fd4dc8b2cf8e3b33e28ad4005525384227fb4",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 103,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "qxR2S_JPgxOxxJxL1uNnIxJ1swPGAcZvfosxBcawKpC2Dzh0XXVc5N1AaB7RWhrJ",
+            "y" : "PhTPL6cIMAorJ58sN_vA2nF1ySwRFMV-8lFGf28955-8OMsePbcOTZUiX72K2WiJ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "266b261b6dd9eb51770f6c4c11b87134abff1629b65171107a9b20e0c7d168e1efc3cbc402464f36aeb3c027b9198e10",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 104,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Hh_pcw_NW4ewZfqQppU0A2vkV1hRNEP3nGQn28MfxAPolAQ_ucf59YwKNnCxwNgD",
+            "y" : "WduPakiXDMuZGM7wTzUqTZGiBFAhGbK378bGcaa6RTfoLBlubUJoXFpvVZ5OivcE"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "fa9f208dcedee597f51122e6274b86710e36561f2361e76186fcb73d1d7f2928426d98c3f69e4cf48d3001d64970425e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 105,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "g_zqIIx5Iny9lzGahll_hcv8Ge9gxbp6kvxSHGheIIzsdzW-m-J8c30_nS-qHD9G",
+            "y" : "laMhhNWPyQAUAkNs4AtSuIhbsRUPYeZg7OuhB2jQ9B1eTnwh1P2Qms6vYadFXdDG"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "9a1ddf3d9feb190a26f20ed925ffbd35df1017c4a4c9485d344cb8f81c7f452b2ff3aec44baf34e50886f183480b6325",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 106,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "K_JpNskWS6EHJUTEEHV2MLl9ToU_23hE8YEVB9BKaH2VH6ZaNDZOiUz4sIFduV9e",
+            "y" : "EGZGJ79vcjMKLW8hI2GiMxVau3naVDQ7hXLjDqzoyPVIAgDnUcIQIHhSiBLIPzz0"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "47e4608e9bccf6a3296e41fe34eb7181a1b5ec306a93aabd5fb38e75e3d75e8e2ee4c1c44a7d08660681b9fa66642910",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 107,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "u1g9pd5MNS6KT60x6fcSl7yWMTTsGC6WN5xrKKEdJfpLd6Sg-UcIXbM7Dqd7naCb",
+            "y" : "4aC9EwA4Pr1gtapu6yDwPVbdFN9GFXRlFGJ4U268KMVHGpTwlVVMTAhaydzrHaVf"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "8393a2689b376a228f3233ac61578be1aa2de1dbfbb28b03ad24f11ad9d77f8543e0977aea9a761d84e115b61507ae59",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 108,
+          "comment" : "point with coordinate x = 0 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "43eRWVtU6bF8wwcm0kJe6syWcvX7yR_BCM-MhP_5tm6mVIOEG3YYaUgV4aQVGGun",
+            "y" : "J6865sZY64xIXWrY5JweredRRXVi1gA951zR8eE-wV6h0EE2Au1_amt7hO_YowVu"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "209417da721b49d64dfa09983a8683520e5e300a52b2e8f1677772ee3c086b339a1da25cab2be6e44de4526c31f4ebbc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 109,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "fxLLmHsIwjVSNGUUa0IlhYQ5gGKhB0Kc5Ia0svJqligpOuTTCqYcZL-S-X5sCK6o",
+            "y" : "1mIc_OUnDNf6adywOO2LpCiv131SjCMPjlybg-9lnH5XP2ZxoY2LjEzrIPLXYIWO"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "e7eac460eada6eb99988cc39f6129a74d9510d2ec39601adae76b2b8fd6122407b79411f8e7adfbc4f0dc50da9f2b82b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 110,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "3E8G1nHYYBLNXOEDd__vveZX2gj6klnkrv_mIRrFf24cW_hzKYnUTBNCqE-m_X-6",
+            "y" : "JxTOI8wPjgqL2lk-wrS1KU_8A2Pm6JQD1EgvNTfbqeTza-aNji7a_YzCwB9ffc7E"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "5a197a9a8793d94d8b84084c6dc36c36a293ac90337a1cf6a2653435d05e2f563bfd2933f23ed3aefd75555ead76e827",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 111,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "yh7GeYxWZ4E7_EXdGBXoK-yT6qcIEGl2e-w2hc36ViZ_wk2mwYbYsycWJ6hSVgxa",
+            "y" : "CX18QeYQ5SZ9q_Uldj9KSnR4xfmuS4C6oeYgrB8i2GibB-2amdzgzUoRaC8HIn_E"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "8bf520337de6e5c6f27005161b3b2f1cf08759527c8fc7935e3621f68936f191ac6e931b794278d3ca1e3772dbfb19bf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 112,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "RLnpdrnomqMVGfwKNSiMVeLXYwoc0f_9KIzayMdLwu3LD_h4_Mzru3jfnn6wr6ax",
+            "y" : "OEeCuKETiUZZTY_Ttsm0lU5z2MBAp6FT89paQPn9rzvzGkUiQWwxbxDcfNivwoSb"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1e56dc30dad33e34273535688605bb98ad7c6dd51d9267c90a62562d08e47dd684180d4ab7abb6cc14ae4c9bd6ae9e92",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 113,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "z2YbccK4c0989RQqZu33h8VqMxdDA8IHQfB-DDSOG1QlcF2eu7RZlnYh3tbrVtcQ",
+            "y" : "NzN6oW4c9uUDGCGEyUUfm6RX2BoDE_uYc0O4s5NE82kymAEM1bc-OLzezmbGf6UI"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "14e3a97e9ee69089410b72459870495a037d4077bba027eff4c499567d7e7f1af2720e1fedd07bd780509a4516fa5c48",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 114,
+          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "UHkJCMBDNE4c9Csn5Nwzo11ooLk74Owr4FdFs8g8NfCj7MPtJ_sxiKXtnyTNvSnR",
+            "y" : "sPA_-F_X_K1OpbvYvUxCk18JV8qAEc_JPr63icRyFOYOXaFuTdh6U1R-7e5Hmwl4"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "85a8ddb9997e2525cd555721f2d5f3b199ff76b57e91eec6fc7d2c95703a1a32f46e3d46952a90b51054c5fd046b3107",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 115,
+          "comment" : "point with coordinate x = 0 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "I5XQB3m2x9Ta2MyaiRhJbCiy1Ad-aIbQob71FeMSXd2BPlqeoPGFzQCaaeqSIQF0",
+            "y" : "tnZ3X3Yxg8hvb6UFUboTfXmoPo4y_y_AmiwozfgM3a_MD0BpPjmF8o_lx9_i2LJ1"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "c269465cfb336ed8c7e9c0377349193aa4dbdb92a9f4670dbf7fa7a1f7556e8e4b240d5b70edeedd1bf5ce769cb8415e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 116,
+          "comment" : "point with coordinate x = 0 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "VjTuFVJjwH19HjRrho3dgOmigvzvk79t-Oi8TqNP8C4Rmp9weBbQY2jMuUxuSAL7",
+            "y" : "qtwzmRV03ehR5UfkcCf1Q1PgLXC-a_qfc5U8olkBHyOkqAy7quiAXZ0JTvFQ4MVK"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "6a21f244472522389f084e2e4ae99b747b39cbee996ce9a3fa05353219b60c20fa3834d39b0b826f1096b7a467e8a218",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 117,
+          "comment" : "point with coordinate x = 0 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Y6psPCSaMuu8zOZf-hxWogVkSyxAuTGx7JsEK1LB6ZzQflOCmfuDf-Z1hqrnG0cG",
+            "y" : "FmrEUPvW1JIbRCoRZ593hrpadyqzPbAFQ6lBu8AV4jWBumJacsDk60SDjl9AbKHc"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "c469919f58d80b1e45d5d53ee28d616bdf827a88e0b2f499291ec4f76c3c89f276776ea96a6b9053cf02776698864526",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 118,
+          "comment" : "point with coordinate x = 0 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ooe9dNUBwp3yPXhrfDTqDa8Q5LP85x1yD2GicvIhUdssWRSGdJMCjAHhA4ILC6ax",
+            "y" : "Icspj_iXfs8h_qjuG2un2bmNrMKkXXXGPsgyMAGpv19bpNPL_ugEgsoTM_TekKFK"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "18dd1d7b6bbc6311afe5383d796a5fec13844bae25708725554de0b5f03ec0f7d2e63b64db5f83d4ee9890c61e442c41",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 119,
+          "comment" : "point with coordinate x = 0 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ukBrRsHZLUuj9At7H88eGCKJuEzbOH8o5a0g8e2MQ_5f-jcShGJ2MFHofw1ev82d",
+            "y" : "ndQQfOTZLXg9Dw-B16mYt2Bgc1tv1jv82XHKcBMv5tyfv4U07MdLUB6gHNLk9sVk"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "d639b9c31ad3ceddda7745d19e82fde272a86d31f8e6c203eed53bcb705e9ff58d659f8e9d66aa0492da545a399294ec",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 120,
+          "comment" : "point with coordinate y = 1",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ImGyv2BcIvLzrvYzhxmyxIY4itUkBxmlJXMVlp7wG6J_ChBMiXBHc6gf2r7mq1x4",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "c923fb0d4b24e996e5e0d5df151d3c26b1f61c05b17b7fb39fc8590b47eeaff34709f6f7328923bdcaf7e8e413d77ddc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 121,
+          "comment" : "point with coordinate y = 1",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "05w4qvoJUjPvGvjA9KrzV91oQTG0rFilNPPZRGGWtgCSBy3H5TgQa3suZtwzysco",
+            "y" : "OhsgP8pHgo5vegmvZFrw9ymALKL0AAxLl3OwjFr0DiAaJ0k6s-upytfaFX-J8Uos"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "af3904f83b9a0e95ee0b86b06155993ae598d14898366e5dcfc643de9d5ab72fc5fbef17d0a8fb36ebfddce46e5d4455",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 122,
+          "comment" : "point with coordinate y = 1",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "htpXhWd4jqPMDyqdqNE5PtOkRHp1wY6oavnYSwysw7A3SRmYkO-OXTGI1PHQQdRu",
+            "y" : "QzrNXZ9VQkOesjhOwd4IR9BWBY6pJImnTgg__W4DDQYPrWdPaiqafCGYuL6eRluu"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1124bedd4c538ae71293085f2c95cf6b13cfe741f21d62c1f02a1e911667d5348b16d8afb544021acdc3cb7448d4d358",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 123,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ERRH0kL2tCHKkfVh0EsvHS8NkhLZGLtKD_sa5kWdB44hoxKyoSWU_Ix4_pRMgdUT",
+            "y" : "08mB1enNoGxDgNGoQspbtR7TpxKwSd2jpQzhCp-9C2nf_6_weHx02DI3upxGhqAe"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "69426158a29971ef44b11783ef559ef4297246611c994d4815637128869d5f6a0202632fe9b5ad7c365b63050c9f2d08",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 124,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "181QJMRIHifRZTVmFS77oyhLULoqFBsmQ__aGPMA-mS4GyNLj2Rsq0cotOepcCTX",
+            "y" : "aFCuwKLRMcas1bKYtvkFzboY5oVkvDH4gv7VGyh4ai5y-IEmaMl2-d3AQmlVlfxv"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "6597401c837fb498ef0780a382decd4a0dd580e1af5f24c44ac164e256a4884ad5bd2fb1f6c964682cb0bf79e2c7a6c6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 125,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "4xSHVIA3wEI-VxD8YOdGq25HNSVh5Ba1gxI6bUXKqRF2LNiKYLzleymi7BodyX_B",
+            "y" : "vUtgQDjmrAFtvdSPDmvZ9LXarY1o_CiDjGq0pOtasOrqLL3vph3Fej4ErnEkKTi2"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "89411d9c8149b951fa0d5bea1e141bdfc2be7ed56d5e61473935789016bfd2daf6a40ac7bf5b1b0c0c02cd3aa0b2d95f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 126,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Hhfhc9N6uYOCg_hPJKCiXKqmDEEfv-pYLET4-6JWDs4CjL45ew7aafyHLYDZ6-Bl",
+            "y" : "eJwHI-r8yemiutQxsRyvfF11mMqZkHQFa6gIpdB5d8Z4-VNN4VL_2so_Y8uj-XiU"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "6f0aa11ab74ae5034e231ef2630bc76cda6eed26325d123642fce6a950b50f904bc0269f8f589bc4d38107332b14da84",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 127,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "du_MgyLwr41i5zag4RD2azqtXIe_enczP86GT0um6N_cFtat0sVCxIBViacfDkij",
+            "y" : "wmj-qwJxTIkvgmYislvSHOKjNRSxbJ7oTHIrUjsZ7F_DTYdBMwgOFYmBhJNV4fUN"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "7eb9962e0449ccd2e60b4f8094d5a7b461d0d4b06af0ba306b74ab0d60ad5cf894fbfc282ac8dca3da196d7a296baa14",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 128,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "wUfWwjXXQLOI5tKvr8-F1bcWbg306iEpQIjjBJtcJ9djPJPTD9zyuTdeGBT1G1e7",
+            "y" : "77LBJXXCI07h9rFHsuBMEEpNKynNhFj1m1e_91yrm2rL6FT8TZb7czctYFS7doOQ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "790295bed69f5347ecaae9befe15cd3499759cdfbe51974b1f1c4bc576e7d881cefa93d5e8bf2c21ebb982698e1c7aeb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 129,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "hJyY__XjGxCK77Fsxc9cfohDnYs-8YjypbxT8wkB3t_ilKuzj7jLRlR6I8_keQnW",
+            "y" : "VkSfigmqiPjiYFmOonct900mpEMaA3hZNDc757DskYe4IVlldhcj55WRF2lg6sAU"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "58a11a17c4ada4d446c08b83aa05687fee8fd6e78303648b8583262197f87be97dbe0bbd274e444a384e221696530fc9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 130,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "V89kVXjdJCxxTRAN0jVosW03RdqAlwjQHranFo5vcd7CB0xabCO9BVI9_MyX3qbw",
+            "y" : "jaGV2qIFbaBXa7wP-15zu9rQOwTSO0tgJFGlupGxfc4wL0rRZMakorWOPwJTpenW"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "9260483a165690d54c10cb867a9f896bbd123d4768a18d322300d420aac88ae20f188b57f8e97afad55ebb815728f49a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 131,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "yrLZ02yOwJ8YuqCrtSE3KlzC9iSEj5VGCoYVI45owRwbQ9IrhNHlNewdhVYN4pPO",
+            "y" : "H9Xm56x-tvFzrSe2OYX8yDuVMqpW8rWbU6nRFgmP2pq6SdV8Hu0PBjvMcBuxD2wr"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "b4679af80a2ad34ef86eacf2c2191556bc0240c7913fb14c4c1f8623b5db41b854d630dc65738d1faf544aa42979aed0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 132,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "1x30CVwThSM0CkAQz6l2s7J69IyoPoxrtFlvn46PE-ON5OJc4dN5tBqV-df4qEYG",
+            "y" : "soxpcEtoeI62o1yLyqfZcY4AybxWes3EWLZzKqhwQdJ7aldNUelUN4Vb3IZ0jFys"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "8a34de8beb884364b583c9cbce390969967cc2a50090ee132acbd49bf780ad7f092ae3ebd4686a70ba554efdd6acd4ed",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 133,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "pXYXdYUKJZhaMkMEQtZgqt-eHjiLV-bhv-QUlbmgWoJA938zl8XNsMg9c5RZhKvt",
+            "y" : "0sfPpdXZFzjGV3ZGZYwESPAVW1v4OVdaNtGybYfRsrOvtPaGU6a_pe38V6qFKeYi"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "790dfcff4721ef1701e3ff521e4221be51ae242f95166b9292c7aa2fa3c9b799afd353987a535690ff20d66f578f38fc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 134,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "VPwvic3m9uhrbPMoYZj5qeM8jWYsIVEgXdz_EuLTL6iR7sI1m8ByJNZMXjOf-dWJ",
+            "y" : "GKO3k3LRQvs0HfOxW1SzDo-VawebEngnajO02FCJIJQMpj-46XD_mPkezHmGJ17b"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "cb861053c1d685194ea58413d8f9981e07145bc573ba924bdba2e29c5f98e9e70ea0cd0412d6c387449e9ae767dc4330",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 135,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "v78_qxrLOc4o8GPXjPJQdyvQC9ypi3aeHx_UQrd_QnAQal99kTwZBb6g3HWzH4eh",
+            "y" : "FcVm2_8M0QczJUUKkQlv5fXWAaY2QHz7xPVyDzlvpssWmHNwznDim7ftL0R0JfEK"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "375ffb90ad6c518668e5d25941acd5f9c017346d06f893cf95752258bcc5f9a25996a80f42e0475a80443dc4197bba6c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 136,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "V1dXdIDzKu2sbhl2X5GXzCeMsLGiH8a2QjyPbGzeodMkyT7qi9fcyo_Sk9aYdlJD",
+            "y" : "YLGkglUirNgz0429YVCFRzWKL1woG0lqvVcHKrFPmiI1vKAlReBCdSa8K7ySaDSf"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "d1a02a264ab15aef52a534eb5000e2943d8cf1f77255a27f845e96e1f81df47ee903c3e921539d77d72f55b7efc9dfbb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 137,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "FFL16vu1zFY_LHykA7gD9vjWZHkGJQiiJYqNmIp2m4Dgd3NbRe-rHyl87r10NH9Y",
+            "y" : "TyutvKVUV0BIZrrvq_qZtw-_EF0X81I0f2eZZHRIcI94j4oUW92W1K8tfmVL5-Xx"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "ccaa37769d035170bb5c19c135da2291446efd7ecd3be9008612b8ccc29f6e9d7a45dd4e0479123f03e7e304f34729e9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 138,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "rSejZeS2mUxe0TX8R5TXPrcewm14f-wQ8TgrGcG1zR1nKZn-7obV8wVRbWAf0caq",
+            "y" : "-GZIWJiPAvNsiI9xhyAHhwuzJlSqdVMPw7eiNff9K82BXjA0RVJpYPb_zdYdLRNA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "4ae94d3eda5839f4b8b9ffe6d510144cf28bde98581e82726f2d76d933919adab71d2cdf4c4310f8abcc74d70eba3a33",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 139,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "czBB86YEaLwHEdWlBzpx72Bi0K5wcGr1ExYDNYDK4Fj8Ssmeu6gjsZ9I8wnjT7Ap",
+            "y" : "M2cNzHXtR3RHcfYCOMzrzdzNQtZOQQRf2OvDW7rgo3tDOI3bhzVsu1JaE9V_R6LN"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "062b8a968e45435c2b5b54b417f55e89f935b66dec44882c06ab8d6cda8dcfb553a78361d382a9211191871e9a34220f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 140,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "gYhYBO6TGYjP8_IYya8UKVc8z4yPPfQMaY2XbovHwSiBlTRF3cTxkCsvLzFTME6C",
+            "y" : "1wlLZzt2vuv6XYTEmwHOFoxFkgHLgZLvltiRAQ5LyI8KzE-7QK1hlm54e5opiiu6"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "ba41c38d33b2ae342797ee69723f042a71dd7fb15f3dc80dae403d4f88acae28e2e51f2ca9d52b4aa4e2b3e58257e24d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 141,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "FnkV2WKkBfjQTW1klCcNiD_nWU6aIfe1dxV1D4147AcU8PuFqf5a7k5tEDROSxL5",
+            "y" : "HwBEHIv1Z_-E5u5CmLnTOSx4-zJGGVgQLh0p0vTEcyEEJCzEv-4iqo9KFyqlEKyI"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "c6af4eae5999e0d0658505cb4b395e9d73592a3d9d0b3c07caeb2bef1b03ca4d603b33e6f6bbd90f9416c4aa0022e584",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 142,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ZuH-iT9y_-peJOpaTw1lWP29MiLbpuM0B1PIKXmsWVMNvTf6wvUTVUZdVq_h3lgr",
+            "y" : "6sqRBK0mmw-EjYtNcRgq_DASkUc2mnQZPd9N2ztv8Sj5QWjOC8YOd5G0scouKUMb"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "9e364adcb72b15a42cbd6fa79114889e22b93b533b0119afd90914b181128151b8a17db49004ec39ad5db5603fb9711d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 143,
+          "comment" : "point with coordinate y = 1 in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Yuuqv_KgeoUq-aq4Em6TwxEJ6JPMYbNUpyoXRMtAmgLOxuYZWEWVelO96X3seofC",
+            "y" : "XqEbADppTjccK-HPXbW3-6J49paPVMX7ZneYe7trVd2QcugyWzZcJSYsUCT2iy5b"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "23104806dbd85f71d8fc38101b0cd0bbcd60331d8f74869f0643116ac362b5e933db8743ff80dfcc2df5cbcbf027185e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 144,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "J2paJ0tGoKNvgRz2S8emRNWtnBJL4AKm_dHMERiAZVyNKYdnTqSefXDSoK6CDRp9",
+            "y" : "TsO64t0dd68IL6vNaKwg8gno-kRkeHlCI74dY9cZh-lk5F8Lz2ouoKEsYzRFKFpG"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "283502355b21189f7361e89457550974f86ae2b66d025506899c15b390da248e14fd1b4f25c8584d1a71e7f8c93fa976",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 145,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "mP7jFM-zwBzC2f18JWgzYCeEAAi8-_yCkkIe1rByf6ILcAKlcmpoXUSWOtj3TGld",
+            "y" : "olpUK44LuaSFi-ZPcIANqTr2d2u3lbsWn0ydFReV86WjejyCJkz2hwxN7WhKcSab"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "9044be70566664ed91dab85aa5ff644d7a346810d2678d27751917c3820c4c825034b78a957b8fd1d47e86e67e5ba9f8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 146,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "0W0LEdCjJrsnJbPJzVmHRq8Rkk9hcs5TsZqUK5ZVYsKih1_RXOH0hpFW1c8IeAx0",
+            "y" : "1MSSfKF1tTJ8nzIc0qexrLWPzjURYNrqXVxk120406sX98FDIJOtTWIAU_b2dYZK"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "1fa4c8e6dec89088a8fe725530f5c154672e84488baaf70a08b2e96565962653577402161424294b7f377208fc936139",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 147,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "EFJuOwl6mepQe6Z5XqH3dxhpBGARe_rJ7ZW-4xHbX4oaJ2fBNLGds8OHoftFvnAp",
+            "y" : "MSx117vu7ki8FbVd-3FlEcVjTXGdJpA7ys4cYKjgMElhVtnMrJfKxyTgk1dK5LyD"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "04f4029d372332b4b226c9f32521ea39a58b655d24e35190ce04d58f0c04814be7f6ffcb8a4a15134224134f029eda9f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 148,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "5jLLIBKItkPyNVM8RIRrEaKHQO5BN6Is_39UIFTWM39GNjhJyDEOINiym63bMQn_",
+            "y" : "lI1CrpWcOuFD1PAtJocmvCtmuv7XZXsaU-I-7UgJTFyo0o0WEhqmI32BUK1sMmZV"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "f41f912165827cea27ab8147a46abeb30c1bc73cfe0520d7d8698df8f9529afe26eac707340f38b49ec5e741d646b9a7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 149,
+          "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "CIMwOAYTrbC45TFkmAn76jQO299ZivAo50ugtPGOLVARhTG5qSsHdTssE864fTyO",
+            "y" : "OOYltQD0ub0tx4GJL_-W2JJxkJ0-Vhpj5BVGfW1FXQpMGcNvFtzCQXo0JcKt2pA0"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "6e437e26316eb2596400d8fdda5be90caa94d62c425f27df5ca67898a8ffdf3cde577c4d2d66f6522498f0b295d77a2e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 150,
+          "comment" : "point with coordinate y = 1 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "2anR4KrK70rs8kHWkO5BAd9016N_GM4xgRKPjUJVzTRwKxfxFrJQbLj1d9k1fjYp",
+            "y" : "lm5i5vlcnreDPMwfIpVqHiWZqHX4E52aKzHiAAYRtNbbHSPn8NtbXBe7ROFQ6iaV"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "854772b9b77d4687571f1934061dbce0016d47b90a8b5d38229475c213cd5df25f960b775ae72909cccc5ba14dd03448",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 151,
+          "comment" : "point with coordinate y = 1 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "U10i85yKVZHnod7vemw0ll-10eYW8UuxKn5jENUgNQ8vdYNvnIGJ7EUD73SguFDU",
+            "y" : "q7BaseXGBhiE0e_z0r54x2dZuYbd5wVSqh6XvAFPMzwNWvi0bWHhrgZ3Ti-GJnMS"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "037d459a54fe6b69d893f4d3094a5e0a93251d5254cef5b022e7065fdf52e3be8127f2ae2e336e261a71f6e41aacb2e1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 152,
+          "comment" : "point with coordinate y = 1 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "iUAqFD1X7Fha7hJD06et-ofrgMYL0Jy7VrZOsKG39ZJzGNhXPGI5xv7qpY3Cri5A",
+            "y" : "1gUYmsSma9a55wi9vMxGR1Q8DdHTxkosFgwy9ynysV3ZWFLJsgdQhlHXdGOVpaSQ"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "e8d03dffead2e40ea915db4c9c67abb45aa60992422b70374239caf58b96f86716600c1cc4449362dc56ca057bfc5e5e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 153,
+          "comment" : "point with coordinate y = 1 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "wqnFKlk2kQwFxBRDFRJ79mLCkrjwaBgRwr-PT5zFvXq2k_fL3bVyTn4p3QI9FV_9",
+            "y" : "M16Lhyrht6kSk66cyPZU8F_0dn2yCLdsc7azTFYmUS5rqSvMk3ybzKlEfb7CL_EG"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "e820f997928a71186ce09b96923c317cc128cb761c87e97073a851610ca12f219937938789bd227a8d72b2b406c471fd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 154,
+          "comment" : "point with coordinate y = 1 in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "3NAiStIhncOvBe6l0nl0p1-xlg0Nchw58Qe_RTRiIJlOUgylpkZwHpMZzrCAF6MC",
+            "y" : "4LG-4pLNHLmfFF6tPRIoWQOx5Un8znWRoQGhZ1-5tuMOZ4A39NWNIgweNqTnn4g8"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "wXgdhsrCwFK35PSM70FcXBMwUvTlBDl-deTXzQyhSdoLSYi4pt7Vzq5LWAaRN2GH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KeucY6EjIs2Z3g6OPBHmyKSGsQCBgb5Mgl84s3Hm8D4pJs1g6anM1C4aqHmdLvOn",
+            "y" : "nQRfOj35dHQyaL5lD7r2jHBFpIMJPOLiiZAwlzlvBABY-qy3I-tJO1tjG8NlxfxJ"
+          },
+          "shared" : "0aed8ac7d04af070b73a03f37ef711296db8ac64bab13e15418df6373aad81d8e0fa789b9292933d7f11b8614076e074",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 155,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "B3pB1GBv-hRkeTx-X9x9mMudORAgLc0GvqTyQNNWbaa0CLuuUCZYDQLX5ccFAMgx",
+            "y" : "yZX3ygsMQoN9C76WAqn8mYUgtByFEVql92hMDtwRHqzCSr1r5LXSmLZfKGAKLx3x"
+          },
+          "shared" : "455aea9924330bd6d2d6403478327900e172e93598e254cf6d8eb13f0a3d21be51a46107333844e61dfa3d80df6928e9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 156,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "AAAAAP__________________________________________________________",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "r1HxihVijVYSyPcUQ275D5DVoLo1BU6ZxXRbsQ0L8xjMgsD38sEZ4Iox4_zKW5_j",
+            "y" : "HP-1ZchnGMWeHmpwpleQdon3OnET41__WWhh0-L67nCSm7E1dODhA1aUQgzXPgz1"
+          },
+          "shared" : "db1d8ef1117282870db8113aa4f58723c756ce598686eb8ea531aa4d39abb1b982b1e7bb2648a6c268d2d351204db8d5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 157,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "KEG02v8RPTdX_8rK2HpKdfBxGi_9I1Ke8fM_ynVmW0moqKzOVBOJSk0V6z20Hzcu",
+            "y" : "fEUl6RpTGNFxhPn_Up-j75atipUVVQ5YHC04kJz8TX7CWC202z4bd8IYFZDJ-rJJ"
+          },
+          "shared" : "e98062df47ef884c9411e16466af84ad271d586008b1fbc50aeb3b36836a35a770dd42e0db84d39b26f4dcd2dc03d90b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 158,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "f_______________________________________________________________",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "0T-b0MBbVsww9gEGpLjlAGk7nfBZac9HSU1dLBaFTvHYaSs-CbgJR_c1cQdhbdyz",
+            "y" : "uzx-gwbEb8OYxlIbZDRwwld02tg_r--1xkHP7K3sv5Sz1t1Zr3ruhqmJOQfWgZgU"
+          },
+          "shared" : "898aae0ebf1cb49fb6b1234d60f59006325421049a8a320820e1ad6af6593cdc2229a08c500aa55ca05999d12829db9c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 159,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "4-Jc2xYCCLZHTis01yv1hruhT3LD-X9RWkBdFCkZbmZzFht4rYCv5mTuUE1LFhq3",
+            "y" : "N3C2TVRCaVlZ-4nafrOnyvy6B50yAx32ITBJwcxQnj-RIMr43ZEJEV9AOFmsM3rM"
+          },
+          "shared" : "83f862f496ab8af12b82a8a0c047d836bdfa36281324b3a1eb2e9c1d46699d81cb125cbe4b93939fd84e1ae86d8a83cb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 160,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneezsGWrMxSlz",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "B53FZlEMxxj_NIeX4s_mfC_Ok79fbzm_dMGsPYy64--S3Zze36D1bQa6WRjXTZZC",
+            "y" : "WbJfZaJveEN2V7yBo3-Qd52ciI97e0oOydiqx3bbplXWC2KuM6470F8TKjA-lErc"
+          },
+          "shared" : "9a26894887a0342ca559a74a4d4a8e1d6b2084f02e1c65b3097121a9a9af047d8810fb945dc25bbf02222b3b625f1e0a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 161,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzcGWrMxSlz",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "2ul25L7jPfzrNGjph0zQ1HLI2rnst1ODT6Y4hMczqjhgc7sWNwblrLUAS13O1-XO",
+            "y" : "i6wBz6smj6QSpGD3AHV5Sl7eVsmhYPEzFzroaKJZGBYM1GuUHNy85AngsPTXAnsi"
+          },
+          "shared" : "8a8d9dc194a26910cbdae7908d185b6ad04b620c94c5ee331e584ed804e495bebc2290a2d7006a06e65b9bcace86c6f6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 162,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzkGWrMxSlz",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "pxs13OBdGmF3ZPsuJC1iunQshrE5I-iFZktg5Q8-VqRT6V9OFDYLwckAKqsdRacj",
+            "y" : "xpnhNP3vFVPuNWIOeUEOU2lr_U64di40Ngpn3K0L87rRj5Fg-PrGfoG7dGdJb7Gd"
+          },
+          "shared" : "d57f6aa12d3f07e8958499f249e52cfbe5be58482e146c5414dbbf984fc5333710350e2ce96b33beb7678381f40f1dcb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 163,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzsGWnMxSlz",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "uiITx61iuJVicr7rUdJYoqW-gE4OKe7RYaFiFu6J-4pFNGwthEOayBrDudZ1737O",
+            "y" : "VwJGw7uSeWHjgSMz76lMfW7Nu3EgoOE-uKYex9khVHElSl8-cfqiD_3cudv81_tk"
+          },
+          "shared" : "188e8041d9a5f0b6cfdad315ada4823beda0146774fad65b500e6ef94376ebf8af7a40ff6f6b45019a09dde7d7fb5552",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 164,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzsGWrMxSlZ",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "iNrpbcdquMsriNNj0fzuxqQ3PHHJA5mnzruyWgd5LEMU_N87yFZSdpws1Iu2Um6A",
+            "y" : "Qok3vbvwXLRErBLt_vNenzKaO7llj1ZjlYvs6zSe5zFee83A8ztVb4b55650Wmhl"
+          },
+          "shared" : "2ecf9dc47e8b07ae61ddbd1680ead02698e9e8469f78d5a28328e48d0c9d7a2ac787e50cba58cc44a32fb1235d2d7027",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 165,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzsGWrMxSlp",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "pmnFVjvWfuxnjSnW70_ehk83LZC3m56Ikx1cKSkSOMztjoWrUHv5GqnLLRMYZlj7",
+            "y" : "VndI1Rg-2GDdJvfCSg8TIgj-5qrz58POOv0ghzxI-lbWkn5p2313JmiHsJZIxd4i"
+          },
+          "shared" : "06ee9f55079d3d3c18c683ba33e0d2521be97c4fbf7917bf3b6287d58ffcde2df88842e3f5530b39549ac20974b1b60e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 166,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzsGWrMxSlw",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "B3pB1GBv-hRkeTx-X9x9mMudORAgLc0GvqTyQNNWbaa0CLuuUCZYDQLX5ccFAMgx",
+            "y" : "NmoINfTzvXyC9EFp_VYDZnrfS-N67qVaCJez8SPu4VI9tUKTG0otZ0mg16D10OIO"
+          },
+          "shared" : "455aea9924330bd6d2d6403478327900e172e93598e254cf6d8eb13f0a3d21be51a46107333844e61dfa3d80df6928e9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 167,
+          "comment" : "edge case private key",
+          "flags" : [
+            "AdditionChain"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "6d-qq4CLOqwczKfMYkKn7lgySa_o7o9muQTMjuw0rTNEVuAPM6lN6LUWnPAZlVDA",
+            "y" : "IBVullFzT_mZxfPqYrg9AIOmCT8jRFclHs9yxB5N986iQgtUVKf2kANDgLrJgeku"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "________________________________x2NNgfQ3Ld9YGg2ySLCneuzsGWrMxSlx",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "CNmZBXuj0tlpJgBFxVuX8IkCWVmm9DTWUdIH0Z-5bp5P4Ohuvg5k-FuWqcdSld9h",
+            "y" : "cX8OBaTkwxJIQBcgApJFi02KJ4pDkzvBb7GvoNqVS9mgArwVssYd0p6v4ZD1a_F_"
+          },
+          "shared" : "024c5281487216058270cd1cfe259e948310e4adc263a9edaa4da0bc3f5f8ce8ffc88ae41b2c050bf6dd9c8c66857237",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 168,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 169,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 170,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "__________________________________________7_____AAAAAAAAAAD____-"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 171,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "__________________________________________7_____AAAAAAAAAAD_____"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 172,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 173,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 174,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+            "y" : "__________________________________________7_____AAAAAAAAAAD____-"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 175,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+            "y" : "__________________________________________7_____AAAAAAAAAAD_____"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 176,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 177,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 178,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "__________________________________________7_____AAAAAAAAAAD____-"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 179,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD____-",
+            "y" : "__________________________________________7_____AAAAAAAAAAD_____"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 180,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD_____",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 181,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD_____",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 182,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD_____",
+            "y" : "__________________________________________7_____AAAAAAAAAAD____-"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 183,
+          "comment" : "point is not on curve",
+          "flags" : [
+            "InvalidCurveAttack"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "__________________________________________7_____AAAAAAAAAAD_____",
+            "y" : "__________________________________________7_____AAAAAAAAAAD_____"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "xsr7dOKlDILHpj0TKUv-oT0LxQS6KwijkskIG_OBXZ5E2WntfwX_0dhZQ1UFPGFH",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "XlPoNhRrUZZ-dcYjR7QUbnnAVhCsYYuV2aYULAsj-80-OvhlSto7v-gegKdXrBYj",
+            "y" : "2tXCeTqL3j6KR6vboyV-QccHR8iWe7WU4K9dO5f6EegvcfIpz0z_O1zIW12oCQ5w"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 184,
+          "comment" : "public point not on curve",
+          "flags" : [
+            "ModifiedPublicPoint",
+            "InvalidPublic"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ISGjSPl0OFWFnElvkdDzn-co_EbkjQB3EwUbIvHAJX_iDdhbId9-Hsgr-LObITii",
+            "y" : "rnT4DmJXd4-Myp8nm1fSXu6xVZYGQpcvBWfiBFFPCsHrHifbURUFMhGRSWHQlkTI"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "3kTmP9kk8Xc0DXgK9qquonH1LSy5pcUZtgIOBsPPC6r7wLgBxlCMLhSDsVz-96_C",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Zc5rnX5x6TG2_R-skQUHtDd6wV5FMpKiNV3zmrdByjYpe_bePDSlr7utNxgGuJHy",
+            "y" : "SwiLxdFGRqdPPvz-o54S4rX1brvdUD1ej-4_wwDXUJuqIrZo2_H9JBgHCrQKB9n2"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 185,
+          "comment" : "public point = (0,0)",
+          "flags" : [
+            "ModifiedPublicPoint",
+            "InvalidPublic"
+          ],
+          "public" : {
+            "crv" : "P-384",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "y" : "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "3kTmP9kk8Xc0DXgK9qquonH1LSy5pcUZtgIOBsPPC6r7wLgBxlCMLhSDsVz-96_C",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Zc5rnX5x6TG2_R-skQUHtDd6wV5FMpKiNV3zmrdByjYpe_bePDSlr7utNxgGuJHy",
+            "y" : "SwiLxdFGRqdPPvz-o54S4rX1brvdUD1ej-4_wwDXUJuqIrZo2_H9JBgHCrQKB9n2"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 186,
+          "comment" : "using secp256r1",
+          "flags" : [
+            "ModifiedGroup",
+            "InvalidPublic"
+          ],
+          "public" : {
+            "crv" : "P-256",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "y_ZgZZWj7lD5_OqieYwnQMglQFFrTlp9Nh_yTp3RU2Q",
+            "y" : "5UCLLmefnVMQ0faJOzbOFrSlB1CRdfy1KupTt4FVazk"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "3kTmP9kk8Xc0DXgK9qquonH1LSy5pcUZtgIOBsPPC6r7wLgBxlCMLhSDsVz-96_C",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Zc5rnX5x6TG2_R-skQUHtDd6wV5FMpKiNV3zmrdByjYpe_bePDSlr7utNxgGuJHy",
+            "y" : "SwiLxdFGRqdPPvz-o54S4rX1brvdUD1ej-4_wwDXUJuqIrZo2_H9JBgHCrQKB9n2"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 187,
+          "comment" : "using secp256k1",
+          "flags" : [
+            "ModifiedGroup",
+            "InvalidPublic"
+          ],
+          "public" : {
+            "crv" : "P-256K",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "oSY-dbh64JNwYP8UcvMw7lXN-PQynWKEqev7zIVsEWg",
+            "y" : "QiXnLL6_9B5U-28A4Rr-U6F5N77b8t94f475WE93WDg"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "3kTmP9kk8Xc0DXgK9qquonH1LSy5pcUZtgIOBsPPC6r7wLgBxlCMLhSDsVz-96_C",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Zc5rnX5x6TG2_R-skQUHtDd6wV5FMpKiNV3zmrdByjYpe_bePDSlr7utNxgGuJHy",
+            "y" : "SwiLxdFGRqdPPvz-o54S4rX1brvdUD1ej-4_wwDXUJuqIrZo2_H9JBgHCrQKB9n2"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 188,
+          "comment" : "Public key uses wrong curve: secp256r1",
+          "flags" : [
+            "WrongCurve"
+          ],
+          "public" : {
+            "crv" : "P-256",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "X6T6CyNcIeXJ87rqkwO_huzLfTHQuZjhQbxUtdxDsj4",
+            "y" : "73_Fz1YwjtWV7uma3mqvdNWRw9AKobQ4q8WclgfCLDY"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "1jMaWpaOTTvXM2pCO0EFW2jt0QC4uZjQDrntk4gcIeORK7LuCOcTJ74gWJhnXvek",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Lf93OogynmDUoGvzJrQTg6RSsTuMgHRexwG5xH4RThYRU4AmWcVyhAtW96p35FwW",
+            "y" : "LObo-hlEr8xFWhF_Id6Rz3sPPU6DoTziqqXlsLnvQzIqhN6zEXy3eEqG2KGGvLFb"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 189,
+          "comment" : "Public key uses wrong curve: secp521r1",
+          "flags" : [
+            "WrongCurve"
+          ],
+          "public" : {
+            "crv" : "P-521",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "AFvOYf4nxED-261H2IvM9kXbnB0w2qCG5ZLotqChc7h5kbYZgBkHtCD6VYx5U6uXut2cbB2FhZ2evvdEGgiP9X7V",
+            "y" : "AI12ON5wP6q-taeOg-j81Ot4YUSnXXm9TMjPqL5mYS11bHtlxn9yxqy63m8NWel1LoRSBbKlYNT41qnoS_gS-U0Y"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "1jMaWpaOTTvXM2pCO0EFW2jt0QC4uZjQDrntk4gcIeORK7LuCOcTJ74gWJhnXvek",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Lf93OogynmDUoGvzJrQTg6RSsTuMgHRexwG5xH4RThYRU4AmWcVyhAtW96p35FwW",
+            "y" : "LObo-hlEr8xFWhF_Id6Rz3sPPU6DoTziqqXlsLnvQzIqhN6zEXy3eEqG2KGGvLFb"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 190,
+          "comment" : "Public key uses wrong curve: secp256k1",
+          "flags" : [
+            "WrongCurve"
+          ],
+          "public" : {
+            "crv" : "P-256K",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "ppztEai_epB7-kfLozaPJJi0ZaJAfJBknI2iJNKoW_Q",
+            "y" : "Ra0t89ARPnKu3M-SumuFKe1vqhVLwnq6JfSTcZgeOzg"
+          },
+          "private" : {
+            "crv" : "P-384",
+            "d" : "1jMaWpaOTTvXM2pCO0EFW2jt0QC4uZjQDrntk4gcIeORK7LuCOcTJ74gWJhnXvek",
+            "kid" : "none",
+            "kty" : "EC",
+            "x" : "Lf93OogynmDUoGvzJrQTg6RSsTuMgHRexwG5xH4RThYRU4AmWcVyhAtW96p35FwW",
+            "y" : "LObo-hlEr8xFWhF_Id6Rz3sPPU6DoTziqqXlsLnvQzIqhN6zEXy3eEqG2KGGvLFb"
+          },
+          "shared" : "",
+          "result" : "invalid"
+        }
+      ]
+    }
+  ]
+}
