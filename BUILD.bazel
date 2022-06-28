@@ -1,3 +1,9 @@
+# Bouncy Castle tests
+load("//tools:build_defs.bzl", "accp_all_tests", "accp_tests", "bouncycastle_all_tests", "bouncycastle_tests", "conscrypt_all_tests", "conscrypt_tests", "spongycastle_all_tests", "spongycastle_tests")
+
+# WebCrypto Javascript tests
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_deps")
+
 testdata = [
     "//testvectors:all",
 ]
@@ -10,7 +16,9 @@ java_library(
         "java/com/google/security/wycheproof/EcUtil.java",
         "java/com/google/security/wycheproof/JsonUtil.java",
         "java/com/google/security/wycheproof/RandomUtil.java",
+        "java/com/google/security/wycheproof/TestResult.java",
         "java/com/google/security/wycheproof/TestUtil.java",
+        "java/com/google/security/wycheproof/TestVectors.java",
     ],
     deps = [
         "@com_google_code_gson_gson",
@@ -27,9 +35,6 @@ test_srcs = glob([
     "java/**/WycheproofRunner.java",
     "java/**/testcases/*Test.java",
 ])
-
-# Bouncy Castle tests
-load("//tools:build_defs.bzl", "bouncycastle_all_tests", "bouncycastle_tests")
 
 # Generates BouncyCastleAllTests_1_xx target for all available versions,
 # plus a BouncyCastleAllTests alias for latest stable.
@@ -94,9 +99,6 @@ java_test(
     deps = common_deps + ["@local//:bouncycastle_jar"],
 )
 
-# Spongy Castle tests
-load("//tools:build_defs.bzl", "spongycastle_all_tests", "spongycastle_tests")
-
 # Generates SpongyCastleAllTests_1_xx target for all available versions,
 # plus a SpongyCastleAllTests alias for latest stable.
 #
@@ -136,9 +138,6 @@ spongycastle_tests(
     deps = common_deps,
 )
 
-# Conscrypt tests
-load("//tools:build_defs.bzl", "conscrypt_all_tests", "conscrypt_tests")
-
 conscrypt_tests(
     size = "large",
     srcs = ["java/com/google/security/wycheproof/ConscryptTest.java"] + test_srcs,
@@ -154,9 +153,6 @@ conscrypt_all_tests(
     test_class = "com.google.security.wycheproof.ConscryptAllTests",
     deps = common_deps,
 )
-
-# Amazon Corretto Crypto Provider tests
-load("//tools:build_defs.bzl", "accp_all_tests", "accp_tests")
 
 accp_tests(
     size = "enormous",
@@ -225,9 +221,6 @@ java_test(
     data = testdata,
     deps = common_deps,
 )
-
-# WebCrypto Javascript tests
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_deps")
 
 closure_js_deps(
     name = "E2EDeps",

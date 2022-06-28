@@ -13,12 +13,24 @@
  */
 package com.google.security.wycheproof;
 
+import static com.google.common.truth.TruthJUnit.assume;
+
 import java.nio.ByteBuffer;
 import java.security.Provider;
 import java.security.Security;
 
 /** Test utilities */
 public class TestUtil {
+
+  public static void skipTest(String reason) {
+    // Skips a test for a given reason.
+    // This method never returns (i.e. in kotlin it would have return
+    // type Nothing). Java does not seem to allow an equivalent declaration.
+    // Hence a caller should generally call this function as
+    //    skipTest("some reason");
+    //    return;
+    assume().fail(reason);
+  }
 
   public static String bytesToHex(byte[] bytes) {
     // bytesToHex is used to convert output from Cipher.

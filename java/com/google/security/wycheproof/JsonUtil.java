@@ -46,6 +46,15 @@ public class JsonUtil {
     return elem.getAsJsonObject();
   }
 
+  public static JsonObject getTestVectorsV1(String filename) throws IOException {
+    // The directory where the test vectors are.
+    String testVectorsDir = "third_party/wycheproof/testvectors_v1/";
+    FileInputStream is = new FileInputStream(testVectorsDir + filename);
+    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
+    JsonElement elem = JsonParser.parseReader(reader);
+    return elem.getAsJsonObject();
+  }
+
   /** 
    * Converts a JsonElement into a byte array.
    * @param element a JsonElement containing an encoded byte array. 
