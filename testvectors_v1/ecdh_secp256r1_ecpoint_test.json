@@ -1,7 +1,8 @@
 {
   "algorithm" : "ECDH",
+  "schema" : "ecdh_ecpoint_test_schema.json",
   "generatorVersion" : "0.9rc5",
-  "numberOfTests" : 220,
+  "numberOfTests" : 355,
   "header" : [
     "Test vectors of type EcdhWebTest are intended for",
     "testing an ECDH implementations where the public key",
@@ -62,15 +63,14 @@
     "WrongCurve" : {
       "bugType" : "CONFIDENTIALITY",
       "description" : "The public key and private key use distinct curves. Implementations are expected to reject such parameters.",
-      "effect" : "Computing an ECDH key exchange with public and private keys can in the worst case lead to an invalid curve attack. Hence, it is important that ECDH implementations check the input parameters. The severity of such bugs is typically smaller if an implementation ensures that the point is on the curve and that the ECDH compuation is performed on the curve of the private key. Some of the test vectors with modified public key contain shared ECDH secrets, that were computed over the curve of the private key."
+      "effect" : "Computing an ECDH key exchange with public and private keys can in the worst case lead to an invalid curve attack. Hence, it is important that ECDH implementations check the input parameters. The severity of such bugs is typically smaller if an implementation ensures that the point is on the curve and that the ECDH computation is performed on the curve of the private key. Some of the test vectors with modified public key contain shared ECDH secrets, that were computed over the curve of the private key."
     }
   },
-  "schema" : "ecdh_ecpoint_test_schema.json",
   "testGroups" : [
     {
+      "type" : "EcdhEcpointTest",
       "curve" : "secp256r1",
       "encoding" : "ecpoint",
-      "type" : "EcdhEcpointTest",
       "tests" : [
         {
           "tcId" : 1,
@@ -97,7 +97,7 @@
         },
         {
           "tcId" : 3,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 0",
           "flags" : [
             "EdgeCaseSharedSecret"
           ],
@@ -108,183 +108,7 @@
         },
         {
           "tcId" : 4,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04c74d546f2fcc6dd392f85e5be167e358de908756b0c0bb01cb69d864ca083e1c93f959eece6e10ee11bd3934207d65ae28af68b092585a1509260eceb39b92ef",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "085ec5a4af40176b63189069aeffcb229c96d3e046e0283ed2f9dac21b15ad3c",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 5,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "0434fc9f1e7a094cd29598d1841fa9613dbe82313d633a51d63fb6eff074cc9b9a4ecfd9f258c5c4d4210b49751213a24c596982bd1d54e0445443f21ef15492a5",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "190c25f88ad9ae3a098e6cffe6fd0b1bea42114eb0cedd5868a45c5fe277dff3",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 6,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04d5c96efd1907fd48de2ad715acf82eae5c6690fe3efe16a78d61c68d3bfd10df03eac816b9e7b776192a3f5075887c0e225617505833ca997cda32fd0f673c5e",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "507442007322aa895340cba4abc2d730bfd0b16c2c79a46815f8780d2c55a2dd",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 7,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of shared secret",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04f475f503a770df72c45aedfe42c008f59aa57e72b232f26600bdd0353957cb20bdb8f6405b4918050a3549f44c07a8eba820cdce4ece699888c638df66f54f7c",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "5f177bfe19baaaee597e68b6a87a519e805e9d28a70cb72fd40f0fe5a754ba45",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 8,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 256",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "040f6d20c04261ecc3e92846acad48dc8ec5ee35ae0883f0d2ea71216906ee1c47c042689a996dd12830ae459382e94aac56b717af2e2080215f9e41949b1f52be",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "00000000000000000000000000000000ffffffffffffffffffffffffffffffff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 9,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 128",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "0438bf171cdbd4e2e7128528db43d80655b789e69e6ba1d36b62e4e59d8ecf4c51bbe3244e4fbf79f24512f30c4a605314749e2f20d858ec961060a2cab467013f",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "0000000000000000ffffffffffffffff0000000000000000fffffffffffffffd",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 10,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 64",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "046c03f055f710aea89341f0ef7a1c6d5c45a50923ce8adb33c2520f7881547748691f4dafcf6d5df8d9e6afda66ca81718bea8171abc87036a9c370385b60d969",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "00000000ffffffff00000000ffffffff00000000ffffffff00000000fffffffc",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 11,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 52",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04e9484e58f3331b66ffed6d90cb1c78065fa28cfba5c7dd4352013d3252ee4277bd7503b045a38b4b247b32c59593580f39e6abfa376c3dca20cf7f9cfb659e13",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 12,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 32",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "048d0086e678a0fe7b4ad7bd4f94a38267b9f9f1d2b82452db4cfb335595c26c55f78476a00a0153941da0b0b81c834682edc9fcc8bc21a7b5bacb460dbb566c19",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffe",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 13,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 8",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "043b18caef2cd982c3b58f258cb76daa029383f42c8f3f083493f42c915935243a260830b7d25b66378c5d25fb0cf23d32527a2cdb7f7d7e6c89ebea8277738ed8",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 14,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 2",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04e25ead8342888d1fbd2bd211e9db5bc761da9cfa1e805078b53606df9e5444403d3421fa70f940dba104d842034d2efec9332161ccfb654a8e9f2ec42fc1a837",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "5555555555555555555555555555555555555555555555555555555555555554",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 15,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 30",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04f3cb6754b7e2a86d064dfb9f903185aaa4c92b481c2c1a1ff276303bbc4183e49c318599b0984c3563df339311fe143a7d921ee75b755a52c6f804f897b809f7",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "7fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 16,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 51",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "048721294f9eb3ba69a13ae7d933fa51c48393fe1b9b9b17a08cecff2ee6ad434d2c23cd11d26694c472dda8cea4133bbc68e1f234bc7e8bffcea9446091855491",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "8000003ffffff0000007fffffe000000ffffffc000001ffffff8000003fffffc",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 17,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 62",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04a386ace573f87558a68ead2a20088e3fe928bdae9e109446f93a078c15741f0421261e6db2bf12106e4c6bf85b9581b4c0302a526222f90abc5a549206b11011",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "ff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 18,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 60",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "048e7b50f7d8c44d5d3496c43141a502f4a43f153d03ad43eda8e39597f1d477b8647f3da67969b7f989ff4addc393515af40c82085ce1f2ee195412c6f583774f",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "ffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 19,
-          "comment" : "x-coordinate of shared secret has a repeating bit-pattern of size 112",
-          "flags" : [
-            "EdgeCaseSharedSecret"
-          ],
-          "public" : "04c827fb930fd51d926086191b502af83abb5f717debc8de29897a3934b2571ca05990c0597b0b7a2e42febd56b13235d1d408d76ed2c93b3facf514d902f6910a",
-          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
-          "shared" : "ffffffff00000000000000ffffffffffffff00000000000000ffffffffffffff",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 20,
-          "comment" : "x-coordinate of shared secret is p-3",
+          "comment" : "shared secret has x-coordinate p-3",
           "flags" : [
             "EdgeCaseSharedSecret"
           ],
@@ -294,7 +118,447 @@
           "result" : "valid"
         },
         {
+          "tcId" : 5,
+          "comment" : "shared secret has x-coordinate 2**16 + 0",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "041b0e7437c33d379929430d3ec10df59bed7fe2a1d950c5791e1e9ddeef1f4d70fbdb0e3bbce63a27f27838c685207f2ccaf689d25eb622744db1168ac92619e8",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000000000000000000000000000000000000000000000000000000000010000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 6,
+          "comment" : "shared secret has x-coordinate 2**32 + 0",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0408d6148d0244d243b3d0d1777de6375fa7ebeab477f19915d05994db04df219727737d4f8ce0a7f390becce92b2bcd5c054f18ecb58e5dd59baf88b4ed6abea8",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000000000000000000000000000000000000000000000000000000100000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 7,
+          "comment" : "shared secret has x-coordinate 2**64 + 0",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "042424f9d7ba0a89ce3c7c1e8f15dfd83004d86680967a82cbf9bb6b11dae5fd72e05c3687187b1cf28438a17a7469fa3b094b7d6f36cccc3492c0b0a61fab2a38",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000000000000000000000000000000000000000000000010000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 8,
+          "comment" : "shared secret has x-coordinate 2**96 + 0",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "044c9695b7668434fc85769acb10f0edcf87a96b7d5dc347b46bb304b0b1d3267fcf5d993bff2a8c774808231a34f41b33667d8ebeafd00689fa3a9bfa05a40c1c",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000000000000000000000000000000000000001000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 9,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = -3",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04a492fe4b4908b6d675d687551f99c617e4e5c97aa266958953129eb381f0153b111b95c94fa1d1ecd1d41d2785c1db5195875ae98051732a59ba7720f9089af6",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "6522aed9ea48f2623b8eeae3e213b99da32e74c9421835804d374ce28fcca662",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 10,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 2",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04d5c96efd1907fd48de2ad715acf82eae5c6690fe3efe16a78d61c68d3bfd10df03eac816b9e7b776192a3f5075887c0e225617505833ca997cda32fd0f673c5e",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "507442007322aa895340cba4abc2d730bfd0b16c2c79a46815f8780d2c55a2dd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 11,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 5",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04c74d546f2fcc6dd392f85e5be167e358de908756b0c0bb01cb69d864ca083e1c93f959eece6e10ee11bd3934207d65ae28af68b092585a1509260eceb39b92ef",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "085ec5a4af40176b63189069aeffcb229c96d3e046e0283ed2f9dac21b15ad3c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 12,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 7",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0434fc9f1e7a094cd29598d1841fa9613dbe82313d633a51d63fb6eff074cc9b9a4ecfd9f258c5c4d4210b49751213a24c596982bd1d54e0445443f21ef15492a5",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "190c25f88ad9ae3a098e6cffe6fd0b1bea42114eb0cedd5868a45c5fe277dff3",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 13,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 8",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04f475f503a770df72c45aedfe42c008f59aa57e72b232f26600bdd0353957cb20bdb8f6405b4918050a3549f44c07a8eba820cdce4ece699888c638df66f54f7c",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "5f177bfe19baaaee597e68b6a87a519e805e9d28a70cb72fd40f0fe5a754ba45",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 14,
+          "comment" : "shared secret has x-coordinate that satisfies x**2 = 2**96 + 2",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04949304889050834006ecf11eba0e73f0dd2a5e77a5ea642a34a3f9989eda2d57384509cd42763c87cf460d1ad75664402986bb8cca0acdfc3685d2c9c7d32933",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "3476a8fa9c7448124aa945a2e1103eb91f95c7b4d91aaa1c35b8965191fc0fe0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 15,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04e25ead8342888d1fbd2bd211e9db5bc761da9cfa1e805078b53606df9e5444403d3421fa70f940dba104d842034d2efec9332161ccfb654a8e9f2ec42fc1a837",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "5555555555555555555555555555555555555555555555555555555555555554",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 16,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04cb32ab951d7581e7602c89320d91d7043e9dc56a10348d586a08d1870753152bf96bd53e7cfc2434dc61a09f8f4853e4c6dd49e786194ec0a988d0e8d29378b8",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 17,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 4",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "040b9d56422ed9c2082dd9d46d231fd0141f92e79f5a12da4c77c488c87363f944e6e3c2ec9779615f242bc30d1c28c1f984b8c252243f5f1eaa3d855e1cc2d8a6",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "3333333333333333333333333333333333333333333333333333333333333333",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 18,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 4",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "040507fabb16755f4885ae45b3d497822388f4e6a531de512c200480b4e56b892ab70746c1d8a20637eff17948e557a2b4da2562ba6b62991b426b7b3787a19693",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 19,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "043b18caef2cd982c3b58f258cb76daa029383f42c8f3f083493f42c915935243a260830b7d25b66378c5d25fb0cf23d32527a2cdb7f7d7e6c89ebea8277738ed8",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 20,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04123b1921231bee315e1ea66cb95318d6392f85695bbec03c334740ce7add768efec9a108770ff0eb448eee9f06367416d74b22a2f38157bb00d8c0be44ebf152",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0",
+          "result" : "valid"
+        },
+        {
           "tcId" : 21,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 16",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04924fb33985c8a687fc04c9dd05e531ca0e0223aa58d58351e922ef482043d30cf504745e769b6dcbefe404da37f717b3109d2af23450fcfe2f075c2dabbe7194",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00f9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 22,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 16",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0422495c6884937a1bc05871e9ee1a2c43f8f14db19ee60bd2d89c4293042f5a9452cea27e6fe574a00e5f15fe11aa54f54ebd8bde3aa41c80bf9d5f7b1dc6efec",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00feff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 23,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04f3cb6754b7e2a86d064dfb9f903185aaa4c92b481c2c1a1ff276303bbc4183e49c318599b0984c3563df339311fe143a7d921ee75b755a52c6f804f897b809f7",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "7fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 24,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04a8d93bebbaf25fa9a1f98c44b54dbf28634a5fd08402dba5d9e4873f8123da1db972d91a0eabadb630b271e6551b757d969301beddd11f82decdfbe4f9657f50",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "8000fffe0003fff8000fffe0003fff8000fffe0003fff8000fffe0003fff7ffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 25,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "048d0086e678a0fe7b4ad7bd4f94a38267b9f9f1d2b82452db4cfb335595c26c55f78476a00a0153941da0b0b81c834682edc9fcc8bc21a7b5bacb460dbb566c19",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 26,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0402a96834fe3b54d440003521f2355aea48d0bbc576473fecc6975100c589865263255764891ffc108cfe754af52a4362953955ddfadcf752637c11edeaa6a807",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffefffd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 27,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "048721294f9eb3ba69a13ae7d933fa51c48393fe1b9b9b17a08cecff2ee6ad434d2c23cd11d26694c472dda8cea4133bbc68e1f234bc7e8bffcea9446091855491",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "8000003ffffff0000007fffffe000000ffffffc000001ffffff8000003fffffc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 28,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "043e99ec3c58ac3898936e4a61182b198823c9992209f67bf5291aa354fceb2f1312952518636add666320c8b7fa631541d0ca50796dbff0c1e72f94718776bd60",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "7fffffe000000ffffffc000001ffffff8000003ffffff0000007fffffdfffffe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 29,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04e9484e58f3331b66ffed6d90cb1c78065fa28cfba5c7dd4352013d3252ee4277bd7503b045a38b4b247b32c59593580f39e6abfa376c3dca20cf7f9cfb659e13",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 30,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04eb6eb532fe4af2a5a275ab4e9f728ae64e9dbc08e9359091d75e5334a6e08db64c146339c05d1d5782ebeeb86d3eb5c63e9f99f17187c039666c5237b736e9cd",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "fffffc000000ffffffc000000ffffffc000000ffffffc000000ffffffbffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 31,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "048e7b50f7d8c44d5d3496c43141a502f4a43f153d03ad43eda8e39597f1d477b8647f3da67969b7f989ff4addc393515af40c82085ce1f2ee195412c6f583774f",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 32,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0440d4f4f6d9a41ab6ea90d46610b924ab15ed4f259fd09ddd41a707782fa9e203a5080a7e118a50c4b3d2c43dcbbf35c39e276a0a50b33a9ffbe7c9095055fc25",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000fffffffc0000000fffffffc0000000fffffffc0000000fffffffbfffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 33,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04a386ace573f87558a68ead2a20088e3fe928bdae9e109446f93a078c15741f0421261e6db2bf12106e4c6bf85b9581b4c0302a526222f90abc5a549206b11011",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 34,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04739b5c2189729b577ba1a467a1a0851c556b860f6b2016bcd50beb22ee9c0d7961ea43cf1ea7aad1a2360b0f37a74ca532dc8d1af26cdf89a87d93dcaa0c9564",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "00fffffffe00000003fffffff80000000fffffffe00000003fffffff80000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 35,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "046c03f055f710aea89341f0ef7a1c6d5c45a50923ce8adb33c2520f7881547748691f4dafcf6d5df8d9e6afda66ca81718bea8171abc87036a9c370385b60d969",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "00000000ffffffff00000000ffffffff00000000ffffffff00000000fffffffc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 36,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "048a3f60cfec64745bf625696f2fe4b6e4ce8208954f4fc4da21f87f9f7a2c3275b54d90851b39707586dc6cceccc5e50a1e4a955463107d1d87c8252df2110d6d",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 37,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04c827fb930fd51d926086191b502af83abb5f717debc8de29897a3934b2571ca05990c0597b0b7a2e42febd56b13235d1d408d76ed2c93b3facf514d902f6910a",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "ffffffff00000000000000ffffffffffffff00000000000000ffffffffffffff",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 38,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04fc85bfee056478a1717582accd11ed49009891cbda5fe40b9f4c1742e127db2c97033f5f6405acfa57553f1e375a13e8d6e3a1151958c709be508e0bac7804d6",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "00000000ffffffffffffff00000000000000ffffffffffffff00000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 39,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "0438bf171cdbd4e2e7128528db43d80655b789e69e6ba1d36b62e4e59d8ecf4c51bbe3244e4fbf79f24512f30c4a605314749e2f20d858ec961060a2cab467013f",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "0000000000000000ffffffffffffffff0000000000000000fffffffffffffffd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 40,
+          "comment" : "shared secret has x-coordinate with repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04249f4f517d7788d4622d762c4312101fba71fe2657f1f2c33c0613d2e21890b778f32da1b61ed9385cd52f5e7103f77b01b403fb6537a0c0e866195d0a448f34",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "7fffffffffffffff0000000000000000ffffffffffffffff0000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 41,
+          "comment" : "shared secret has an x-coordinate of approx p//3",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04e9c0af0bf6dadd8fbe04c5cf3fce80683a9c267b0dc9850cbc1bcdfeb744c3516efe878223dd9dd924e83e3ab22c9bf304129ab59c1f3d30fb58b8770bf9d9bf",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "5555555500000000555555555555555555555555aaaaaaaaaaaaaaaaaaaaaaab",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 42,
+          "comment" : "shared secret has an x-coordinate of approx p//5",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "042b29f482bc43559f70447584919df1e03706ee63c987b6f7499ae29ab01ca828a4bd05d61f596e01623a8e2076c013889fbb0f9937e475a00ddd75e6a992e776",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "3333333300000000333333333333333333333333666666666666666666666666",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 43,
+          "comment" : "shared secret has an x-coordinate of approx p//7",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "042766dc8e289fd27625d4765eb014aa54a44a7d5724050b9446e363071c260913aff9f1dc5e71b666501b24d70805cb8e1a01ee90ca84cb0c6f7ea453df85f520",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "249249246db6db6ddb6db6db6db6db6db6db6db7000000000000000000000000",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 44,
+          "comment" : "shared secret has an x-coordinate of approx p//9",
+          "flags" : [
+            "EdgeCaseSharedSecret"
+          ],
+          "public" : "04d33314f13a7fe8357bfd7a11799498e55bc782c6f434856d733b668e1d05448348dc5aae3f6431dd20c018f54b1d65fd1864ddfeea04ad7533971237c60ac0c7",
+          "private" : "0a0d622a47e48f6bc1038ace438c6f528aa00ad2bd1da5f13ee46bf5f633d71a",
+          "shared" : "1c71c71c5555555571c71c71c71c71c71c71c71c8e38e38e38e38e38e38e38e4",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 45,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -305,7 +569,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 22,
+          "tcId" : 46,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -316,7 +580,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 23,
+          "tcId" : 47,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -327,7 +591,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 24,
+          "tcId" : 48,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -338,7 +602,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 25,
+          "tcId" : 49,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -349,7 +613,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 26,
+          "tcId" : 50,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -360,7 +624,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 27,
+          "tcId" : 51,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -371,7 +635,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 28,
+          "tcId" : 52,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -382,7 +646,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 29,
+          "tcId" : 53,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -393,7 +657,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 30,
+          "tcId" : 54,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -404,7 +668,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 31,
+          "tcId" : 55,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -415,7 +679,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 32,
+          "tcId" : 56,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -426,7 +690,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 33,
+          "tcId" : 57,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -437,7 +701,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 34,
+          "tcId" : 58,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -448,7 +712,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 35,
+          "tcId" : 59,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -459,7 +723,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 36,
+          "tcId" : 60,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -470,7 +734,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 37,
+          "tcId" : 61,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -481,7 +745,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 38,
+          "tcId" : 62,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -492,7 +756,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 39,
+          "tcId" : 63,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -503,7 +767,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 40,
+          "tcId" : 64,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -514,7 +778,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 41,
+          "tcId" : 65,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseSharedSecret"
@@ -525,7 +789,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 42,
+          "tcId" : 66,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -536,7 +800,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 43,
+          "tcId" : 67,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -547,7 +811,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 44,
+          "tcId" : 68,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCaseEphemeralKey"
@@ -558,8 +822,8 @@
           "result" : "valid"
         },
         {
-          "tcId" : 45,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
+          "tcId" : 69,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 0",
           "flags" : [
             "EdgeCaseEphemeralKey"
           ],
@@ -569,184 +833,8 @@
           "result" : "valid"
         },
         {
-          "tcId" : 46,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04085ec5a4af40176b63189069aeffcb229c96d3e046e0283ed2f9dac21b15ad3c7859f97cb6e203f46bf3438f61282325e94e681b60b5669788aeb0655bf19d38",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "d874b55678d0a04d216c31b02f3ad1f30c92caaf168f34e3a743356d9276e993",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 47,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04190c25f88ad9ae3a098e6cffe6fd0b1bea42114eb0cedd5868a45c5fe277dff321b8342ef077bc6724112403eaee5a15b4c31a71589f02ded09cd99cc5db9c83",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "11a8582057463fc76fda3ab8087eb0a420b0d601bb3134165a369646931e52a6",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 48,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04507442007322aa895340cba4abc2d730bfd0b16c2c79a46815f8780d2c55a2dd4619d69f9940f51663aa12381bc7cf678bd1a72a49fbc11b0b69cb22d1af9f2d",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "4e173a80907f361fe5a5d335ba7685d5eba93e9dfc8d8fcdb1dcd2d2bde27507",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 49,
-          "comment" : "(x^2+a) is a small integer for the x-coordinate of ephemeral key",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "045f177bfe19baaaee597e68b6a87a519e805e9d28a70cb72fd40f0fe5a754ba4562ca1103f70a2006cd1f67f5f6a3580b29dc446abc90e0e910c1e05a9aa788cd",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "73220471ec8bad99a297db488a34a259f9bc891ffaf09922e6b5001f5df67018",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 50,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 256",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "0400000000000000000000000000000000ffffffffffffffffffffffffffffffff4f2b92b4c596a5a47f8b041d2dea6043021ac77b9a80b1343ac9d778f4f8f733",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "49ae50fe096a6cd26698b78356b2c8adf1f6a3490f14e364629f7a0639442509",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 51,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 128",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "040000000000000000ffffffffffffffff0000000000000000fffffffffffffffd137bd006820a8be23475ea25d8fa05c8ed47fca1236cd5d1f07667db6fcd2979",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "6c7b3006dccdb0b021f00307200793374419358b1367800ace76d988b10ff699",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 52,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 64",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "0400000000ffffffff00000000ffffffff00000000ffffffff00000000fffffffc4de9de6942e770033f5f1defbb36249e6bdf45a33e2ef4ec75a7ad880b5432c8",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "4060db7a9bf8ca17a5ffa614a85f9a25ed6f1854dc0f2396b9e8439ea8807a55",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 53,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 52",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff1582fa32e2d4a89dfcfb3d0b149f667dba3329490f4d64ee2ad586c0c9e8c508",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "06fa1059935e47a9fd667e13f469614eb257cc9a7e3fc599bfb92780d59b146d",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 54,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 32",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "040000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffe7ccb5c10c028f331230dd0a005e9faf37864c198c5bf7d91bdd71624520d4b04",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "ec90224ee61b2ed7cb6b9716e248aa099dbf1eae41d1ca477e8e5ba4a512913e",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 55,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 8",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "040f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f03425ba0d8a018b42861e816c79a17d3b47df8f5f7107c181168e9edc62cb3cf",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "ff6e930d08290769ef982bc568b0b45f88b7d5219b00667820793b3e824c1615",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 56,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 2",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "0455555555555555555555555555555555555555555555555555555555555555540a46712790e63f981f0103b2a609fa691c5291a17974eb0c3b518faac21535d6",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "be033e3db6216d3b3f9d66c96ca3b24475813ba8eb7820d7d6ff29c72fd39c64",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 57,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 30",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "047fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff2e2213caf03033e0fd0f7951154f6e6c3a9244a72faca65e9ce9eeb5c8e1cea9",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "55d0a203e22ffb523c8d2705060cee9d28308b51f184beefc518cff690bad346",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 58,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 51",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "048000003ffffff0000007fffffe000000ffffffc000001ffffff8000003fffffc0c3527bd081c1c07b313bc1a0c3f845fb2fe22557699ccc8f1354e61a27b7f88",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "967e55f853dad60f678bd35a46bd3c7dc6cf7d18526ac0890af80ade84461005",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 59,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 62",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04ff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff5df80fc6cae26b6c1952fbd00ed174ee1209d069335f5b48588e29e80b9191ad",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "f503ac65637e0f17cb4408961cb882c875e4c6ef7a548d2d52d8c2f681838c55",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 60,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 60",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04ffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff2c63650e6a5d332e2987dd09a79008e8faabbd37e49cb016bfb92c8cd0f5da77",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "e3c18e7d7377dc540bc45c08d389bdbe255fa80ca8faf1ef6b94d52049987d21",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 61,
-          "comment" : "x-coordinate of ephemeral key has a repeating bit-pattern of size 112",
-          "flags" : [
-            "EdgeCaseEphemeralKey"
-          ],
-          "public" : "04ffffffff00000000000000ffffffffffffff00000000000000ffffffffffffff7a116c964a4cd60668bf89cffe157714a3ce21b93b3ca607c8a5b93ac54ffc0a",
-          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
-          "shared" : "516d6d329b095a7c7e93b4023d4d05020c1445ef1ddcb3347b3a27d7d7f57265",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 62,
-          "comment" : "x-coordinate of ephemeral key is p-3",
+          "tcId" : 70,
+          "comment" : "ephemeral key has x-coordinate p-3",
           "flags" : [
             "EdgeCaseEphemeralKey"
           ],
@@ -756,216 +844,1624 @@
           "result" : "valid"
         },
         {
-          "tcId" : 63,
+          "tcId" : 71,
+          "comment" : "ephemeral key has x-coordinate 2**16 + 0",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04000000000000000000000000000000000000000000000000000000000001000073ca30641acabe581170b4d5253f7a342b039a87ab2447badad08ece2cf19f52",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "4cfd639fd80c84b935c33cfaacceeb256b2f7e273c3ae5f0ff92b74957376f22",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 72,
+          "comment" : "ephemeral key has x-coordinate 2**32 + 0",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "040000000000000000000000000000000000000000000000000000000100000000328bbc85099acc7685cf4bb5e18d72c57271615ccd46377bfacb0e8501aa76fb",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "581bb2ea633af1e59b15c1342d5e14adb58f613a231149f7df7a69c0eca95b2c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 73,
+          "comment" : "ephemeral key has x-coordinate 2**64 + 0",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04000000000000000000000000000000000000000000000001000000000000000010048b687675af9815297d73a7f25b1a3c42d33c64b466991a7573b4954aa0b0",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "9920473de58a319ebd87d57f4f6c09093c5e0072c01bc8df0dc60b8a7a684c6f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 74,
+          "comment" : "ephemeral key has x-coordinate 2**96 + 0",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0400000000000000000000000000000000000000010000000000000000000000007d12de58d54423eb85ae8d157ae416fb004a7eb522ac1b67047ef3cdf9acdc3f",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "d9cd0d10ed4d3dc01f4216d229e21c6a447227a5bc2592c359b2d689a2dee3a8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 75,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = -3",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "046522aed9ea48f2623b8eeae3e213b99da32e74c9421835804d374ce28fcca6622c7fda3c84b704f27ffc0b2ab350d8cbc33a34df0c811155ed4389d2710e3fa9",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "af8bc612853197a6ee8b4af7300c0bc623f0cf4e4b301f47d66c27e8ecce9268",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 76,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 2",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04507442007322aa895340cba4abc2d730bfd0b16c2c79a46815f8780d2c55a2dd4619d69f9940f51663aa12381bc7cf678bd1a72a49fbc11b0b69cb22d1af9f2d",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "4e173a80907f361fe5a5d335ba7685d5eba93e9dfc8d8fcdb1dcd2d2bde27507",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 77,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 5",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04085ec5a4af40176b63189069aeffcb229c96d3e046e0283ed2f9dac21b15ad3c7859f97cb6e203f46bf3438f61282325e94e681b60b5669788aeb0655bf19d38",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "d874b55678d0a04d216c31b02f3ad1f30c92caaf168f34e3a743356d9276e993",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 78,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 7",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04190c25f88ad9ae3a098e6cffe6fd0b1bea42114eb0cedd5868a45c5fe277dff321b8342ef077bc6724112403eaee5a15b4c31a71589f02ded09cd99cc5db9c83",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "11a8582057463fc76fda3ab8087eb0a420b0d601bb3134165a369646931e52a6",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 79,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 8",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "045f177bfe19baaaee597e68b6a87a519e805e9d28a70cb72fd40f0fe5a754ba4562ca1103f70a2006cd1f67f5f6a3580b29dc446abc90e0e910c1e05a9aa788cd",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "73220471ec8bad99a297db488a34a259f9bc891ffaf09922e6b5001f5df67018",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 80,
+          "comment" : "ephemeral key has x-coordinate that satisfies x**2 = 2**96 + 2",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "043476a8fa9c7448124aa945a2e1103eb91f95c7b4d91aaa1c35b8965191fc0fe04ddac138688df5123fa5760d670247893f9ad5cad5e88895a0ae7fdf97b8f412",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "f4e5f1757c8a03a3aec57b598b66a93bb356a6917e26b60489c0d06236ac6a37",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 81,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0455555555555555555555555555555555555555555555555555555555555555540a46712790e63f981f0103b2a609fa691c5291a17974eb0c3b518faac21535d6",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "be033e3db6216d3b3f9d66c96ca3b24475813ba8eb7820d7d6ff29c72fd39c64",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 82,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 2",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9389142d4676cee2332eb8909fa13f95f20cdb3acc831a231802a4858a973ca63",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "a0da0b184f59ab0fdc0a6b03157c1b75269b284608b74a6e826f77104c42a9bd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 83,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 4",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04333333333333333333333333333333333333333333333333333333333333333311489212aff79cbed5b6440161d57c98a34e6b80ec3854c3b2855af35f0d17e1",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "ac03527f79d801081da4c0adcbba92e983ed46254354fd98e23ab659ee02a6cd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 84,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 4",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc75552486fd8e6bc424492204207fece59d93fb124390497f841d9c808c8cc3ec",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "0d2759dae57c906a8cca8541a56f429a6ffedf028212f7f0ad06b696ee655caf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 85,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "040f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f03425ba0d8a018b42861e816c79a17d3b47df8f5f7107c181168e9edc62cb3cf",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "ff6e930d08290769ef982bc568b0b45f88b7d5219b00667820793b3e824c1615",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 86,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 8",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f017b41bf72c9f5ec204dba0deb5dfaa43b793a83b243060d0375b969e0416bd56",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "bd106c43e45272091553f476e015fbb0982764c018d5f0666834ae0dc5dca131",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 87,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 16",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00f918461138bca461c00fc474da0e4e35309be520e2e109e17a1cecb892b96598f6",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "b661d2bf35efdd264f32a3bb254cd6443e8115a297aba1d31610495d7c560dd5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 88,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 16",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00feff2d6c62a47883c5899cac06b1367c21948689d522674a60f43f4b808adf618b0b",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "e818ea3c65c24330b7b8894680fe349b17f450e9d878292f1390ead78085ed1f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 89,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "047fff0001fffc0007fff0001fffc0007fff0001fffc0007fff0001fffc0007fff2e2213caf03033e0fd0f7951154f6e6c3a9244a72faca65e9ce9eeb5c8e1cea9",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "55d0a203e22ffb523c8d2705060cee9d28308b51f184beefc518cff690bad346",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 90,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 30",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "048000fffe0003fff8000fffe0003fff8000fffe0003fff8000fffe0003fff7ffe1d3b684a87958143f250bf5a2f7859fd036620b4dc18dacd1d0c8c42eeb2e54a",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "50af11f10d130df5f9adcdd0103ff3d42808582487330932c2546022bf7c6a18",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 91,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "040000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffe7ccb5c10c028f331230dd0a005e9faf37864c198c5bf7d91bdd71624520d4b04",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "ec90224ee61b2ed7cb6b9716e248aa099dbf1eae41d1ca477e8e5ba4a512913e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 92,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 32",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000fffefffd620bbe0a621748ea2b0e0dfa463169e7c805412f4374dc9755c4db93989a7529",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "cf1acfa0595265623fbfee5d8498e609b6590760d1b04f31f3470cd1af3ba9dd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 93,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "048000003ffffff0000007fffffe000000ffffffc000001ffffff8000003fffffc0c3527bd081c1c07b313bc1a0c3f845fb2fe22557699ccc8f1354e61a27b7f88",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "967e55f853dad60f678bd35a46bd3c7dc6cf7d18526ac0890af80ade84461005",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 94,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 51",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "047fffffe000000ffffffc000001ffffff8000003ffffff0000007fffffdfffffe232aa1c67f77cfb00e73898cf431831073c6b2a4bfa1135881a0595720759ece",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "f21a20024d8315ae877f90af5b0c68b6a50214fea797942870c35f4ca127e591",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 95,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04000003ffffff0000003ffffff0000003ffffff0000003ffffff0000003ffffff1582fa32e2d4a89dfcfb3d0b149f667dba3329490f4d64ee2ad586c0c9e8c508",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "06fa1059935e47a9fd667e13f469614eb257cc9a7e3fc599bfb92780d59b146d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 96,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 52",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04fffffc000000ffffffc000000ffffffc000000ffffffc000000ffffffbffffff73f471909cfde3db2c13523bcf372877c28d23ed1ff6a3326df6bbc4b756723e",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "2e83d496538e7bd16b530d93b960317394b5f8b9da5128a03d08b3c8fbb46561",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 97,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ffff00000003fffffff00000003fffffff00000003fffffff00000003fffffff2c63650e6a5d332e2987dd09a79008e8faabbd37e49cb016bfb92c8cd0f5da77",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "e3c18e7d7377dc540bc45c08d389bdbe255fa80ca8faf1ef6b94d52049987d21",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 98,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 60",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "040000fffffffc0000000fffffffc0000000fffffffc0000000fffffffbfffffff71664ef90d87525ddf7815e676ae3b96c25ed9e7bdaa05da96227a1fe38c3d11",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "bc0a152832a8972bbeceb522e661e5249cc7455bf93cba324e810ab62a2e58c1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 99,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ff00000001fffffffc00000007fffffff00000001fffffffc00000007fffffff5df80fc6cae26b6c1952fbd00ed174ee1209d069335f5b48588e29e80b9191ad",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "f503ac65637e0f17cb4408961cb882c875e4c6ef7a548d2d52d8c2f681838c55",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 100,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 62",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0400fffffffe00000003fffffff80000000fffffffe00000003fffffff8000000007bc25fb4d2b4cd12a16515725d64cdbd5bc86b7f84ef005c9e51d0700a3a4b8",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "68e8765c71a63f3458e8edb2e52f499a1de13ae1ff1c95f18c4adad9d898667a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 101,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0400000000ffffffff00000000ffffffff00000000ffffffff00000000fffffffc4de9de6942e770033f5f1defbb36249e6bdf45a33e2ef4ec75a7ad880b5432c8",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "4060db7a9bf8ca17a5ffa614a85f9a25ed6f1854dc0f2396b9e8439ea8807a55",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 102,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 64",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000462e0f7377a81a3a47a28e62dd8105687e457496c61fdce49ba1aaeefcf10b44",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "9e6b02ef374c5b7c8d1021d1e0520ef5f6e3cb7e454d6630bd270decc0343f1e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 103,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04ffffffff00000000000000ffffffffffffff00000000000000ffffffffffffff7a116c964a4cd60668bf89cffe157714a3ce21b93b3ca607c8a5b93ac54ffc0a",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "516d6d329b095a7c7e93b4023d4d05020c1445ef1ddcb3347b3a27d7d7f57265",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 104,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 112",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "0400000000ffffffffffffff00000000000000ffffffffffffff0000000000000012a69aaa5d3ac4cee07592ea0989dd9f426a0e4d16807b6c6d04baa628a659c0",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "e7e84fa13b2c443d0a5c3ea60cf87e772c7faf9f18ef5a0d77113dd6c92c8d17",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 105,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "040000000000000000ffffffffffffffff0000000000000000fffffffffffffffd137bd006820a8be23475ea25d8fa05c8ed47fca1236cd5d1f07667db6fcd2979",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "6c7b3006dccdb0b021f00307200793374419358b1367800ace76d988b10ff699",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 106,
+          "comment" : "ephemeral key has x-coordinate with repeating bit-pattern of size 128",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "047fffffffffffffff0000000000000000ffffffffffffffff0000000000000000322a5313a994312a3f047d5a9c6cdeda173f1d3b35143b3b1a594f7dbe544d0e",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "b522e81a22720c57040f2e02781728577cb5603ea280be7a1c84750e33d7c963",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 107,
+          "comment" : "ephemeral key has an x-coordinate of approx p//3",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "045555555500000000555555555555555555555555aaaaaaaaaaaaaaaaaaaaaaab79dfbfa5e66fbea30e75ecc703e65db43e027416c01f6e20fe129be0e43457d8",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "f9ee8b2b668e2a76ed66dfc57006b6403ef8e388c066a0b0493ee0425f8dbe3e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 108,
+          "comment" : "ephemeral key has an x-coordinate of approx p//5",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04333333330000000033333333333333333333333366666666666666666666666610a4ea9bc365e1b224b173e9fd688a5234932ec90a5cb9ecc0a22a109927e73b",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "1b78098993807e9df54800e2c0f836ea1c4604f7b3c9401311784f69ac4657bb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 109,
+          "comment" : "ephemeral key has an x-coordinate of approx p//7",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "04249249246db6db6ddb6db6db6db6db6db6db6db70000000000000000000000005ebbe906d14cfa3e7e90d397973f093a6c678a23bcb2896189ffece5a1ca398e",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "7ee2972f263079a49b5bfc664bcf42c2573af3514340e8e726e08881aa2d33b1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 110,
+          "comment" : "ephemeral key has an x-coordinate of approx p//9",
+          "flags" : [
+            "EdgeCaseEphemeralKey"
+          ],
+          "public" : "041c71c71c5555555571c71c71c71c71c71c71c71c8e38e38e38e38e38e38e38e46ef488581fbbd6b4ef78d03cdd161272243fdcc10979fd8e8fd199b98a63d378",
+          "private" : "55d55f11bb8da1ea318bca7266f0376662441ea87270aa2077f1b770c4854a48",
+          "shared" : "7b5020080ce9bd76083ff132dc28ea996314be1a4ac21f987fbbe859f902fab1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 111,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04851eb1b8699d1cc01c6b6048139797dab3981c924f9ef81bd1f464c3182c870901285b2ae7cbcabfd5bccb9441eb3376b491595f60a1ec21dbe9f972bc32abbe",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "6d03fef6b354840f4642fba1c8fce9f7d1cda8ae27b6ca01510fb44573fdaffb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 112,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04f576e22747f6c77a8f685a7a7b527363e0fe7d351a9e3f5923fff2bf97e91af41e575d400331cfc9f97180d8a48c418c5a982609fab88937d2590bfdaf37d6a4",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "98009cee0e8ea4fb42dfb70a5ada46ece32e2885a4f9c3a6afba13e82f87e113",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 113,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04310785fa42c37bd200781d70e3859b39b2fa1d286a3b6c4f605a41e045634b81b8d32564a7a232c5d47407a7795c01eda819f23a5a190149eb8c9abf94ed7c49",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "e8f0e427cc30ae50197d2bbf3a451667a470797d5abe55ff1b1d6de88e41372c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 114,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0481bfb55b010b1bdf08b8d9d8590087aa278e28febff3b05632eeff09011c5579732d0e65267ea28b7af8cfcb148936c2af8664cbb4f04e188148a1457400c2a7",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "b485f3364354b738dc5402729b880c90c502d9ab52ccf81e3d21602c7b9bd909",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 115,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0402495ac9f43e45aae30d3366e351cc08828cf3e11cc3b7209fbd1730c4a14f4e4aaa98dbe0d94caa44538fcf7949eb44debb7bcd228a54d9cd9b3c2eddf94611",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e5781ddaf18dcfc33f4879a2660b7a32a599fc32ea5a1beb28a48caa3e6ec7b7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 116,
+          "comment" : "edge case for computation of x with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04efe7754ed4c0b3c1dd301bc1ed69800aa2ff5d51fb85937715e60d2e7bcada8e4ea7e547a04c3869106b56245c27da9737b9e8160c05fb0d86040276708fb9fb",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "b5a0ec92aecc3010d27d2263d3da66e3d2f3395d23947024a3f4744454622027",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 117,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0466aeda76d73983caf2de921af389268ceffd278fb9eccf928702b1f4271b43f1d646d6cf8bc11a0ef97cd64c08a11f72f94af4e6b3c9870b8eb3a5b036c04fb8",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "8462e9df7960ece33089e5a98d61da4faaf3660f93d75f7cc5e397b64cd1591d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 118,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04f483602787972cf7b7582d8e2f2c7998e537ca57eba69718b68d96240f035b1b55dcb4f7be7b79c469ba8a0b104900d7053ffcac04f394be925fe0cff2e969c3",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "d44d05d246e61892c1056e28865f60574dbeb6be62680776a537b0b2c3e6b4dc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 119,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04579be77fa6698c4baf0132d2f7993ed76dfd36d78b584605e1be024595e3ad51c069473e1b25fd94a42b68ccb3004a851593a3af78f922d90920d8a877c365f3",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "0550ab2f9500b8580dad07073506da9b2db71bd974a85f81dfd148e260bc8ec1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 120,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "047f8128d883be31873efedab699206f889b776be270e163df43035409fa5215f1f36c3581f8f8d569a4323f8700ca09792150421521e2ef0a96ae9a4caed0e02c",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "1312f05b3e5cae60f27c9485cfd00584cce3f961fee2fdf103c32a79ba17ffbb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 121,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04ee5d94bfb5db9cfe511a3aa70bafc93db93107383c12f5bebffd90c621a2051db4fce13261d54ab29c3c699b77358edb54c71801f3fe2a0d5cdf2ee3f184b4d6",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "be4792922519717e235366d64709c51b027d440c6fb8c216fbd92498aaf71277",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 122,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "040ec4f8845226e864c088505d721a2155190d4caa9a1f5a3f0afdf2ff49cf6d8bad01fd3808aa03442cf5396e10e13efd24cbd5a52862822eb62dfd27b5040600",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "05a2ed58207e0d6a99f37a6da640f8b3b1acaf0c16826bc4fd1eb1e2a6a1534c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 123,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "043107892f3427842c8d6aa60afb1d3b1441e28a67f10e1198a07265125bbda7e2ca9d6df758904f2207cddb862806af0b8cb66ad72b161b4dc959acf614fc2f90",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "def48de01d86d7260e5c2a6439068542437a20b140dcd45623dd1ec0d1394742",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 124,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0409e5c414b7f5073858553b8b8b4295488e3f3ab966581f240a6124251512270f8fc12563fb9bd6f97b445417cfb14cf9944bac1a26c176b532b698ea8c1bed6f",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "c06f7373e67ee8c64dd86127fff8b2d23d284420d30e571a79fbb9b54aa70dfe",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 125,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04f93b07969211cafc1a30c5c578c8bf35be63a04daa2ba434da8b5e4b83769ef554b022e4f7f406bc93e71a8719ad0ccc392755ceb274e248829a72540e95f169",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "7a966ea1fd7c32b1fe01eb14b50d835d92c31f0a4204517aea66939e7106cc1c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 126,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04513609657f902924e921dab1411685316b41d2bfc0be53d1de49db9c1ca78e55141d36501aac4b47dbf24fad43e47bac111596c05f66ef69258ddf0227e8e7ad",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "27347a05a945862499ce29fa7f6e4b2c496b6984b3936db3da2a5b82c4fe6302",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 127,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0493ebaf5ecc0aa486e7e735130611ab5b165fe395a4f1ea8f82097ce422f44202ae855c1eb4c334f53b87e426801a0376837db2c86137522894ef6d9d69520163",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "4f04382598f2288f95fda3657d5e517b5f8885f2257d12b3efabb624ad5d2626",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 128,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0411fd00b18efc4efa07e87878b5df2e7a596f93b950e50e9adda40d4e6ac854c0cc47edcf533fe03a614c03a709c9d0c0cf8dbfd4e2140b5b2df23848b49548c2",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "3b50f822d5c9311735fdb358e8c6fb2e4aa695656d75f84f151cbbdc40f7f259",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 129,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04501a72044f83c517316628b0bc9d89ab82131bc12df36c7a42b952d5bc23c85182ba2906e104dd0a7eed7b0b1772e12b3b3b7f40a2df049174fab09a02a1a5bf",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "ac45cd4afa8a5e4e4a0e3f60e7bfea0b759875781aa7722750022e02b66e1303",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 130,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "041f3d7d05b846eab4dac4db695a441f194c226821f5429f66aba4ae0e6ba5b90400334b91fd4073d1b7c354bd62f6bced7cdbbbd7c2d392b03ac1fe52df084069",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "8682d123138dbb4dc40451478b078596e5b19c8b1b5c68c2a8a3b046873bfe6e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 131,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0411ccde06e8de88d192897fd0f7bb5896553a524df319e4594a55623bc76462e122a170de0b9442314a947fbf5e035880b562ef88e3ac98594f48abc63741337b",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "246a119990f295924b62b290e591f428054c2d34314c54ee50dd3d85ed5516be",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 132,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04594b085272f89fae6813fd3944baddbb9f2b18236273cdabf3e607a73714a252956035b2531b98fdafa63ee7e72752ef03caa9ebbb1697a18e6d31e149485e5d",
+          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
+          "shared" : "343c4a2c74e9416b07c855c2ec5ab053e11b51c47389d8455d6175e24f513717",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 133,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "048238f048c292e08d49bdb5dab1f08da6d39cdbefb1d75e03e76048b903d6baf9c761b25afbf041e0e65eb9e013c336fbfc364134355fd10a86c258de3e19a857",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "81fa8ca50ac155200de410dfdfd8093037674baba7ca102828a5d0026f24f0f5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 134,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "042d08cf1230463b7102e8a54185986a62a3f2520c0c151ace12f5d073a40cbb2fecb8c2ed0a722185e987cf7c32acc42133f6ddb7230ea48dc0f7c6b5a43a4c0f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "151411c3b8e6d25c515186c1d9b9c6e1a05da5a7f09cd4ea8844e0916846ba48",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 135,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04bcd1f2a75eee0baf7e0f55bbb1c876966d9d5d21f02a145ac9668491e4ca5e511c5be74b4082596f2c6cdbdb6cc9083895f333cee8075c2650963e7e727906e6",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "f72d64d6b5e38ae223c77ad3467818f8b03b9535011400157a5f426c4a512fa1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 136,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "044700bc548e9d6256ece382112b93f8780fd2e427f690c35bf31f682284119c725ea408d7fc6599bd2b0e754f9de166ea47a4e48b14925fa7bb635ef09642af05",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "108a89a0bc8e1b85981fe4853a86a42648ccbe6855dda1079136db8c59fc2065",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 137,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04a0b351864a8c47ba445634bc107fed06451f97391c55921db61e74ca527a6a45fab27b1896d52df4611f627414c48ba7a131766002d5523ff883a499769a422b",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "7d362a6e1f00e525fbf012fcc9da98e09ddc281c143f1e023fac6a6b6303341f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 138,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "041350cac374bb076ee89eb8af43d076afc7312021006431fd909d22df064f6637244f236a65e7c1c778f6cac2d9b4ec3bd999ac185797a227cf00552d6aa5163a",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "1de1656d961de1f584a2f7179bd3be3b4a282cbd3248f29e74b73a812cad8d90",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 139,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04c185508f464f67aacc24fa859e744fe57c3ecef2fa911c16dd2cbd073b308aaa8fef47dcef6b0fba6205f0b7e23d17758f1df5401cd9a39de42b07b92d153625",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "56ae038f61abb293f43328a5e6e40bdf73f9e7d5868e5bf1af3b03fafa559e86",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 140,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04dccff194a9d307b5900a13f2d7a192f6e82845af1007c951b5b9720bff98d0a028fb8ba9238ad537e0d7f31444086611430abaea547913a0591dd908ecd864b5",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c75eb0a2cd617f0117f1d9adc1056a0252a0cca0b64b373bb30d5231380415ca",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 141,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "040cb05cb7a4b01db1382620ca756285e1a7c6846bbb595cbbac9f89e0a62489cca88829c95f6b2e8187d2e1c3a744f41d3ebc98fa01748b1248462b350256a5e8",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "010385fdf7f4c6402ae432e4b2f11f2f861c75c4dd27b4f35b7f1efa94bbeecf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 142,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04f95894cfe4f14ccc483adf9cdf106709e3eca5ceb20e7c145d3bf18b6aeaa8039c42c0c8c3db57e0bbb2593ebe088771ebd0e2857fc2a877c3748adacd038542",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "af116b172237915370625d3ca7360a6b6d651c573031ac33c0ce4b72a9427a7c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 143,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0416a8b93a6b9529b5920566131a792c554ac421af3a4bfc341408d14ddc8971c5f60ea4663449bf3ec747481d730c4d97a1565b5bb207e27e55aec88969f2023e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "10c3a41e0a1d0018444bbc3bcf76b2893f66b69cfb046255c82a17ffa3413246",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 144,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "047d9c0f7a011de080da8e6e225f7211e729c29425c9dc9a289d5cf8a0f63589aa129b3bfcb433ff084409e32f73741e592913003367123b3e6ec4b7fc398d1b29",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "2695b4e4a5c648ec17905e69286b6d4935a21772f5ded1e55136cf17331de9d5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 145,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04fea54580f4096299c17c281a3fcf6738226b636c85e8efd360a4413848b07881fd47181ae8c3ad8948f65d8c845a863b2f86a6ce8aa37a5e5c20d3e96fc9c884",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "a6f648ff3373f9433a21a38829a5667ccc2b1bcd3de13516537d6d9b77c04044",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 146,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0408beacc04ac27e3839ce74d515d238aa98e1aa1b5e580fc5fae0116e520d880cba0585f723c44f243813b07e2d7626605ee5861523d1ac075479da773efe026e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e1db68841b6000deba2e9a666ab2cd227fd9f33f69187b611dafec0d6c9b6e7e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 147,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "048cc2807089ccab7bdfbf1697f153d4eea63f3043ce63135f6b906f8235f76bf99ebdb2c26b09f49b122d1ac73a8ba37ce9c385c0269c4e40ac3a9c20314a4437",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "36648fd5e125abe08ae21199d08eb78eb7e345a1fb3b26e5fd25d3c1e96e3bb5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 148,
+          "comment" : "edge case for computation of x with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04e854fed884e6c76277af9d8dc83df66b81478a8ffff2c313f22abf0f8d4442f50f57244419b2075ce2b282440944213d87c50f58b9e7b71765d45fcad152b333",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "418df7a1a6315f55104b5b9f96da454725f59992c588a531e80a4744b8d7d4b8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 149,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04c1f319279a7bae9f3dc527c42308a7a6255763cccd6f24d266e75f88eb4d022f6b3a3cf14ed3b5e6915ff322b705b175da07223cff4e9ad4520dec7028e1e396",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "32dda9876dcac25c58543304a2cf6c1b31fdabf3c89e43d6eee628a02422b19c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 150,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "044753ee2e3ac201e9a4bf25e31513a45365b5d0526dcb2e0a88736fc8ae2681c1cc49b1e868d4de224593ec7e00e9f2c209f3b935428d3bfa978f74869af889e2",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "4c54d63b14b8ff10b653f663f3230c1827d682c833ead1f44ad6ae8e7df35e2d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 151,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0429c1e774c9d3a8930df8a663fadc8b9a6092d8054ff37adf598edd78d0a3ffc57173a3594be68b7ad191e0ff27d79eb4e7bb22f1090873cf307cd073b27368fc",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "4df3a98474884b1c3c78b6c81e4f90d53d8bb4daba4227c411a5747e6aac8cb8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 152,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04893cb0c308aaa2092d9af93e0f02cd951ec386e866480eece443cc89e672733ff6c6f43caa1e1d168ba3ead9ea041cf4f227d76b90e9e25f497f2ece8935512b",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "d2aa087051fbdc35051d21ff415f934ab5698629abde5d4b39f2f6a76e3992cf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 153,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04c5a2dc340e0983aad4f895bf54be9d9e176d6ba1ba6c859ca0851889a97b7dc5c90dab79207b861fd996429639cd8f31be0298b63f4934923a483a9e6f7c5ab9",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "ac7c60651653a4f3d4478ebb9aec4381183ffe1b152b6643c07c47c0b2a489cd",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 154,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04e9db2cf8037505fd8a8044f4b3f80f67f9688815c69c788ddb26fcb3c84cb8adf02e121e4020424c6d8f1d269c00f2a7f23a59237fb48a5ba17ee57c1c264282",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "509d06dc43813dba9114c13c337bdc0bccc2c7dfa7a7d8960e5593c52849c855",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 155,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04776aef1acb82b628e132cc29440988f0a15d4cc2b4f328aecb063c9b86e5018e91bb2038fbbb05573b1c943de8bae0853d6a934d4d164429aa145d68e9c2e0cb",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "28a88b6b258f233020ba6fa9c00d1d72831f4515b86966a9782f521315e18aa7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 156,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "049ec06b0b08662c0e1dd9111696a63a1601cc83cee20695778adf84d43064fc90ea9ffe0e7b32c3e30e5f7809d9acc49a8da7b77742c2a3d3660f1cee1dd4be19",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c4ff865ff3dc4953ea78d92a02f3345a53bdb6050cfd8f41baa4395ecb6acab8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 157,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04fa51d128adc2000f09ff12c6fd8e25aa08556d708bf6b0ffff9e8eaad4783f0d1dd40ad51ae91e0ab471f2f6067052b1afe96a57cf5e4ddf899a6258f81c332f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "de1069f051637e10166559cef44688afc809341855261215c4f381d9d7da76ca",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 158,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04614dcfbea4789a3f3eb4a8e2f111c887f0248d9316b99d0864c927a045d69417ac5f8c4001f7b6e67faf5b2692f745b86f51e725c1080f15330a631ef6a503ab",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "4207bf4159faa0e50ed238b9c0ff46194a539a1ba03a5a4c8d68f369aecd31a5",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 159,
+          "comment" : "edge case for computation of x with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "048321763f5533310a4779e83a58ff110480394690f7c2f65fc229c1a58ffbddc86d170141a108fc92f2bb96ddcea0652cb650c5e863af9289d37ae87a29022d9f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "7c8e29caa01e9f325e1e70d71a59850749239adf4e1b8fa5d6d0abd70c83afb7",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 160,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04aa42c977da1ed42e52041c0af2c090f244b22ae354cc9b10781e44c89eebe336f7100a0eac8b55513ce57a8d0c195adcf50d1b05fd35b0576cd92805cbab4c1f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "98afbf6e00eb004c79657b40b7105f8526b5205942af2218f453bc26337306be",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 161,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "040730d77d9114d5610d49a98dc196ca9e1e8fd2abe007da96b574f736bf1939258c8814055a774f7e79f7b4fb9cfb03d839566afc6059311f3d55d49ca4ddab31",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c537409021ad95646fbccf9232ea47fa764d12db7595f436a65ad5b13cdd19f8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 162,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0485a82fabb60c7664e2500c59d0f24eac1aab0060c07b49828c55009fd27aa49647b85f72b467bfa2fe1b13258feb121aee75a3155b30e8b4b566b610f13b6dc5",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "ad60146b1cf2d9661884b9ef867cbb09e42466563936b03174efd8517ca8c6e0",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 163,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04833f2a6e5c76c3ddd13a106cee4aa8b2a9dc32e0bd7bbe2a6322abe0ab4110a2ab93845403808a7cc8e8b65fa42da414327ec3a19d539fc033ba8d8aae7cb23f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "f677a03d68570cf6083a1ba415b40b5f7ffdace4eeb804983cbd03b979d939b2",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 164,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04cf8116ba0901b0b95308bc686fed90ceba0e5d424c8ec206cab8d7cffe93fba2d5e7a62cdeab84a20fce37b5b0ac168ca2a85a1d18cb04ee48deb250b54691aa",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "30c9fb67a3db93a4b3a54135d265171a14a2a0a79cd715e13515510793d8d081",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 165,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04e754cdf8e56944d5bd36d025b1c0f5fb2754a2eee0fb5200bd169cdfc83f07c38f2b7881de647c2c66294e1adf767e515adda742d3a863f0cdd6665b964e60a3",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "8451f3414247058c32b53be128cffd2f2887434ab902b67b05fbbe7aeed8cbd1",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 166,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0474f1feb9a641fd87a49e16fbb1be363297ef971213bc7d36b6abbf29d0e88ac34b6c246b313be6c3c9f33defd4ade947af547168f7c22278df8cb7b06a8018c5",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "dd6bf055a9e431479707e64590fc58f97ad3238d063ce8f66d5d37b2e3475638",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 167,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "049368066a0748867a7b870244f5c9f82ea8bd51552959dd550bb7394497159a5dbf89b521e51db372c0bcd11fee41682cecf8e702f5956f1274efee4dfcb2f65f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "4529f4b631c9984ab216a6801281fc4fd8731a58b65ca8d07bff07811116371f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 168,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0464e5d7b0f7fcf4c9c16156cb8745c43995f823e7e10954131e61f9fa09059e2c2f7a39dd0dc6e8a9bb7cc79d821e7c749963dd97c7070129db638c0dd1ba053a",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "12aeb42630e4885a93cac090c66479d011a1fdfaa46c0db33e0fd51e1e573cd8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 169,
+          "comment" : "edge case for computation of x with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "043da0655a52e3d6857a39faef864cee42f1816bd8d83af8c657990846821f00228f76d10162e295fd7737d0d22fafbab24d5db0ff432b51354030e1fb09273c51",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "ad8deae400ae52dfc8d5ecd3518d78c789b3ec88cc1ec7719081a066def26c4e",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 170,
+          "comment" : "edge case for computation of y with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0442e831d5dfd2b9f5387263cd686ee03dfa235cbc07f6f3a87a7e8150556362b32be47f8e3011572855ca487ffb594f7722ef9fc3292902a23146c19bbf6da76a",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e6d3991eecb1a4b78aa700ea56934a38785b3662c59766e2ee5b157f77ecbb7c",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 171,
+          "comment" : "edge case for computation of y with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "041321838efd80e1dd8e4d0d95d17895c7dc60303a5c234182b592d9d21ef14752a44eaf3394c63708763f3b97b2d2863fd3b77ebda44862c7c23daaa437d5fe59",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "99bfe73eaba2599e79307488047236de003e9fd26f5ff1dbef62b3fec75fd612",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 172,
+          "comment" : "edge case for computation of y with projective coordinates",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "042407bb2cef161472cc799db14e703183676f312c571e9f3df137f55df9442c4077bf00500aa7bece8c1f762ff08a0ec71bfdadfaf13380704e6202de62c5f22f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "faedeb03f8b5178db58604ab69b10b176e92c5deccf4249a9d60010dcd16a635",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 173,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "042477b9ec12029a86f50cd95dda6cead7a34f1c2360f39e3d1159793c8ee663a6bcfed85bd19d4ed3855807267e39156413b41e39a701d8d17a23ac685fe5360c",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "47e5858af99e4e916054897807d685c8cb8b0f1692ba782bec2290a58248c683",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 174,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04c829d3a99bb47e4256fcc63210c13282ab59e7aae90877b1797bd699d672a38b8696a03730704204894aa967273c120b57cbb71f9fca62c64f692e7f49598d2b",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "ade4ff3437df254696fb2b19f5154108d88e775e57d345bbf57a02b2abb3f07a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 175,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04fd61ec5552fbb24b575ebdc9d4a443e156bfc0d13c9dc611149e21d79c48c444b7b73a8dbb83a5e2267a8bcd398b10af0843474c750265e9d48d04ac4ab60405",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "598922a353fe1add65ac8f66fd225e826fa8ce493470322593735fc6627e6f2f",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 176,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "049cd9e0f17c11a10f8aaa1f47ea7141f6399f40b079b07b14cd388f3b6b0a47a8efc86998f717a83e53c8e58ad23c71d0ecc8bc841bc16ff232a5e326844cd4c9",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "923cca706deb11de7c17f8dc089dadcee15042d5619732d9ea537f7dd993fc31",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 177,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "043846b407782243fdf3b04042990b16e2abdb325ba098532879d14e16e914c274de571bc4ce2edd7d2d37df5593959b5c7ab59ac8fe5e06c44bbae6960b6c2510",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "bf6234cf4de2040548dd0ea2a99310389db48fe6c0eb81395ab2d42484f841ae",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 178,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04d3a07a4b6f9b660d92b3fe937e2ebf91dda8005a7ffd0292dad91d0592f1a89ed7209513bde00287b8234e280c00b3c59dc5e333c8c56864bb6cfb364e3f2d85",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "da223bd733d403e2f2f9f59ff712230b0ab7feafc87dc7021644569e3d513795",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 179,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "042ad9550728f65b142ed676438bafe80e365cff4eb557526560e4adfd696da778f0f01da8e947628346614ed7fefe24901f9eee79de6dc06d85d563722ec77961",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "fb888df1c34b3ff15620b94a20726954eb7989e6f8a266ee4902f45e7e86e21a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 180,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0419f5f0b4edd6124e340adbcce791b06d14054c7eb1f9914b44245c51d6c1101d82304d117f729ef06d97eb56aeb99a6222dc3de5e30c071956fd73ee8cdbeb81",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c656a27fc48053f9bcfa3a240f904be76954cc8b8cb3f4790613e618c5069ddb",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 181,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "044485dc2fbc68079c357a04daa6d5306cc78827b0fa64935747b98123009b26605258c4a5608315007db08c27ba86c8971bddc529d1c14e66478ef7fd92b33ae0",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "59e168701d9676742fd203e9ff357dfafbbe51eccb2797f7bb416d4ae21bad99",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 182,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "042f98fd0dc4b37807d9b1dd015a08a90dc90c088014d1305e49017b60d5b07e0e1e8ec878731277193c54991353d1a424a1153b87bf2cf25309c74032fdc73f95",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "7f19652f3077e73a9677fee21d0cbad29914e3bb0270fe77500c4c0a9da8eeb8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 183,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04df1a499387ece423215b041d19076b61902d31bec5135910b90d8819df3bd2fe9a9bffe9f1b68acab7f57f9a19ca5820389f1d73533dd73f6532d69652336fb7",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "b1c79105ffd4b5f4f92ce3a5f55624fd2aace8eee3b80f5438c8419c55051a7d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 184,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04b8c2c47d8c6dd3bdee17a58081cba359e86ef4e19b368d46ed5e43fbe074b08c9b3031b7756e746099d22c985e9fd6213519186acb537fe4bcdb69f5f3a01968",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e1f33be462ded1d121dd2a15d413fb8b9a105922cb90c550abe7ddf352266c75",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 185,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "0421a34eeb4e1e2ed7e4546a8144a8d1c83ed64f3318f72f7a2d786316bdb5e97412a8cfaa2fac8629fa7e20d9229f35662f5d05ea8cd38836537d16c1a64605aa",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "04b295929582f1a5273346623d9d07fa43c654e9b1564244ddf82d61793fecb8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 186,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "047e9906202cd1abf7147027c8647b3a5816b363266326804d6d596e875f02e1e686a981ef38871ad59f427815cedc1aead339c90d61da12b0f7275f4084761afb",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "bc33390ac64b082bb0f2ec689f239e5931a54483e7acae90442a9401c3645223",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 187,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04bc21004d799ecb473253e3ed07b4aff2d3ca90f12943a76e9ebdcd4931c438eaa9b6e2c6834bfbe56f4c4e5e22b125814d83f2973dcd64dc7f51939574002fac",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "5a0c1a2a33176dcb56645a3548ff709e31c37067e5ef969d230c1b1927d75d62",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 188,
+          "comment" : "edge case for computation of y with projective coordinates in left to right addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04ca6b6e4eda95cccd6cc8e16c3c6c748e2acbe31b70529bcb69445c1140e63e2583cf3c33723659b2e303051c3c1e9f702f9f27421f6b3457e377356018489b46",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "7c6a5a4a5608ae11acda6292f6d3b05b7153877dd6e1ad914ff5e3550f457661",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 189,
+          "comment" : "edge case for computation of y with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04884cf0d17df4ef5e488d725b47d069cd2b99940b05b26efcd55d0e5ecd205b61e3b191a7f9f920cfab05b0f9cddd02fecf857d0e405ca36f0106aa367d492460",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "d990ca49c9b414818622b9c69197fccb197c94bd1ce13c24110e94c5c321e2c9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 190,
+          "comment" : "edge case for computation of y with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04b1e5aec6272dbb856417e7ce6102bace3e0dd7c32386511e065c1a32d5688fc5c078aff94b8eac78bdb54b210bc74676d2336ab7bc7236808291540f65c82982",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "973af53e8a92e7469856265229acbbe0adb5574beb32ea6780be385b28ae8b07",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 191,
+          "comment" : "edge case for computation of y with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04ff8d38f61f633c5eb570ef877e61b4466b511ecc3dc3de87e6224a8c78c0893d7153d4f87b7f9d0488b6588df56c9934ae75d1486c1ebdb49444bad832d08017",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "d9fdde34e48cadf6e63c1de84b22da7180ac644c42c055d28625b2bf11cf4951",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 192,
+          "comment" : "edge case for computation of y with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "044c381ef0302e1b428f4887f7b4fde4960245920f40c4005669a091644c27482bef739bc3a3d22c6e707557f2469f504aea9e8a07591776b3324beb5c498e6f55",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "9dda17a91ad44d472304c805b350f9ee55de2d94d7327160dbc50e2eaa85e4e8",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 193,
+          "comment" : "edge case for computation of y with projective coordinates in precomputation or right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04245a530c56d07978f91177e8d97cb1368546bafefbf8148cef339fe7bb652ba5b27a60edd2f498ca636996a9e5e629d5c9ec203217c1b5402ff99a0d2fa97cad",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "7a69b8de61da48f9901ff440192fc90086c3a2bb56bdb224a55b89cb82c72162",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 194,
+          "comment" : "edge case for computation of y with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "043cc566a230b3df272a172cd80fb481cfdb8dd1c27a84dbb7a391f11484f14ef99be9d4cfd33748ee157625f809d0fbc1a6f0317d97dbfeda4999742455fdf78e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "76a4006db3de3e098936d004cac1f7af41d515f753b9aa4433eb2466da42acfc",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 195,
+          "comment" : "edge case for computation of y with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04455fc13990663bf24cf5908c59e4c3a084fc39ee1a7b14d812c227a8dabd6f94685d00ad604b206d59b2f4d9a75442083b85a316dab78574a3bbaa6259e89a3e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "3be92a857ffb42c5d5c128925b89aec34cfe649920dfd647f0a03f421fb20f09",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 196,
+          "comment" : "edge case for computation of y with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04f933578fd1938e44b271ae431ffd0df5548496945d91cb8d311ebec9dd50d036f3d88fa2aae4236cb08858158d725e1213fdb982503bc910a5b58366cd85ee0e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "19e0d41257ccbee1c453f834fa5f349cd9bbb98a92e848354a7579dfd2c78e30",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 197,
+          "comment" : "edge case for computation of y with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "045606cbf0c5b52f0f464137d0133559fea50af271a9826ff6125746636d981850d7b10dab8e64b2f8df6fafb8d5943e7b37c6500fa95bfd6680d8f2ff74c4407a",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "3a7a54996053b41361b605e73852a5a0b17d85b42b3c4a6f119c6c87ebeb9f03",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 198,
+          "comment" : "edge case for computation of y with projective coordinates in right to left addition chain",
+          "flags" : [
+            "EdgeCaseDoubling"
+          ],
+          "public" : "04bf236450ef33bceffbb90e0b86f8e99deaa1337c89826363b3cb4e0a66d541030676703afc892b8059c92e24f653b9cb2a11a5f520c848303c17c2c48600c84c",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "72f042a5b276a980d50a0583483eeda72de8ac796b1d50a843b4552a151e199d",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 199,
           "comment" : "point with coordinate x = 0",
           "flags" : [
             "EdgeCaseDoubling"
           ],
           "public" : "04000000000000000000000000000000000000000000000000000000000000000066485c780e2f83d72433bd5d84a06bb6541c2af31dae871728bf856a174f93f4",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "d11c640b4382e60ec8d254ee76f09b8fac57651ab73b6dd3fdc935a61564a3e9",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "40eafb850ca7e08f19ee6447f196aeabf292e27397856e106e60a6c8b48cdb27",
           "result" : "valid"
         },
         {
-          "tcId" : 64,
+          "tcId" : 200,
           "comment" : "point with coordinate x = 0",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04100121f1a09443851c9aa2ab6ee6440e2ac5e1be648274bd5d26c12fb3ba3f7f032a1c219fa1457cb20588297e0513cfd4901f9a95414f7e914f9179f38567a6",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "90e712e2afd14171c19467a2bfe7abf1c477d1f40f6675f00e622fd5604fa16a",
+          "public" : "0481bfb55b010b1bdf08b8d9d8590087aa278e28febff3b05632eeff09011c55798cd2f199d9815d7585073034eb76c93d50799b354b0fb1e77eb75eba8bff3d58",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "b485f3364354b738dc5402729b880c90c502d9ab52ccf81e3d21602c7b9bd909",
           "result" : "valid"
         },
         {
-          "tcId" : 65,
+          "tcId" : 201,
           "comment" : "point with coordinate x = 0",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04cad02ab537c80831ccdd395129fc4bfe4a89ae0c866f6619a3e14146d3691694689d477065b40f140ed87b37ad041e28229b0f79a6b3c992689954c97f7336d0",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "159583103d83f63538bd4e203607d7348990bb7f847ffbc9e5e509c7e34d392c",
+          "public" : "04614dcfbea4789a3f3eb4a8e2f111c887f0248d9316b99d0864c927a045d6941753a073befe08491a8050a4d96d08ba4790ae18db3ef7f0eaccf59ce1095afc54",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "4207bf4159faa0e50ed238b9c0ff46194a539a1ba03a5a4c8d68f369aecd31a5",
           "result" : "valid"
         },
         {
-          "tcId" : 66,
+          "tcId" : 202,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04abd12eed4d654baa7d968633770f4a582f173d6633906000ed8acf6233c6365f0912f30bb98e7cb525890d5ea1e217149d52a6c59f7802a9f307e80d2a9fee3a",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "546a2dfadb1d60140becac2dc2e62d20c789037755ad5a49e37e48f2ca1b7680",
+          "public" : "04dbfa466f12013255f9d57a6496c158ee7dd202a1ce4a5a53005b3564d509a0bbf2578007e857bdd082751ef2f3b4b9c38a0b87bab413d55ccb26a574f2b4be9d",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e2d57eeec983756c9124f885a4d118ed5b8de7d2895fd91264cf291496949a12",
           "result" : "valid"
         },
         {
-          "tcId" : 67,
+          "tcId" : 203,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04a562c1ad9a72217df00147c7d2ceafc65a1620a1469c947e14fe43003ac5371b7ad1d33c01f0eb92b779ed6e460d0334447075a3cf66b2ffbdae31b438df6d7b",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "e5859c7811c5c3aca6c236ab499ccad10301c7c5ee913ce91bb66428cde11e4d",
+          "public" : "048238f048c292e08d49bdb5dab1f08da6d39cdbefb1d75e03e76048b903d6baf9389e4da4040fbe2019a1461fec3cc90403c9becccaa02ef5793da721c1e657a8",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "81fa8ca50ac155200de410dfdfd8093037674baba7ca102828a5d0026f24f0f5",
           "result" : "valid"
         },
         {
-          "tcId" : 68,
+          "tcId" : 204,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "048cdbebe9d07d2ebc4e41b1d72a9bac2974cfc4cf738d8b6de71a40ede9920d88dc2439ee0003fbde7b0a3ae41710c64b17b08a8841e97a390e482c9768fe01ea",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "65754ab459a10471af00943f414f28de1bc37968b097ad2845fe111420855008",
+          "public" : "042d08cf1230463b7102e8a54185986a62a3f2520c0c151ace12f5d073a40cbb2f13473d11f58dde7b16783083cd533bdecc092249dcf15b723f08394a5bc5b3f0",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "151411c3b8e6d25c515186c1d9b9c6e1a05da5a7f09cd4ea8844e0916846ba48",
           "result" : "valid"
         },
         {
-          "tcId" : 69,
+          "tcId" : 205,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04f0cd7cd8334678308cfeb785a68a1504a91418d4441c4d4c740c57488b9aafb079d8a8d29973eb502267eccf6eda326626fc6e025d532b85e9f711f8ce6971bb",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "8631fedee6ceb3386ac42edf322c188824893d267d6108f0cf5de6964b88331b",
+          "public" : "046e8966a6013dde2bb3b2a28c6eb013c481ddb7249ef19d73b92da35cad1d6f14604bf43d798ae27621df2eddc8f5d90ee0289c54bbac82b3c5264c478761d153",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "5460bbc867f4f61b79ed491e41779e2ac8dea27ec1320b558f3cff5b6a94c224",
           "result" : "valid"
         },
         {
-          "tcId" : 70,
+          "tcId" : 206,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "048ad0af23b90e0341b4e2a5a963c8522fe011ace19b1b8610cbe7927a17a7249736b87ab9907289a23a0fb20ca4be42d421fe38d35af09d79cbe6e6a4e95a1a8b",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "68c58599c123be6d37d343bd41b11cecc5f84b2635661163656f76d7fb04b426",
+          "public" : "044f612e0252b8d484bd2657a9ca1bba22afe978466aae6f12bf1d9171e01683ca48f4f3c986bf941b523889a7583fae695d3d4ea4adfb57d0c82370fd82364c1e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "a78ac266fc5a85102db78180bd9ae4b77039ec97391a211403322e4d56b59049",
           "result" : "valid"
         },
         {
-          "tcId" : 71,
+          "tcId" : 207,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "0459c9cc2d7297ddb0be6304c94cebf42d813e970c50f45287753b8e9cb0c6db45f571d986990897851fc8e1db67c99759e8979c3d9ddfd02f633cf1ea5b6c48ab",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "b58d00525c4c4b4f46562852c15ce2e48dbe23a3be37541e048446eff5152ec6",
+          "public" : "04e8b782dab2dba4db066670ae656c7eca4abc7b1a24c7976de2ce02f25b668413bda2f9991ad7aaf44437bfdd3d91c8f94178cde0f8af9833544ccc9e2d606b8e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "f481ae23b9192191e8e1c47203f6a807e54e1ff471e6642716f07895b32f4451",
           "result" : "valid"
         },
         {
-          "tcId" : 72,
+          "tcId" : 208,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04e97080da7263a29c3072a65178b7b31587a5dffc19754c561e32fc53199234f04e0b9b70c97b60e940d5629f2266d1a8e242deb71eb7f0b2b2da2e3044738ab0",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "4baa01c211af8f94aca89548902a71f7b53f7814bbceb3d4bef31b376e34b476",
+          "public" : "041350cac374bb076ee89eb8af43d076afc7312021006431fd909d22df064f6637dbb0dc949a183e398709353d264b13c4266653e8a8685dd830ffaad2955ae9c5",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "1de1656d961de1f584a2f7179bd3be3b4a282cbd3248f29e74b73a812cad8d90",
           "result" : "valid"
         },
         {
-          "tcId" : 73,
+          "tcId" : 209,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "0444f600da7160b975a0232cb6a4a9e72803fd77caac84352039ce9f4a67a1da77626045599381e599eb9cd03f282e267b8cfd3ba98dabbb0f29ab1c0944270f3f",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "e19fe9d1294cca94a6388825249e6b37931a231eb917cfecb292792d0c18f1b8",
+          "public" : "04ec624cda95af6633088f9809e441104322ff529e0952aad4efe3286203e0c700396b89e7168b1da4dab123aa6eb7ed60069d07b241d6fff4ba04647e4fccf1a9",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "50b13920c2368b9a2e8c80a02a6f4e4a2f84af33532eaf5728da161e620a312a",
           "result" : "valid"
         },
         {
-          "tcId" : 74,
+          "tcId" : 210,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "0471e3e9be0e0ee4449a19d2ef7919266814a0fafd04fb677edc32656e6a46e4d2bc5f404c5b54f03e294be22e8820a71b4d4ac04a708e13cd71fdb0041e7e9698",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "ddc1f4663b928add06b1e57c48db98ea08c4d33c3c2106371407f3848a9d53f7",
+          "public" : "04d80a508b155f0c733936d523201bde339794417858cd4a34b685635138ddcf67b4af7eb47f6a8491c9147b49babcdd6538e0a126547493cdcb7e8c900d48337f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "e597c39fd42649418bb49eca83589645df32ff1b3f3417087ccb3ee5bf38fbf5",
           "result" : "valid"
         },
         {
-          "tcId" : 75,
+          "tcId" : 211,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "0427b693610154d5b7f08094e46ff2a2ac1c01d3cd826e3208e5254436ed279960f2364e3a604f3b592e19262a1b22b1a148e38cd82c9e54f108ef8f833683f8b4",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "91dfa95ed1eacbea419156471a8ddbb6cb93dd456433e18633d26817611b9c64",
+          "public" : "040cb05cb7a4b01db1382620ca756285e1a7c6846bbb595cbbac9f89e0a62489cc5777d635a094d17f782d1e3c58bb0be2c1436706fe8b74edb7b9d4cafda95a17",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "010385fdf7f4c6402ae432e4b2f11f2f861c75c4dd27b4f35b7f1efa94bbeecf",
           "result" : "valid"
         },
         {
-          "tcId" : 76,
+          "tcId" : 212,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04c32a52af6dac369b6a499a49d3e38e7c9534bb9139f57d4984b1d3c04ab8220653cdc2daefac83cf43c0d64604e5f9d85b55dde62b692cd36af99ebff4140c39",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "9f91a9633daa4c56465e9fbef4431e13041f68910fb5ba89f8da9381d68a0dfe",
+          "public" : "0472aba18bcccea84909fa724888c2d1d007b11c97e02f61e44b125b402a11041a3ca1faea5f02dd5f1327d5028de70e78c81b05338a2b2e3da509f08e2bd9ea3f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "5696fa199ef1088f88c8979db25721d0a707eb7a51bfd97a1278bcfd43b38304",
           "result" : "valid"
         },
         {
-          "tcId" : 77,
+          "tcId" : 213,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "046f4e2f72f32ae66f1f4610966004c436aa0d90b7df07ce9c4aca52b02d46b4d0c6a3ec76bf321b7fe5203cf3d66e2d52e3ee0495ec766d579a4511175e01bc4d",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "014ae81442f8cb6df58ff41e6db203db40ea951b91bebf86d42cda7be33fea64",
+          "public" : "04276e45461a0e00704bee883b3e61016eec41678d8176d37eba25557a740284e05ab0fd1bf9fdac37fa83f83f5156648bb036d6ce46ff1f6ad4c72bc953214f0f",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "eab63813807eec138a696be8b9e0023dd3c6cee35b7378174aac70838866c216",
           "result" : "valid"
         },
         {
-          "tcId" : 78,
+          "tcId" : 214,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "042e065975df642fcfdafe2fa5affc18b2c68371796f9d963d89c4f5ac5ccea28b990f31522fbb265c3f4d5c4bb82ebf5ddff5a8ea588db4d282acdca7a6ccf428",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "78e81e8573c3ae6089df7db1fb29d7be12dc11f15bb25bff2af802e15ddc136e",
+          "public" : "04ec90e45db57bc01f74d7d01e8783937723f8e27ba99541698e01c57cd2a39da0933bfd2d11d31af9cba4c53aeabe6a3635a0643c114afa109ada02004286aea1",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c982c6d73a9307038bbed250369aca65a7e392bf15f440227eb9fea43cc4756e",
           "result" : "valid"
         },
         {
-          "tcId" : 79,
+          "tcId" : 215,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04e1331eee03c50cc2b90944ddfc0d3a7dd8185e6c21c75fa92a0c14b0f1949ac9154d783f4547dcf5508bbd86c3dd8c3b17b61989f93db5490ec02a46a1005c2c",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "ed67195a272c63c50205abf27439291134ffa1e8ec597f3b302716d93632e98d",
+          "public" : "0428993d7c18770eec4418c16d595987c196412f7b273da44136b19d4b516a2ac7b9ba3574a31169d3f2f7a62758d9d27a2a4fea904b24d42312a9ebfb49ae355a",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "5581a9f0971c60709ebaf53b1febd6e0d174664b82a36692656953507c0f6dc9",
           "result" : "valid"
         },
         {
-          "tcId" : 80,
+          "tcId" : 216,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04e0c56d486e9c01163ed6c3ff25de3cdf5744dbf9e0e00bdcf19965df4ba1f311bd5e44430665823d8c0b34ebec0a6aab5ea96cf239de214fd011e6f9ec501dd4",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "50774347848828eeb6230f497cd181f8c57fbd18ffbf8328cd008321a1c37c43",
+          "public" : "043e4851b2b0d1463b9c90772e10fe8cf29b181463de28e9cf81b4c9604931a4dabde252d07c1061e60f4f8cbae5c2a290c034438a06a8bac67b1ece8ed551a234",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "c7df69b1bc484804a3683449c3a228ff787387d56672588140c980b1fd4765e2",
           "result" : "valid"
         },
         {
-          "tcId" : 81,
+          "tcId" : 217,
           "comment" : "point with coordinate x = 0 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
           ],
-          "public" : "04885ead6c074f8d751a767e918c4e89210a587c4b19d42244ae07027e361831053e80772be57fbd744955a2e8523063cc6136f2bb37befbef7a681d3bbbc57788",
-          "private" : "00e461c5b5e63d75b4c8c123bf8b9cd45e712af08f7e2e494a8f255ac9d80e058b",
-          "shared" : "913da71044b8021a86c8fcaf4f634d0d625ff91ee1c8474d548bd10888964fb1",
+          "public" : "043cedff3609bd11397ed3aca84a0a7bffd009d48beab100719c7607ed28e56124a15f6af627e03f57a98012fba18321b1dff6c24f51d7b6415d102608b772a44e",
+          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
+          "shared" : "973c078916ecc4c660aa00dd4ec1e1df8793cb7f8670766a5156f8344088002f",
           "result" : "valid"
         },
         {
-          "tcId" : 82,
+          "tcId" : 218,
           "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -976,7 +2472,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 83,
+          "tcId" : 219,
           "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -987,7 +2483,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 84,
+          "tcId" : 220,
           "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -998,7 +2494,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 85,
+          "tcId" : 221,
           "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1009,18 +2505,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 86,
-          "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
-          "flags" : [
-            "EdgeCaseDoubling"
-          ],
-          "public" : "04614dcfbea4789a3f3eb4a8e2f111c887f0248d9316b99d0864c927a045d6941753a073befe08491a8050a4d96d08ba4790ae18db3ef7f0eaccf59ce1095afc54",
-          "private" : "00809c461d8b39163537ff8f5ef5b977e4cdb980e70e38a7ee0b37cc876729e9ff",
-          "shared" : "4207bf4159faa0e50ed238b9c0ff46194a539a1ba03a5a4c8d68f369aecd31a5",
-          "result" : "valid"
-        },
-        {
-          "tcId" : 87,
+          "tcId" : 222,
           "comment" : "point with coordinate x = 0 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1031,7 +2516,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 88,
+          "tcId" : 223,
           "comment" : "point with coordinate x = 0 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1042,7 +2527,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 89,
+          "tcId" : 224,
           "comment" : "point with coordinate x = 0 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1053,7 +2538,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 90,
+          "tcId" : 225,
           "comment" : "point with coordinate x = 0 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1064,7 +2549,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 91,
+          "tcId" : 226,
           "comment" : "point with coordinate x = 0 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1075,7 +2560,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 92,
+          "tcId" : 227,
           "comment" : "point with coordinate x = 0 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1086,7 +2571,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 93,
+          "tcId" : 228,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1097,7 +2582,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 94,
+          "tcId" : 229,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1108,7 +2593,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 95,
+          "tcId" : 230,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1119,7 +2604,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 96,
+          "tcId" : 231,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1130,7 +2615,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 97,
+          "tcId" : 232,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1141,7 +2626,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 98,
+          "tcId" : 233,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1152,7 +2637,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 99,
+          "tcId" : 234,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1163,7 +2648,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 100,
+          "tcId" : 235,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1174,7 +2659,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 101,
+          "tcId" : 236,
           "comment" : "point with coordinate y = 1",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1185,7 +2670,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 102,
+          "tcId" : 237,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1196,7 +2681,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 103,
+          "tcId" : 238,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1207,7 +2692,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 104,
+          "tcId" : 239,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1218,7 +2703,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 105,
+          "tcId" : 240,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1229,7 +2714,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 106,
+          "tcId" : 241,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1240,7 +2725,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 107,
+          "tcId" : 242,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1251,7 +2736,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 108,
+          "tcId" : 243,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1262,7 +2747,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 109,
+          "tcId" : 244,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1273,7 +2758,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 110,
+          "tcId" : 245,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1284,7 +2769,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 111,
+          "tcId" : 246,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1295,7 +2780,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 112,
+          "tcId" : 247,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1306,7 +2791,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 113,
+          "tcId" : 248,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1317,7 +2802,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 114,
+          "tcId" : 249,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1328,7 +2813,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 115,
+          "tcId" : 250,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1339,7 +2824,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 116,
+          "tcId" : 251,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1350,7 +2835,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 117,
+          "tcId" : 252,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1361,7 +2846,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 118,
+          "tcId" : 253,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1372,7 +2857,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 119,
+          "tcId" : 254,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1383,7 +2868,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 120,
+          "tcId" : 255,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1394,7 +2879,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 121,
+          "tcId" : 256,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1405,7 +2890,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 122,
+          "tcId" : 257,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1416,7 +2901,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 123,
+          "tcId" : 258,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1427,7 +2912,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 124,
+          "tcId" : 259,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1438,7 +2923,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 125,
+          "tcId" : 260,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1449,7 +2934,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 126,
+          "tcId" : 261,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1460,7 +2945,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 127,
+          "tcId" : 262,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1471,7 +2956,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 128,
+          "tcId" : 263,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1482,7 +2967,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 129,
+          "tcId" : 264,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1493,7 +2978,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 130,
+          "tcId" : 265,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1504,7 +2989,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 131,
+          "tcId" : 266,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1515,7 +3000,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 132,
+          "tcId" : 267,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1526,7 +3011,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 133,
+          "tcId" : 268,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1537,7 +3022,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 134,
+          "tcId" : 269,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1548,7 +3033,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 135,
+          "tcId" : 270,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1559,7 +3044,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 136,
+          "tcId" : 271,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1570,7 +3055,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 137,
+          "tcId" : 272,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1581,7 +3066,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 138,
+          "tcId" : 273,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1592,7 +3077,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 139,
+          "tcId" : 274,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1603,7 +3088,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 140,
+          "tcId" : 275,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1614,7 +3099,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 141,
+          "tcId" : 276,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1625,7 +3110,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 142,
+          "tcId" : 277,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1636,7 +3121,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 143,
+          "tcId" : 278,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1647,7 +3132,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 144,
+          "tcId" : 279,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1658,7 +3143,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 145,
+          "tcId" : 280,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1669,7 +3154,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 146,
+          "tcId" : 281,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1680,7 +3165,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 147,
+          "tcId" : 282,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1691,7 +3176,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 148,
+          "tcId" : 283,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1702,7 +3187,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 149,
+          "tcId" : 284,
           "comment" : "point with coordinate y = 1 in left to right addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1713,7 +3198,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 150,
+          "tcId" : 285,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1724,7 +3209,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 151,
+          "tcId" : 286,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1735,7 +3220,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 152,
+          "tcId" : 287,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1746,7 +3231,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 153,
+          "tcId" : 288,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1757,7 +3242,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 154,
+          "tcId" : 289,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1768,7 +3253,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 155,
+          "tcId" : 290,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1779,7 +3264,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 156,
+          "tcId" : 291,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1790,7 +3275,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 157,
+          "tcId" : 292,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1801,7 +3286,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 158,
+          "tcId" : 293,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1812,7 +3297,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 159,
+          "tcId" : 294,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1823,7 +3308,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 160,
+          "tcId" : 295,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1834,7 +3319,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 161,
+          "tcId" : 296,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1845,7 +3330,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 162,
+          "tcId" : 297,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1856,7 +3341,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 163,
+          "tcId" : 298,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1867,7 +3352,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 164,
+          "tcId" : 299,
           "comment" : "point with coordinate y = 1 in precomputation or right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1878,7 +3363,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 165,
+          "tcId" : 300,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1889,7 +3374,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 166,
+          "tcId" : 301,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1900,7 +3385,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 167,
+          "tcId" : 302,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1911,7 +3396,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 168,
+          "tcId" : 303,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1922,7 +3407,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 169,
+          "tcId" : 304,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1933,7 +3418,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 170,
+          "tcId" : 305,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1944,7 +3429,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 171,
+          "tcId" : 306,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1955,7 +3440,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 172,
+          "tcId" : 307,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1966,7 +3451,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 173,
+          "tcId" : 308,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1977,7 +3462,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 174,
+          "tcId" : 309,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1988,7 +3473,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 175,
+          "tcId" : 310,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -1999,7 +3484,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 176,
+          "tcId" : 311,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -2010,7 +3495,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 177,
+          "tcId" : 312,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -2021,7 +3506,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 178,
+          "tcId" : 313,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -2032,7 +3517,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 179,
+          "tcId" : 314,
           "comment" : "point with coordinate y = 1 in right to left addition chain",
           "flags" : [
             "EdgeCaseDoubling"
@@ -2043,7 +3528,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 180,
+          "tcId" : 315,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2054,7 +3539,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 181,
+          "tcId" : 316,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2065,7 +3550,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 182,
+          "tcId" : 317,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2076,7 +3561,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 183,
+          "tcId" : 318,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2087,7 +3572,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 184,
+          "tcId" : 319,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2098,7 +3583,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 185,
+          "tcId" : 320,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2109,7 +3594,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 186,
+          "tcId" : 321,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2120,7 +3605,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 187,
+          "tcId" : 322,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2131,7 +3616,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 188,
+          "tcId" : 323,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2142,7 +3627,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 189,
+          "tcId" : 324,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2153,7 +3638,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 190,
+          "tcId" : 325,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2164,7 +3649,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 191,
+          "tcId" : 326,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2175,7 +3660,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 192,
+          "tcId" : 327,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2186,7 +3671,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 193,
+          "tcId" : 328,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2197,7 +3682,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 194,
+          "tcId" : 329,
           "comment" : "edge case private key",
           "flags" : [
             "AdditionChain"
@@ -2208,7 +3693,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 195,
+          "tcId" : 330,
           "comment" : "CVE-2017-8932",
           "flags" : [
             "CVE-2017-8932"
@@ -2219,7 +3704,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 196,
+          "tcId" : 331,
           "comment" : "CVE-2017-8932",
           "flags" : [
             "CVE-2017-8932"
@@ -2230,7 +3715,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 197,
+          "tcId" : 332,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2241,7 +3726,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 198,
+          "tcId" : 333,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2252,7 +3737,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 199,
+          "tcId" : 334,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2263,7 +3748,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 200,
+          "tcId" : 335,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2274,7 +3759,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 201,
+          "tcId" : 336,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2285,7 +3770,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 202,
+          "tcId" : 337,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2296,7 +3781,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 203,
+          "tcId" : 338,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2307,7 +3792,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 204,
+          "tcId" : 339,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2318,7 +3803,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 205,
+          "tcId" : 340,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2329,7 +3814,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 206,
+          "tcId" : 341,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2340,7 +3825,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 207,
+          "tcId" : 342,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2351,7 +3836,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 208,
+          "tcId" : 343,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2362,7 +3847,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 209,
+          "tcId" : 344,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2373,7 +3858,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 210,
+          "tcId" : 345,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2384,7 +3869,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 211,
+          "tcId" : 346,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2395,7 +3880,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 212,
+          "tcId" : 347,
           "comment" : "point is not on curve",
           "flags" : [
             "InvalidCurveAttack"
@@ -2406,7 +3891,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 213,
+          "tcId" : 348,
           "comment" : "",
           "flags" : [
             "InvalidEncoding"
@@ -2417,7 +3902,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 214,
+          "tcId" : 349,
           "comment" : "invalid public key",
           "flags" : [
             "InvalidCompressedPublic",
@@ -2429,7 +3914,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 215,
+          "tcId" : 350,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
@@ -2441,7 +3926,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 216,
+          "tcId" : 351,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
@@ -2453,7 +3938,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 217,
+          "tcId" : 352,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
@@ -2465,7 +3950,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 218,
+          "tcId" : 353,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
@@ -2477,7 +3962,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 219,
+          "tcId" : 354,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
@@ -2489,7 +3974,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 220,
+          "tcId" : 355,
           "comment" : "public key is a low order point on twist",
           "flags" : [
             "WrongCurve",
