@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.math.BigInteger;
@@ -40,14 +39,14 @@ import org.junit.runners.JUnit4;
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
 // TODO(bleichen):
-// - maybe again CipherInputStream, CipherOutputStream,
+// - maybe test against CipherInputStream, CipherOutputStream,
 // - byteBuffer.
 // - Exception handling
 // - Is DHIES using the key derivation function for the key stream?
 // - BouncyCastle knows an algorithm IES. Is this the same as DHIES?
 // - Bouncy fixed a padding oracle bug in version 1.56 (CVE-2016-1000345)
 //   So far we have no test for this bug mainly because this cannot be tested
-//   through the JCA interface. BC does not register and algorithm such as
+//   through the JCA interface. BC does not register algorithms such as
 //   Cipher.DHIESWITHAES-CBC.
 // - So far only BouncyCastles is tesed because this is the only provider
 //   we use that implements DHIES.
@@ -94,8 +93,11 @@ public class DhiesTest {
     try {
       dhies = Cipher.getInstance("DHIESwithAES");
     } catch (NoSuchAlgorithmException ex) {
-      // The algorithm isn't supported - even better!
-      return;
+      // The algorithm isn't supported.
+      // Not supporting DHIESwithAES is great, since the algorithm name DHIESwithAES does not
+      // specify the encryption mode. Often weak modes such as ECB are used as default.
+      TestUtil.skipTest("DHIESwithAES is not supported");
+      return; // fallback for legacy test setups where skipTest does not throw an exception.
     }
     dhies.init(Cipher.ENCRYPT_MODE, pub);
     byte[] ciphertext = dhies.doFinal(message);
@@ -154,7 +156,7 @@ public class DhiesTest {
       // This test is called with short algorithm names such as just "DHIES".
       // Requiring full names is typically a good practice. Hence it is OK
       // to not assigning default algorithms.
-      System.out.println("No implementation for:" + algorithm);
+      TestUtil.skipTest("No implementation for:" + algorithm);
       return;
     }
     KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
@@ -187,19 +189,11 @@ public class DhiesTest {
    *   <li>CVE-2016-1000344 BouncyCaslte before v.1.56 used ECB mode as a default.
    * </ul>
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/31101111: won't fix, all BC DHIES modes are banned"}
-  )
   @Test
   public void testSemanticSecurityDhiesWithAes() throws Exception {
     testNotEcb("DHIESWithAES");
   }
 
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/31101111: won't fix, all BC DHIES modes are banned"}
-  )
   @Test
   public void testSemanticSecurityDhiesWithDesede() throws Exception {
     testNotEcb("DHIESWITHDESEDE");

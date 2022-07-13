@@ -880,12 +880,8 @@ public class AesGcmTest {
    * plaintext with an empty IV results in a ciphertext having a tag that is equal to the hash
    * subkey used in AES-GCM. I.e. both are the same as encrypting an all zero block.
    *
-   * <p>OpenJDK fails this test.
+   * <p>OpenJDK failed this test.
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/35746778"}
-  )
   @Test
   public void testEncryptEmptyPlaintextWithEmptyIv() throws Exception {
     byte[] emptyIv = new byte[0];
@@ -911,10 +907,6 @@ public class AesGcmTest {
     }
   }
 
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/35746778"}
-  )
   @Test
   public void testDecryptWithEmptyIv() throws Exception {
     byte[] emptyIv = new byte[0];

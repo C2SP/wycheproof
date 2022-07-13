@@ -1582,6 +1582,10 @@ public class RsaKeyTest {
   /**
    * Checks the default key size used for RSA key generation.
    *
+   * <p>A common problem with default values is that they are difficult to change. Hence there is a
+   * danger that default values become outdated. Additionally the resulting weaknesses are easy to
+   * overlook.
+   *
    * <p>This test fails if the default key size for RSA is below the minimum recommendation of NIST
    * SP 800-57 part1 revision 4, Table 2, page 53 in
    * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf . NIST recommends
@@ -1607,10 +1611,6 @@ public class RsaKeyTest {
    * implementation of the Java platform is required to implement RSA with both 1024 and 2048 bit
    * key sizes. Hence a 2048 bit default should not lead to compatibility problems.
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/33190530"}
-  )
   @Test
   public void testDefaultKeySize() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");

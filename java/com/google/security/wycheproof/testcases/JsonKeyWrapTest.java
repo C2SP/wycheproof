@@ -35,19 +35,19 @@ import org.junit.runners.JUnit4;
 /**
  * This test uses test vectors in JSON format to test key wrapping.
  *
- * <p>This test is mainly for key wrappings such as RFC 3349 and RFC 5469.
- * I.e. these algorithms have the following properties:
+ * <p>This test is mainly for key wrappings such as RFC 3349 and RFC 5469. I.e. these algorithms
+ * have the following properties:
+ *
  * <ul>
- *   <li>The wrapping is deterministic. Hence wrapping can be compared against known
- *   results.
- *   <li>The wrapping has an integrity check. Modified wrapped keys can be detected
- *   with high probability.
+ *   <li>The wrapping is deterministic. Hence wrapping can be compared against known results.
+ *   <li>The wrapping has an integrity check. Modified wrapped keys can be detected with high
+ *       probability.
  * </ul>
- * This test does not cover key wrapping with AEAD algorithms such as AES-GCM.
- * Testing such algorithms would require an additional test vector type. 
- * I.e., the JCE interface requires that the caller himself handles the IV.
- * I.e. each wrapping has to use a new unique IV. This IV has to be stored additionally
- * with the wrapped key and has to be passed as parameter to unwrap.
+ *
+ * This test does not cover key wrapping with AEAD algorithms such as AES-GCM. Testing such
+ * algorithms would require an additional test vector type. I.e., the JCE interface requires that
+ * the caller himself handles the IV. I.e. each wrapping has to use a new unique IV. This IV has to
+ * be stored additionally with the wrapped key and has to be passed as parameter to unwrap.
  */
 @RunWith(JUnit4.class)
 public class JsonKeyWrapTest {
@@ -76,34 +76,34 @@ public class JsonKeyWrapTest {
   }
 
   /**
-   * <p> The test also determines whether different paddings lead to different exceptions.
-   * Generally it is preferable when unwrapping keys with incorrect paddings does not leak
-   * information about invalid paddings through exceptions. Such information could be used
-   * for an attack. Ideally, providers should not include any distinguishing features in the
-   * exception.
+   * The test also determines whether different paddings lead to different exceptions. Generally it
+   * is preferable when unwrapping keys with incorrect paddings does not leak information about
+   * invalid paddings through exceptions. Such information could be used for an attack. Ideally,
+   * providers should not include any distinguishing features in the exception.
    *
-   * <p>However, such an observation does not necessarily imply a vulnerability.
-   * For example the algorithm KW (NIST SP 800 38f) is designed with the idea that the
-   * underlying algorithm W is a strong pseudorandom permuation. This would imply that the
-   * algorithm is resistant against attacks even if the attacker get access to all the
-   * byte of W^-1 in the case of a failure. For such primitives the exceptions thrown during
-   * the test are printed, but distinct execeptions do not fail the test.
+   * <p>However, such an observation does not necessarily imply a vulnerability. For example the
+   * algorithm KW (NIST SP 800 38f) is designed with the idea that the underlying algorithm W is a
+   * strong pseudorandom permuation. This would imply that the algorithm is resistant against
+   * attacks even if the attacker get access to all the byte of W^-1 in the case of a failure. For
+   * such primitives the exceptions thrown during the test are printed, but distinct execeptions do
+   * not fail the test.
    *
    * @param filename the local filename with the test vectors
    * @param algorithm the algorithm name for the key wrapping (e.g. "AESWrap")
-   * @param wrappedAlgorithm the algorithm name for the secret key that is wrapped 
-   *    (e.g. "HMACSHA256"). The key wrap primitives wrap and unwrap byte arrays.
-   *    However, the JCE interface requires an instance of java.security.Key with
-   *    key material. The key wrap primitive does not depend on wrappedAlgorithm and hence
-   *    neither does the test. "HMACSHA256" is used for this parameter in the tests below, 
-   *    simply because HMAC allows arbitrary key sizes.
-   * @param paddingAttacks determines whether the test fails if exceptions leak information
-   *    about the padding.
+   * @param wrappedAlgorithm the algorithm name for the secret key that is wrapped (e.g.
+   *     "HMACSHA256"). The key wrap primitives wrap and unwrap byte arrays. However, the JCE
+   *     interface requires an instance of java.security.Key with key material. The key wrap
+   *     primitive does not depend on wrappedAlgorithm and hence neither does the test. "HMACSHA256"
+   *     is used for this parameter in the tests below, simply because HMAC allows arbitrary key
+   *     sizes.
+   * @param paddingAttacks determines whether the test fails if exceptions leak information about
+   *     the padding.
    */
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testKeywrap(String filename, String algorithm, String wrappedAlgorithm,
-      boolean paddingAttacks) throws Exception {
+  public void testKeywrap(
+      String filename, String algorithm, String wrappedAlgorithm, boolean paddingAttacks)
+      throws Exception {
     // Testing with old test vectors may a reason for a test failure.
     // Version number have the format major.minor[status].
     // Versions before 1.0 are experimental and  use formats that are expected to change.
@@ -234,23 +234,23 @@ public class JsonKeyWrapTest {
     }
   }
 
+  // There are fixes in version 1.67, not sure if this solves all issues.
   @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/77572633"}
-  )
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
   @Test
   public void testAesWrap() throws Exception {
     testKeywrap("kw_test.json", "AESWRAP", "HMACSHA256", false);
   }
 
+  // There are fixes in version 1.67, not sure if this solves all issues.
   @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/77572633"}
-  )
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
   @Test
   public void testAesRFC5649Wrap() throws Exception {
     testKeywrap("kwp_test.json", "AESRFC5649WRAP", "HMACSHA256", false);
   }
-  
-  
+
+
 }

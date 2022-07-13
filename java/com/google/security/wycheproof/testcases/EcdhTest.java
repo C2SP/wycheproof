@@ -807,7 +807,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   }
 
   /**
-   * Tests for the problem detected by CVE-2017-10176. 
+   * Tests for the problem detected by CVE-2017-10176.
    *
    * <p>Some libraries do not compute P + (-P) correctly and return 2 * P or throw exceptions. When
    * the library uses addition-subtraction chains for the point multiplication then such cases can
@@ -951,7 +951,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         timings[j][i] /= repetitions;
       }
     }
- 
+
     // Performs some statistics.
     boolean noisy = false;  // Set to true, if the timings have a large variance.
     System.out.println("ECDH timing test:" + comment);
@@ -968,7 +968,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       avg[i] = sum / tests;
       var[i] = (sumSqr - avg[i] * sum) / (tests - 1);
       double stdDev = Math.sqrt(var[i]);
-      double cv = stdDev / avg[i]; 
+      double cv = stdDev / avg[i];
       System.out.println("Timing for point " + i + " avg: " + avg[i] + " std dev: " + stdDev
                          + " cv:" + cv);
       // The ratio 0.05 below is a somewhat arbitrary value that tries to determine if the noise
@@ -1006,8 +1006,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     }
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(
+      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
   @Test
   public void testTimingSecp256r1() throws Exception {
     // edge case for projective coordinates
@@ -1025,8 +1025,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     testTiming(EcUtil.getNistP256Params(), p1, p2, new BigInteger("2"), 256, "secp256r1");
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(
+      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
   @Test
   public void testTimingSecp384r1() throws Exception {
     // edge case for projective coordinates
@@ -1048,8 +1048,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     testTiming(EcUtil.getNistP384Params(), p1, p2, new BigInteger("2"), 384, "secp384r1");
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(
+      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
   @Test
   public void testTimingBrainpoolP256r1() throws Exception {
     // edge case for Jacobian and projective coordinates

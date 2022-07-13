@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.math.BigInteger;
@@ -345,14 +344,12 @@ public class DhTest {
    * 53 recommends 2048 bits as the minimal key length for Diffie-Hellman for new keys that expire
    * before the year 2030.
    *
-   * <p>Note that JCE documentation is outdated. According to
-   * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html an implementation
-   * of the Java platform is only required to support 1024 bit keys.
+   * <p>Jdk 7 used a 1024 bit default for Diffie-Hellman. This was probably because
+   * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html only required to
+   * support 1024 bit keys. Oracle has changed the requirements so that every implementation must
+   * support 2048 bit keys.
+   * https://docs.oracle.com/en/java/javase/12/docs/api/java.base/java/security/KeyPairGenerator.html
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/33190860", "b/33190677"}
-  )
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testDefaultKeyPairGenerator() throws Exception {
