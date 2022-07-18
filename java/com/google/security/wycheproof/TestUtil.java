@@ -79,31 +79,63 @@ public class TestUtil {
     return result;
   }
 
-  public static void installOnlyThisProvider(Provider provider) {
+  public static void removeAllProviders() {
     for (Provider p : Security.getProviders()) {
+      System.out.println("Removing provider: " + p.getName());
       Security.removeProvider(p.getName());
     }
+  }
+
+  public static void installOnlyThisProvider(Provider provider) {
+    removeAllProviders();
     Security.insertProviderAt(provider, 1);
   }
 
+  /**
+   * Installs a set of OpenJDK providers.
+   *
+   * <p>The list of providers added to test OpenJDK is based on
+   * https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html Below is the list of
+   * providers and algorithms that are tested.
+   *
+   * <ul>
+   *   <li>sun.security.provider.Sun: SecureRandom, DSA. Also implements SHA-1, SHA-2 and SHA-3,
+   *       which are used in many cryptographic primitives.
+   *   <li>com.sun.crypto.provider.SunJCE: AES (CBC, GCM, KW, KWP), Chacha-Poly1305, DH, RSA
+   *       encryption (PKCS#1 and OAEP). Algorithms that are not tested include: ARCFOUR, Blowfish,
+   *       RC2, DES and PBE.
+   *   <li>sun.security.ec.SunEC: ECDH, XDH, ECDSA, EdDSA
+   *   <li>sun.security.rsa.SunRsaSign: RSA PKCS#1, RSASSA-PSS.
+   * </ul>
+   *
+   * Sun providers that do not implement cryptographic primitives that are tested here are:
+   *
+   * <ul>
+   *   <li>com.sun.security.sasl.Provider: implements CRAM-MD5 DIGEST-MD5, NTLM.
+   *   <li>sun.security.jgss.SunProvider
+   *   <li>sun.security.smartcardio.SunPCSC
+   *   <li>org.jcp.xml.dsig.internal.dom.XMLDSigRI
+   *   <li>SunPKCS11: PKCS #11 Cryptoki interface.
+   *   <li>JdkLDAP: implements the LDAP CertStore
+   *   <li>JdkSASL: implements SASL client and server
+   *   <li>Apple provider: implements a keystore that provides acces to the macOS keychain.
+   *   <li>SunJSSE is a provider that is backwards compatible with older releases. Oracle recommends
+   *       to no longer use it for most use cases. Because of this it is not added as a provider.
+   *   <li>com.oracle.security.ucrypto.UcryptoProvider: leverages the Solaris Ucrypto library.
+   * </ul>
+   */
   public static void installOnlyOpenJDKProviders() throws Exception {
-    for (Provider p : Security.getProviders()) {
-      Security.removeProvider(p.getName());
-    }
-    installOpenJDKProvider("com.sun.net.ssl.internal.ssl.Provider");
-    installOpenJDKProvider("com.sun.crypto.provider.SunJCE");
-    installOpenJDKProvider("com.sun.security.sasl.Provider");
-    installOpenJDKProvider("org.jcp.xml.dsig.internal.dom.XMLDSigRI");
-    installOpenJDKProvider("sun.security.ec.SunEC");
-    installOpenJDKProvider("sun.security.jgss.SunProvider");
+    removeAllProviders();
     installOpenJDKProvider("sun.security.provider.Sun");
+    installOpenJDKProvider("com.sun.crypto.provider.SunJCE");
     installOpenJDKProvider("sun.security.rsa.SunRsaSign");
-    installOpenJDKProvider("sun.security.smartcardio.SunPCSC");
+    installOpenJDKProvider("sun.security.ec.SunEC");
   }
 
   private static void installOpenJDKProvider(String className) throws Exception {
     Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
-    Security.insertProviderAt(provider, 1);
+    System.out.println("Adding provider: " + provider.getName() + " (" + className + ")");
+    Security.addProvider(provider);
   }
 
   public static void printJavaInformation() {

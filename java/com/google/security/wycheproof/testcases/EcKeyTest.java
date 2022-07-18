@@ -193,20 +193,30 @@ public class EcKeyTest {
 
   @Test
   public void testKeyGenerationAll() throws Exception {
-    testKeyGeneration(EcUtil.getNistP224Params(), true);
     testKeyGeneration(EcUtil.getNistP256Params(), true);
     testKeyGeneration(EcUtil.getNistP384Params(), true);
     testKeyGeneration(EcUtil.getNistP521Params(), true);
-    // Curves that are sometimes not supported.
+    // OpenJDK removes secp224r1 and all Brainpool curves.
+    // https://bugs.openjdk.org/browse/JDK-8235710
+    testKeyGeneration(EcUtil.getNistP224Params(), false);
     testKeyGeneration(EcUtil.getBrainpoolP256r1Params(), false);
   }
 
   /**
-   * Checks that the default key size for ECDSA is up to date. The test uses NIST SP 800-57 part1
-   * revision 4, Table 2, page 53
+   * Checks that the default key size for ECDSA is up to date.
+   *
+   * <p>NIST SP 800-57 part1 revision 4, Table 2, page 53
    * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf for the minimal
    * key size of EC keys. Nist recommends a minimal security strength of 112 bits for the time until
-   * 2030. To achieve this security strength EC keys of at least 224 bits are required.
+   * 2030. To achieve this security strength EC keys of at least 224 bits are required. After 2030 a
+   * minimal security strength of 128 and hence 256-bit curves is required.
+   *
+   * <p>https://bugs.openjdk.org/browse/JDK-8235710 removes all elliptic curves with security
+   * strength significantly smaller than 128 bits. Hence any provider using a default with curves
+   * smaller than 256 will very likely lead to incompatibilities.
+   *
+   * <p>Defaults are difficult to change. Such changes frequently take a long time. Hence choosing a
+   * default value with elliptic curves smaller than 256-bits is problematic.
    */
   @Test
   public void testDefaultKeyGeneration() throws Exception {
