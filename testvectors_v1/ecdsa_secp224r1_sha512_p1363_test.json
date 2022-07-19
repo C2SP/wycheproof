@@ -1,7 +1,8 @@
 {
   "algorithm" : "ECDSA",
+  "schema" : "ecdsa_p1363_verify_schema.json",
   "generatorVersion" : "0.9rc5",
-  "numberOfTests" : 301,
+  "numberOfTests" : 317,
   "header" : [
     "Test vectors of type EcdsaVerify are meant for the verification",
     "of IEEE P1363 encoded ECDSA signatures."
@@ -64,8 +65,8 @@
       "effect" : "Without further analysis it is unclear if the modification can be used to forge signatures."
     },
     "SignatureSize" : {
-      "bugType" : "SIGNATURE_MALLEABILITY",
-      "description" : "The size of an IEEE P1363 encoded signature should always be twice the number of bytes of the size of the order. Some libraries accept signatures with less bytes. This test vector contains valid values for r and s. But the values are encoded using a smaller number of bytes."
+      "bugType" : "LEGACY",
+      "description" : "This test vector contains valid values for r and s. But the values are encoded using a smaller number of bytes. The size of an IEEE P1363 encoded signature should always be twice the number of bytes of the size of the order. Some libraries accept signatures with less bytes. To our knowledge no standard (i.e., IEEE P1363 or RFC 7515) requires any explicit checks of the signature size during signature verification."
     },
     "SmallRandS" : {
       "bugType" : "EDGE_CASE",
@@ -88,21 +89,20 @@
       "description" : "The test vector contains a valid signature that was generated pseudorandomly. Such signatures should not fail to verify unless some of the parameters (e.g. curve or hash function) are not supported."
     }
   },
-  "schema" : "ecdsa_p1363_verify_schema.json",
   "testGroups" : [
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE6tqTvhCyRJ4ei7WDBdUgCAE8VxB8GiCj\nF6bLp+ymcjQMA9HS4JZjKGaR31UGn6JUkMndn5wLsrU=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5",
         "wx" : "00eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7",
         "wy" : "00eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE6tqTvhCyRJ4ei7WDBdUgCAE8VxB8GiCj\nF6bLp+ymcjQMA9HS4JZjKGaR31UGn6JUkMndn5wLsrU=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 1,
@@ -1947,18 +1947,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044408e5c95e332ab6c2823a63959391d60a6d69c59eb1f7bd272206b9f5278e901fb4773aeeb2d8255ba4df3cf3db7e0557dbc6134c55f3a6",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAERAjlyV4zKrbCgjpjlZOR1gptacWesfe9\nJyIGufUnjpAftHc67rLYJVuk3zzz234FV9vGE0xV86Y=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044408e5c95e332ab6c2823a63959391d60a6d69c59eb1f7bd272206b9f5278e901fb4773aeeb2d8255ba4df3cf3db7e0557dbc6134c55f3a6",
         "wx" : "4408e5c95e332ab6c2823a63959391d60a6d69c59eb1f7bd272206b9",
         "wy" : "00f5278e901fb4773aeeb2d8255ba4df3cf3db7e0557dbc6134c55f3a6"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044408e5c95e332ab6c2823a63959391d60a6d69c59eb1f7bd272206b9f5278e901fb4773aeeb2d8255ba4df3cf3db7e0557dbc6134c55f3a6",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAERAjlyV4zKrbCgjpjlZOR1gptacWesfe9\nJyIGufUnjpAftHc67rLYJVuk3zzz234FV9vGE0xV86Y=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 185,
@@ -1983,18 +1983,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004315a83008dba00b351c3f9fca0811c3ae1884fa9a2a75e6d5e71f269504bbe6a25be253b582efab4b8b9e61372767a7a3a423c0943127296",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMVqDAI26ALNRw/n8oIEcOuGIT6mip15t\nXnHyaVBLvmolviU7WC76tLi55hNydnp6OkI8CUMScpY=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04315a83008dba00b351c3f9fca0811c3ae1884fa9a2a75e6d5e71f269504bbe6a25be253b582efab4b8b9e61372767a7a3a423c0943127296",
         "wx" : "315a83008dba00b351c3f9fca0811c3ae1884fa9a2a75e6d5e71f269",
         "wy" : "504bbe6a25be253b582efab4b8b9e61372767a7a3a423c0943127296"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004315a83008dba00b351c3f9fca0811c3ae1884fa9a2a75e6d5e71f269504bbe6a25be253b582efab4b8b9e61372767a7a3a423c0943127296",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMVqDAI26ALNRw/n8oIEcOuGIT6mip15t\nXnHyaVBLvmolviU7WC76tLi55hNydnp6OkI8CUMScpY=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 187,
@@ -2009,18 +2009,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00042f6983b6e9f8ef96c2d981f69be54b06591ed73fe40c8a546b936a7971bf57726c26c811d7625a9d851951c1fffe236b0eb3b896bc4c98ef",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEL2mDtun475bC2YH2m+VLBlke1z/kDIpU\na5NqeXG/V3JsJsgR12JanYUZUcH//iNrDrO4lrxMmO8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042f6983b6e9f8ef96c2d981f69be54b06591ed73fe40c8a546b936a7971bf57726c26c811d7625a9d851951c1fffe236b0eb3b896bc4c98ef",
         "wx" : "2f6983b6e9f8ef96c2d981f69be54b06591ed73fe40c8a546b936a79",
         "wy" : "71bf57726c26c811d7625a9d851951c1fffe236b0eb3b896bc4c98ef"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00042f6983b6e9f8ef96c2d981f69be54b06591ed73fe40c8a546b936a7971bf57726c26c811d7625a9d851951c1fffe236b0eb3b896bc4c98ef",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEL2mDtun475bC2YH2m+VLBlke1z/kDIpU\na5NqeXG/V3JsJsgR12JanYUZUcH//iNrDrO4lrxMmO8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 188,
@@ -2035,18 +2035,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1f515971cc9391153569c2befa1f915e2931110757760ebd7e61f8641c3db8beea20b13205389dcc4ba8a6af4d6da2604cacd7184ec9dbc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0fUVlxzJORFTVpwr76H5FeKTERB1d2Dr\n1+YfhkHD24vuogsTIFOJ3MS6imr01tomBMrNcYTsnbw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d1f515971cc9391153569c2befa1f915e2931110757760ebd7e61f8641c3db8beea20b13205389dcc4ba8a6af4d6da2604cacd7184ec9dbc",
         "wx" : "00d1f515971cc9391153569c2befa1f915e2931110757760ebd7e61f86",
         "wy" : "41c3db8beea20b13205389dcc4ba8a6af4d6da2604cacd7184ec9dbc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1f515971cc9391153569c2befa1f915e2931110757760ebd7e61f8641c3db8beea20b13205389dcc4ba8a6af4d6da2604cacd7184ec9dbc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0fUVlxzJORFTVpwr76H5FeKTERB1d2Dr\n1+YfhkHD24vuogsTIFOJ3MS6imr01tomBMrNcYTsnbw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 189,
@@ -2061,18 +2061,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e8f90a717714f0158d9521f18c14ae8c83bf1eeba115c46cbdabb20b66f50ac13461c02da02edfe4296a1f543dde7b4359f905e04193d3cf",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE6PkKcXcU8BWNlSHxjBSujIO/HuuhFcRs\nvauyC2b1CsE0YcAtoC7f5ClqH1Q93ntDWfkF4EGT088=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04e8f90a717714f0158d9521f18c14ae8c83bf1eeba115c46cbdabb20b66f50ac13461c02da02edfe4296a1f543dde7b4359f905e04193d3cf",
         "wx" : "00e8f90a717714f0158d9521f18c14ae8c83bf1eeba115c46cbdabb20b",
         "wy" : "66f50ac13461c02da02edfe4296a1f543dde7b4359f905e04193d3cf"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e8f90a717714f0158d9521f18c14ae8c83bf1eeba115c46cbdabb20b66f50ac13461c02da02edfe4296a1f543dde7b4359f905e04193d3cf",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE6PkKcXcU8BWNlSHxjBSujIO/HuuhFcRs\nvauyC2b1CsE0YcAtoC7f5ClqH1Q93ntDWfkF4EGT088=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 190,
@@ -2100,18 +2100,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004723bc0c9b7ce6ea784ec075036cede90452c76576bd8fb5be4dc0fb1cf405820d92f48552b551c7b11f49406dc892fd659971ae7f9e74b59",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEcjvAybfObqeE7AdQNs7ekEUsdldr2Ptb\n5NwPsc9AWCDZL0hVK1UcexH0lAbciS/WWZca5/nnS1k=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04723bc0c9b7ce6ea784ec075036cede90452c76576bd8fb5be4dc0fb1cf405820d92f48552b551c7b11f49406dc892fd659971ae7f9e74b59",
         "wx" : "723bc0c9b7ce6ea784ec075036cede90452c76576bd8fb5be4dc0fb1",
         "wy" : "00cf405820d92f48552b551c7b11f49406dc892fd659971ae7f9e74b59"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004723bc0c9b7ce6ea784ec075036cede90452c76576bd8fb5be4dc0fb1cf405820d92f48552b551c7b11f49406dc892fd659971ae7f9e74b59",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEcjvAybfObqeE7AdQNs7ekEUsdldr2Ptb\n5NwPsc9AWCDZL0hVK1UcexH0lAbciS/WWZca5/nnS1k=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 192,
@@ -2139,18 +2139,18 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004a0dcce127084f955a4e49a7c86b9b91b05ae7afd6eb07225a6541d88f10a1d4fef93934967bb6c5d8792bbd47ab3abb406899a00b1c91b4a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEoNzOEnCE+VWk5Jp8hrm5GwWuev1usHIl\nplQdiPEKHU/vk5NJZ7tsXYeSu9R6s6u0BomaALHJG0o=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a0dcce127084f955a4e49a7c86b9b91b05ae7afd6eb07225a6541d88f10a1d4fef93934967bb6c5d8792bbd47ab3abb406899a00b1c91b4a",
         "wx" : "00a0dcce127084f955a4e49a7c86b9b91b05ae7afd6eb07225a6541d88",
         "wy" : "00f10a1d4fef93934967bb6c5d8792bbd47ab3abb406899a00b1c91b4a"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004a0dcce127084f955a4e49a7c86b9b91b05ae7afd6eb07225a6541d88f10a1d4fef93934967bb6c5d8792bbd47ab3abb406899a00b1c91b4a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEoNzOEnCE+VWk5Jp8hrm5GwWuev1usHIl\nplQdiPEKHU/vk5NJZ7tsXYeSu9R6s6u0BomaALHJG0o=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
           "tcId" : 194,
@@ -2174,61 +2174,217 @@
           "msg" : "313233343030",
           "sig" : "0304",
           "result" : "invalid"
-        },
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "048f08987a2984f4ef743420d8691b22c0c5963f7791bb23aeeeaa75acc797c157b68c9d51ac28cf4eab0878b1f1af4dcc12acb22d81dcefb9",
+        "wx" : "008f08987a2984f4ef743420d8691b22c0c5963f7791bb23aeeeaa75ac",
+        "wy" : "00c797c157b68c9d51ac28cf4eab0878b1f1af4dcc12acb22d81dcefb9"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048f08987a2984f4ef743420d8691b22c0c5963f7791bb23aeeeaa75acc797c157b68c9d51ac28cf4eab0878b1f1af4dcc12acb22d81dcefb9",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEjwiYeimE9O90NCDYaRsiwMWWP3eRuyOu\n7qp1rMeXwVe2jJ1RrCjPTqsIeLHxr03MEqyyLYHc77k=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
         {
           "tcId" : 196,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000001",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 197,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0501",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "0450d4d5627c9b810ddc6e69440be3278cef10b85dbfe5a1ae18444889d8bc9eafea1018dca9e90cb2e48249b400551c93ee4999db60da4e0e",
+        "wx" : "50d4d5627c9b810ddc6e69440be3278cef10b85dbfe5a1ae18444889",
+        "wy" : "00d8bc9eafea1018dca9e90cb2e48249b400551c93ee4999db60da4e0e"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000450d4d5627c9b810ddc6e69440be3278cef10b85dbfe5a1ae18444889d8bc9eafea1018dca9e90cb2e48249b400551c93ee4999db60da4e0e",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEUNTVYnybgQ3cbmlEC+MnjO8QuF2/5aGu\nGERIidi8nq/qEBjcqekMsuSCSbQAVRyT7kmZ22DaTg4=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 198,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000003",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 199,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0503",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "045ac9cd552b196d8abe19641531abf62febe4827ec792554da112d043f1f2bf10149328254186fee4548bd68eb56bc75a2771acda1dcef982",
+        "wx" : "5ac9cd552b196d8abe19641531abf62febe4827ec792554da112d043",
+        "wy" : "00f1f2bf10149328254186fee4548bd68eb56bc75a2771acda1dcef982"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045ac9cd552b196d8abe19641531abf62febe4827ec792554da112d043f1f2bf10149328254186fee4548bd68eb56bc75a2771acda1dcef982",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEWsnNVSsZbYq+GWQVMav2L+vkgn7HklVN\noRLQQ/HyvxAUkyglQYb+5FSL1o61a8daJ3Gs2h3O+YI=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 200,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000005",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 201,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0505",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "04c960067a4b63f22657e1d46ab4ec8299c63daf8f2902f02a52ab1a0176b19768975bd8dd64fa0c450465c52ef6cfb9a7620a501134b7944a",
+        "wx" : "00c960067a4b63f22657e1d46ab4ec8299c63daf8f2902f02a52ab1a01",
+        "wy" : "76b19768975bd8dd64fa0c450465c52ef6cfb9a7620a501134b7944a"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c960067a4b63f22657e1d46ab4ec8299c63daf8f2902f02a52ab1a0176b19768975bd8dd64fa0c450465c52ef6cfb9a7620a501134b7944a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEyWAGektj8iZX4dRqtOyCmcY9r48pAvAq\nUqsaAXaxl2iXW9jdZPoMRQRlxS72z7mnYgpQETS3lEo=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 202,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000006",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 203,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0506",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 204,
           "comment" : "r is larger than n",
           "flags" : [
             "ArithmeticError"
           ],
           "msg" : "313233343030",
-          "sig" : "ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a4000000000000000000000000000000000000000000000000000000004",
+          "sig" : "ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a4200000000000000000000000000000000000000000000000000000006",
           "result" : "invalid"
         }
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e10abc9fe15bcc63f009e161aaee26602415bcb45bc6c99ce7ab2b10fbebff4e4de0dfaaf04594dd603cee80b5d9ab78b6707608a95e574d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE4Qq8n+FbzGPwCeFhqu4mYCQVvLRbxsmc\n56srEPvr/05N4N+q8EWU3WA87oC12at4tnB2CKleV00=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
-        "uncompressed" : "04e10abc9fe15bcc63f009e161aaee26602415bcb45bc6c99ce7ab2b10fbebff4e4de0dfaaf04594dd603cee80b5d9ab78b6707608a95e574d",
-        "wx" : "00e10abc9fe15bcc63f009e161aaee26602415bcb45bc6c99ce7ab2b10",
-        "wy" : "00fbebff4e4de0dfaaf04594dd603cee80b5d9ab78b6707608a95e574d"
+        "uncompressed" : "045ebb88b0fa104cb23b497f35f11716c47708fce213c51796bfd4659f0bb2e0ac252c207ddd1832682fa630a31252169b2f066d8fffd1ae3e",
+        "wx" : "5ebb88b0fa104cb23b497f35f11716c47708fce213c51796bfd4659f",
+        "wy" : "0bb2e0ac252c207ddd1832682fa630a31252169b2f066d8fffd1ae3e"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045ebb88b0fa104cb23b497f35f11716c47708fce213c51796bfd4659f0bb2e0ac252c207ddd1832682fa630a31252169b2f066d8fffd1ae3e",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEXruIsPoQTLI7SX818RcWxHcI/OITxReW\nv9Rlnwuy4KwlLCB93RgyaC+mMKMSUhabLwZtj//Rrj4=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 197,
+          "tcId" : 205,
           "comment" : "s is larger than n",
           "flags" : [
             "ArithmeticError"
           ],
           "msg" : "313233343030",
-          "sig" : "00000000000000000000000000000000000000000000000000000003ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c6f00c4",
+          "sig" : "00000000000000000000000000000000000000000000000000000005ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c6f00c4",
           "result" : "invalid"
         }
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004fbfabe6c640856ae5dcdc9e4b706fb3db23ddca46b80b9057ab9e44f6b62d4697977ffe19bf3185083b1ede2161aa5725401a8f57851fc82",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE+/q+bGQIVq5dzcnktwb7PbI93KRrgLkF\nernkT2ti1Gl5d//hm/MYUIOx7eIWGqVyVAGo9XhR/II=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04fbfabe6c640856ae5dcdc9e4b706fb3db23ddca46b80b9057ab9e44f6b62d4697977ffe19bf3185083b1ede2161aa5725401a8f57851fc82",
         "wx" : "00fbfabe6c640856ae5dcdc9e4b706fb3db23ddca46b80b9057ab9e44f",
         "wy" : "6b62d4697977ffe19bf3185083b1ede2161aa5725401a8f57851fc82"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004fbfabe6c640856ae5dcdc9e4b706fb3db23ddca46b80b9057ab9e44f6b62d4697977ffe19bf3185083b1ede2161aa5725401a8f57851fc82",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE+/q+bGQIVq5dzcnktwb7PbI93KRrgLkF\nernkT2ti1Gl5d//hm/MYUIOx7eIWGqVyVAGo9XhR/II=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 198,
+          "tcId" : 206,
           "comment" : "small r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2240,21 +2396,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000491a85b3c5e90b409f6b8d3bca9117a54a40f4162b388bb9367fd6439f1cedf20ab52eb7154b7ea1f2934a9c8292906e18a0e572002cd2f7c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEkahbPF6QtAn2uNO8qRF6VKQPQWKziLuT\nZ/1kOfHO3yCrUutxVLfqHyk0qcgpKQbhig5XIALNL3w=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0491a85b3c5e90b409f6b8d3bca9117a54a40f4162b388bb9367fd6439f1cedf20ab52eb7154b7ea1f2934a9c8292906e18a0e572002cd2f7c",
         "wx" : "0091a85b3c5e90b409f6b8d3bca9117a54a40f4162b388bb9367fd6439",
         "wy" : "00f1cedf20ab52eb7154b7ea1f2934a9c8292906e18a0e572002cd2f7c"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000491a85b3c5e90b409f6b8d3bca9117a54a40f4162b388bb9367fd6439f1cedf20ab52eb7154b7ea1f2934a9c8292906e18a0e572002cd2f7c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEkahbPF6QtAn2uNO8qRF6VKQPQWKziLuT\nZ/1kOfHO3yCrUutxVLfqHyk0qcgpKQbhig5XIALNL3w=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 199,
+          "tcId" : 207,
           "comment" : "smallish r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2266,21 +2422,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1ca7a5c1aa086b2951c1ac14e005f0072fb28383973a05117f9652cce523c05ebe94991c47fecd241d0a07e86c88ab3c620eae792aba3d1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0cp6XBqghrKVHBrBTgBfAHL7KDg5c6BR\nF/llLM5SPAXr6UmRxH/s0kHQoH6GyIqzxiDq55Kro9E=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d1ca7a5c1aa086b2951c1ac14e005f0072fb28383973a05117f9652cce523c05ebe94991c47fecd241d0a07e86c88ab3c620eae792aba3d1",
         "wx" : "00d1ca7a5c1aa086b2951c1ac14e005f0072fb28383973a05117f9652c",
         "wy" : "00ce523c05ebe94991c47fecd241d0a07e86c88ab3c620eae792aba3d1"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1ca7a5c1aa086b2951c1ac14e005f0072fb28383973a05117f9652cce523c05ebe94991c47fecd241d0a07e86c88ab3c620eae792aba3d1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0cp6XBqghrKVHBrBTgBfAHL7KDg5c6BR\nF/llLM5SPAXr6UmRxH/s0kHQoH6GyIqzxiDq55Kro9E=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 200,
+          "tcId" : 208,
           "comment" : "100-bit r and small s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2292,21 +2448,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00043565af2a481f9390e71d7642717d0427e02e5e7de8a3c0c1ffd5f33e9474547e0d54dcaae85494c74faa23394a056e41c2839638b8523b72",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAENWWvKkgfk5DnHXZCcX0EJ+AuXn3oo8DB\n/9XzPpR0VH4NVNyq6FSUx0+qIzlKBW5BwoOWOLhSO3I=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043565af2a481f9390e71d7642717d0427e02e5e7de8a3c0c1ffd5f33e9474547e0d54dcaae85494c74faa23394a056e41c2839638b8523b72",
         "wx" : "3565af2a481f9390e71d7642717d0427e02e5e7de8a3c0c1ffd5f33e",
         "wy" : "009474547e0d54dcaae85494c74faa23394a056e41c2839638b8523b72"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00043565af2a481f9390e71d7642717d0427e02e5e7de8a3c0c1ffd5f33e9474547e0d54dcaae85494c74faa23394a056e41c2839638b8523b72",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAENWWvKkgfk5DnHXZCcX0EJ+AuXn3oo8DB\n/9XzPpR0VH4NVNyq6FSUx0+qIzlKBW5BwoOWOLhSO3I=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 201,
+          "tcId" : 209,
           "comment" : "small r and 100 bit s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2318,21 +2474,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000429c694790fbd23777cfde434badcb061a326a5534264bcfe193c716c178a943f7bd4fb132565ba602358b13433a5217ac04cc035566c73f8",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEKcaUeQ+9I3d8/eQ0utywYaMmpVNCZLz+\nGTxxbBeKlD971PsTJWW6YCNYsTQzpSF6wEzANVZsc/g=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0429c694790fbd23777cfde434badcb061a326a5534264bcfe193c716c178a943f7bd4fb132565ba602358b13433a5217ac04cc035566c73f8",
         "wx" : "29c694790fbd23777cfde434badcb061a326a5534264bcfe193c716c",
         "wy" : "178a943f7bd4fb132565ba602358b13433a5217ac04cc035566c73f8"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000429c694790fbd23777cfde434badcb061a326a5534264bcfe193c716c178a943f7bd4fb132565ba602358b13433a5217ac04cc035566c73f8",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEKcaUeQ+9I3d8/eQ0utywYaMmpVNCZLz+\nGTxxbBeKlD971PsTJWW6YCNYsTQzpSF6wEzANVZsc/g=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 202,
+          "tcId" : 210,
           "comment" : "100-bit r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2344,21 +2500,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fd43aac8556f4665fd4c13f4e151140f42a395763c5da247a398f979687d24a9fcd6b20a59451c348a6364d0ffaf0ecfe164313db6594ab",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj9Q6rIVW9GZf1ME/ThURQPQqOVdjxdok\nejmPl5aH0kqfzWsgpZRRw0imNk0P+vDs/hZDE9tllKs=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048fd43aac8556f4665fd4c13f4e151140f42a395763c5da247a398f979687d24a9fcd6b20a59451c348a6364d0ffaf0ecfe164313db6594ab",
         "wx" : "008fd43aac8556f4665fd4c13f4e151140f42a395763c5da247a398f97",
         "wy" : "009687d24a9fcd6b20a59451c348a6364d0ffaf0ecfe164313db6594ab"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fd43aac8556f4665fd4c13f4e151140f42a395763c5da247a398f979687d24a9fcd6b20a59451c348a6364d0ffaf0ecfe164313db6594ab",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj9Q6rIVW9GZf1ME/ThURQPQqOVdjxdok\nejmPl5aH0kqfzWsgpZRRw0imNk0P+vDs/hZDE9tllKs=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 203,
+          "tcId" : 211,
           "comment" : "r and s^-1 are close to n",
           "flags" : [
             "ArithmeticError"
@@ -2370,21 +2526,169 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c2ae0e357a43f97549a725ae3704449051c96bf3633355c35b6eb7e96a84dfb6d4517d1de46b18786a506178724bf4ae4f9e418c75ab17ef",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwq4ONXpD+XVJpyWuNwREkFHJa/NjM1XD\nW2636WqE37bUUX0d5GsYeGpQYXhyS/SuT55BjHWrF+8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
+        "uncompressed" : "04aaf2beadfcd5b998dcb1d21f2e77a74734148b25ffea433dbefc2677f07d8c56699b77c6ac56691fab2cef45964344bf41437c84d1a222cc",
+        "wx" : "00aaf2beadfcd5b998dcb1d21f2e77a74734148b25ffea433dbefc2677",
+        "wy" : "00f07d8c56699b77c6ac56691fab2cef45964344bf41437c84d1a222cc"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004aaf2beadfcd5b998dcb1d21f2e77a74734148b25ffea433dbefc2677f07d8c56699b77c6ac56691fab2cef45964344bf41437c84d1a222cc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEqvK+rfzVuZjcsdIfLnenRzQUiyX/6kM9\nvvwmd/B9jFZpm3fGrFZpH6ss70WWQ0S/QUN8hNGiIsw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 212,
+          "comment" : "r and s are 64-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "00000000000000000000000000000000000000009c44febf31c3594d0000000000000000000000000000000000000000839ed28247c2b06b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 213,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "9c44febf31c3594d839ed28247c2b06b",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
         "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "04f5747fbbd5b3ae73267de92872a6569b0334f7a2ca0ef893ba9609ec11b62c4915ba76252db32ad93a4b8fc106656f966f02ddf3a07c9bf8",
+        "wx" : "00f5747fbbd5b3ae73267de92872a6569b0334f7a2ca0ef893ba9609ec",
+        "wy" : "11b62c4915ba76252db32ad93a4b8fc106656f966f02ddf3a07c9bf8"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f5747fbbd5b3ae73267de92872a6569b0334f7a2ca0ef893ba9609ec11b62c4915ba76252db32ad93a4b8fc106656f966f02ddf3a07c9bf8",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9XR/u9WzrnMmfekocqZWmwM096LKDviT\nupYJ7BG2LEkVunYlLbMq2TpLj8EGZW+WbwLd86B8m/g=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 214,
+          "comment" : "r and s are 100-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "00000000000000000000000000000009df8b682430beef6f5fd7c7cf0000000000000000000000000000000fd0a62e13778f4222a0d61c8a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 215,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "09df8b682430beef6f5fd7c7cf0fd0a62e13778f4222a0d61c8a",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "04b81ee434f32c556689af1cc6166626ab514839932d46a9aee659d2a70d06381a0d987755e0ecc95f7e4b8b330fb7f03801c45f23ce6b31d3",
+        "wx" : "00b81ee434f32c556689af1cc6166626ab514839932d46a9aee659d2a7",
+        "wy" : "0d06381a0d987755e0ecc95f7e4b8b330fb7f03801c45f23ce6b31d3"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b81ee434f32c556689af1cc6166626ab514839932d46a9aee659d2a70d06381a0d987755e0ecc95f7e4b8b330fb7f03801c45f23ce6b31d3",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEuB7kNPMsVWaJrxzGFmYmq1FIOZMtRqmu\n5lnSpw0GOBoNmHdV4OzJX35LizMPt/A4AcRfI85rMdM=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 216,
+          "comment" : "r and s are 128-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000008a598e563a89f526c32ebec8de26367a00000000000000000000000084f633e2042630e99dd0f1e16f7a04bf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 217,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "8a598e563a89f526c32ebec8de26367a84f633e2042630e99dd0f1e16f7a04bf",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "uncompressed" : "04397138d985a5c9e064011340f8b98f8ba0de43ff5f87425bb3100c789eb30cde8a8d105d4a122c8689c86ab260f3538757e645ec1d57a585",
+        "wx" : "397138d985a5c9e064011340f8b98f8ba0de43ff5f87425bb3100c78",
+        "wy" : "009eb30cde8a8d105d4a122c8689c86ab260f3538757e645ec1d57a585"
+      },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004397138d985a5c9e064011340f8b98f8ba0de43ff5f87425bb3100c789eb30cde8a8d105d4a122c8689c86ab260f3538757e645ec1d57a585",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEOXE42YWlyeBkARNA+LmPi6DeQ/9fh0Jb\nsxAMeJ6zDN6KjRBdShIshonIarJg81OHV+ZF7B1XpYU=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 218,
+          "comment" : "r and s are 160-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000aa6eeb5823f7fa31b466bb473797f0d0314c0be00000000000000000e2977c479e6d25703cebbc6bd561938cc9d1bfb9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 219,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "aa6eeb5823f7fa31b466bb473797f0d0314c0be0e2977c479e6d25703cebbc6bd561938cc9d1bfb9",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "secp224r1",
+        "keySize" : 224,
         "uncompressed" : "04c2ae0e357a43f97549a725ae3704449051c96bf3633355c35b6eb7e96a84dfb6d4517d1de46b18786a506178724bf4ae4f9e418c75ab17ef",
         "wx" : "00c2ae0e357a43f97549a725ae3704449051c96bf3633355c35b6eb7e9",
         "wy" : "6a84dfb6d4517d1de46b18786a506178724bf4ae4f9e418c75ab17ef"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c2ae0e357a43f97549a725ae3704449051c96bf3633355c35b6eb7e96a84dfb6d4517d1de46b18786a506178724bf4ae4f9e418c75ab17ef",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwq4ONXpD+XVJpyWuNwREkFHJa/NjM1XD\nW2636WqE37bUUX0d5GsYeGpQYXhyS/SuT55BjHWrF+8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 204,
+          "tcId" : 220,
           "comment" : "s == 1",
           "flags" : [
             "ArithmeticError"
@@ -2394,7 +2698,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 205,
+          "tcId" : 221,
           "comment" : "s == 0",
           "flags" : [
             "ArithmeticError"
@@ -2406,21 +2710,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004627e69f0b4b11f46d702bedaccdbc33dc05b9f08297c1b78f55538d10ed69c68b09e03837af68a70810b16fdd70a048ebbccac2d1843a239",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYn5p8LSxH0bXAr7azNvDPcBbnwgpfBt4\n9VU40Q7WnGiwngODevaKcIELFv3XCgSOu8ysLRhDojk=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04627e69f0b4b11f46d702bedaccdbc33dc05b9f08297c1b78f55538d10ed69c68b09e03837af68a70810b16fdd70a048ebbccac2d1843a239",
         "wx" : "627e69f0b4b11f46d702bedaccdbc33dc05b9f08297c1b78f55538d1",
         "wy" : "0ed69c68b09e03837af68a70810b16fdd70a048ebbccac2d1843a239"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004627e69f0b4b11f46d702bedaccdbc33dc05b9f08297c1b78f55538d10ed69c68b09e03837af68a70810b16fdd70a048ebbccac2d1843a239",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYn5p8LSxH0bXAr7azNvDPcBbnwgpfBt4\n9VU40Q7WnGiwngODevaKcIELFv3XCgSOu8ysLRhDojk=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 206,
+          "tcId" : 222,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2433,21 +2737,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cb80d14b128ded227a5f7887ebab0a2369aae60e1587724a3648f0d2b941ddba250e081659b8d2c0777b942337486934c9292ec973c5a157",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEy4DRSxKN7SJ6X3iH66sKI2mq5g4Vh3JK\nNkjw0rlB3bolDggWWbjSwHd7lCM3SGk0ySkuyXPFoVc=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04cb80d14b128ded227a5f7887ebab0a2369aae60e1587724a3648f0d2b941ddba250e081659b8d2c0777b942337486934c9292ec973c5a157",
         "wx" : "00cb80d14b128ded227a5f7887ebab0a2369aae60e1587724a3648f0d2",
         "wy" : "00b941ddba250e081659b8d2c0777b942337486934c9292ec973c5a157"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cb80d14b128ded227a5f7887ebab0a2369aae60e1587724a3648f0d2b941ddba250e081659b8d2c0777b942337486934c9292ec973c5a157",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEy4DRSxKN7SJ6X3iH66sKI2mq5g4Vh3JK\nNkjw0rlB3bolDggWWbjSwHd7lCM3SGk0ySkuyXPFoVc=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 207,
+          "tcId" : 223,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2460,21 +2764,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f6fb4ab302c4ffc6699b3b0c876900c9e6cd0882cde36517def4dd63438659d290a62682035a58f75a99836ec494776d5f5affe3be3bab66",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9vtKswLE/8ZpmzsMh2kAyebNCILN42UX\n3vTdY0OGWdKQpiaCA1pY91qZg27ElHdtX1r/4747q2Y=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04f6fb4ab302c4ffc6699b3b0c876900c9e6cd0882cde36517def4dd63438659d290a62682035a58f75a99836ec494776d5f5affe3be3bab66",
         "wx" : "00f6fb4ab302c4ffc6699b3b0c876900c9e6cd0882cde36517def4dd63",
         "wy" : "438659d290a62682035a58f75a99836ec494776d5f5affe3be3bab66"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f6fb4ab302c4ffc6699b3b0c876900c9e6cd0882cde36517def4dd63438659d290a62682035a58f75a99836ec494776d5f5affe3be3bab66",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9vtKswLE/8ZpmzsMh2kAyebNCILN42UX\n3vTdY0OGWdKQpiaCA1pY91qZg27ElHdtX1r/4747q2Y=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 208,
+          "tcId" : 224,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2487,21 +2791,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004037a37bfe052f040dce3cc816d310fe4ee14bb478b21f6740294f8ca649d508ff21e1d11269e77f63c9ef0e3e3cbe38411f3bb7cd458d878",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEA3o3v+BS8EDc48yBbTEP5O4Uu0eLIfZ0\nApT4ymSdUI/yHh0RJp539jye8OPjy+OEEfO7fNRY2Hg=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04037a37bfe052f040dce3cc816d310fe4ee14bb478b21f6740294f8ca649d508ff21e1d11269e77f63c9ef0e3e3cbe38411f3bb7cd458d878",
         "wx" : "037a37bfe052f040dce3cc816d310fe4ee14bb478b21f6740294f8ca",
         "wy" : "649d508ff21e1d11269e77f63c9ef0e3e3cbe38411f3bb7cd458d878"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004037a37bfe052f040dce3cc816d310fe4ee14bb478b21f6740294f8ca649d508ff21e1d11269e77f63c9ef0e3e3cbe38411f3bb7cd458d878",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEA3o3v+BS8EDc48yBbTEP5O4Uu0eLIfZ0\nApT4ymSdUI/yHh0RJp539jye8OPjy+OEEfO7fNRY2Hg=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 209,
+          "tcId" : 225,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2514,21 +2818,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00047ff0669d193da5d977caaa7071ff156c8e9aa10b5073b31affc4b3eebfc474c540dcac4e82616ea671f88c6ed840b36bca1fce388e5509e1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEf/BmnRk9pdl3yqpwcf8VbI6aoQtQc7Ma\n/8Sz7r/EdMVA3KxOgmFupnH4jG7YQLNryh/OOI5VCeE=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "047ff0669d193da5d977caaa7071ff156c8e9aa10b5073b31affc4b3eebfc474c540dcac4e82616ea671f88c6ed840b36bca1fce388e5509e1",
         "wx" : "7ff0669d193da5d977caaa7071ff156c8e9aa10b5073b31affc4b3ee",
         "wy" : "00bfc474c540dcac4e82616ea671f88c6ed840b36bca1fce388e5509e1"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00047ff0669d193da5d977caaa7071ff156c8e9aa10b5073b31affc4b3eebfc474c540dcac4e82616ea671f88c6ed840b36bca1fce388e5509e1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEf/BmnRk9pdl3yqpwcf8VbI6aoQtQc7Ma\n/8Sz7r/EdMVA3KxOgmFupnH4jG7YQLNryh/OOI5VCeE=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 210,
+          "tcId" : 226,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2541,21 +2845,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c674e391cfe81f7dcf0b3f05f8a83acf4dbdd0018655bad59e84b97c1e447c613586a1e63b8808844c549489bbedfd4669a0e0525a4411cc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAExnTjkc/oH33PCz8F+Kg6z0290AGGVbrV\nnoS5fB5EfGE1hqHmO4gIhExUlIm77f1GaaDgUlpEEcw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c674e391cfe81f7dcf0b3f05f8a83acf4dbdd0018655bad59e84b97c1e447c613586a1e63b8808844c549489bbedfd4669a0e0525a4411cc",
         "wx" : "00c674e391cfe81f7dcf0b3f05f8a83acf4dbdd0018655bad59e84b97c",
         "wy" : "1e447c613586a1e63b8808844c549489bbedfd4669a0e0525a4411cc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c674e391cfe81f7dcf0b3f05f8a83acf4dbdd0018655bad59e84b97c1e447c613586a1e63b8808844c549489bbedfd4669a0e0525a4411cc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAExnTjkc/oH33PCz8F+Kg6z0290AGGVbrV\nnoS5fB5EfGE1hqHmO4gIhExUlIm77f1GaaDgUlpEEcw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 211,
+          "tcId" : 227,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2568,21 +2872,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044e78899d8c4e11b1fd77464bc456e02602acce817f23c9a12a9db1af4a9ca0569758ff28220568eae64ddce18ab49662cd00216a68a0618b",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETniJnYxOEbH9d0ZLxFbgJgKszoF/I8mh\nKp2xr0qcoFaXWP8oIgVo6uZN3OGKtJZizQAhamigYYs=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044e78899d8c4e11b1fd77464bc456e02602acce817f23c9a12a9db1af4a9ca0569758ff28220568eae64ddce18ab49662cd00216a68a0618b",
         "wx" : "4e78899d8c4e11b1fd77464bc456e02602acce817f23c9a12a9db1af",
         "wy" : "4a9ca0569758ff28220568eae64ddce18ab49662cd00216a68a0618b"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044e78899d8c4e11b1fd77464bc456e02602acce817f23c9a12a9db1af4a9ca0569758ff28220568eae64ddce18ab49662cd00216a68a0618b",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETniJnYxOEbH9d0ZLxFbgJgKszoF/I8mh\nKp2xr0qcoFaXWP8oIgVo6uZN3OGKtJZizQAhamigYYs=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 212,
+          "tcId" : 228,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2595,21 +2899,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040d6ff7cd8b36bacf1bef647aa345ec184826c0c0eff06a8790abb6eadce74d73c6d1d99403e4e1b5d01d0d837f7eca9fec2cbeee87063f4a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEDW/3zYs2us8b72R6o0XsGEgmwMDv8GqH\nkKu26tznTXPG0dmUA+ThtdAdDYN/fsqf7Cy+7ocGP0o=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040d6ff7cd8b36bacf1bef647aa345ec184826c0c0eff06a8790abb6eadce74d73c6d1d99403e4e1b5d01d0d837f7eca9fec2cbeee87063f4a",
         "wx" : "0d6ff7cd8b36bacf1bef647aa345ec184826c0c0eff06a8790abb6ea",
         "wy" : "00dce74d73c6d1d99403e4e1b5d01d0d837f7eca9fec2cbeee87063f4a"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040d6ff7cd8b36bacf1bef647aa345ec184826c0c0eff06a8790abb6eadce74d73c6d1d99403e4e1b5d01d0d837f7eca9fec2cbeee87063f4a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEDW/3zYs2us8b72R6o0XsGEgmwMDv8GqH\nkKu26tznTXPG0dmUA+ThtdAdDYN/fsqf7Cy+7ocGP0o=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 213,
+          "tcId" : 229,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2622,21 +2926,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000423df7cde475512a49e24b992afecb6f4230f34a61f8b73aefdd1133d0b66b67dc8b19e85da01d40a8cf6bdd85b0a789c667ccd07a52c08df",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEI9983kdVEqSeJLmSr+y29CMPNKYfi3Ou\n/dETPQtmtn3IsZ6F2gHUCoz2vdhbCnicZnzNB6UsCN8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0423df7cde475512a49e24b992afecb6f4230f34a61f8b73aefdd1133d0b66b67dc8b19e85da01d40a8cf6bdd85b0a789c667ccd07a52c08df",
         "wx" : "23df7cde475512a49e24b992afecb6f4230f34a61f8b73aefdd1133d",
         "wy" : "0b66b67dc8b19e85da01d40a8cf6bdd85b0a789c667ccd07a52c08df"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000423df7cde475512a49e24b992afecb6f4230f34a61f8b73aefdd1133d0b66b67dc8b19e85da01d40a8cf6bdd85b0a789c667ccd07a52c08df",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEI9983kdVEqSeJLmSr+y29CMPNKYfi3Ou\n/dETPQtmtn3IsZ6F2gHUCoz2vdhbCnicZnzNB6UsCN8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 214,
+          "tcId" : 230,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2649,21 +2953,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044cd06e1c71dd5fbebfc4c680049d832d8c46949e6457f264c88b4cd517ffdc5e62180a50cbc58ef8937e04b612deba745d4d9f7a3978ff09",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETNBuHHHdX76/xMaABJ2DLYxGlJ5kV/Jk\nyItM1Rf/3F5iGApQy8WO+JN+BLYS3rp0XU2fejl4/wk=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044cd06e1c71dd5fbebfc4c680049d832d8c46949e6457f264c88b4cd517ffdc5e62180a50cbc58ef8937e04b612deba745d4d9f7a3978ff09",
         "wx" : "4cd06e1c71dd5fbebfc4c680049d832d8c46949e6457f264c88b4cd5",
         "wy" : "17ffdc5e62180a50cbc58ef8937e04b612deba745d4d9f7a3978ff09"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044cd06e1c71dd5fbebfc4c680049d832d8c46949e6457f264c88b4cd517ffdc5e62180a50cbc58ef8937e04b612deba745d4d9f7a3978ff09",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETNBuHHHdX76/xMaABJ2DLYxGlJ5kV/Jk\nyItM1Rf/3F5iGApQy8WO+JN+BLYS3rp0XU2fejl4/wk=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 215,
+          "tcId" : 231,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2676,21 +2980,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004aca98ed3fd63c67c5265eb08c3b2b6edbead93d17678c428545879f059bd40d9b478fad698aef5382ae73806e2482f14406d2ce7242b513f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAErKmO0/1jxnxSZesIw7K27b6tk9F2eMQo\nVFh58Fm9QNm0ePrWmK71OCrnOAbiSC8UQG0s5yQrUT8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04aca98ed3fd63c67c5265eb08c3b2b6edbead93d17678c428545879f059bd40d9b478fad698aef5382ae73806e2482f14406d2ce7242b513f",
         "wx" : "00aca98ed3fd63c67c5265eb08c3b2b6edbead93d17678c428545879f0",
         "wy" : "59bd40d9b478fad698aef5382ae73806e2482f14406d2ce7242b513f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004aca98ed3fd63c67c5265eb08c3b2b6edbead93d17678c428545879f059bd40d9b478fad698aef5382ae73806e2482f14406d2ce7242b513f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAErKmO0/1jxnxSZesIw7K27b6tk9F2eMQo\nVFh58Fm9QNm0ePrWmK71OCrnOAbiSC8UQG0s5yQrUT8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 216,
+          "tcId" : 232,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2703,21 +3007,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000464ddabc3661ea919d22425ee281d3929d3e2821724ddb577925a5a4127dd4b21e7476364c7d2f1c3b921e24f93895ef9d14e790c721d2acc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEZN2rw2YeqRnSJCXuKB05KdPighck3bV3\nklpaQSfdSyHnR2Nkx9Lxw7kh4k+TiV750U55DHIdKsw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0464ddabc3661ea919d22425ee281d3929d3e2821724ddb577925a5a4127dd4b21e7476364c7d2f1c3b921e24f93895ef9d14e790c721d2acc",
         "wx" : "64ddabc3661ea919d22425ee281d3929d3e2821724ddb577925a5a41",
         "wy" : "27dd4b21e7476364c7d2f1c3b921e24f93895ef9d14e790c721d2acc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000464ddabc3661ea919d22425ee281d3929d3e2821724ddb577925a5a4127dd4b21e7476364c7d2f1c3b921e24f93895ef9d14e790c721d2acc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEZN2rw2YeqRnSJCXuKB05KdPighck3bV3\nklpaQSfdSyHnR2Nkx9Lxw7kh4k+TiV750U55DHIdKsw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 217,
+          "tcId" : 233,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2730,21 +3034,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044a8c8e9ed1ce7aaec7f4752968adf04bd96fedf0fba19171ebd26789d0afa30decbd14690fc75d7f56f269bd373608c9197d182811b3ebdc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAESoyOntHOeq7H9HUpaK3wS9lv7fD7oZFx\n69JnidCvow3svRRpD8ddf1byab03NgjJGX0YKBGz69w=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044a8c8e9ed1ce7aaec7f4752968adf04bd96fedf0fba19171ebd26789d0afa30decbd14690fc75d7f56f269bd373608c9197d182811b3ebdc",
         "wx" : "4a8c8e9ed1ce7aaec7f4752968adf04bd96fedf0fba19171ebd26789",
         "wy" : "00d0afa30decbd14690fc75d7f56f269bd373608c9197d182811b3ebdc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044a8c8e9ed1ce7aaec7f4752968adf04bd96fedf0fba19171ebd26789d0afa30decbd14690fc75d7f56f269bd373608c9197d182811b3ebdc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAESoyOntHOeq7H9HUpaK3wS9lv7fD7oZFx\n69JnidCvow3svRRpD8ddf1byab03NgjJGX0YKBGz69w=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 218,
+          "tcId" : 234,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2757,21 +3061,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004392f6504382952110442d79d0611427a153cc795c413ceac9b1a4a3ab4a0cc29d27c85837fc58f0d4af8ddedf941bf7f26c124a6b40fd6c3",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEOS9lBDgpUhEEQtedBhFCehU8x5XEE86s\nmxpKOrSgzCnSfIWDf8WPDUr43e35Qb9/JsEkprQP1sM=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04392f6504382952110442d79d0611427a153cc795c413ceac9b1a4a3ab4a0cc29d27c85837fc58f0d4af8ddedf941bf7f26c124a6b40fd6c3",
         "wx" : "392f6504382952110442d79d0611427a153cc795c413ceac9b1a4a3a",
         "wy" : "00b4a0cc29d27c85837fc58f0d4af8ddedf941bf7f26c124a6b40fd6c3"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004392f6504382952110442d79d0611427a153cc795c413ceac9b1a4a3ab4a0cc29d27c85837fc58f0d4af8ddedf941bf7f26c124a6b40fd6c3",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEOS9lBDgpUhEEQtedBhFCehU8x5XEE86s\nmxpKOrSgzCnSfIWDf8WPDUr43e35Qb9/JsEkprQP1sM=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 219,
+          "tcId" : 235,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -2784,21 +3088,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004961617d9855f202fd600b584abe94a46674927cfdc6333c5be56ce7b89b4150d9ccdfbd77e7682ca862c0c3e96d89c918b7d3b7bbb92ff43",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAElhYX2YVfIC/WALWEq+lKRmdJJ8/cYzPF\nvlbOe4m0FQ2czfvXfnaCyoYsDD6W2JyRi307e7uS/0M=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04961617d9855f202fd600b584abe94a46674927cfdc6333c5be56ce7b89b4150d9ccdfbd77e7682ca862c0c3e96d89c918b7d3b7bbb92ff43",
         "wx" : "00961617d9855f202fd600b584abe94a46674927cfdc6333c5be56ce7b",
         "wy" : "0089b4150d9ccdfbd77e7682ca862c0c3e96d89c918b7d3b7bbb92ff43"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004961617d9855f202fd600b584abe94a46674927cfdc6333c5be56ce7b89b4150d9ccdfbd77e7682ca862c0c3e96d89c918b7d3b7bbb92ff43",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAElhYX2YVfIC/WALWEq+lKRmdJJ8/cYzPF\nvlbOe4m0FQ2czfvXfnaCyoYsDD6W2JyRi307e7uS/0M=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 220,
+          "tcId" : 236,
           "comment" : "point at infinity during verify",
           "flags" : [
             "PointDuplication",
@@ -2811,21 +3115,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048db53fe4168df43ee538bc9d758b8c26fa433fb0101bcbad039585de2310dfc20835379ea406993036fd4bb0f67d14760e1eb414c32dd1f3",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEjbU/5BaN9D7lOLyddYuMJvpDP7AQG8ut\nA5WF3iMQ38IINTeepAaZMDb9S7D2fRR2Dh60FMMt0fM=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048db53fe4168df43ee538bc9d758b8c26fa433fb0101bcbad039585de2310dfc20835379ea406993036fd4bb0f67d14760e1eb414c32dd1f3",
         "wx" : "008db53fe4168df43ee538bc9d758b8c26fa433fb0101bcbad039585de",
         "wy" : "2310dfc20835379ea406993036fd4bb0f67d14760e1eb414c32dd1f3"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048db53fe4168df43ee538bc9d758b8c26fa433fb0101bcbad039585de2310dfc20835379ea406993036fd4bb0f67d14760e1eb414c32dd1f3",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEjbU/5BaN9D7lOLyddYuMJvpDP7AQG8ut\nA5WF3iMQ38IINTeepAaZMDb9S7D2fRR2Dh60FMMt0fM=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 221,
+          "tcId" : 237,
           "comment" : "edge case for signature malleability",
           "flags" : [
             "ArithmeticError"
@@ -2837,21 +3141,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040b7fa61983e7a227f738847d457f3e8cf0a4085c312fb6dcec822570ee7434ce2ff3fbcc1d0960379876e9dd5bed28aad576eea233a44b0d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEC3+mGYPnoif3OIR9RX8+jPCkCFwxL7bc\n7IIlcO50NM4v8/vMHQlgN5h26d1b7Siq1XbuojOkSw0=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040b7fa61983e7a227f738847d457f3e8cf0a4085c312fb6dcec822570ee7434ce2ff3fbcc1d0960379876e9dd5bed28aad576eea233a44b0d",
         "wx" : "0b7fa61983e7a227f738847d457f3e8cf0a4085c312fb6dcec822570",
         "wy" : "00ee7434ce2ff3fbcc1d0960379876e9dd5bed28aad576eea233a44b0d"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040b7fa61983e7a227f738847d457f3e8cf0a4085c312fb6dcec822570ee7434ce2ff3fbcc1d0960379876e9dd5bed28aad576eea233a44b0d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEC3+mGYPnoif3OIR9RX8+jPCkCFwxL7bc\n7IIlcO50NM4v8/vMHQlgN5h26d1b7Siq1XbuojOkSw0=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 222,
+          "tcId" : 238,
           "comment" : "edge case for signature malleability",
           "flags" : [
             "ArithmeticError"
@@ -2863,21 +3167,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000455b212919cd6886b13cd7a2556430ce442e86942f1bf6e4618ae363e795c664ae960ee1106308b7dba91240ab0c3ef8beb7d0a4d7a102a7f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEVbISkZzWiGsTzXolVkMM5ELoaULxv25G\nGK42PnlcZkrpYO4RBjCLfbqRJAqww++L630KTXoQKn8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0455b212919cd6886b13cd7a2556430ce442e86942f1bf6e4618ae363e795c664ae960ee1106308b7dba91240ab0c3ef8beb7d0a4d7a102a7f",
         "wx" : "55b212919cd6886b13cd7a2556430ce442e86942f1bf6e4618ae363e",
         "wy" : "795c664ae960ee1106308b7dba91240ab0c3ef8beb7d0a4d7a102a7f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000455b212919cd6886b13cd7a2556430ce442e86942f1bf6e4618ae363e795c664ae960ee1106308b7dba91240ab0c3ef8beb7d0a4d7a102a7f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEVbISkZzWiGsTzXolVkMM5ELoaULxv25G\nGK42PnlcZkrpYO4RBjCLfbqRJAqww++L630KTXoQKn8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 223,
+          "tcId" : 239,
           "comment" : "u1 == 1",
           "flags" : [
             "ArithmeticError"
@@ -2889,21 +3193,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c0288a63ce32263f3651198dab801c896fb9308362fc40e35959e14010d00bd1c228cfb6a5faa647387804e34fa1a7f9fcc472c05ea2eeda",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwCiKY84yJj82URmNq4AciW+5MINi/EDj\nWVnhQBDQC9HCKM+2pfqmRzh4BONPoaf5/MRywF6i7to=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c0288a63ce32263f3651198dab801c896fb9308362fc40e35959e14010d00bd1c228cfb6a5faa647387804e34fa1a7f9fcc472c05ea2eeda",
         "wx" : "00c0288a63ce32263f3651198dab801c896fb9308362fc40e35959e140",
         "wy" : "10d00bd1c228cfb6a5faa647387804e34fa1a7f9fcc472c05ea2eeda"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c0288a63ce32263f3651198dab801c896fb9308362fc40e35959e14010d00bd1c228cfb6a5faa647387804e34fa1a7f9fcc472c05ea2eeda",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwCiKY84yJj82URmNq4AciW+5MINi/EDj\nWVnhQBDQC9HCKM+2pfqmRzh4BONPoaf5/MRywF6i7to=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 224,
+          "tcId" : 240,
           "comment" : "u1 == n - 1",
           "flags" : [
             "ArithmeticError"
@@ -2915,21 +3219,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040c8e2cb5f6a903e1cccf3ac2d465f1d0dc3452237fd9e8a4df5d5341d044ca8ceecb54a1b951270971e5ab4eb226116c48c553499d1a4899",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEDI4stfapA+HMzzrC1GXx0Nw0UiN/2eik\n311TQdBEyozuy1ShuVEnCXHlq06yJhFsSMVTSZ0aSJk=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040c8e2cb5f6a903e1cccf3ac2d465f1d0dc3452237fd9e8a4df5d5341d044ca8ceecb54a1b951270971e5ab4eb226116c48c553499d1a4899",
         "wx" : "0c8e2cb5f6a903e1cccf3ac2d465f1d0dc3452237fd9e8a4df5d5341",
         "wy" : "00d044ca8ceecb54a1b951270971e5ab4eb226116c48c553499d1a4899"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00040c8e2cb5f6a903e1cccf3ac2d465f1d0dc3452237fd9e8a4df5d5341d044ca8ceecb54a1b951270971e5ab4eb226116c48c553499d1a4899",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEDI4stfapA+HMzzrC1GXx0Nw0UiN/2eik\n311TQdBEyozuy1ShuVEnCXHlq06yJhFsSMVTSZ0aSJk=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 225,
+          "tcId" : 241,
           "comment" : "u2 == 1",
           "flags" : [
             "ArithmeticError"
@@ -2941,21 +3245,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00041ff6b9901784d88b25527b3702622a2734b83d8a0fed0f740bb784e20e83ee0aa82933dcdc637a3760606a04974c2dc75f12095f8fdaf003",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEH/a5kBeE2IslUns3AmIqJzS4PYoP7Q90\nC7eE4g6D7gqoKTPc3GN6N2BgagSXTC3HXxIJX4/a8AM=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "041ff6b9901784d88b25527b3702622a2734b83d8a0fed0f740bb784e20e83ee0aa82933dcdc637a3760606a04974c2dc75f12095f8fdaf003",
         "wx" : "1ff6b9901784d88b25527b3702622a2734b83d8a0fed0f740bb784e2",
         "wy" : "0e83ee0aa82933dcdc637a3760606a04974c2dc75f12095f8fdaf003"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00041ff6b9901784d88b25527b3702622a2734b83d8a0fed0f740bb784e20e83ee0aa82933dcdc637a3760606a04974c2dc75f12095f8fdaf003",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEH/a5kBeE2IslUns3AmIqJzS4PYoP7Q90\nC7eE4g6D7gqoKTPc3GN6N2BgagSXTC3HXxIJX4/a8AM=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 226,
+          "tcId" : 242,
           "comment" : "u2 == n - 1",
           "flags" : [
             "ArithmeticError"
@@ -2967,21 +3271,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b21faca17b68058752d943a81f853b800562df8b2172e150953c624201c2c0f5ed3b342956cacd26f9097562d0fb0a3ddab91c5ae7e90c01",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsh+soXtoBYdS2UOoH4U7gAVi34shcuFQ\nlTxiQgHCwPXtOzQpVsrNJvkJdWLQ+wo92rkcWufpDAE=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b21faca17b68058752d943a81f853b800562df8b2172e150953c624201c2c0f5ed3b342956cacd26f9097562d0fb0a3ddab91c5ae7e90c01",
         "wx" : "00b21faca17b68058752d943a81f853b800562df8b2172e150953c6242",
         "wy" : "01c2c0f5ed3b342956cacd26f9097562d0fb0a3ddab91c5ae7e90c01"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b21faca17b68058752d943a81f853b800562df8b2172e150953c624201c2c0f5ed3b342956cacd26f9097562d0fb0a3ddab91c5ae7e90c01",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsh+soXtoBYdS2UOoH4U7gAVi34shcuFQ\nlTxiQgHCwPXtOzQpVsrNJvkJdWLQ+wo92rkcWufpDAE=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 227,
+          "tcId" : 243,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2993,21 +3297,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f49278419e4f506889b0168b1fce1f87ee5b61efa0e73c7833eeb29cb1b334f81be8f05f3b2e98d38b030cff57947b96135ec4465c5e53f3",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9JJ4QZ5PUGiJsBaLH84fh+5bYe+g5zx4\nM+6ynLGzNPgb6PBfOy6Y04sDDP9XlHuWE17ERlxeU/M=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04f49278419e4f506889b0168b1fce1f87ee5b61efa0e73c7833eeb29cb1b334f81be8f05f3b2e98d38b030cff57947b96135ec4465c5e53f3",
         "wx" : "00f49278419e4f506889b0168b1fce1f87ee5b61efa0e73c7833eeb29c",
         "wy" : "00b1b334f81be8f05f3b2e98d38b030cff57947b96135ec4465c5e53f3"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f49278419e4f506889b0168b1fce1f87ee5b61efa0e73c7833eeb29cb1b334f81be8f05f3b2e98d38b030cff57947b96135ec4465c5e53f3",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9JJ4QZ5PUGiJsBaLH84fh+5bYe+g5zx4\nM+6ynLGzNPgb6PBfOy6Y04sDDP9XlHuWE17ERlxeU/M=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 228,
+          "tcId" : 244,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3019,21 +3323,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000475c6a886e22bc04b996d4a19575ce0c6686b449b6e05ef1301bd8ba233ab29f65df2d4144da2b21e90359a064765c95e325bb7e54ca28e40",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEdcaohuIrwEuZbUoZV1zgxmhrRJtuBe8T\nAb2LojOrKfZd8tQUTaKyHpA1mgZHZcleMlu35UyijkA=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0475c6a886e22bc04b996d4a19575ce0c6686b449b6e05ef1301bd8ba233ab29f65df2d4144da2b21e90359a064765c95e325bb7e54ca28e40",
         "wx" : "75c6a886e22bc04b996d4a19575ce0c6686b449b6e05ef1301bd8ba2",
         "wy" : "33ab29f65df2d4144da2b21e90359a064765c95e325bb7e54ca28e40"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000475c6a886e22bc04b996d4a19575ce0c6686b449b6e05ef1301bd8ba233ab29f65df2d4144da2b21e90359a064765c95e325bb7e54ca28e40",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEdcaohuIrwEuZbUoZV1zgxmhrRJtuBe8T\nAb2LojOrKfZd8tQUTaKyHpA1mgZHZcleMlu35UyijkA=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 229,
+          "tcId" : 245,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3045,21 +3349,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f554014cc14f319c18f5fa6cd739249075ff35ba3b2afdab5329ef0fd2c501f25a704addbd85c0e022748956e5998d99c387fbfd343c89e0",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9VQBTMFPMZwY9fps1zkkkHX/Nbo7Kv2r\nUynvD9LFAfJacErdvYXA4CJ0iVblmY2Zw4f7/TQ8ieA=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04f554014cc14f319c18f5fa6cd739249075ff35ba3b2afdab5329ef0fd2c501f25a704addbd85c0e022748956e5998d99c387fbfd343c89e0",
         "wx" : "00f554014cc14f319c18f5fa6cd739249075ff35ba3b2afdab5329ef0f",
         "wy" : "00d2c501f25a704addbd85c0e022748956e5998d99c387fbfd343c89e0"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f554014cc14f319c18f5fa6cd739249075ff35ba3b2afdab5329ef0fd2c501f25a704addbd85c0e022748956e5998d99c387fbfd343c89e0",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9VQBTMFPMZwY9fps1zkkkHX/Nbo7Kv2r\nUynvD9LFAfJacErdvYXA4CJ0iVblmY2Zw4f7/TQ8ieA=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 230,
+          "tcId" : 246,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3071,21 +3375,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004bcfa8db704aca56feb23bd4b4049213233aa652045a0a81a2e0da64c091b359f7be7ae00a0e9777d9510f847430b5dfda878e66d4fb0d62f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEvPqNtwSspW/rI71LQEkhMjOqZSBFoKga\nLg2mTAkbNZ97564AoOl3fZUQ+EdDC139qHjmbU+w1i8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04bcfa8db704aca56feb23bd4b4049213233aa652045a0a81a2e0da64c091b359f7be7ae00a0e9777d9510f847430b5dfda878e66d4fb0d62f",
         "wx" : "00bcfa8db704aca56feb23bd4b4049213233aa652045a0a81a2e0da64c",
         "wy" : "091b359f7be7ae00a0e9777d9510f847430b5dfda878e66d4fb0d62f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004bcfa8db704aca56feb23bd4b4049213233aa652045a0a81a2e0da64c091b359f7be7ae00a0e9777d9510f847430b5dfda878e66d4fb0d62f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEvPqNtwSspW/rI71LQEkhMjOqZSBFoKga\nLg2mTAkbNZ97564AoOl3fZUQ+EdDC139qHjmbU+w1i8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 231,
+          "tcId" : 247,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3097,21 +3401,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00049fd4d828ae98056be58fa69eaf9cde98ca0ed9b415d6463fa1864d9fb2a5e41f10e8789450217daafd259f204aed87b0e26100f43f7c5bad",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEn9TYKK6YBWvlj6aer5zemMoO2bQV1kY/\noYZNn7Kl5B8Q6HiUUCF9qv0lnyBK7Yew4mEA9D98W60=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "049fd4d828ae98056be58fa69eaf9cde98ca0ed9b415d6463fa1864d9fb2a5e41f10e8789450217daafd259f204aed87b0e26100f43f7c5bad",
         "wx" : "009fd4d828ae98056be58fa69eaf9cde98ca0ed9b415d6463fa1864d9f",
         "wy" : "00b2a5e41f10e8789450217daafd259f204aed87b0e26100f43f7c5bad"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00049fd4d828ae98056be58fa69eaf9cde98ca0ed9b415d6463fa1864d9fb2a5e41f10e8789450217daafd259f204aed87b0e26100f43f7c5bad",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEn9TYKK6YBWvlj6aer5zemMoO2bQV1kY/\noYZNn7Kl5B8Q6HiUUCF9qv0lnyBK7Yew4mEA9D98W60=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 232,
+          "tcId" : 248,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3123,21 +3427,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00046123a33969f2e036fc27885f55755d391cb0c2d3fafb0c4056c1995da03bb490047e88fe7e608912a6205b65f950a8a0a360362d3339e62c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYSOjOWny4Db8J4hfVXVdORywwtP6+wxA\nVsGZXaA7tJAEfoj+fmCJEqYgW2X5UKigo2A2LTM55iw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "046123a33969f2e036fc27885f55755d391cb0c2d3fafb0c4056c1995da03bb490047e88fe7e608912a6205b65f950a8a0a360362d3339e62c",
         "wx" : "6123a33969f2e036fc27885f55755d391cb0c2d3fafb0c4056c1995d",
         "wy" : "00a03bb490047e88fe7e608912a6205b65f950a8a0a360362d3339e62c"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00046123a33969f2e036fc27885f55755d391cb0c2d3fafb0c4056c1995da03bb490047e88fe7e608912a6205b65f950a8a0a360362d3339e62c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYSOjOWny4Db8J4hfVXVdORywwtP6+wxA\nVsGZXaA7tJAEfoj+fmCJEqYgW2X5UKigo2A2LTM55iw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 233,
+          "tcId" : 249,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3149,21 +3453,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004a10b7aa7785b2f2791b1d4c43e127aab5669612d740b38abaa0d306ec178f216fad379ad80baa0eac57bf9a56d446d685576371b74762382",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEoQt6p3hbLyeRsdTEPhJ6q1ZpYS10Czir\nqg0wbsF48hb603mtgLqg6sV7+aVtRG1oVXY3G3R2I4I=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a10b7aa7785b2f2791b1d4c43e127aab5669612d740b38abaa0d306ec178f216fad379ad80baa0eac57bf9a56d446d685576371b74762382",
         "wx" : "00a10b7aa7785b2f2791b1d4c43e127aab5669612d740b38abaa0d306e",
         "wy" : "00c178f216fad379ad80baa0eac57bf9a56d446d685576371b74762382"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004a10b7aa7785b2f2791b1d4c43e127aab5669612d740b38abaa0d306ec178f216fad379ad80baa0eac57bf9a56d446d685576371b74762382",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEoQt6p3hbLyeRsdTEPhJ6q1ZpYS10Czir\nqg0wbsF48hb603mtgLqg6sV7+aVtRG1oVXY3G3R2I4I=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 234,
+          "tcId" : 250,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3175,21 +3479,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e012c23c6867e9553313d0179e9db953de7c368cdb59abe05f1c52bad352a57bb59c45159352c114eeb696ec3b79caa835ef5c2ae71ddcfa",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE4BLCPGhn6VUzE9AXnp25U958NozbWavg\nXxxSutNSpXu1nEUVk1LBFO62luw7ecqoNe9cKucd3Po=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04e012c23c6867e9553313d0179e9db953de7c368cdb59abe05f1c52bad352a57bb59c45159352c114eeb696ec3b79caa835ef5c2ae71ddcfa",
         "wx" : "00e012c23c6867e9553313d0179e9db953de7c368cdb59abe05f1c52ba",
         "wy" : "00d352a57bb59c45159352c114eeb696ec3b79caa835ef5c2ae71ddcfa"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e012c23c6867e9553313d0179e9db953de7c368cdb59abe05f1c52bad352a57bb59c45159352c114eeb696ec3b79caa835ef5c2ae71ddcfa",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE4BLCPGhn6VUzE9AXnp25U958NozbWavg\nXxxSutNSpXu1nEUVk1LBFO62luw7ecqoNe9cKucd3Po=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 235,
+          "tcId" : 251,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3201,21 +3505,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b9ccd7f0f3594954aa729bda4be883e107e7f1226465b64c2ca7105789829d787016c5c118d3ba3317a2da0a0daaf56d3004c10962333a9f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEuczX8PNZSVSqcpvaS+iD4Qfn8SJkZbZM\nLKcQV4mCnXhwFsXBGNO6Mxei2goNqvVtMATBCWIzOp8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b9ccd7f0f3594954aa729bda4be883e107e7f1226465b64c2ca7105789829d787016c5c118d3ba3317a2da0a0daaf56d3004c10962333a9f",
         "wx" : "00b9ccd7f0f3594954aa729bda4be883e107e7f1226465b64c2ca71057",
         "wy" : "0089829d787016c5c118d3ba3317a2da0a0daaf56d3004c10962333a9f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b9ccd7f0f3594954aa729bda4be883e107e7f1226465b64c2ca7105789829d787016c5c118d3ba3317a2da0a0daaf56d3004c10962333a9f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEuczX8PNZSVSqcpvaS+iD4Qfn8SJkZbZM\nLKcQV4mCnXhwFsXBGNO6Mxei2goNqvVtMATBCWIzOp8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 236,
+          "tcId" : 252,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3227,21 +3531,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004321a17de024fe89c1864e128b9e0af3e6b48800a70d6e802b8b6dffeb1a8ae96911ddbdeb83948a992b1b0fe316679c64814b6a45ec56fe9",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMhoX3gJP6JwYZOEoueCvPmtIgApw1ugC\nuLbf/rGorpaRHdveuDlIqZKxsP4xZnnGSBS2pF7Fb+k=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04321a17de024fe89c1864e128b9e0af3e6b48800a70d6e802b8b6dffeb1a8ae96911ddbdeb83948a992b1b0fe316679c64814b6a45ec56fe9",
         "wx" : "321a17de024fe89c1864e128b9e0af3e6b48800a70d6e802b8b6dffe",
         "wy" : "00b1a8ae96911ddbdeb83948a992b1b0fe316679c64814b6a45ec56fe9"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004321a17de024fe89c1864e128b9e0af3e6b48800a70d6e802b8b6dffeb1a8ae96911ddbdeb83948a992b1b0fe316679c64814b6a45ec56fe9",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMhoX3gJP6JwYZOEoueCvPmtIgApw1ugC\nuLbf/rGorpaRHdveuDlIqZKxsP4xZnnGSBS2pF7Fb+k=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 237,
+          "tcId" : 253,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -3253,21 +3557,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000408842f19b114d16be27bb4b6971377ed6b1d0915e133a9ebf01674ee4c97738b6912ff71553c4a747c782eddd9d2a20fbeae38864d217859",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAECIQvGbEU0Wvie7S2lxN37WsdCRXhM6nr\n8BZ07kyXc4tpEv9xVTxKdHx4Lt3Z0qIPvq44hk0heFk=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0408842f19b114d16be27bb4b6971377ed6b1d0915e133a9ebf01674ee4c97738b6912ff71553c4a747c782eddd9d2a20fbeae38864d217859",
         "wx" : "08842f19b114d16be27bb4b6971377ed6b1d0915e133a9ebf01674ee",
         "wy" : "4c97738b6912ff71553c4a747c782eddd9d2a20fbeae38864d217859"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000408842f19b114d16be27bb4b6971377ed6b1d0915e133a9ebf01674ee4c97738b6912ff71553c4a747c782eddd9d2a20fbeae38864d217859",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAECIQvGbEU0Wvie7S2lxN37WsdCRXhM6nr\n8BZ07kyXc4tpEv9xVTxKdHx4Lt3Z0qIPvq44hk0heFk=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 238,
+          "tcId" : 254,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3279,21 +3583,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000484d651596fd2348f1bb5c8ae9d22c8b21c4f7509240b609abad5cc243196b67b4cfaffaf0dce25ab00bfeaa1a64821332efa6dedd87cc9e7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEhNZRWW/SNI8btciunSLIshxPdQkkC2Ca\nutXMJDGWtntM+v+vDc4lqwC/6qGmSCEzLvpt7dh8yec=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0484d651596fd2348f1bb5c8ae9d22c8b21c4f7509240b609abad5cc243196b67b4cfaffaf0dce25ab00bfeaa1a64821332efa6dedd87cc9e7",
         "wx" : "0084d651596fd2348f1bb5c8ae9d22c8b21c4f7509240b609abad5cc24",
         "wy" : "3196b67b4cfaffaf0dce25ab00bfeaa1a64821332efa6dedd87cc9e7"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000484d651596fd2348f1bb5c8ae9d22c8b21c4f7509240b609abad5cc243196b67b4cfaffaf0dce25ab00bfeaa1a64821332efa6dedd87cc9e7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEhNZRWW/SNI8btciunSLIshxPdQkkC2Ca\nutXMJDGWtntM+v+vDc4lqwC/6qGmSCEzLvpt7dh8yec=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 239,
+          "tcId" : 255,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3305,21 +3609,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fbe39e75bc4fd8a15e4b52e4bbebe2047d54385a7117e17a4d0b2b207abdb40824538e5787c718d6548583f523f6b5bbfa239a7f622c8a0",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj74551vE/YoV5LUuS76+IEfVQ4WnEX4X\npNCysger20CCRTjleHxxjWVIWD9SP2tbv6I5p/YiyKA=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048fbe39e75bc4fd8a15e4b52e4bbebe2047d54385a7117e17a4d0b2b207abdb40824538e5787c718d6548583f523f6b5bbfa239a7f622c8a0",
         "wx" : "008fbe39e75bc4fd8a15e4b52e4bbebe2047d54385a7117e17a4d0b2b2",
         "wy" : "07abdb40824538e5787c718d6548583f523f6b5bbfa239a7f622c8a0"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fbe39e75bc4fd8a15e4b52e4bbebe2047d54385a7117e17a4d0b2b207abdb40824538e5787c718d6548583f523f6b5bbfa239a7f622c8a0",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj74551vE/YoV5LUuS76+IEfVQ4WnEX4X\npNCysger20CCRTjleHxxjWVIWD9SP2tbv6I5p/YiyKA=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 240,
+          "tcId" : 256,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3331,21 +3635,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c336b340bc99d46c2c52df5428b6a0c4eb2da76c423530f767cc7652f3ab9981bd05d2955123935a379cbb2d4361a17d19878673e1e17dcc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwzazQLyZ1GwsUt9UKLagxOstp2xCNTD3\nZ8x2UvOrmYG9BdKVUSOTWjecuy1DYaF9GYeGc+Hhfcw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c336b340bc99d46c2c52df5428b6a0c4eb2da76c423530f767cc7652f3ab9981bd05d2955123935a379cbb2d4361a17d19878673e1e17dcc",
         "wx" : "00c336b340bc99d46c2c52df5428b6a0c4eb2da76c423530f767cc7652",
         "wy" : "00f3ab9981bd05d2955123935a379cbb2d4361a17d19878673e1e17dcc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c336b340bc99d46c2c52df5428b6a0c4eb2da76c423530f767cc7652f3ab9981bd05d2955123935a379cbb2d4361a17d19878673e1e17dcc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEwzazQLyZ1GwsUt9UKLagxOstp2xCNTD3\nZ8x2UvOrmYG9BdKVUSOTWjecuy1DYaF9GYeGc+Hhfcw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 241,
+          "tcId" : 257,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3357,21 +3661,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004816fdcf370827e3f7771564e1aa73ed73e62556deadad89711cef663edcda0ea42235f4c9a8c13f787351ffe5ceb32f15fc0ccb24e0a409c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEgW/c83CCfj93cVZOGqc+1z5iVW3q2tiX\nEc72Y+3NoOpCI19MmowT94c1H/5c6zLxX8DMsk4KQJw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04816fdcf370827e3f7771564e1aa73ed73e62556deadad89711cef663edcda0ea42235f4c9a8c13f787351ffe5ceb32f15fc0ccb24e0a409c",
         "wx" : "00816fdcf370827e3f7771564e1aa73ed73e62556deadad89711cef663",
         "wy" : "00edcda0ea42235f4c9a8c13f787351ffe5ceb32f15fc0ccb24e0a409c"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004816fdcf370827e3f7771564e1aa73ed73e62556deadad89711cef663edcda0ea42235f4c9a8c13f787351ffe5ceb32f15fc0ccb24e0a409c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEgW/c83CCfj93cVZOGqc+1z5iVW3q2tiX\nEc72Y+3NoOpCI19MmowT94c1H/5c6zLxX8DMsk4KQJw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 242,
+          "tcId" : 258,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3383,21 +3687,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00046429d2b7b07ab0d5ea352902df0efc036d7270a0a6ed39f635d04f394f7932883bc45394151324aab26ae29bbd7385fa6a42c3db84432897",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEZCnSt7B6sNXqNSkC3w78A21ycKCm7Tn2\nNdBPOU95Mog7xFOUFRMkqrJq4pu9c4X6akLD24RDKJc=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "046429d2b7b07ab0d5ea352902df0efc036d7270a0a6ed39f635d04f394f7932883bc45394151324aab26ae29bbd7385fa6a42c3db84432897",
         "wx" : "6429d2b7b07ab0d5ea352902df0efc036d7270a0a6ed39f635d04f39",
         "wy" : "4f7932883bc45394151324aab26ae29bbd7385fa6a42c3db84432897"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00046429d2b7b07ab0d5ea352902df0efc036d7270a0a6ed39f635d04f394f7932883bc45394151324aab26ae29bbd7385fa6a42c3db84432897",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEZCnSt7B6sNXqNSkC3w78A21ycKCm7Tn2\nNdBPOU95Mog7xFOUFRMkqrJq4pu9c4X6akLD24RDKJc=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 243,
+          "tcId" : 259,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3409,21 +3713,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004288f38fd77dd1603ff0275cb11cba280ae3408affa6a760f396f1a1ec84ca6fd772c6ac6cc523cc72c2e7e95eb6a36a66b5cca5a58ba078a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEKI84/XfdFgP/AnXLEcuigK40CK/6anYP\nOW8aHshMpv13LGrGzFI8xywufpXrajama1zKWli6B4o=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04288f38fd77dd1603ff0275cb11cba280ae3408affa6a760f396f1a1ec84ca6fd772c6ac6cc523cc72c2e7e95eb6a36a66b5cca5a58ba078a",
         "wx" : "288f38fd77dd1603ff0275cb11cba280ae3408affa6a760f396f1a1e",
         "wy" : "00c84ca6fd772c6ac6cc523cc72c2e7e95eb6a36a66b5cca5a58ba078a"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004288f38fd77dd1603ff0275cb11cba280ae3408affa6a760f396f1a1ec84ca6fd772c6ac6cc523cc72c2e7e95eb6a36a66b5cca5a58ba078a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEKI84/XfdFgP/AnXLEcuigK40CK/6anYP\nOW8aHshMpv13LGrGzFI8xywufpXrajama1zKWli6B4o=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 244,
+          "tcId" : 260,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3435,21 +3739,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c769c138f9d71ffff113273b71a4afde4f9996a1c4be658a3903cf7f430e512b868b37bb96bc17a09b0ab01b262f2e23f34f00418f6b63d6",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEx2nBOPnXH//xEyc7caSv3k+ZlqHEvmWK\nOQPPf0MOUSuGize7lrwXoJsKsBsmLy4j808AQY9rY9Y=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c769c138f9d71ffff113273b71a4afde4f9996a1c4be658a3903cf7f430e512b868b37bb96bc17a09b0ab01b262f2e23f34f00418f6b63d6",
         "wx" : "00c769c138f9d71ffff113273b71a4afde4f9996a1c4be658a3903cf7f",
         "wy" : "430e512b868b37bb96bc17a09b0ab01b262f2e23f34f00418f6b63d6"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c769c138f9d71ffff113273b71a4afde4f9996a1c4be658a3903cf7f430e512b868b37bb96bc17a09b0ab01b262f2e23f34f00418f6b63d6",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEx2nBOPnXH//xEyc7caSv3k+ZlqHEvmWK\nOQPPf0MOUSuGize7lrwXoJsKsBsmLy4j808AQY9rY9Y=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 245,
+          "tcId" : 261,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3461,21 +3765,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000475f007c11b93e6f46e9a815cb765990a8305d3ad8d22c76fe6b257cc71b5c1951b5d464c66df7c290cf0a4f156bbf52f1e41a79dc63abce5",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEdfAHwRuT5vRumoFct2WZCoMF062NIsdv\n5rJXzHG1wZUbXUZMZt98KQzwpPFWu/UvHkGnncY6vOU=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0475f007c11b93e6f46e9a815cb765990a8305d3ad8d22c76fe6b257cc71b5c1951b5d464c66df7c290cf0a4f156bbf52f1e41a79dc63abce5",
         "wx" : "75f007c11b93e6f46e9a815cb765990a8305d3ad8d22c76fe6b257cc",
         "wy" : "71b5c1951b5d464c66df7c290cf0a4f156bbf52f1e41a79dc63abce5"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000475f007c11b93e6f46e9a815cb765990a8305d3ad8d22c76fe6b257cc71b5c1951b5d464c66df7c290cf0a4f156bbf52f1e41a79dc63abce5",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEdfAHwRuT5vRumoFct2WZCoMF062NIsdv\n5rJXzHG1wZUbXUZMZt98KQzwpPFWu/UvHkGnncY6vOU=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 246,
+          "tcId" : 262,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3487,21 +3791,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00041255fb94a0f20e6faa2505c394cc3c39f07def4107127dffc4dacb6eea73c1044544a1496560bd1b049ff615e68ae0d483220327569884e1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEElX7lKDyDm+qJQXDlMw8OfB970EHEn3/\nxNrLbupzwQRFRKFJZWC9GwSf9hXmiuDUgyIDJ1aYhOE=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "041255fb94a0f20e6faa2505c394cc3c39f07def4107127dffc4dacb6eea73c1044544a1496560bd1b049ff615e68ae0d483220327569884e1",
         "wx" : "1255fb94a0f20e6faa2505c394cc3c39f07def4107127dffc4dacb6e",
         "wy" : "00ea73c1044544a1496560bd1b049ff615e68ae0d483220327569884e1"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00041255fb94a0f20e6faa2505c394cc3c39f07def4107127dffc4dacb6eea73c1044544a1496560bd1b049ff615e68ae0d483220327569884e1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEElX7lKDyDm+qJQXDlMw8OfB970EHEn3/\nxNrLbupzwQRFRKFJZWC9GwSf9hXmiuDUgyIDJ1aYhOE=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 247,
+          "tcId" : 263,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3513,21 +3817,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f656a632a0804cf688446b261208f793373c5ff4454bd1e0a882113f30a25d6f586e02dd4dcbf73d96af3e483b7acb5f8f4c06450dec1982",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9lamMqCATPaIRGsmEgj3kzc8X/RFS9Hg\nqIIRPzCiXW9YbgLdTcv3PZavPkg7estfj0wGRQ3sGYI=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04f656a632a0804cf688446b261208f793373c5ff4454bd1e0a882113f30a25d6f586e02dd4dcbf73d96af3e483b7acb5f8f4c06450dec1982",
         "wx" : "00f656a632a0804cf688446b261208f793373c5ff4454bd1e0a882113f",
         "wy" : "30a25d6f586e02dd4dcbf73d96af3e483b7acb5f8f4c06450dec1982"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004f656a632a0804cf688446b261208f793373c5ff4454bd1e0a882113f30a25d6f586e02dd4dcbf73d96af3e483b7acb5f8f4c06450dec1982",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE9lamMqCATPaIRGsmEgj3kzc8X/RFS9Hg\nqIIRPzCiXW9YbgLdTcv3PZavPkg7estfj0wGRQ3sGYI=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 248,
+          "tcId" : 264,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -3539,21 +3843,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a3f074d20e1da7232d279461732bc1bae0c5416ab9d696308622e7ffe8",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj7Vy3k2vdnAmJM5O2BnQJnYiJOilQhW/\ngbICo/B00g4dpyMtJ5RhcyvBuuDFQWq51pYwhiLn/+g=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a3f074d20e1da7232d279461732bc1bae0c5416ab9d696308622e7ffe8",
         "wx" : "008fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a3",
         "wy" : "00f074d20e1da7232d279461732bc1bae0c5416ab9d696308622e7ffe8"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a3f074d20e1da7232d279461732bc1bae0c5416ab9d696308622e7ffe8",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj7Vy3k2vdnAmJM5O2BnQJnYiJOilQhW/\ngbICo/B00g4dpyMtJ5RhcyvBuuDFQWq51pYwhiLn/+g=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 249,
+          "tcId" : 265,
           "comment" : "point duplication during verification",
           "flags" : [
             "PointDuplication"
@@ -3565,21 +3869,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a30f8b2df1e258dcd2d86b9e8cd43e451e3abe95462969cf79dd180019",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj7Vy3k2vdnAmJM5O2BnQJnYiJOilQhW/\ngbICow+LLfHiWNzS2GuejNQ+RR46vpVGKWnPed0YABk=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a30f8b2df1e258dcd2d86b9e8cd43e451e3abe95462969cf79dd180019",
         "wx" : "008fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a3",
         "wy" : "0f8b2df1e258dcd2d86b9e8cd43e451e3abe95462969cf79dd180019"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00048fb572de4daf76702624ce4ed819d026762224e8a54215bf81b202a30f8b2df1e258dcd2d86b9e8cd43e451e3abe95462969cf79dd180019",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEj7Vy3k2vdnAmJM5O2BnQJnYiJOilQhW/\ngbICow+LLfHiWNzS2GuejNQ+RR46vpVGKWnPed0YABk=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 250,
+          "tcId" : 266,
           "comment" : "duplication bug",
           "flags" : [
             "PointDuplication"
@@ -3591,21 +3895,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e5462d3a838d4a14de96a7b0b1071eb622ae6e71ede8f95ff01c2121368e3a90d8584e194616d3211a7541f6a0960339cab28e8bfd6b1dfd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE5UYtOoONShTelqewsQcetiKubnHt6Plf\n8BwhITaOOpDYWE4ZRhbTIRp1QfaglgM5yrKOi/1rHf0=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04e5462d3a838d4a14de96a7b0b1071eb622ae6e71ede8f95ff01c2121368e3a90d8584e194616d3211a7541f6a0960339cab28e8bfd6b1dfd",
         "wx" : "00e5462d3a838d4a14de96a7b0b1071eb622ae6e71ede8f95ff01c2121",
         "wy" : "368e3a90d8584e194616d3211a7541f6a0960339cab28e8bfd6b1dfd"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e5462d3a838d4a14de96a7b0b1071eb622ae6e71ede8f95ff01c2121368e3a90d8584e194616d3211a7541f6a0960339cab28e8bfd6b1dfd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE5UYtOoONShTelqewsQcetiKubnHt6Plf\n8BwhITaOOpDYWE4ZRhbTIRp1QfaglgM5yrKOi/1rHf0=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 251,
+          "tcId" : 267,
           "comment" : "comparison with point at infinity ",
           "flags" : [
             "ArithmeticError"
@@ -3617,21 +3921,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045d97670c1f121f7f1ba541505609f20143b312a7bb49d376690e1831c1b4567141a7b534e21bd2f706ae034169ab9c3f8536147904de8c5f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEXZdnDB8SH38bpUFQVgnyAUOzEqe7SdN2\naQ4YMcG0VnFBp7U04hvS9wauA0Fpq5w/hTYUeQTejF8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "045d97670c1f121f7f1ba541505609f20143b312a7bb49d376690e1831c1b4567141a7b534e21bd2f706ae034169ab9c3f8536147904de8c5f",
         "wx" : "5d97670c1f121f7f1ba541505609f20143b312a7bb49d376690e1831",
         "wy" : "00c1b4567141a7b534e21bd2f706ae034169ab9c3f8536147904de8c5f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045d97670c1f121f7f1ba541505609f20143b312a7bb49d376690e1831c1b4567141a7b534e21bd2f706ae034169ab9c3f8536147904de8c5f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEXZdnDB8SH38bpUFQVgnyAUOzEqe7SdN2\naQ4YMcG0VnFBp7U04hvS9wauA0Fpq5w/hTYUeQTejF8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 252,
+          "tcId" : 268,
           "comment" : "extreme value for k and edgecase s",
           "flags" : [
             "ArithmeticError"
@@ -3643,21 +3947,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d2675278da2d7daa8373dd63b7aa46cb14766571c2d8098b83a102a5699b572d4b951497418a376930022d48fe59966b158fa08340e24b98",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0mdSeNotfaqDc91jt6pGyxR2ZXHC2AmL\ng6ECpWmbVy1LlRSXQYo3aTACLUj+WZZrFY+gg0DiS5g=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d2675278da2d7daa8373dd63b7aa46cb14766571c2d8098b83a102a5699b572d4b951497418a376930022d48fe59966b158fa08340e24b98",
         "wx" : "00d2675278da2d7daa8373dd63b7aa46cb14766571c2d8098b83a102a5",
         "wy" : "699b572d4b951497418a376930022d48fe59966b158fa08340e24b98"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d2675278da2d7daa8373dd63b7aa46cb14766571c2d8098b83a102a5699b572d4b951497418a376930022d48fe59966b158fa08340e24b98",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0mdSeNotfaqDc91jt6pGyxR2ZXHC2AmL\ng6ECpWmbVy1LlRSXQYo3aTACLUj+WZZrFY+gg0DiS5g=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 253,
+          "tcId" : 269,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3669,21 +3973,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045a5cd1162388348734dae20e2235ae2c464adef0a196f9aaf02482ca2ae94e8b9a024375036429b632ab485e02c5a9665b289b8a47bade8f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEWlzRFiOINIc02uIOIjWuLEZK3vChlvmq\n8CSCyirpTouaAkN1A2QptjKrSF4CxalmWyibike63o8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "045a5cd1162388348734dae20e2235ae2c464adef0a196f9aaf02482ca2ae94e8b9a024375036429b632ab485e02c5a9665b289b8a47bade8f",
         "wx" : "5a5cd1162388348734dae20e2235ae2c464adef0a196f9aaf02482ca",
         "wy" : "2ae94e8b9a024375036429b632ab485e02c5a9665b289b8a47bade8f"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00045a5cd1162388348734dae20e2235ae2c464adef0a196f9aaf02482ca2ae94e8b9a024375036429b632ab485e02c5a9665b289b8a47bade8f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEWlzRFiOINIc02uIOIjWuLEZK3vChlvmq\n8CSCyirpTouaAkN1A2QptjKrSF4CxalmWyibike63o8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 254,
+          "tcId" : 270,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3695,21 +3999,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cacd93eb11a821de3d882bab7411e7c77f23c08da174189cc987dc41716fe378ab842161bc16def6e037d4ba9d30d8cb41ad30cf0656e50b",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEys2T6xGoId49iCurdBHnx38jwI2hdBic\nyYfcQXFv43irhCFhvBbe9uA31LqdMNjLQa0wzwZW5Qs=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04cacd93eb11a821de3d882bab7411e7c77f23c08da174189cc987dc41716fe378ab842161bc16def6e037d4ba9d30d8cb41ad30cf0656e50b",
         "wx" : "00cacd93eb11a821de3d882bab7411e7c77f23c08da174189cc987dc41",
         "wy" : "716fe378ab842161bc16def6e037d4ba9d30d8cb41ad30cf0656e50b"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cacd93eb11a821de3d882bab7411e7c77f23c08da174189cc987dc41716fe378ab842161bc16def6e037d4ba9d30d8cb41ad30cf0656e50b",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEys2T6xGoId49iCurdBHnx38jwI2hdBic\nyYfcQXFv43irhCFhvBbe9uA31LqdMNjLQa0wzwZW5Qs=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 255,
+          "tcId" : 271,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3721,21 +4025,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cf46960060453e55577f1bee6a9c4709e7cdcba45ca8020bb3536931ea4ec33309213864a1318aee0a86d8b6f0c1b9741cd6bd5dea4f4066",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEz0aWAGBFPlVXfxvuapxHCefNy6RcqAIL\ns1NpMepOwzMJIThkoTGK7gqG2Lbwwbl0HNa9XepPQGY=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04cf46960060453e55577f1bee6a9c4709e7cdcba45ca8020bb3536931ea4ec33309213864a1318aee0a86d8b6f0c1b9741cd6bd5dea4f4066",
         "wx" : "00cf46960060453e55577f1bee6a9c4709e7cdcba45ca8020bb3536931",
         "wy" : "00ea4ec33309213864a1318aee0a86d8b6f0c1b9741cd6bd5dea4f4066"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004cf46960060453e55577f1bee6a9c4709e7cdcba45ca8020bb3536931ea4ec33309213864a1318aee0a86d8b6f0c1b9741cd6bd5dea4f4066",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEz0aWAGBFPlVXfxvuapxHCefNy6RcqAIL\ns1NpMepOwzMJIThkoTGK7gqG2Lbwwbl0HNa9XepPQGY=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 256,
+          "tcId" : 272,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3747,21 +4051,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000462f4eaf3797bdc3d5d8cfaa07b5af7060e131b183ca4eded4819e561bff3eadd7b55db2dc01bd20569e6c47c9212f9b2d6793795b51e4f6c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYvTq83l73D1djPqge1r3Bg4TGxg8pO3t\nSBnlYb/z6t17VdstwBvSBWnmxHySEvmy1nk3lbUeT2w=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0462f4eaf3797bdc3d5d8cfaa07b5af7060e131b183ca4eded4819e561bff3eadd7b55db2dc01bd20569e6c47c9212f9b2d6793795b51e4f6c",
         "wx" : "62f4eaf3797bdc3d5d8cfaa07b5af7060e131b183ca4eded4819e561",
         "wy" : "00bff3eadd7b55db2dc01bd20569e6c47c9212f9b2d6793795b51e4f6c"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000462f4eaf3797bdc3d5d8cfaa07b5af7060e131b183ca4eded4819e561bff3eadd7b55db2dc01bd20569e6c47c9212f9b2d6793795b51e4f6c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEYvTq83l73D1djPqge1r3Bg4TGxg8pO3t\nSBnlYb/z6t17VdstwBvSBWnmxHySEvmy1nk3lbUeT2w=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 257,
+          "tcId" : 273,
           "comment" : "extreme value for k",
           "flags" : [
             "ArithmeticError"
@@ -3773,21 +4077,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c4a4bf5ae0138587f50ab7a2c336a430527a86f59f9765c2f3f5488df9419bf9df5f121de3a32db17b49c72b606b2be5ce56acb565cc12b7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAExKS/WuAThYf1CreiwzakMFJ6hvWfl2XC\n8/VIjflBm/nfXxId46MtsXtJxytgayvlzlastWXMErc=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c4a4bf5ae0138587f50ab7a2c336a430527a86f59f9765c2f3f5488df9419bf9df5f121de3a32db17b49c72b606b2be5ce56acb565cc12b7",
         "wx" : "00c4a4bf5ae0138587f50ab7a2c336a430527a86f59f9765c2f3f5488d",
         "wy" : "00f9419bf9df5f121de3a32db17b49c72b606b2be5ce56acb565cc12b7"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004c4a4bf5ae0138587f50ab7a2c336a430527a86f59f9765c2f3f5488df9419bf9df5f121de3a32db17b49c72b606b2be5ce56acb565cc12b7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAExKS/WuAThYf1CreiwzakMFJ6hvWfl2XC\n8/VIjflBm/nfXxId46MtsXtJxytgayvlzlastWXMErc=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 258,
+          "tcId" : 274,
           "comment" : "extreme value for k and edgecase s",
           "flags" : [
             "ArithmeticError"
@@ -3799,21 +4103,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e7cb5ae54dbe619ab5069f14566236b3c6b0b44f1c4c531e66d89b3e64be7fdc18789629dfddf7158f8ff27abd553bfac3f7c874bccdc31b",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE58ta5U2+YZq1Bp8UVmI2s8awtE8cTFMe\nZtibPmS+f9wYeJYp3933FY+P8nq9VTv6w/fIdLzNwxs=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04e7cb5ae54dbe619ab5069f14566236b3c6b0b44f1c4c531e66d89b3e64be7fdc18789629dfddf7158f8ff27abd553bfac3f7c874bccdc31b",
         "wx" : "00e7cb5ae54dbe619ab5069f14566236b3c6b0b44f1c4c531e66d89b3e",
         "wy" : "64be7fdc18789629dfddf7158f8ff27abd553bfac3f7c874bccdc31b"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004e7cb5ae54dbe619ab5069f14566236b3c6b0b44f1c4c531e66d89b3e64be7fdc18789629dfddf7158f8ff27abd553bfac3f7c874bccdc31b",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE58ta5U2+YZq1Bp8UVmI2s8awtE8cTFMe\nZtibPmS+f9wYeJYp3933FY+P8nq9VTv6w/fIdLzNwxs=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 259,
+          "tcId" : 275,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3825,21 +4129,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000430db5d8279319cf5a3b6768a0c5e5c84752f6314f735d63f6c5650cdd32fb54f74d4a5088e6774a13201683642790d2e69e55e4f47612934",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMNtdgnkxnPWjtnaKDF5chHUvYxT3NdY/\nbFZQzdMvtU901KUIjmd0oTIBaDZCeQ0uaeVeT0dhKTQ=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0430db5d8279319cf5a3b6768a0c5e5c84752f6314f735d63f6c5650cdd32fb54f74d4a5088e6774a13201683642790d2e69e55e4f47612934",
         "wx" : "30db5d8279319cf5a3b6768a0c5e5c84752f6314f735d63f6c5650cd",
         "wy" : "00d32fb54f74d4a5088e6774a13201683642790d2e69e55e4f47612934"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000430db5d8279319cf5a3b6768a0c5e5c84752f6314f735d63f6c5650cdd32fb54f74d4a5088e6774a13201683642790d2e69e55e4f47612934",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEMNtdgnkxnPWjtnaKDF5chHUvYxT3NdY/\nbFZQzdMvtU901KUIjmd0oTIBaDZCeQ0uaeVeT0dhKTQ=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 260,
+          "tcId" : 276,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3851,21 +4155,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00047db27da4d67a2de0c78815809719bdf6976332c67ef0f3827df4adc22ab37aec2eed0d5e67acfd6a195f21032d9af71ce73e120fdda29f1a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEfbJ9pNZ6LeDHiBWAlxm99pdjMsZ+8POC\nffStwiqzeuwu7Q1eZ6z9ahlfIQMtmvcc5z4SD92inxo=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "047db27da4d67a2de0c78815809719bdf6976332c67ef0f3827df4adc22ab37aec2eed0d5e67acfd6a195f21032d9af71ce73e120fdda29f1a",
         "wx" : "7db27da4d67a2de0c78815809719bdf6976332c67ef0f3827df4adc2",
         "wy" : "2ab37aec2eed0d5e67acfd6a195f21032d9af71ce73e120fdda29f1a"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00047db27da4d67a2de0c78815809719bdf6976332c67ef0f3827df4adc22ab37aec2eed0d5e67acfd6a195f21032d9af71ce73e120fdda29f1a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEfbJ9pNZ6LeDHiBWAlxm99pdjMsZ+8POC\nffStwiqzeuwu7Q1eZ6z9ahlfIQMtmvcc5z4SD92inxo=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 261,
+          "tcId" : 277,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3877,21 +4181,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1c19d46b517bb3bd7bdf074ff975c0dbd2bde10d1ad217e58ebc8c55ac898c040a185804ddb032b48103d6c8d12043d3a4fec93aba7a6d7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0cGdRrUXuzvXvfB0/5dcDb0r3hDRrSF+\nWOvIxVrImMBAoYWATdsDK0gQPWyNEgQ9Ok/sk6unptc=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d1c19d46b517bb3bd7bdf074ff975c0dbd2bde10d1ad217e58ebc8c55ac898c040a185804ddb032b48103d6c8d12043d3a4fec93aba7a6d7",
         "wx" : "00d1c19d46b517bb3bd7bdf074ff975c0dbd2bde10d1ad217e58ebc8c5",
         "wy" : "5ac898c040a185804ddb032b48103d6c8d12043d3a4fec93aba7a6d7"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d1c19d46b517bb3bd7bdf074ff975c0dbd2bde10d1ad217e58ebc8c55ac898c040a185804ddb032b48103d6c8d12043d3a4fec93aba7a6d7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE0cGdRrUXuzvXvfB0/5dcDb0r3hDRrSF+\nWOvIxVrImMBAoYWATdsDK0gQPWyNEgQ9Ok/sk6unptc=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 262,
+          "tcId" : 278,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -3903,21 +4207,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d95ac96ae9dbfb80911862e00a4cadbcb2359f499b53be007f0711c093d3da931acbb9242800dc521695b4f19ff2dffc3613f40bdb15c3cd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE2VrJaunb+4CRGGLgCkytvLI1n0mbU74A\nfwcRwJPT2pMay7kkKADcUhaVtPGf8t/8NhP0C9sVw80=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d95ac96ae9dbfb80911862e00a4cadbcb2359f499b53be007f0711c093d3da931acbb9242800dc521695b4f19ff2dffc3613f40bdb15c3cd",
         "wx" : "00d95ac96ae9dbfb80911862e00a4cadbcb2359f499b53be007f0711c0",
         "wy" : "0093d3da931acbb9242800dc521695b4f19ff2dffc3613f40bdb15c3cd"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004d95ac96ae9dbfb80911862e00a4cadbcb2359f499b53be007f0711c093d3da931acbb9242800dc521695b4f19ff2dffc3613f40bdb15c3cd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE2VrJaunb+4CRGGLgCkytvLI1n0mbU74A\nfwcRwJPT2pMay7kkKADcUhaVtPGf8t/8NhP0C9sVw80=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 263,
+          "tcId" : 279,
           "comment" : "extreme value for k",
           "flags" : [
             "ArithmeticError"
@@ -3929,21 +4233,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEtw4MvWu0v38yE5C5SgPB01bCESI0MoDW\nEVwdIb03Y4i19yP7TCLf5s1DdaBaB0dkRNWBmYUAfjQ=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34",
         "wx" : "00b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21",
         "wy" : "00bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEtw4MvWu0v38yE5C5SgPB01bCESI0MoDW\nEVwdIb03Y4i19yP7TCLf5s1DdaBaB0dkRNWBmYUAfjQ=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 264,
+          "tcId" : 280,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -3953,7 +4257,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 265,
+          "tcId" : 281,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -3965,21 +4269,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d2142c89c774a08dc04b3dd201932bc8a5ea5f8b89bbb2a7e667aff81cd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEtw4MvWu0v38yE5C5SgPB01bCESI0MoDW\nEVwdIULInHdKCNwEs90gGTK8il6l+Libuyp+Znr/gc0=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d2142c89c774a08dc04b3dd201932bc8a5ea5f8b89bbb2a7e667aff81cd",
         "wx" : "00b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21",
         "wy" : "42c89c774a08dc04b3dd201932bc8a5ea5f8b89bbb2a7e667aff81cd"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d2142c89c774a08dc04b3dd201932bc8a5ea5f8b89bbb2a7e667aff81cd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEtw4MvWu0v38yE5C5SgPB01bCESI0MoDW\nEVwdIULInHdKCNwEs90gGTK8il6l+Libuyp+Znr/gc0=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 266,
+          "tcId" : 282,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -3989,7 +4293,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 267,
+          "tcId" : 283,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -4001,21 +4305,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044c246670658a1d41f5d77bce246cbe386ac22848e269b9d4cd67c466ddd947153d39b2d42533a460def26880408caf2dd3dd48fe888cd176",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETCRmcGWKHUH113vOJGy+OGrCKEjiabnU\nzWfEZt3ZRxU9ObLUJTOkYN7yaIBAjK8t091I/oiM0XY=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044c246670658a1d41f5d77bce246cbe386ac22848e269b9d4cd67c466ddd947153d39b2d42533a460def26880408caf2dd3dd48fe888cd176",
         "wx" : "4c246670658a1d41f5d77bce246cbe386ac22848e269b9d4cd67c466",
         "wy" : "00ddd947153d39b2d42533a460def26880408caf2dd3dd48fe888cd176"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a00044c246670658a1d41f5d77bce246cbe386ac22848e269b9d4cd67c466ddd947153d39b2d42533a460def26880408caf2dd3dd48fe888cd176",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAETCRmcGWKHUH113vOJGy+OGrCKEjiabnU\nzWfEZt3ZRxU9ObLUJTOkYN7yaIBAjK8t091I/oiM0XY=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 268,
+          "tcId" : 284,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -4025,7 +4329,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 269,
+          "tcId" : 285,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -4035,7 +4339,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 270,
+          "tcId" : 286,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -4045,7 +4349,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 271,
+          "tcId" : 287,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -4057,21 +4361,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004aed6fcad2400c4d94e55dbb6b012ce3d4c2b46843fbe99d4289e6ecf8a24a89e71343d7d151d258d2cb690349c2d56b366dd10a600000000",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAErtb8rSQAxNlOVdu2sBLOPUwrRoQ/vpnU\nKJ5uz4okqJ5xND19FR0ljSy2kDScLVazZt0QpgAAAAA=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04aed6fcad2400c4d94e55dbb6b012ce3d4c2b46843fbe99d4289e6ecf8a24a89e71343d7d151d258d2cb690349c2d56b366dd10a600000000",
         "wx" : "00aed6fcad2400c4d94e55dbb6b012ce3d4c2b46843fbe99d4289e6ecf",
         "wy" : "008a24a89e71343d7d151d258d2cb690349c2d56b366dd10a600000000"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004aed6fcad2400c4d94e55dbb6b012ce3d4c2b46843fbe99d4289e6ecf8a24a89e71343d7d151d258d2cb690349c2d56b366dd10a600000000",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAErtb8rSQAxNlOVdu2sBLOPUwrRoQ/vpnU\nKJ5uz4okqJ5xND19FR0ljSy2kDScLVazZt0QpgAAAAA=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 272,
+          "tcId" : 288,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4081,7 +4385,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 273,
+          "tcId" : 289,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4091,7 +4395,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 274,
+          "tcId" : 290,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4103,21 +4407,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004bf19ecfe43ffe289f699f479316145b9a7f7370b9ece5ab1212174f173d528949ae9142f818bade71a960407963be0b6482a6a60ffffffff",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEvxns/kP/4on2mfR5MWFFuaf3Nwuezlqx\nISF08XPVKJSa6RQvgYut5xqWBAeWO+C2SCpqYP////8=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04bf19ecfe43ffe289f699f479316145b9a7f7370b9ece5ab1212174f173d528949ae9142f818bade71a960407963be0b6482a6a60ffffffff",
         "wx" : "00bf19ecfe43ffe289f699f479316145b9a7f7370b9ece5ab1212174f1",
         "wy" : "73d528949ae9142f818bade71a960407963be0b6482a6a60ffffffff"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004bf19ecfe43ffe289f699f479316145b9a7f7370b9ece5ab1212174f173d528949ae9142f818bade71a960407963be0b6482a6a60ffffffff",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEvxns/kP/4on2mfR5MWFFuaf3Nwuezlqx\nISF08XPVKJSa6RQvgYut5xqWBAeWO+C2SCpqYP////8=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 275,
+          "tcId" : 291,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4127,7 +4431,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 276,
+          "tcId" : 292,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4137,7 +4441,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 277,
+          "tcId" : 293,
           "comment" : "y-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4149,21 +4453,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000426e5abf135cb54eaaa16b69e4b0b292275344e88a09df6df80000000eab891de54e3f26ff50ab989f333dac551583d468ae623c596434af0",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEJuWr8TXLVOqqFraeSwspInU0Toignfbf\ngAAAAOq4kd5U4/Jv9Qq5ifMz2sVRWD1GiuYjxZZDSvA=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0426e5abf135cb54eaaa16b69e4b0b292275344e88a09df6df80000000eab891de54e3f26ff50ab989f333dac551583d468ae623c596434af0",
         "wx" : "26e5abf135cb54eaaa16b69e4b0b292275344e88a09df6df80000000",
         "wy" : "00eab891de54e3f26ff50ab989f333dac551583d468ae623c596434af0"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000426e5abf135cb54eaaa16b69e4b0b292275344e88a09df6df80000000eab891de54e3f26ff50ab989f333dac551583d468ae623c596434af0",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEJuWr8TXLVOqqFraeSwspInU0Toignfbf\ngAAAAOq4kd5U4/Jv9Qq5ifMz2sVRWD1GiuYjxZZDSvA=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 278,
+          "tcId" : 294,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4173,7 +4477,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 279,
+          "tcId" : 295,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4183,7 +4487,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 280,
+          "tcId" : 296,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4195,21 +4499,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004ec627f345545d03f8c6dbd08e575527116567fe375f9ecaaffffffff41bf705697d5f716bcf78718d5393b63a98691f4a1f24246375538fd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE7GJ/NFVF0D+Mbb0I5XVScRZWf+N1+eyq\n/////0G/cFaX1fcWvPeHGNU5O2OphpH0ofJCRjdVOP0=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04ec627f345545d03f8c6dbd08e575527116567fe375f9ecaaffffffff41bf705697d5f716bcf78718d5393b63a98691f4a1f24246375538fd",
         "wx" : "00ec627f345545d03f8c6dbd08e575527116567fe375f9ecaaffffffff",
         "wy" : "41bf705697d5f716bcf78718d5393b63a98691f4a1f24246375538fd"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004ec627f345545d03f8c6dbd08e575527116567fe375f9ecaaffffffff41bf705697d5f716bcf78718d5393b63a98691f4a1f24246375538fd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE7GJ/NFVF0D+Mbb0I5XVScRZWf+N1+eyq\n/////0G/cFaX1fcWvPeHGNU5O2OphpH0ofJCRjdVOP0=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 281,
+          "tcId" : 297,
           "comment" : "x-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4219,7 +4523,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 282,
+          "tcId" : 298,
           "comment" : "x-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4229,7 +4533,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 283,
+          "tcId" : 299,
           "comment" : "x-coordinate of the public key has many trailing 1's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4241,21 +4545,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555a00000000762d28f1fdc219184f81681fbff566d465b5f1f31e872df5",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEFQFuUrNkctU2R3YF+4Bd05AwgqBi0eow\nr55VWgAAAAB2LSjx/cIZGE+BaB+/9WbUZbXx8x6HLfU=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555a00000000762d28f1fdc219184f81681fbff566d465b5f1f31e872df5",
         "wx" : "15016e52b36472d536477605fb805dd3903082a062d1ea30af9e555a",
         "wy" : "762d28f1fdc219184f81681fbff566d465b5f1f31e872df5"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555a00000000762d28f1fdc219184f81681fbff566d465b5f1f31e872df5",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEFQFuUrNkctU2R3YF+4Bd05AwgqBi0eow\nr55VWgAAAAB2LSjx/cIZGE+BaB+/9WbUZbXx8x6HLfU=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 284,
+          "tcId" : 300,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4265,7 +4569,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 285,
+          "tcId" : 301,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4275,7 +4579,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 286,
+          "tcId" : 302,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4287,21 +4591,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555affffffff89d2d70e023de6e7b07e97df400a992b9a4a0e0ce178d20c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEFQFuUrNkctU2R3YF+4Bd05AwgqBi0eow\nr55VWv////+J0tcOAj3m57B+l99ACpkrmkoODOF40gw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555affffffff89d2d70e023de6e7b07e97df400a992b9a4a0e0ce178d20c",
         "wx" : "15016e52b36472d536477605fb805dd3903082a062d1ea30af9e555a",
         "wy" : "00ffffffff89d2d70e023de6e7b07e97df400a992b9a4a0e0ce178d20c"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000415016e52b36472d536477605fb805dd3903082a062d1ea30af9e555affffffff89d2d70e023de6e7b07e97df400a992b9a4a0e0ce178d20c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEFQFuUrNkctU2R3YF+4Bd05AwgqBi0eow\nr55VWv////+J0tcOAj3m57B+l99ACpkrmkoODOF40gw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 287,
+          "tcId" : 303,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4311,7 +4615,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 288,
+          "tcId" : 304,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4321,7 +4625,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 289,
+          "tcId" : 305,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4333,21 +4637,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000400000000f7e4713d085112112c37cdf4601ff688da796016b71a727ade5a9ec165054cc987f9dc87e9991b92e4fa649ca655eeae9f2a30e1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEAAAAAPfkcT0IURIRLDfN9GAf9ojaeWAW\ntxpyet5ansFlBUzJh/nch+mZG5Lk+mScplXurp8qMOE=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0400000000f7e4713d085112112c37cdf4601ff688da796016b71a727ade5a9ec165054cc987f9dc87e9991b92e4fa649ca655eeae9f2a30e1",
         "wx" : "00f7e4713d085112112c37cdf4601ff688da796016b71a727a",
         "wy" : "00de5a9ec165054cc987f9dc87e9991b92e4fa649ca655eeae9f2a30e1"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a000400000000f7e4713d085112112c37cdf4601ff688da796016b71a727ade5a9ec165054cc987f9dc87e9991b92e4fa649ca655eeae9f2a30e1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEAAAAAPfkcT0IURIRLDfN9GAf9ojaeWAW\ntxpyet5ansFlBUzJh/nch+mZG5Lk+mScplXurp8qMOE=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 290,
+          "tcId" : 306,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4357,7 +4661,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 291,
+          "tcId" : 307,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4367,7 +4671,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 292,
+          "tcId" : 308,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4379,21 +4683,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004ffffffffeadf7cee8d34d04cf22c8f7de35674fb2f501d242a76f72586c409309d398e60ce1e0a4c9e05a9d32627577e8ce2cc7f3afa2c3e",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE/////+rffO6NNNBM8iyPfeNWdPsvUB0k\nKnb3JYbECTCdOY5gzh4KTJ4FqdMmJ1d+jOLMfzr6LD4=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04ffffffffeadf7cee8d34d04cf22c8f7de35674fb2f501d242a76f72586c409309d398e60ce1e0a4c9e05a9d32627577e8ce2cc7f3afa2c3e",
         "wx" : "00ffffffffeadf7cee8d34d04cf22c8f7de35674fb2f501d242a76f725",
         "wy" : "0086c409309d398e60ce1e0a4c9e05a9d32627577e8ce2cc7f3afa2c3e"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004ffffffffeadf7cee8d34d04cf22c8f7de35674fb2f501d242a76f72586c409309d398e60ce1e0a4c9e05a9d32627577e8ce2cc7f3afa2c3e",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE/////+rffO6NNNBM8iyPfeNWdPsvUB0k\nKnb3JYbECTCdOY5gzh4KTJ4FqdMmJ1d+jOLMfzr6LD4=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 293,
+          "tcId" : 309,
           "comment" : "x-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4403,7 +4707,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 294,
+          "tcId" : 310,
           "comment" : "x-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4413,7 +4717,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 295,
+          "tcId" : 311,
           "comment" : "x-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4425,21 +4729,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1000000000e2ab0e8495e859eb2afb00769d6e7fe626a119167c0b6bc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsAE8b7/28J/s2hwmPvZTmdTPmJyl/E+P\n/w/p4QAAAAAOKrDoSV6FnrKvsAdp1uf+YmoRkWfAtrw=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1000000000e2ab0e8495e859eb2afb00769d6e7fe626a119167c0b6bc",
         "wx" : "00b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1",
         "wy" : "0e2ab0e8495e859eb2afb00769d6e7fe626a119167c0b6bc"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1000000000e2ab0e8495e859eb2afb00769d6e7fe626a119167c0b6bc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsAE8b7/28J/s2hwmPvZTmdTPmJyl/E+P\n/w/p4QAAAAAOKrDoSV6FnrKvsAdp1uf+YmoRkWfAtrw=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 296,
+          "tcId" : 312,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4449,7 +4753,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 297,
+          "tcId" : 313,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4459,7 +4763,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 298,
+          "tcId" : 314,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4471,21 +4775,21 @@
       ]
     },
     {
-      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1fffffffff1d54f17b6a17a614d504ff7962918019d95ee6e983f4945",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsAE8b7/28J/s2hwmPvZTmdTPmJyl/E+P\n/w/p4f/////x1U8XtqF6YU1QT/eWKRgBnZXubpg/SUU=\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-512",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "secp224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1fffffffff1d54f17b6a17a614d504ff7962918019d95ee6e983f4945",
         "wx" : "00b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1",
         "wy" : "00fffffffff1d54f17b6a17a614d504ff7962918019d95ee6e983f4945"
       },
+      "publicKeyDer" : "304e301006072a8648ce3d020106052b81040021033a0004b0013c6fbff6f09fecda1c263ef65399d4cf989ca5fc4f8fff0fe9e1fffffffff1d54f17b6a17a614d504ff7962918019d95ee6e983f4945",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAEsAE8b7/28J/s2hwmPvZTmdTPmJyl/E+P\n/w/p4f/////x1U8XtqF6YU1QT/eWKRgBnZXubpg/SUU=\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-512",
       "tests" : [
         {
-          "tcId" : 299,
+          "tcId" : 315,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4495,7 +4799,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 300,
+          "tcId" : 316,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -4505,7 +4809,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 301,
+          "tcId" : 317,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"

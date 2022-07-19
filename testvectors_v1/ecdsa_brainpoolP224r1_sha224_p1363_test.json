@@ -1,7 +1,8 @@
 {
   "algorithm" : "ECDSA",
+  "schema" : "ecdsa_p1363_verify_schema.json",
   "generatorVersion" : "0.9rc5",
-  "numberOfTests" : 205,
+  "numberOfTests" : 219,
   "header" : [
     "Test vectors of type EcdsaVerify are meant for the verification",
     "of IEEE P1363 encoded ECDSA signatures."
@@ -68,8 +69,8 @@
       "effect" : "Without further analysis it is unclear if the modification can be used to forge signatures."
     },
     "SignatureSize" : {
-      "bugType" : "SIGNATURE_MALLEABILITY",
-      "description" : "The size of an IEEE P1363 encoded signature should always be twice the number of bytes of the size of the order. Some libraries accept signatures with less bytes. This test vector contains valid values for r and s. But the values are encoded using a smaller number of bytes."
+      "bugType" : "LEGACY",
+      "description" : "This test vector contains valid values for r and s. But the values are encoded using a smaller number of bytes. The size of an IEEE P1363 encoded signature should always be twice the number of bytes of the size of the order. Some libraries accept signatures with less bytes. To our knowledge no standard (i.e., IEEE P1363 or RFC 7515) requires any explicit checks of the signature size during signature verification."
     },
     "SmallRandS" : {
       "bugType" : "EDGE_CASE",
@@ -88,21 +89,20 @@
       "description" : "The test vector contains a valid signature that was generated pseudorandomly. Such signatures should not fail to verify unless some of the parameters (e.g. curve or hash function) are not supported."
     }
   },
-  "schema" : "ecdsa_p1363_verify_schema.json",
   "testGroups" : [
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004572eab7376d052dfc40923db25342ea9cbfce4b8581e104a4c8f37c94a700ec5dc05a481b2b695320c6f1ad2dd8628633cdb75a91245c265",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFcuq3N20FLfxAkj2yU0LqnL/OS4\nWB4QSkyPN8lKcA7F3AWkgbK2lTIMbxrS3YYoYzzbdakSRcJl\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04572eab7376d052dfc40923db25342ea9cbfce4b8581e104a4c8f37c94a700ec5dc05a481b2b695320c6f1ad2dd8628633cdb75a91245c265",
         "wx" : "572eab7376d052dfc40923db25342ea9cbfce4b8581e104a4c8f37c9",
         "wy" : "4a700ec5dc05a481b2b695320c6f1ad2dd8628633cdb75a91245c265"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004572eab7376d052dfc40923db25342ea9cbfce4b8581e104a4c8f37c94a700ec5dc05a481b2b695320c6f1ad2dd8628633cdb75a91245c265",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFcuq3N20FLfxAkj2yU0LqnL/OS4\nWB4QSkyPN8lKcA7F3AWkgbK2lTIMbxrS3YYoYzzbdakSRcJl\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 1,
@@ -967,18 +967,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a0ef7db1bee0aedb5a5634f4f3b1b88d97d2a07f806a718efe19014daee1043f9e929c32d74ab0e4eeba2623f17ba281b6be87745b59f60e",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKDvfbG+4K7bWlY09POxuI2X0qB/\ngGpxjv4ZAU2u4QQ/npKcMtdKsOTuuiYj8Xuigba+h3RbWfYO\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a0ef7db1bee0aedb5a5634f4f3b1b88d97d2a07f806a718efe19014daee1043f9e929c32d74ab0e4eeba2623f17ba281b6be87745b59f60e",
         "wx" : "00a0ef7db1bee0aedb5a5634f4f3b1b88d97d2a07f806a718efe19014d",
         "wy" : "00aee1043f9e929c32d74ab0e4eeba2623f17ba281b6be87745b59f60e"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a0ef7db1bee0aedb5a5634f4f3b1b88d97d2a07f806a718efe19014daee1043f9e929c32d74ab0e4eeba2623f17ba281b6be87745b59f60e",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKDvfbG+4K7bWlY09POxuI2X0qB/\ngGpxjv4ZAU2u4QQ/npKcMtdKsOTuuiYj8Xuigba+h3RbWfYO\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 87,
@@ -1003,18 +1003,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043adda407bad7f593e83d7d484fd14c23dda17f8d460c222aa7257577cd62443b2b770291f65904dacf75ff975f1a667187e0e4f50c14889c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDrdpAe61/WT6D19SE/RTCPdoX+N\nRgwiKqcldXfNYkQ7K3cCkfZZBNrPdf+XXxpmcYfg5PUMFIic\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043adda407bad7f593e83d7d484fd14c23dda17f8d460c222aa7257577cd62443b2b770291f65904dacf75ff975f1a667187e0e4f50c14889c",
         "wx" : "3adda407bad7f593e83d7d484fd14c23dda17f8d460c222aa7257577",
         "wy" : "00cd62443b2b770291f65904dacf75ff975f1a667187e0e4f50c14889c"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043adda407bad7f593e83d7d484fd14c23dda17f8d460c222aa7257577cd62443b2b770291f65904dacf75ff975f1a667187e0e4f50c14889c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDrdpAe61/WT6D19SE/RTCPdoX+N\nRgwiKqcldXfNYkQ7K3cCkfZZBNrPdf+XXxpmcYfg5PUMFIic\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 89,
@@ -1029,18 +1029,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000424587ce1dbff281dcab1794519806281ad4e0997492510677fb651069296996e83b808676cbf6f28c92b84303314b63a0308134f222d0ec2",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCRYfOHb/ygdyrF5RRmAYoGtTgmX\nSSUQZ3+2UQaSlplug7gIZ2y/byjJK4QwMxS2OgMIE08iLQ7C\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0424587ce1dbff281dcab1794519806281ad4e0997492510677fb651069296996e83b808676cbf6f28c92b84303314b63a0308134f222d0ec2",
         "wx" : "24587ce1dbff281dcab1794519806281ad4e0997492510677fb65106",
         "wy" : "009296996e83b808676cbf6f28c92b84303314b63a0308134f222d0ec2"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000424587ce1dbff281dcab1794519806281ad4e0997492510677fb651069296996e83b808676cbf6f28c92b84303314b63a0308134f222d0ec2",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCRYfOHb/ygdyrF5RRmAYoGtTgmX\nSSUQZ3+2UQaSlplug7gIZ2y/byjJK4QwMxS2OgMIE08iLQ7C\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 90,
@@ -1055,18 +1055,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c45c51d5a9b213e41ca6f15cb8aa1bc0b8b73d3a8a23a14f5a3da4dfbc78cc6176d3b831e68800671768043c11bf63a695918df6ec87378a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMRcUdWpshPkHKbxXLiqG8C4tz06\niiOhT1o9pN+8eMxhdtO4MeaIAGcXaAQ8Eb9jppWRjfbshzeK\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c45c51d5a9b213e41ca6f15cb8aa1bc0b8b73d3a8a23a14f5a3da4dfbc78cc6176d3b831e68800671768043c11bf63a695918df6ec87378a",
         "wx" : "00c45c51d5a9b213e41ca6f15cb8aa1bc0b8b73d3a8a23a14f5a3da4df",
         "wy" : "00bc78cc6176d3b831e68800671768043c11bf63a695918df6ec87378a"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c45c51d5a9b213e41ca6f15cb8aa1bc0b8b73d3a8a23a14f5a3da4dfbc78cc6176d3b831e68800671768043c11bf63a695918df6ec87378a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMRcUdWpshPkHKbxXLiqG8C4tz06\niiOhT1o9pN+8eMxhdtO4MeaIAGcXaAQ8Eb9jppWRjfbshzeK\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 91,
@@ -1081,18 +1081,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000436a5344da08a421edc6c3beb7de97a7559fc101c1489ff2b5036d8f6207bf4666e4df606bd0d9823a52b58ddfdfc1da70513c5f9990f8085",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDalNE2gikIe3Gw7633penVZ/BAc\nFIn/K1A22PYge/Rmbk32Br0NmCOlK1jd/fwdpwUTxfmZD4CF\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0436a5344da08a421edc6c3beb7de97a7559fc101c1489ff2b5036d8f6207bf4666e4df606bd0d9823a52b58ddfdfc1da70513c5f9990f8085",
         "wx" : "36a5344da08a421edc6c3beb7de97a7559fc101c1489ff2b5036d8f6",
         "wy" : "207bf4666e4df606bd0d9823a52b58ddfdfc1da70513c5f9990f8085"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000436a5344da08a421edc6c3beb7de97a7559fc101c1489ff2b5036d8f6207bf4666e4df606bd0d9823a52b58ddfdfc1da70513c5f9990f8085",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDalNE2gikIe3Gw7633penVZ/BAc\nFIn/K1A22PYge/Rmbk32Br0NmCOlK1jd/fwdpwUTxfmZD4CF\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 92,
@@ -1120,18 +1120,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044095c095a9648951da352b837f368e0be67d79fd57eadfffeddfb455ccdcfabea19e96d4d20e42b8ae23c2519426018e25a64dea85d8a68b",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABECVwJWpZIlR2jUrg382jgvmfXn9\nV+rf/+3ftFXM3Pq+oZ6W1NIOQriuI8JRlCYBjiWmTeqF2KaL\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044095c095a9648951da352b837f368e0be67d79fd57eadfffeddfb455ccdcfabea19e96d4d20e42b8ae23c2519426018e25a64dea85d8a68b",
         "wx" : "4095c095a9648951da352b837f368e0be67d79fd57eadfffeddfb455",
         "wy" : "00ccdcfabea19e96d4d20e42b8ae23c2519426018e25a64dea85d8a68b"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044095c095a9648951da352b837f368e0be67d79fd57eadfffeddfb455ccdcfabea19e96d4d20e42b8ae23c2519426018e25a64dea85d8a68b",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABECVwJWpZIlR2jUrg382jgvmfXn9\nV+rf/+3ftFXM3Pq+oZ6W1NIOQriuI8JRlCYBjiWmTeqF2KaL\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 94,
@@ -1159,18 +1159,18 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004cc352ac48aacb6495ec3831b21ccd4d3197136292bf6f20f2280256664321991e67f7dbc22602ecbdb3122edce5ff85d923143cecc0d4f6d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMw1KsSKrLZJXsODGyHM1NMZcTYp\nK/byDyKAJWZkMhmR5n99vCJgLsvbMSLtzl/4XZIxQ87MDU9t\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04cc352ac48aacb6495ec3831b21ccd4d3197136292bf6f20f2280256664321991e67f7dbc22602ecbdb3122edce5ff85d923143cecc0d4f6d",
         "wx" : "00cc352ac48aacb6495ec3831b21ccd4d3197136292bf6f20f22802566",
         "wy" : "64321991e67f7dbc22602ecbdb3122edce5ff85d923143cecc0d4f6d"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004cc352ac48aacb6495ec3831b21ccd4d3197136292bf6f20f2280256664321991e67f7dbc22602ecbdb3122edce5ff85d923143cecc0d4f6d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMw1KsSKrLZJXsODGyHM1NMZcTYp\nK/byDyKAJWZkMhmR5n99vCJgLsvbMSLtzl/4XZIxQ87MDU9t\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
           "tcId" : 96,
@@ -1194,61 +1194,178 @@
           "msg" : "313233343030",
           "sig" : "0103",
           "result" : "invalid"
-        },
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "0455d1076b977ccd98a0d3d448b1789fe8cc56b9b5c8d3074a8b1c47719641910386c31148ac3b14bbd36927b2c10776d44d11a16936918ed2",
+        "wx" : "55d1076b977ccd98a0d3d448b1789fe8cc56b9b5c8d3074a8b1c4771",
+        "wy" : "009641910386c31148ac3b14bbd36927b2c10776d44d11a16936918ed2"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000455d1076b977ccd98a0d3d448b1789fe8cc56b9b5c8d3074a8b1c47719641910386c31148ac3b14bbd36927b2c10776d44d11a16936918ed2",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFXRB2uXfM2YoNPUSLF4n+jMVrm1\nyNMHSoscR3GWQZEDhsMRSKw7FLvTaSeywQd21E0RoWk2kY7S\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
         {
           "tcId" : 98,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000001",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 99,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0301",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "045fe3d3af70556ad73c68833b21e77d7b8a3b80704f50dc555626ec0fd7527ce06a4e04cac545973498e8d7f7521abf4dcadcfa50ad80f070",
+        "wx" : "5fe3d3af70556ad73c68833b21e77d7b8a3b80704f50dc555626ec0f",
+        "wy" : "00d7527ce06a4e04cac545973498e8d7f7521abf4dcadcfa50ad80f070"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00045fe3d3af70556ad73c68833b21e77d7b8a3b80704f50dc555626ec0fd7527ce06a4e04cac545973498e8d7f7521abf4dcadcfa50ad80f070",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABF/j069wVWrXPGiDOyHnfXuKO4Bw\nT1DcVVYm7A/XUnzgak4EysVFlzSY6Nf3Uhq/Tcrc+lCtgPBw\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 100,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000003",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 101,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0303",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "046509d0da48502d91c1548f7a5b31131a10e0aa063397e92fc5d07214315609a8a6112d195ddc7ae046e8455d4f879f7ab34bf2e087df0d95",
+        "wx" : "6509d0da48502d91c1548f7a5b31131a10e0aa063397e92fc5d07214",
+        "wy" : "315609a8a6112d195ddc7ae046e8455d4f879f7ab34bf2e087df0d95"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00046509d0da48502d91c1548f7a5b31131a10e0aa063397e92fc5d07214315609a8a6112d195ddc7ae046e8455d4f879f7ab34bf2e087df0d95",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGUJ0NpIUC2RwVSPelsxExoQ4KoG\nM5fpL8XQchQxVgmophEtGV3ceuBG6EVdT4eferNL8uCH3w2V\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 102,
+          "comment" : "small r and s",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000004",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 103,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "SmallRandS",
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0304",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 104,
           "comment" : "r is larger than n",
           "flags" : [
             "ArithmeticError"
           ],
           "msg" : "313233343030",
-          "sig" : "d7c134aa264366862a18302575d0fb98d116bc4b6ddebca3a5a793a000000000000000000000000000000000000000000000000000000003",
+          "sig" : "d7c134aa264366862a18302575d0fb98d116bc4b6ddebca3a5a793a200000000000000000000000000000000000000000000000000000004",
           "result" : "invalid"
         }
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049148f29c67f83c705eefb59c92954775f90c15e225da2e996abcdd1dc9db1aa1e15277c4555d24118239e53fd2f0b5e7ea807eb3de1ee350",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJFI8pxn+DxwXu+1nJKVR3X5DBXi\nJdoumWq83R3J2xqh4VJ3xFVdJBGCOeU/0vC15+qAfrPeHuNQ\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
-        "uncompressed" : "049148f29c67f83c705eefb59c92954775f90c15e225da2e996abcdd1dc9db1aa1e15277c4555d24118239e53fd2f0b5e7ea807eb3de1ee350",
-        "wx" : "009148f29c67f83c705eefb59c92954775f90c15e225da2e996abcdd1d",
-        "wy" : "00c9db1aa1e15277c4555d24118239e53fd2f0b5e7ea807eb3de1ee350"
+        "uncompressed" : "04454db7ab301be1431d286039a1d2762064d533b16aa1cdaab893192b1d52b7758f62b9f73a581ba83c2ab994dd0170309d5c04b07de71e32",
+        "wx" : "454db7ab301be1431d286039a1d2762064d533b16aa1cdaab893192b",
+        "wy" : "1d52b7758f62b9f73a581ba83c2ab994dd0170309d5c04b07de71e32"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004454db7ab301be1431d286039a1d2762064d533b16aa1cdaab893192b1d52b7758f62b9f73a581ba83c2ab994dd0170309d5c04b07de71e32",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABEVNt6swG+FDHShgOaHSdiBk1TOx\naqHNqriTGSsdUrd1j2K59zpYG6g8KrmU3QFwMJ1cBLB95x4y\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 99,
+          "tcId" : 105,
           "comment" : "s is larger than n",
           "flags" : [
             "ArithmeticError"
           ],
           "msg" : "313233343030",
-          "sig" : "00000000000000000000000000000000000000000000000000000001d7c134aa264366862a18302575d0fb98d116bc4b6ddebca3a5ba6a26",
+          "sig" : "00000000000000000000000000000000000000000000000000000003d7c134aa264366862a18302575d0fb98d116bc4b6ddebca3a5ba6a26",
           "result" : "invalid"
         }
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049bf045a43a5f14d5e412ee181f111d6e53961120531f3c50ca701e78be9eb95146f4f2be96949976a7aa49d31593a7da2edd907652398c3a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJvwRaQ6XxTV5BLuGB8RHW5TlhEg\nUx88UMpwHni+nrlRRvTyvpaUmXanqknTFZOn2i7dkHZSOYw6\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "049bf045a43a5f14d5e412ee181f111d6e53961120531f3c50ca701e78be9eb95146f4f2be96949976a7aa49d31593a7da2edd907652398c3a",
         "wx" : "009bf045a43a5f14d5e412ee181f111d6e53961120531f3c50ca701e78",
         "wy" : "00be9eb95146f4f2be96949976a7aa49d31593a7da2edd907652398c3a"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049bf045a43a5f14d5e412ee181f111d6e53961120531f3c50ca701e78be9eb95146f4f2be96949976a7aa49d31593a7da2edd907652398c3a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJvwRaQ6XxTV5BLuGB8RHW5TlhEg\nUx88UMpwHni+nrlRRvTyvpaUmXanqknTFZOn2i7dkHZSOYw6\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 100,
+          "tcId" : 106,
           "comment" : "small r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -1260,21 +1377,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000487739e2821ed9567e88702fa8c6d083c97c1f3f1eb32d13f751fb0736d02eba05e8cb94672d09ebc11051d52ec7bd4dc7767301b67034212",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIdznigh7ZVn6IcC+oxtCDyXwfPx\n6zLRP3UfsHNtAuugXoy5RnLQnrwRBR1S7HvU3HdnMBtnA0IS\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0487739e2821ed9567e88702fa8c6d083c97c1f3f1eb32d13f751fb0736d02eba05e8cb94672d09ebc11051d52ec7bd4dc7767301b67034212",
         "wx" : "0087739e2821ed9567e88702fa8c6d083c97c1f3f1eb32d13f751fb073",
         "wy" : "6d02eba05e8cb94672d09ebc11051d52ec7bd4dc7767301b67034212"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000487739e2821ed9567e88702fa8c6d083c97c1f3f1eb32d13f751fb0736d02eba05e8cb94672d09ebc11051d52ec7bd4dc7767301b67034212",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIdznigh7ZVn6IcC+oxtCDyXwfPx\n6zLRP3UfsHNtAuugXoy5RnLQnrwRBR1S7HvU3HdnMBtnA0IS\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 101,
+          "tcId" : 107,
           "comment" : "smallish r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -1286,21 +1403,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041a515cbe957bfc070e4c4a75d6fd5e7c15b1e255eb42fead06c9d2636252cc0d234318394df7db65b0a52e06953ca6c21ec95774d39efdc9",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBpRXL6Ve/wHDkxKddb9XnwVseJV\n60L+rQbJ0mNiUswNI0MYOU3322WwpS4GlTymwh7JV3TTnv3J\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "041a515cbe957bfc070e4c4a75d6fd5e7c15b1e255eb42fead06c9d2636252cc0d234318394df7db65b0a52e06953ca6c21ec95774d39efdc9",
         "wx" : "1a515cbe957bfc070e4c4a75d6fd5e7c15b1e255eb42fead06c9d263",
         "wy" : "6252cc0d234318394df7db65b0a52e06953ca6c21ec95774d39efdc9"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041a515cbe957bfc070e4c4a75d6fd5e7c15b1e255eb42fead06c9d2636252cc0d234318394df7db65b0a52e06953ca6c21ec95774d39efdc9",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBpRXL6Ve/wHDkxKddb9XnwVseJV\n60L+rQbJ0mNiUswNI0MYOU3322WwpS4GlTymwh7JV3TTnv3J\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 102,
+          "tcId" : 108,
           "comment" : "100-bit r and small s^-1",
           "flags" : [
             "ArithmeticError"
@@ -1312,21 +1429,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d6a16e194e12b96db8e1bb0250d950f7b3129b14bba0efb157c4423e625a0c8c20838bd97fbc89f1670028754a09ad28f62de5eea6e07bc1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNahbhlOErltuOG7AlDZUPezEpsU\nu6DvsVfEQj5iWgyMIIOL2X+8ifFnACh1SgmtKPYt5e6m4HvB\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d6a16e194e12b96db8e1bb0250d950f7b3129b14bba0efb157c4423e625a0c8c20838bd97fbc89f1670028754a09ad28f62de5eea6e07bc1",
         "wx" : "00d6a16e194e12b96db8e1bb0250d950f7b3129b14bba0efb157c4423e",
         "wy" : "625a0c8c20838bd97fbc89f1670028754a09ad28f62de5eea6e07bc1"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d6a16e194e12b96db8e1bb0250d950f7b3129b14bba0efb157c4423e625a0c8c20838bd97fbc89f1670028754a09ad28f62de5eea6e07bc1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNahbhlOErltuOG7AlDZUPezEpsU\nu6DvsVfEQj5iWgyMIIOL2X+8ifFnACh1SgmtKPYt5e6m4HvB\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 103,
+          "tcId" : 109,
           "comment" : "small r and 100 bit s^-1",
           "flags" : [
             "ArithmeticError"
@@ -1338,21 +1455,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c012950d074bb01b0a1988a5b59b959104275baf757e53029b046a1542f50fe27f3ebac9036558ef30ebcb812027bf0ef46cda51969541bb",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMASlQ0HS7AbChmIpbWblZEEJ1uv\ndX5TApsEahVC9Q/ifz66yQNlWO8w68uBICe/DvRs2lGWlUG7\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c012950d074bb01b0a1988a5b59b959104275baf757e53029b046a1542f50fe27f3ebac9036558ef30ebcb812027bf0ef46cda51969541bb",
         "wx" : "00c012950d074bb01b0a1988a5b59b959104275baf757e53029b046a15",
         "wy" : "42f50fe27f3ebac9036558ef30ebcb812027bf0ef46cda51969541bb"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c012950d074bb01b0a1988a5b59b959104275baf757e53029b046a1542f50fe27f3ebac9036558ef30ebcb812027bf0ef46cda51969541bb",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMASlQ0HS7AbChmIpbWblZEEJ1uv\ndX5TApsEahVC9Q/ifz66yQNlWO8w68uBICe/DvRs2lGWlUG7\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 104,
+          "tcId" : 110,
           "comment" : "100-bit r and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -1364,21 +1481,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d15c13a1be99d9eb77d688104a18e24242d205a4026f4a65629e59ee7e3ddf9abbb7d532b6e81a6e11f30d5b55feb8ee707c4fedf99c0607",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNFcE6G+mdnrd9aIEEoY4kJC0gWk\nAm9KZWKeWe5+Pd+au7fVMrboGm4R8w1bVf647nB8T+35nAYH\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d15c13a1be99d9eb77d688104a18e24242d205a4026f4a65629e59ee7e3ddf9abbb7d532b6e81a6e11f30d5b55feb8ee707c4fedf99c0607",
         "wx" : "00d15c13a1be99d9eb77d688104a18e24242d205a4026f4a65629e59ee",
         "wy" : "7e3ddf9abbb7d532b6e81a6e11f30d5b55feb8ee707c4fedf99c0607"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d15c13a1be99d9eb77d688104a18e24242d205a4026f4a65629e59ee7e3ddf9abbb7d532b6e81a6e11f30d5b55feb8ee707c4fedf99c0607",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNFcE6G+mdnrd9aIEEoY4kJC0gWk\nAm9KZWKeWe5+Pd+au7fVMrboGm4R8w1bVf647nB8T+35nAYH\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 105,
+          "tcId" : 111,
           "comment" : "r and s^-1 are close to n",
           "flags" : [
             "ArithmeticError"
@@ -1390,21 +1507,169 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043fe01972c0622ea812d30652c9fe2febee708123b1626d744f87db0da572c7e1e3a48195e6221d983f782fdc9e7c55bd5fdf7b679b0f8756",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD/gGXLAYi6oEtMGUsn+L+vucIEj\nsWJtdE+H2w2lcsfh46SBleYiHZg/eC/cnnxVvV/fe2ebD4dW\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
+        "uncompressed" : "04112c3a567915fe12d3a78b385af4b362870839c361b734c82c62ca293619035f0bea434ca60e2d838bd8faaee5a3b1993206809ff49a23fa",
+        "wx" : "112c3a567915fe12d3a78b385af4b362870839c361b734c82c62ca29",
+        "wy" : "3619035f0bea434ca60e2d838bd8faaee5a3b1993206809ff49a23fa"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004112c3a567915fe12d3a78b385af4b362870839c361b734c82c62ca293619035f0bea434ca60e2d838bd8faaee5a3b1993206809ff49a23fa",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBEsOlZ5Ff4S06eLOFr0s2KHCDnD\nYbc0yCxiyik2GQNfC+pDTKYOLYOL2Pqu5aOxmTIGgJ/0miP6\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 112,
+          "comment" : "r and s are 64-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "00000000000000000000000000000000000000009c44febf31c3594f0000000000000000000000000000000000000000839ed28247c2b06b",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 113,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "9c44febf31c3594f839ed28247c2b06b",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
         "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "049a465cc3e560224595f483edf231a893077b9ca2f131c27e7adb656c9e183a9ee4ed19f83f6f7106a02ba5b4660d7bc2f23e6ab7ffbef3d4",
+        "wx" : "009a465cc3e560224595f483edf231a893077b9ca2f131c27e7adb656c",
+        "wy" : "009e183a9ee4ed19f83f6f7106a02ba5b4660d7bc2f23e6ab7ffbef3d4"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049a465cc3e560224595f483edf231a893077b9ca2f131c27e7adb656c9e183a9ee4ed19f83f6f7106a02ba5b4660d7bc2f23e6ab7ffbef3d4",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJpGXMPlYCJFlfSD7fIxqJMHe5yi\n8THCfnrbZWyeGDqe5O0Z+D9vcQagK6W0Zg17wvI+arf/vvPU\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 114,
+          "comment" : "r and s are 100-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "00000000000000000000000000000009df8b682430beef6f5fd7c7cf0000000000000000000000000000000fd0a62e13778f4222a0d61c8a",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 115,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "09df8b682430beef6f5fd7c7cf0fd0a62e13778f4222a0d61c8a",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "04bb659446d70513da7a59bdb8820ae0af65550ae4035fc59368c95c588a5d1444c2d821eed1c49f216146fb10453e49c73628953e46ca91e2",
+        "wx" : "00bb659446d70513da7a59bdb8820ae0af65550ae4035fc59368c95c58",
+        "wy" : "008a5d1444c2d821eed1c49f216146fb10453e49c73628953e46ca91e2"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004bb659446d70513da7a59bdb8820ae0af65550ae4035fc59368c95c588a5d1444c2d821eed1c49f216146fb10453e49c73628953e46ca91e2",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLtllEbXBRPaelm9uIIK4K9lVQrk\nA1/Fk2jJXFiKXRREwtgh7tHEnyFhRvsQRT5JxzYolT5GypHi\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 116,
+          "comment" : "r and s are 128-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000000000008a598e563a89f526c32ebec8de26367b00000000000000000000000084f633e2042630e99dd0f1e16f7a04bf",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 117,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "8a598e563a89f526c32ebec8de26367b84f633e2042630e99dd0f1e16f7a04bf",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
+        "uncompressed" : "04b09ed898c844f5891bb799422b3cc407a6e4f78985f04ed5ff7caf0f7cd01aa24e0d5b4c9f0443ccecae661ec4609dcf0212caac8b14c8da",
+        "wx" : "00b09ed898c844f5891bb799422b3cc407a6e4f78985f04ed5ff7caf0f",
+        "wy" : "7cd01aa24e0d5b4c9f0443ccecae661ec4609dcf0212caac8b14c8da"
+      },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b09ed898c844f5891bb799422b3cc407a6e4f78985f04ed5ff7caf0f7cd01aa24e0d5b4c9f0443ccecae661ec4609dcf0212caac8b14c8da",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLCe2JjIRPWJG7eZQis8xAem5PeJ\nhfBO1f98rw980BqiTg1bTJ8EQ8zsrmYexGCdzwISyqyLFMja\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
+      "tests" : [
+        {
+          "tcId" : 118,
+          "comment" : "r and s are 160-bit integer",
+          "flags" : [
+            "ArithmeticError"
+          ],
+          "msg" : "313233343030",
+          "sig" : "0000000000000000aa6eeb5823f7fa31b466bb473797f0d0314c0be20000000000000000e2977c479e6d25703cebbc6bd561938cc9d1bfb9",
+          "result" : "valid"
+        },
+        {
+          "tcId" : 119,
+          "comment" : "incorrect size of signature",
+          "flags" : [
+            "ArithmeticError",
+            "SignatureSize"
+          ],
+          "msg" : "313233343030",
+          "sig" : "aa6eeb5823f7fa31b466bb473797f0d0314c0be2e2977c479e6d25703cebbc6bd561938cc9d1bfb9",
+          "result" : "invalid"
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaP1363Verify",
+      "publicKey" : {
+        "type" : "EcPublicKey",
+        "curve" : "brainpoolP224r1",
+        "keySize" : 224,
         "uncompressed" : "043fe01972c0622ea812d30652c9fe2febee708123b1626d744f87db0da572c7e1e3a48195e6221d983f782fdc9e7c55bd5fdf7b679b0f8756",
         "wx" : "3fe01972c0622ea812d30652c9fe2febee708123b1626d744f87db0d",
         "wy" : "00a572c7e1e3a48195e6221d983f782fdc9e7c55bd5fdf7b679b0f8756"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043fe01972c0622ea812d30652c9fe2febee708123b1626d744f87db0da572c7e1e3a48195e6221d983f782fdc9e7c55bd5fdf7b679b0f8756",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD/gGXLAYi6oEtMGUsn+L+vucIEj\nsWJtdE+H2w2lcsfh46SBleYiHZg/eC/cnnxVvV/fe2ebD4dW\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 106,
+          "tcId" : 120,
           "comment" : "s == 1",
           "flags" : [
             "ArithmeticError"
@@ -1414,7 +1679,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 107,
+          "tcId" : 121,
           "comment" : "s == 0",
           "flags" : [
             "ArithmeticError"
@@ -1426,21 +1691,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044684c6f20c2b0b78f00b39e12095bc55e44b76872975a34669c8c27839a89d4a32c1c8c32eabd68f662b3e3ef159ded32a236aacf73e91ee",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABEaExvIMKwt48As54SCVvFXkS3aH\nKXWjRmnIwng5qJ1KMsHIwy6r1o9mKz4+8Vne0yojaqz3PpHu\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044684c6f20c2b0b78f00b39e12095bc55e44b76872975a34669c8c27839a89d4a32c1c8c32eabd68f662b3e3ef159ded32a236aacf73e91ee",
         "wx" : "4684c6f20c2b0b78f00b39e12095bc55e44b76872975a34669c8c278",
         "wy" : "39a89d4a32c1c8c32eabd68f662b3e3ef159ded32a236aacf73e91ee"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044684c6f20c2b0b78f00b39e12095bc55e44b76872975a34669c8c27839a89d4a32c1c8c32eabd68f662b3e3ef159ded32a236aacf73e91ee",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABEaExvIMKwt48As54SCVvFXkS3aH\nKXWjRmnIwng5qJ1KMsHIwy6r1o9mKz4+8Vne0yojaqz3PpHu\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 108,
+          "tcId" : 122,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1453,21 +1718,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000453a00b10b6ac74aff9c46e2bb5451936472c99aa5ed2931208c630c014ddb3d2288b8987a710ce3a2df8c688fa0d945235dd3da3c393a1bb",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFOgCxC2rHSv+cRuK7VFGTZHLJmq\nXtKTEgjGMMAU3bPSKIuJh6cQzjot+MaI+g2UUjXdPaPDk6G7\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0453a00b10b6ac74aff9c46e2bb5451936472c99aa5ed2931208c630c014ddb3d2288b8987a710ce3a2df8c688fa0d945235dd3da3c393a1bb",
         "wx" : "53a00b10b6ac74aff9c46e2bb5451936472c99aa5ed2931208c630c0",
         "wy" : "14ddb3d2288b8987a710ce3a2df8c688fa0d945235dd3da3c393a1bb"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000453a00b10b6ac74aff9c46e2bb5451936472c99aa5ed2931208c630c014ddb3d2288b8987a710ce3a2df8c688fa0d945235dd3da3c393a1bb",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFOgCxC2rHSv+cRuK7VFGTZHLJmq\nXtKTEgjGMMAU3bPSKIuJh6cQzjot+MaI+g2UUjXdPaPDk6G7\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 109,
+          "tcId" : 123,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1480,21 +1745,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004131e4b225a0d222d794985032184d3c5b1c43084bb2598e2b4e0eb0b01dd8fc2b2a1f25501d1275fa2302044ac3d83227e13c8cfa511bb8d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBMeSyJaDSIteUmFAyGE08WxxDCE\nuyWY4rTg6wsB3Y/CsqHyVQHRJ1+iMCBErD2DIn4TyM+lEbuN\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04131e4b225a0d222d794985032184d3c5b1c43084bb2598e2b4e0eb0b01dd8fc2b2a1f25501d1275fa2302044ac3d83227e13c8cfa511bb8d",
         "wx" : "131e4b225a0d222d794985032184d3c5b1c43084bb2598e2b4e0eb0b",
         "wy" : "01dd8fc2b2a1f25501d1275fa2302044ac3d83227e13c8cfa511bb8d"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004131e4b225a0d222d794985032184d3c5b1c43084bb2598e2b4e0eb0b01dd8fc2b2a1f25501d1275fa2302044ac3d83227e13c8cfa511bb8d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBMeSyJaDSIteUmFAyGE08WxxDCE\nuyWY4rTg6wsB3Y/CsqHyVQHRJ1+iMCBErD2DIn4TyM+lEbuN\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 110,
+          "tcId" : 124,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1507,21 +1772,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a73941daee4ebe15a32d67074928fcc68600912e5c853b4059d99e1f6e91073a9b56d0238b54238fd0720aa0cddc4dfbabcb574fb3fd0b20",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKc5QdruTr4Voy1nB0ko/MaGAJEu\nXIU7QFnZnh9ukQc6m1bQI4tUI4/QcgqgzdxN+6vLV0+z/Qsg\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a73941daee4ebe15a32d67074928fcc68600912e5c853b4059d99e1f6e91073a9b56d0238b54238fd0720aa0cddc4dfbabcb574fb3fd0b20",
         "wx" : "00a73941daee4ebe15a32d67074928fcc68600912e5c853b4059d99e1f",
         "wy" : "6e91073a9b56d0238b54238fd0720aa0cddc4dfbabcb574fb3fd0b20"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a73941daee4ebe15a32d67074928fcc68600912e5c853b4059d99e1f6e91073a9b56d0238b54238fd0720aa0cddc4dfbabcb574fb3fd0b20",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKc5QdruTr4Voy1nB0ko/MaGAJEu\nXIU7QFnZnh9ukQc6m1bQI4tUI4/QcgqgzdxN+6vLV0+z/Qsg\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 111,
+          "tcId" : 125,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1534,21 +1799,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d4fbfbd0faeb41b63f678af6d498516490f2b13c807b7ab735d394fec27df5708416c8c6b656355a173a5c683977d5f987790737fa31550a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNT7+9D660G2P2eK9tSYUWSQ8rE8\ngHt6tzXTlP7CffVwhBbIxrZWNVoXOlxoOXfV+Yd5Bzf6MVUK\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d4fbfbd0faeb41b63f678af6d498516490f2b13c807b7ab735d394fec27df5708416c8c6b656355a173a5c683977d5f987790737fa31550a",
         "wx" : "00d4fbfbd0faeb41b63f678af6d498516490f2b13c807b7ab735d394fe",
         "wy" : "00c27df5708416c8c6b656355a173a5c683977d5f987790737fa31550a"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d4fbfbd0faeb41b63f678af6d498516490f2b13c807b7ab735d394fec27df5708416c8c6b656355a173a5c683977d5f987790737fa31550a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNT7+9D660G2P2eK9tSYUWSQ8rE8\ngHt6tzXTlP7CffVwhBbIxrZWNVoXOlxoOXfV+Yd5Bzf6MVUK\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 112,
+          "tcId" : 126,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1561,21 +1826,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000467f5b17bbe4e68e56eccc2d0ea2c2df7f25c2fc12456da23606b3da7723dbd5a7c161156aee399916c297bcd1117d5b773a918e7d572aa61",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGf1sXu+TmjlbszC0OosLffyXC/B\nJFbaI2BrPadyPb1afBYRVq7jmZFsKXvNERfVt3OpGOfVcqph\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0467f5b17bbe4e68e56eccc2d0ea2c2df7f25c2fc12456da23606b3da7723dbd5a7c161156aee399916c297bcd1117d5b773a918e7d572aa61",
         "wx" : "67f5b17bbe4e68e56eccc2d0ea2c2df7f25c2fc12456da23606b3da7",
         "wy" : "723dbd5a7c161156aee399916c297bcd1117d5b773a918e7d572aa61"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000467f5b17bbe4e68e56eccc2d0ea2c2df7f25c2fc12456da23606b3da7723dbd5a7c161156aee399916c297bcd1117d5b773a918e7d572aa61",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGf1sXu+TmjlbszC0OosLffyXC/B\nJFbaI2BrPadyPb1afBYRVq7jmZFsKXvNERfVt3OpGOfVcqph\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 113,
+          "tcId" : 127,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1588,21 +1853,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004942f6d3325f83d50262d9ea6ed7450c5cdc2d4c04e22a29d06a665434c9ac723dd3016183f3586a496417bfba518531ed9b6d442071641a0",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJQvbTMl+D1QJi2epu10UMXNwtTA\nTiKinQamZUNMmscj3TAWGD81hqSWQXv7pRhTHtm21EIHFkGg\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04942f6d3325f83d50262d9ea6ed7450c5cdc2d4c04e22a29d06a665434c9ac723dd3016183f3586a496417bfba518531ed9b6d442071641a0",
         "wx" : "00942f6d3325f83d50262d9ea6ed7450c5cdc2d4c04e22a29d06a66543",
         "wy" : "4c9ac723dd3016183f3586a496417bfba518531ed9b6d442071641a0"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004942f6d3325f83d50262d9ea6ed7450c5cdc2d4c04e22a29d06a665434c9ac723dd3016183f3586a496417bfba518531ed9b6d442071641a0",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJQvbTMl+D1QJi2epu10UMXNwtTA\nTiKinQamZUNMmscj3TAWGD81hqSWQXv7pRhTHtm21EIHFkGg\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 114,
+          "tcId" : 128,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1615,21 +1880,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004435120651f1918462f23b81f21e62769122d055c95907c8ab2a6a5b79fa40c2376b3a9e51f209c72220d96bcd4002cfe77e60c6cf7314487",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABENRIGUfGRhGLyO4HyHmJ2kSLQVc\nlZB8irKmpbefpAwjdrOp5R8gnHIiDZa81AAs/nfmDGz3MUSH\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04435120651f1918462f23b81f21e62769122d055c95907c8ab2a6a5b79fa40c2376b3a9e51f209c72220d96bcd4002cfe77e60c6cf7314487",
         "wx" : "435120651f1918462f23b81f21e62769122d055c95907c8ab2a6a5b7",
         "wy" : "009fa40c2376b3a9e51f209c72220d96bcd4002cfe77e60c6cf7314487"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004435120651f1918462f23b81f21e62769122d055c95907c8ab2a6a5b79fa40c2376b3a9e51f209c72220d96bcd4002cfe77e60c6cf7314487",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABENRIGUfGRhGLyO4HyHmJ2kSLQVc\nlZB8irKmpbefpAwjdrOp5R8gnHIiDZa81AAs/nfmDGz3MUSH\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 115,
+          "tcId" : 129,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1642,21 +1907,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a6817f032ce89aefa27dfdead1122e7be9462ec1232700d4e2acc4837e7659e454fcc7bea51febcd0f0ed909003cd801c3622828a12f5e09",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKaBfwMs6Jrvon396tESLnvpRi7B\nIycA1OKsxIN+dlnkVPzHvqUf680PDtkJADzYAcNiKCihL14J\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a6817f032ce89aefa27dfdead1122e7be9462ec1232700d4e2acc4837e7659e454fcc7bea51febcd0f0ed909003cd801c3622828a12f5e09",
         "wx" : "00a6817f032ce89aefa27dfdead1122e7be9462ec1232700d4e2acc483",
         "wy" : "7e7659e454fcc7bea51febcd0f0ed909003cd801c3622828a12f5e09"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a6817f032ce89aefa27dfdead1122e7be9462ec1232700d4e2acc4837e7659e454fcc7bea51febcd0f0ed909003cd801c3622828a12f5e09",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKaBfwMs6Jrvon396tESLnvpRi7B\nIycA1OKsxIN+dlnkVPzHvqUf680PDtkJADzYAcNiKCihL14J\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 116,
+          "tcId" : 130,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1669,21 +1934,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000454b722eaa879bdc6b5f524fcf2d1ad6d6db7a8412ef3ffb90183a8fe12fd699e1e09023e1a415607dc45f16ef97025dafb9265d86c9af8c7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFS3Iuqoeb3GtfUk/PLRrW1tt6hB\nLvP/uQGDqP4S/WmeHgkCPhpBVgfcRfFu+XAl2vuSZdhsmvjH\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0454b722eaa879bdc6b5f524fcf2d1ad6d6db7a8412ef3ffb90183a8fe12fd699e1e09023e1a415607dc45f16ef97025dafb9265d86c9af8c7",
         "wx" : "54b722eaa879bdc6b5f524fcf2d1ad6d6db7a8412ef3ffb90183a8fe",
         "wy" : "12fd699e1e09023e1a415607dc45f16ef97025dafb9265d86c9af8c7"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000454b722eaa879bdc6b5f524fcf2d1ad6d6db7a8412ef3ffb90183a8fe12fd699e1e09023e1a415607dc45f16ef97025dafb9265d86c9af8c7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFS3Iuqoeb3GtfUk/PLRrW1tt6hB\nLvP/uQGDqP4S/WmeHgkCPhpBVgfcRfFu+XAl2vuSZdhsmvjH\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 117,
+          "tcId" : 131,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1696,21 +1961,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c788c4566e039f5d69d4a93d2bd0ea1334683df32691bb5bb8b0395e1218e763c9740555d91ac716826da888b901966e2291ce13eeabe1c1",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMeIxFZuA59dadSpPSvQ6hM0aD3z\nJpG7W7iwOV4SGOdjyXQFVdkaxxaCbaiIuQGWbiKRzhPuq+HB\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c788c4566e039f5d69d4a93d2bd0ea1334683df32691bb5bb8b0395e1218e763c9740555d91ac716826da888b901966e2291ce13eeabe1c1",
         "wx" : "00c788c4566e039f5d69d4a93d2bd0ea1334683df32691bb5bb8b0395e",
         "wy" : "1218e763c9740555d91ac716826da888b901966e2291ce13eeabe1c1"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c788c4566e039f5d69d4a93d2bd0ea1334683df32691bb5bb8b0395e1218e763c9740555d91ac716826da888b901966e2291ce13eeabe1c1",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMeIxFZuA59dadSpPSvQ6hM0aD3z\nJpG7W7iwOV4SGOdjyXQFVdkaxxaCbaiIuQGWbiKRzhPuq+HB\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 118,
+          "tcId" : 132,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1723,21 +1988,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042563ad5cd401b22557102b784ffc57bd662b577f6a7926f532ea520a47520f7f16836ec1a78217809915fd89c2de5a0d6769ab69f402139a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCVjrVzUAbIlVxAreE/8V71mK1d/\nankm9TLqUgpHUg9/FoNuwaeCF4CZFf2Jwt5aDWdpq2n0AhOa\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042563ad5cd401b22557102b784ffc57bd662b577f6a7926f532ea520a47520f7f16836ec1a78217809915fd89c2de5a0d6769ab69f402139a",
         "wx" : "2563ad5cd401b22557102b784ffc57bd662b577f6a7926f532ea520a",
         "wy" : "47520f7f16836ec1a78217809915fd89c2de5a0d6769ab69f402139a"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042563ad5cd401b22557102b784ffc57bd662b577f6a7926f532ea520a47520f7f16836ec1a78217809915fd89c2de5a0d6769ab69f402139a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCVjrVzUAbIlVxAreE/8V71mK1d/\nankm9TLqUgpHUg9/FoNuwaeCF4CZFf2Jwt5aDWdpq2n0AhOa\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 119,
+          "tcId" : 133,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1750,21 +2015,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a4a9814a9770e124df8d597b3b06d8f51543ab819e40b11973d77823325ba1c0e9d46461618ce6935eec0026d1f8853366f0eef1e089207c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKSpgUqXcOEk341ZezsG2PUVQ6uB\nnkCxGXPXeCMyW6HA6dRkYWGM5pNe7AAm0fiFM2bw7vHgiSB8\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a4a9814a9770e124df8d597b3b06d8f51543ab819e40b11973d77823325ba1c0e9d46461618ce6935eec0026d1f8853366f0eef1e089207c",
         "wx" : "00a4a9814a9770e124df8d597b3b06d8f51543ab819e40b11973d77823",
         "wy" : "325ba1c0e9d46461618ce6935eec0026d1f8853366f0eef1e089207c"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a4a9814a9770e124df8d597b3b06d8f51543ab819e40b11973d77823325ba1c0e9d46461618ce6935eec0026d1f8853366f0eef1e089207c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKSpgUqXcOEk341ZezsG2PUVQ6uB\nnkCxGXPXeCMyW6HA6dRkYWGM5pNe7AAm0fiFM2bw7vHgiSB8\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 120,
+          "tcId" : 134,
           "comment" : "edge case modular inverse",
           "flags" : [
             "ModularInverse",
@@ -1777,21 +2042,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d4b6e5112406fb743b6bb55f49ea2030d904420831ebddacd67bba89652265384b75d850e7c27f4e33ed6c576df0ff969470a9ef25ffafcd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNS25REkBvt0O2u1X0nqIDDZBEII\nMevdrNZ7uollImU4S3XYUOfCf04z7WxXbfD/lpRwqe8l/6/N\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04d4b6e5112406fb743b6bb55f49ea2030d904420831ebddacd67bba89652265384b75d850e7c27f4e33ed6c576df0ff969470a9ef25ffafcd",
         "wx" : "00d4b6e5112406fb743b6bb55f49ea2030d904420831ebddacd67bba89",
         "wy" : "652265384b75d850e7c27f4e33ed6c576df0ff969470a9ef25ffafcd"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004d4b6e5112406fb743b6bb55f49ea2030d904420831ebddacd67bba89652265384b75d850e7c27f4e33ed6c576df0ff969470a9ef25ffafcd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABNS25REkBvt0O2u1X0nqIDDZBEII\nMevdrNZ7uollImU4S3XYUOfCf04z7WxXbfD/lpRwqe8l/6/N\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 121,
+          "tcId" : 135,
           "comment" : "point at infinity during verify",
           "flags" : [
             "PointDuplication",
@@ -1804,21 +2069,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000416c2129d54b93479b56a9ff5b83e4c750bb4f33ee1e70f38b5449f2d34ccaf79c51c7dff3a7f9a05cd15a396e0cffe25421c37e9b80e1489",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBbCEp1UuTR5tWqf9bg+THULtPM+\n4ecPOLVEny00zK95xRx9/zp/mgXNFaOW4M/+JUIcN+m4DhSJ\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0416c2129d54b93479b56a9ff5b83e4c750bb4f33ee1e70f38b5449f2d34ccaf79c51c7dff3a7f9a05cd15a396e0cffe25421c37e9b80e1489",
         "wx" : "16c2129d54b93479b56a9ff5b83e4c750bb4f33ee1e70f38b5449f2d",
         "wy" : "34ccaf79c51c7dff3a7f9a05cd15a396e0cffe25421c37e9b80e1489"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000416c2129d54b93479b56a9ff5b83e4c750bb4f33ee1e70f38b5449f2d34ccaf79c51c7dff3a7f9a05cd15a396e0cffe25421c37e9b80e1489",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBbCEp1UuTR5tWqf9bg+THULtPM+\n4ecPOLVEny00zK95xRx9/zp/mgXNFaOW4M/+JUIcN+m4DhSJ\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 122,
+          "tcId" : 136,
           "comment" : "edge case for signature malleability",
           "flags" : [
             "ArithmeticError"
@@ -1830,21 +2095,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000465aba0e4427a0ae558721a5a8e72cb3762eb50223bbe4c41a450fe49c81d3ae486478b4298c943283d2ec2130bac22fabc52f743b1ab7fa7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGWroORCegrlWHIaWo5yyzdi61Ai\nO75MQaRQ/knIHTrkhkeLQpjJQyg9LsITC6wi+rxS90Oxq3+n\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0465aba0e4427a0ae558721a5a8e72cb3762eb50223bbe4c41a450fe49c81d3ae486478b4298c943283d2ec2130bac22fabc52f743b1ab7fa7",
         "wx" : "65aba0e4427a0ae558721a5a8e72cb3762eb50223bbe4c41a450fe49",
         "wy" : "00c81d3ae486478b4298c943283d2ec2130bac22fabc52f743b1ab7fa7"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000465aba0e4427a0ae558721a5a8e72cb3762eb50223bbe4c41a450fe49c81d3ae486478b4298c943283d2ec2130bac22fabc52f743b1ab7fa7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGWroORCegrlWHIaWo5yyzdi61Ai\nO75MQaRQ/knIHTrkhkeLQpjJQyg9LsITC6wi+rxS90Oxq3+n\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 123,
+          "tcId" : 137,
           "comment" : "edge case for signature malleability",
           "flags" : [
             "ArithmeticError"
@@ -1856,21 +2121,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000455a7b0100613fabd957b42600835c6d42e01e04252593bdde3b1727887708a05aba2f93f1a1e1ecb703ec9a8ee6d6013a101d397012a8cce",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFWnsBAGE/q9lXtCYAg1xtQuAeBC\nUlk73eOxcniHcIoFq6L5PxoeHstwPsmo7m1gE6EB05cBKozO\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0455a7b0100613fabd957b42600835c6d42e01e04252593bdde3b1727887708a05aba2f93f1a1e1ecb703ec9a8ee6d6013a101d397012a8cce",
         "wx" : "55a7b0100613fabd957b42600835c6d42e01e04252593bdde3b17278",
         "wy" : "0087708a05aba2f93f1a1e1ecb703ec9a8ee6d6013a101d397012a8cce"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000455a7b0100613fabd957b42600835c6d42e01e04252593bdde3b1727887708a05aba2f93f1a1e1ecb703ec9a8ee6d6013a101d397012a8cce",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFWnsBAGE/q9lXtCYAg1xtQuAeBC\nUlk73eOxcniHcIoFq6L5PxoeHstwPsmo7m1gE6EB05cBKozO\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 124,
+          "tcId" : 138,
           "comment" : "u1 == 1",
           "flags" : [
             "ArithmeticError"
@@ -1882,21 +2147,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041ada54dc015861680d8bb2d311b90e82db75aa9e8217b92611fa03cb84c611551197298b3274875cb94686e758f0a1a9675c0bc157451a76",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBraVNwBWGFoDYuy0xG5DoLbdaqe\nghe5JhH6A8uExhFVEZcpizJ0h1y5RobnWPChqWdcC8FXRRp2\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "041ada54dc015861680d8bb2d311b90e82db75aa9e8217b92611fa03cb84c611551197298b3274875cb94686e758f0a1a9675c0bc157451a76",
         "wx" : "1ada54dc015861680d8bb2d311b90e82db75aa9e8217b92611fa03cb",
         "wy" : "0084c611551197298b3274875cb94686e758f0a1a9675c0bc157451a76"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041ada54dc015861680d8bb2d311b90e82db75aa9e8217b92611fa03cb84c611551197298b3274875cb94686e758f0a1a9675c0bc157451a76",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBraVNwBWGFoDYuy0xG5DoLbdaqe\nghe5JhH6A8uExhFVEZcpizJ0h1y5RobnWPChqWdcC8FXRRp2\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 125,
+          "tcId" : 139,
           "comment" : "u1 == n - 1",
           "flags" : [
             "ArithmeticError"
@@ -1908,21 +2173,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c67b6429785334a608dde949a8abe641dbd3601ebce1e675fe71a8e527d2e8727dc4f618493550bb940151bca6826f714c5b31854038f44d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMZ7ZCl4UzSmCN3pSair5kHb02Ae\nvOHmdf5xqOUn0uhyfcT2GEk1ULuUAVG8poJvcUxbMYVAOPRN\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c67b6429785334a608dde949a8abe641dbd3601ebce1e675fe71a8e527d2e8727dc4f618493550bb940151bca6826f714c5b31854038f44d",
         "wx" : "00c67b6429785334a608dde949a8abe641dbd3601ebce1e675fe71a8e5",
         "wy" : "27d2e8727dc4f618493550bb940151bca6826f714c5b31854038f44d"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c67b6429785334a608dde949a8abe641dbd3601ebce1e675fe71a8e527d2e8727dc4f618493550bb940151bca6826f714c5b31854038f44d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMZ7ZCl4UzSmCN3pSair5kHb02Ae\nvOHmdf5xqOUn0uhyfcT2GEk1ULuUAVG8poJvcUxbMYVAOPRN\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 126,
+          "tcId" : 140,
           "comment" : "u2 == 1",
           "flags" : [
             "ArithmeticError"
@@ -1934,21 +2199,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041dcc7a5ad111a33627f92dd875ba4a06f6a7c2befdd1050488d057a7341cae0be72a99776db5bd79b463e2d3882764af9c0245d084a3342d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABB3MelrREaM2J/kt2HW6Sgb2p8K+\n/dEFBIjQV6c0HK4L5yqZd221vXm0Y+LTiCdkr5wCRdCEozQt\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "041dcc7a5ad111a33627f92dd875ba4a06f6a7c2befdd1050488d057a7341cae0be72a99776db5bd79b463e2d3882764af9c0245d084a3342d",
         "wx" : "1dcc7a5ad111a33627f92dd875ba4a06f6a7c2befdd1050488d057a7",
         "wy" : "341cae0be72a99776db5bd79b463e2d3882764af9c0245d084a3342d"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00041dcc7a5ad111a33627f92dd875ba4a06f6a7c2befdd1050488d057a7341cae0be72a99776db5bd79b463e2d3882764af9c0245d084a3342d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABB3MelrREaM2J/kt2HW6Sgb2p8K+\n/dEFBIjQV6c0HK4L5yqZd221vXm0Y+LTiCdkr5wCRdCEozQt\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 127,
+          "tcId" : 141,
           "comment" : "u2 == n - 1",
           "flags" : [
             "ArithmeticError"
@@ -1960,21 +2225,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004bdf708a01c6a814728d394b7f29bf6579734862d8af8e6ff786fbe49901cd462946e5e36cc97c9896df2e18177456d282a7a26a38084c086",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABL33CKAcaoFHKNOUt/Kb9leXNIYt\nivjm/3hvvkmQHNRilG5eNsyXyYlt8uGBd0VtKCp6JqOAhMCG\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04bdf708a01c6a814728d394b7f29bf6579734862d8af8e6ff786fbe49901cd462946e5e36cc97c9896df2e18177456d282a7a26a38084c086",
         "wx" : "00bdf708a01c6a814728d394b7f29bf6579734862d8af8e6ff786fbe49",
         "wy" : "00901cd462946e5e36cc97c9896df2e18177456d282a7a26a38084c086"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004bdf708a01c6a814728d394b7f29bf6579734862d8af8e6ff786fbe49901cd462946e5e36cc97c9896df2e18177456d282a7a26a38084c086",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABL33CKAcaoFHKNOUt/Kb9leXNIYt\nivjm/3hvvkmQHNRilG5eNsyXyYlt8uGBd0VtKCp6JqOAhMCG\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 128,
+          "tcId" : 142,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -1986,21 +2251,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040c531fb3d996faa22407df1305ff6ae0bfe94e1c2022f4730d0f8a4abd8073950459562e539ac0895433757e25209b12534ff30fe3d37c71",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABAxTH7PZlvqiJAffEwX/auC/6U4c\nICL0cw0Pikq9gHOVBFlWLlOawIlUM3V+JSCbElNP8w/j03xx\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040c531fb3d996faa22407df1305ff6ae0bfe94e1c2022f4730d0f8a4abd8073950459562e539ac0895433757e25209b12534ff30fe3d37c71",
         "wx" : "0c531fb3d996faa22407df1305ff6ae0bfe94e1c2022f4730d0f8a4a",
         "wy" : "00bd8073950459562e539ac0895433757e25209b12534ff30fe3d37c71"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040c531fb3d996faa22407df1305ff6ae0bfe94e1c2022f4730d0f8a4abd8073950459562e539ac0895433757e25209b12534ff30fe3d37c71",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABAxTH7PZlvqiJAffEwX/auC/6U4c\nICL0cw0Pikq9gHOVBFlWLlOawIlUM3V+JSCbElNP8w/j03xx\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 129,
+          "tcId" : 143,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2012,21 +2277,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00046782954082418e0002a0812672ac2123b6334b341340555096bcf6c61f6fa1a8fea617d9dda14461d63aa448f205a39b25501a6b1d42ee5f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGeClUCCQY4AAqCBJnKsISO2M0s0\nE0BVUJa89sYfb6Go/qYX2d2hRGHWOqRI8gWjmyVQGmsdQu5f\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "046782954082418e0002a0812672ac2123b6334b341340555096bcf6c61f6fa1a8fea617d9dda14461d63aa448f205a39b25501a6b1d42ee5f",
         "wx" : "6782954082418e0002a0812672ac2123b6334b341340555096bcf6c6",
         "wy" : "1f6fa1a8fea617d9dda14461d63aa448f205a39b25501a6b1d42ee5f"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00046782954082418e0002a0812672ac2123b6334b341340555096bcf6c61f6fa1a8fea617d9dda14461d63aa448f205a39b25501a6b1d42ee5f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGeClUCCQY4AAqCBJnKsISO2M0s0\nE0BVUJa89sYfb6Go/qYX2d2hRGHWOqRI8gWjmyVQGmsdQu5f\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 130,
+          "tcId" : 144,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2038,21 +2303,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00045b5e6eaba7597ae641420ace6af2575839f161b27b91b270f18bf7d0496ab3c3072fa6ee5578fc814f74d148ecbc2a98cfdc5d40ec7e6980",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFtebqunWXrmQUIKzmryV1g58WGy\ne5GycPGL99BJarPDBy+m7lV4/IFPdNFI7LwqmM/cXUDsfmmA\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "045b5e6eaba7597ae641420ace6af2575839f161b27b91b270f18bf7d0496ab3c3072fa6ee5578fc814f74d148ecbc2a98cfdc5d40ec7e6980",
         "wx" : "5b5e6eaba7597ae641420ace6af2575839f161b27b91b270f18bf7d0",
         "wy" : "496ab3c3072fa6ee5578fc814f74d148ecbc2a98cfdc5d40ec7e6980"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00045b5e6eaba7597ae641420ace6af2575839f161b27b91b270f18bf7d0496ab3c3072fa6ee5578fc814f74d148ecbc2a98cfdc5d40ec7e6980",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFtebqunWXrmQUIKzmryV1g58WGy\ne5GycPGL99BJarPDBy+m7lV4/IFPdNFI7LwqmM/cXUDsfmmA\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 131,
+          "tcId" : 145,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2064,21 +2329,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048e661a06ad55b5227801ea4309a72b9cd94973bc873c0405e1247d1e64898b822c363cac8821302de38a914268aaa67db2561878f0f90a02",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABI5mGgatVbUieAHqQwmnK5zZSXO8\nhzwEBeEkfR5kiYuCLDY8rIghMC3jipFCaKqmfbJWGHjw+QoC\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048e661a06ad55b5227801ea4309a72b9cd94973bc873c0405e1247d1e64898b822c363cac8821302de38a914268aaa67db2561878f0f90a02",
         "wx" : "008e661a06ad55b5227801ea4309a72b9cd94973bc873c0405e1247d1e",
         "wy" : "64898b822c363cac8821302de38a914268aaa67db2561878f0f90a02"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048e661a06ad55b5227801ea4309a72b9cd94973bc873c0405e1247d1e64898b822c363cac8821302de38a914268aaa67db2561878f0f90a02",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABI5mGgatVbUieAHqQwmnK5zZSXO8\nhzwEBeEkfR5kiYuCLDY8rIghMC3jipFCaKqmfbJWGHjw+QoC\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 132,
+          "tcId" : 146,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2090,21 +2355,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b3d2b93f1488657262140f96c108aa0485939bd99440240a7a7d54e388968174b061853739f8b0471c76126539dc57cc6d7c1f539f686674",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLPSuT8UiGVyYhQPlsEIqgSFk5vZ\nlEAkCnp9VOOIloF0sGGFNzn4sEccdhJlOdxXzG18H1OfaGZ0\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b3d2b93f1488657262140f96c108aa0485939bd99440240a7a7d54e388968174b061853739f8b0471c76126539dc57cc6d7c1f539f686674",
         "wx" : "00b3d2b93f1488657262140f96c108aa0485939bd99440240a7a7d54e3",
         "wy" : "0088968174b061853739f8b0471c76126539dc57cc6d7c1f539f686674"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b3d2b93f1488657262140f96c108aa0485939bd99440240a7a7d54e388968174b061853739f8b0471c76126539dc57cc6d7c1f539f686674",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLPSuT8UiGVyYhQPlsEIqgSFk5vZ\nlEAkCnp9VOOIloF0sGGFNzn4sEccdhJlOdxXzG18H1OfaGZ0\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 133,
+          "tcId" : 147,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2116,21 +2381,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004ba830dbf83075cd182bc9322c1f6299a4ce3cf4ddde0e6fcee50f0d62b153f6f377a88809c9dd50d8d61eb6794514448165786a7c6558dcc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLqDDb+DB1zRgryTIsH2KZpM489N\n3eDm/O5Q8NYrFT9vN3qIgJyd1Q2NYetnlFFESBZXhqfGVY3M\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04ba830dbf83075cd182bc9322c1f6299a4ce3cf4ddde0e6fcee50f0d62b153f6f377a88809c9dd50d8d61eb6794514448165786a7c6558dcc",
         "wx" : "00ba830dbf83075cd182bc9322c1f6299a4ce3cf4ddde0e6fcee50f0d6",
         "wy" : "2b153f6f377a88809c9dd50d8d61eb6794514448165786a7c6558dcc"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004ba830dbf83075cd182bc9322c1f6299a4ce3cf4ddde0e6fcee50f0d62b153f6f377a88809c9dd50d8d61eb6794514448165786a7c6558dcc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLqDDb+DB1zRgryTIsH2KZpM489N\n3eDm/O5Q8NYrFT9vN3qIgJyd1Q2NYetnlFFESBZXhqfGVY3M\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 134,
+          "tcId" : 148,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2142,21 +2407,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000477f40222e4a79a0fa7e510887e69eba31f6dd7067121dafe739bbe13d0ffab7222cf6d827c51eb53abac506bc0a5d7c1a5a7e1683d49e43e",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHf0AiLkp5oPp+UQiH5p66MfbdcG\ncSHa/nObvhPQ/6tyIs9tgnxR61OrrFBrwKXXwaWn4Wg9SeQ+\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0477f40222e4a79a0fa7e510887e69eba31f6dd7067121dafe739bbe13d0ffab7222cf6d827c51eb53abac506bc0a5d7c1a5a7e1683d49e43e",
         "wx" : "77f40222e4a79a0fa7e510887e69eba31f6dd7067121dafe739bbe13",
         "wy" : "00d0ffab7222cf6d827c51eb53abac506bc0a5d7c1a5a7e1683d49e43e"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000477f40222e4a79a0fa7e510887e69eba31f6dd7067121dafe739bbe13d0ffab7222cf6d827c51eb53abac506bc0a5d7c1a5a7e1683d49e43e",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHf0AiLkp5oPp+UQiH5p66MfbdcG\ncSHa/nObvhPQ/6tyIs9tgnxR61OrrFBrwKXXwaWn4Wg9SeQ+\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 135,
+          "tcId" : 149,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2168,21 +2433,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004597b5a3c106b8c4e9a7e7a517cd740e77667c8a2d06c510e5e3b728d9cc249e827f5fff902122eb26badc4a7da6555b489ba98982d388125",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFl7WjwQa4xOmn56UXzXQOd2Z8ii\n0GxRDl47co2cwknoJ/X/+QISLrJrrcSn2mVVtIm6mJgtOIEl\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04597b5a3c106b8c4e9a7e7a517cd740e77667c8a2d06c510e5e3b728d9cc249e827f5fff902122eb26badc4a7da6555b489ba98982d388125",
         "wx" : "597b5a3c106b8c4e9a7e7a517cd740e77667c8a2d06c510e5e3b728d",
         "wy" : "009cc249e827f5fff902122eb26badc4a7da6555b489ba98982d388125"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004597b5a3c106b8c4e9a7e7a517cd740e77667c8a2d06c510e5e3b728d9cc249e827f5fff902122eb26badc4a7da6555b489ba98982d388125",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFl7WjwQa4xOmn56UXzXQOd2Z8ii\n0GxRDl47co2cwknoJ/X/+QISLrJrrcSn2mVVtIm6mJgtOIEl\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 136,
+          "tcId" : 150,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2194,21 +2459,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040f2453e7585cb1392ff4fa11869f8c10b2f9cf4f2a18b866e8f37c2bd1566ef04928797579d40f3310ebaf477a4e78a235861928328634df",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA8kU+dYXLE5L/T6EYafjBCy+c9P\nKhi4ZujzfCvRVm7wSSh5dXnUDzMQ669Hek54ojWGGSgyhjTf\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040f2453e7585cb1392ff4fa11869f8c10b2f9cf4f2a18b866e8f37c2bd1566ef04928797579d40f3310ebaf477a4e78a235861928328634df",
         "wx" : "0f2453e7585cb1392ff4fa11869f8c10b2f9cf4f2a18b866e8f37c2b",
         "wy" : "00d1566ef04928797579d40f3310ebaf477a4e78a235861928328634df"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040f2453e7585cb1392ff4fa11869f8c10b2f9cf4f2a18b866e8f37c2bd1566ef04928797579d40f3310ebaf477a4e78a235861928328634df",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA8kU+dYXLE5L/T6EYafjBCy+c9P\nKhi4ZujzfCvRVm7wSSh5dXnUDzMQ669Hek54ojWGGSgyhjTf\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 137,
+          "tcId" : 151,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2220,21 +2485,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000410cb3dbce4da518e04eb125cf3b44bef0451bad3e7cbbad5328b85bb358651b478bcf200684fd310e6d14acd23dc2a760475df0f5b8a758c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBDLPbzk2lGOBOsSXPO0S+8EUbrT\n58u61TKLhbs1hlG0eLzyAGhP0xDm0UrNI9wqdgR13w9binWM\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0410cb3dbce4da518e04eb125cf3b44bef0451bad3e7cbbad5328b85bb358651b478bcf200684fd310e6d14acd23dc2a760475df0f5b8a758c",
         "wx" : "10cb3dbce4da518e04eb125cf3b44bef0451bad3e7cbbad5328b85bb",
         "wy" : "358651b478bcf200684fd310e6d14acd23dc2a760475df0f5b8a758c"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000410cb3dbce4da518e04eb125cf3b44bef0451bad3e7cbbad5328b85bb358651b478bcf200684fd310e6d14acd23dc2a760475df0f5b8a758c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBDLPbzk2lGOBOsSXPO0S+8EUbrT\n58u61TKLhbs1hlG0eLzyAGhP0xDm0UrNI9wqdgR13w9binWM\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 138,
+          "tcId" : 152,
           "comment" : "edge case for u1",
           "flags" : [
             "ArithmeticError"
@@ -2246,21 +2511,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042c27732aaaa3f8b16664a48a1dd06fc0fe40f65742751e5c04b7eff507804b2dbee79ffe56dc4f4a6062ced6f375b80b5ad2cf3a2921b395",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCwncyqqo/ixZmSkih3Qb8D+QPZX\nQnUeXAS37/UHgEstvuef/lbcT0pgYs7W83W4C1rSzzopIbOV\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042c27732aaaa3f8b16664a48a1dd06fc0fe40f65742751e5c04b7eff507804b2dbee79ffe56dc4f4a6062ced6f375b80b5ad2cf3a2921b395",
         "wx" : "2c27732aaaa3f8b16664a48a1dd06fc0fe40f65742751e5c04b7eff5",
         "wy" : "07804b2dbee79ffe56dc4f4a6062ced6f375b80b5ad2cf3a2921b395"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042c27732aaaa3f8b16664a48a1dd06fc0fe40f65742751e5c04b7eff507804b2dbee79ffe56dc4f4a6062ced6f375b80b5ad2cf3a2921b395",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCwncyqqo/ixZmSkih3Qb8D+QPZX\nQnUeXAS37/UHgEstvuef/lbcT0pgYs7W83W4C1rSzzopIbOV\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 139,
+          "tcId" : 153,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2272,21 +2537,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048ced556877ee15af314aed5dfc43a00fbb7626fbdc7b81ff7dbea2f898f5e26f7fc3276da2a8e869b0afbc41ef3b40326080aa85ce62c2ab",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIztVWh37hWvMUrtXfxDoA+7dib7\n3HuB/32+oviY9eJvf8MnbaKo6Gmwr7xB7ztAMmCAqoXOYsKr\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048ced556877ee15af314aed5dfc43a00fbb7626fbdc7b81ff7dbea2f898f5e26f7fc3276da2a8e869b0afbc41ef3b40326080aa85ce62c2ab",
         "wx" : "008ced556877ee15af314aed5dfc43a00fbb7626fbdc7b81ff7dbea2f8",
         "wy" : "0098f5e26f7fc3276da2a8e869b0afbc41ef3b40326080aa85ce62c2ab"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048ced556877ee15af314aed5dfc43a00fbb7626fbdc7b81ff7dbea2f898f5e26f7fc3276da2a8e869b0afbc41ef3b40326080aa85ce62c2ab",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIztVWh37hWvMUrtXfxDoA+7dib7\n3HuB/32+oviY9eJvf8MnbaKo6Gmwr7xB7ztAMmCAqoXOYsKr\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 140,
+          "tcId" : 154,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2298,21 +2563,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000442b19b22506c4fd89fa28c5909d97f8ffebdc82804dcc7bf6a570ae21a974ee08b484fa05e1fbb89c48c50754ba1e40a658a5ced409c6361",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABEKxmyJQbE/Yn6KMWQnZf4/+vcgo\nBNzHv2pXCuIal07gi0hPoF4fu4nEjFB1S6HkCmWKXO1AnGNh\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0442b19b22506c4fd89fa28c5909d97f8ffebdc82804dcc7bf6a570ae21a974ee08b484fa05e1fbb89c48c50754ba1e40a658a5ced409c6361",
         "wx" : "42b19b22506c4fd89fa28c5909d97f8ffebdc82804dcc7bf6a570ae2",
         "wy" : "1a974ee08b484fa05e1fbb89c48c50754ba1e40a658a5ced409c6361"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000442b19b22506c4fd89fa28c5909d97f8ffebdc82804dcc7bf6a570ae21a974ee08b484fa05e1fbb89c48c50754ba1e40a658a5ced409c6361",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABEKxmyJQbE/Yn6KMWQnZf4/+vcgo\nBNzHv2pXCuIal07gi0hPoF4fu4nEjFB1S6HkCmWKXO1AnGNh\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 141,
+          "tcId" : 155,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2324,21 +2589,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042095e12116cebdd4e8bc1cc184b538b1515f789e3be4b03a4183fae5d0926e446875abdcd12c8239e607961cadd00a2e899d821db11d5679",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCCV4SEWzr3U6LwcwYS1OLFRX3ie\nO+SwOkGD+uXQkm5EaHWr3NEsgjnmB5YcrdAKLomdgh2xHVZ5\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042095e12116cebdd4e8bc1cc184b538b1515f789e3be4b03a4183fae5d0926e446875abdcd12c8239e607961cadd00a2e899d821db11d5679",
         "wx" : "2095e12116cebdd4e8bc1cc184b538b1515f789e3be4b03a4183fae5",
         "wy" : "00d0926e446875abdcd12c8239e607961cadd00a2e899d821db11d5679"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042095e12116cebdd4e8bc1cc184b538b1515f789e3be4b03a4183fae5d0926e446875abdcd12c8239e607961cadd00a2e899d821db11d5679",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCCV4SEWzr3U6LwcwYS1OLFRX3ie\nO+SwOkGD+uXQkm5EaHWr3NEsgjnmB5YcrdAKLomdgh2xHVZ5\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 142,
+          "tcId" : 156,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2350,21 +2615,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000458f82eb2ca6e3474a90e29ac56dcb63d88e669e0a40204e6202af7c5a0e85e4039f343255b4fe4bdc1191a7845bdd7eb908ecd8779a27963",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFj4LrLKbjR0qQ4prFbctj2I5mng\npAIE5iAq98Wg6F5AOfNDJVtP5L3BGRp4Rb3X65COzYd5onlj\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0458f82eb2ca6e3474a90e29ac56dcb63d88e669e0a40204e6202af7c5a0e85e4039f343255b4fe4bdc1191a7845bdd7eb908ecd8779a27963",
         "wx" : "58f82eb2ca6e3474a90e29ac56dcb63d88e669e0a40204e6202af7c5",
         "wy" : "00a0e85e4039f343255b4fe4bdc1191a7845bdd7eb908ecd8779a27963"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000458f82eb2ca6e3474a90e29ac56dcb63d88e669e0a40204e6202af7c5a0e85e4039f343255b4fe4bdc1191a7845bdd7eb908ecd8779a27963",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFj4LrLKbjR0qQ4prFbctj2I5mng\npAIE5iAq98Wg6F5AOfNDJVtP5L3BGRp4Rb3X65COzYd5onlj\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 143,
+          "tcId" : 157,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2376,21 +2641,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000471f2c4a7c3f71311a793458ff12262a863518fb30dbb7a80701030b8b6b08428fabdb69c8a8e9e327daed0795fb84e0d8817086022d3b23b",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHHyxKfD9xMRp5NFj/EiYqhjUY+z\nDbt6gHAQMLi2sIQo+r22nIqOnjJ9rtB5X7hODYgXCGAi07I7\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0471f2c4a7c3f71311a793458ff12262a863518fb30dbb7a80701030b8b6b08428fabdb69c8a8e9e327daed0795fb84e0d8817086022d3b23b",
         "wx" : "71f2c4a7c3f71311a793458ff12262a863518fb30dbb7a80701030b8",
         "wy" : "00b6b08428fabdb69c8a8e9e327daed0795fb84e0d8817086022d3b23b"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000471f2c4a7c3f71311a793458ff12262a863518fb30dbb7a80701030b8b6b08428fabdb69c8a8e9e327daed0795fb84e0d8817086022d3b23b",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHHyxKfD9xMRp5NFj/EiYqhjUY+z\nDbt6gHAQMLi2sIQo+r22nIqOnjJ9rtB5X7hODYgXCGAi07I7\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 144,
+          "tcId" : 158,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2402,21 +2667,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043cfcf64eece994c35c56e915e4ed1883ba6ec34fe396c11acd8f47d263cdfbaa34401100b5b10af771bb46c0d53446f7aa847956c9363494",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDz89k7s6ZTDXFbpFeTtGIO6bsNP\n45bBGs2PR9JjzfuqNEARALWxCvdxu0bA1TRG96qEeVbJNjSU\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043cfcf64eece994c35c56e915e4ed1883ba6ec34fe396c11acd8f47d263cdfbaa34401100b5b10af771bb46c0d53446f7aa847956c9363494",
         "wx" : "3cfcf64eece994c35c56e915e4ed1883ba6ec34fe396c11acd8f47d2",
         "wy" : "63cdfbaa34401100b5b10af771bb46c0d53446f7aa847956c9363494"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043cfcf64eece994c35c56e915e4ed1883ba6ec34fe396c11acd8f47d263cdfbaa34401100b5b10af771bb46c0d53446f7aa847956c9363494",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDz89k7s6ZTDXFbpFeTtGIO6bsNP\n45bBGs2PR9JjzfuqNEARALWxCvdxu0bA1TRG96qEeVbJNjSU\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 145,
+          "tcId" : 159,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2428,21 +2693,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044c404decbc0697b207fa08982ef0fedb001eeb43f37404dab97a9a7747191bc240dfd440274e06955611f9923fad6949b2cc157a185c8229",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABExATey8BpeyB/oImC7w/tsAHutD\n83QE2rl6mndHGRvCQN/UQCdOBpVWEfmSP61pSbLMFXoYXIIp\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044c404decbc0697b207fa08982ef0fedb001eeb43f37404dab97a9a7747191bc240dfd440274e06955611f9923fad6949b2cc157a185c8229",
         "wx" : "4c404decbc0697b207fa08982ef0fedb001eeb43f37404dab97a9a77",
         "wy" : "47191bc240dfd440274e06955611f9923fad6949b2cc157a185c8229"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044c404decbc0697b207fa08982ef0fedb001eeb43f37404dab97a9a7747191bc240dfd440274e06955611f9923fad6949b2cc157a185c8229",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABExATey8BpeyB/oImC7w/tsAHutD\n83QE2rl6mndHGRvCQN/UQCdOBpVWEfmSP61pSbLMFXoYXIIp\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 146,
+          "tcId" : 160,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2454,21 +2719,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00047be4b0ea0b15b96f91312c15c81629e40c4418f70b86c5bcdc258fd979cbef8ea2a77ca092db0eb954a9e33e82b9c5f110c8c990b9235a57",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHvksOoLFblvkTEsFcgWKeQMRBj3\nC4bFvNwlj9l5y++Ooqd8oJLbDrlUqeM+grnF8RDIyZC5I1pX\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "047be4b0ea0b15b96f91312c15c81629e40c4418f70b86c5bcdc258fd979cbef8ea2a77ca092db0eb954a9e33e82b9c5f110c8c990b9235a57",
         "wx" : "7be4b0ea0b15b96f91312c15c81629e40c4418f70b86c5bcdc258fd9",
         "wy" : "79cbef8ea2a77ca092db0eb954a9e33e82b9c5f110c8c990b9235a57"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00047be4b0ea0b15b96f91312c15c81629e40c4418f70b86c5bcdc258fd979cbef8ea2a77ca092db0eb954a9e33e82b9c5f110c8c990b9235a57",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABHvksOoLFblvkTEsFcgWKeQMRBj3\nC4bFvNwlj9l5y++Ooqd8oJLbDrlUqeM+grnF8RDIyZC5I1pX\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 147,
+          "tcId" : 161,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2480,21 +2745,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000464a64cffa54066499264991e47a0f14bca6319a1c27e1508e2016b56bda7c17a04d9cb88eadb7296cf87dfbfadfe65056837a797d66997dd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGSmTP+lQGZJkmSZHkeg8UvKYxmh\nwn4VCOIBa1a9p8F6BNnLiOrbcpbPh9+/rf5lBWg3p5fWaZfd\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0464a64cffa54066499264991e47a0f14bca6319a1c27e1508e2016b56bda7c17a04d9cb88eadb7296cf87dfbfadfe65056837a797d66997dd",
         "wx" : "64a64cffa54066499264991e47a0f14bca6319a1c27e1508e2016b56",
         "wy" : "00bda7c17a04d9cb88eadb7296cf87dfbfadfe65056837a797d66997dd"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000464a64cffa54066499264991e47a0f14bca6319a1c27e1508e2016b56bda7c17a04d9cb88eadb7296cf87dfbfadfe65056837a797d66997dd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGSmTP+lQGZJkmSZHkeg8UvKYxmh\nwn4VCOIBa1a9p8F6BNnLiOrbcpbPh9+/rf5lBWg3p5fWaZfd\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 148,
+          "tcId" : 162,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2506,21 +2771,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043d4c4e3c5ba7a533c8a3386d6ff77a81351346e1894b2560b406a63ea349775946799eeb274926b4d957328f6c7d50f6760291acdaeb114f",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD1MTjxbp6UzyKM4bW/3eoE1E0bh\niUslYLQGpj6jSXdZRnme6ydJJrTZVzKPbH1Q9nYCkaza6xFP\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043d4c4e3c5ba7a533c8a3386d6ff77a81351346e1894b2560b406a63ea349775946799eeb274926b4d957328f6c7d50f6760291acdaeb114f",
         "wx" : "3d4c4e3c5ba7a533c8a3386d6ff77a81351346e1894b2560b406a63e",
         "wy" : "00a349775946799eeb274926b4d957328f6c7d50f6760291acdaeb114f"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043d4c4e3c5ba7a533c8a3386d6ff77a81351346e1894b2560b406a63ea349775946799eeb274926b4d957328f6c7d50f6760291acdaeb114f",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD1MTjxbp6UzyKM4bW/3eoE1E0bh\niUslYLQGpj6jSXdZRnme6ydJJrTZVzKPbH1Q9nYCkaza6xFP\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 149,
+          "tcId" : 163,
           "comment" : "edge case for u2",
           "flags" : [
             "ArithmeticError"
@@ -2532,21 +2797,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b0a76082c35da862a1e2e8626ffa94ed18fcb1d897ec7ab52c322553ff",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE246KxD8i33XJwJ/hk7nNg9XJtz\n830UlHYXJLCnYILDXahioeLoYm/6lO0Y/LHYl+x6tSwyJVP/\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b0a76082c35da862a1e2e8626ffa94ed18fcb1d897ec7ab52c322553ff",
         "wx" : "4db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b0",
         "wy" : "00a76082c35da862a1e2e8626ffa94ed18fcb1d897ec7ab52c322553ff"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b0a76082c35da862a1e2e8626ffa94ed18fcb1d897ec7ab52c322553ff",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE246KxD8i33XJwJ/hk7nNg9XJtz\n830UlHYXJLCnYILDXahioeLoYm/6lO0Y/LHYl+x6tSwyJVP/\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 150,
+          "tcId" : 164,
           "comment" : "point duplication during verification",
           "flags" : [
             "PointDuplication"
@@ -2558,21 +2823,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b03060b1e6c89b03e4472fcdb57b3cea6eb3ed2ebfab5fd4c94ca36d00",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE246KxD8i33XJwJ/hk7nNg9XJtz\n830UlHYXJLAwYLHmyJsD5EcvzbV7POpus+0uv6tf1MlMo20A\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b03060b1e6c89b03e4472fcdb57b3cea6eb3ed2ebfab5fd4c94ca36d00",
         "wx" : "4db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b0",
         "wy" : "3060b1e6c89b03e4472fcdb57b3cea6eb3ed2ebfab5fd4c94ca36d00"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044db8e8ac43f22df75c9c09fe193b9cd83d5c9b73f37d1494761724b03060b1e6c89b03e4472fcdb57b3cea6eb3ed2ebfab5fd4c94ca36d00",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE246KxD8i33XJwJ/hk7nNg9XJtz\n830UlHYXJLAwYLHmyJsD5EcvzbV7POpus+0uv6tf1MlMo20A\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 151,
+          "tcId" : 165,
           "comment" : "duplication bug",
           "flags" : [
             "PointDuplication"
@@ -2584,21 +2849,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042b92268208d522450c42f3fcbda409c3ace2a5f857ea10612c6093f8315eb2d448134e716b032078b68301622e3c2186ab583d976e769feb",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCuSJoII1SJFDELz/L2kCcOs4qX4\nV+oQYSxgk/gxXrLUSBNOcWsDIHi2gwFiLjwhhqtYPZdudp/r\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042b92268208d522450c42f3fcbda409c3ace2a5f857ea10612c6093f8315eb2d448134e716b032078b68301622e3c2186ab583d976e769feb",
         "wx" : "2b92268208d522450c42f3fcbda409c3ace2a5f857ea10612c6093f8",
         "wy" : "315eb2d448134e716b032078b68301622e3c2186ab583d976e769feb"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042b92268208d522450c42f3fcbda409c3ace2a5f857ea10612c6093f8315eb2d448134e716b032078b68301622e3c2186ab583d976e769feb",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCuSJoII1SJFDELz/L2kCcOs4qX4\nV+oQYSxgk/gxXrLUSBNOcWsDIHi2gwFiLjwhhqtYPZdudp/r\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 152,
+          "tcId" : 166,
           "comment" : "comparison with point at infinity ",
           "flags" : [
             "ArithmeticError"
@@ -2610,21 +2875,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044d4bd5693d86dd9a6016ba806d8031f94dc8e2d33c6f5871a00b64732a4662f29524ece754828b9d829c0a0724d9bd9d288d21f87e3fb1fa",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE1L1Wk9ht2aYBa6gG2AMflNyOLT\nPG9YcaALZHMqRmLylSTs51SCi52CnAoHJNm9nSiNIfh+P7H6\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "044d4bd5693d86dd9a6016ba806d8031f94dc8e2d33c6f5871a00b64732a4662f29524ece754828b9d829c0a0724d9bd9d288d21f87e3fb1fa",
         "wx" : "4d4bd5693d86dd9a6016ba806d8031f94dc8e2d33c6f5871a00b6473",
         "wy" : "2a4662f29524ece754828b9d829c0a0724d9bd9d288d21f87e3fb1fa"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00044d4bd5693d86dd9a6016ba806d8031f94dc8e2d33c6f5871a00b64732a4662f29524ece754828b9d829c0a0724d9bd9d288d21f87e3fb1fa",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABE1L1Wk9ht2aYBa6gG2AMflNyOLT\nPG9YcaALZHMqRmLylSTs51SCi52CnAoHJNm9nSiNIfh+P7H6\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 153,
+          "tcId" : 167,
           "comment" : "extreme value for k and edgecase s",
           "flags" : [
             "ArithmeticError"
@@ -2636,21 +2901,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004be0efb4841df37abcdcf3f28ddb0d5751a92a0fe7a3e88d1ab02832cbb53ccd66b9c0e424380693d6416fc2e1a3c793a355f7d05f963f435",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABL4O+0hB3zerzc8/KN2w1XUakqD+\nej6I0asCgyy7U8zWa5wOQkOAaT1kFvwuGjx5OjVffQX5Y/Q1\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04be0efb4841df37abcdcf3f28ddb0d5751a92a0fe7a3e88d1ab02832cbb53ccd66b9c0e424380693d6416fc2e1a3c793a355f7d05f963f435",
         "wx" : "00be0efb4841df37abcdcf3f28ddb0d5751a92a0fe7a3e88d1ab02832c",
         "wy" : "00bb53ccd66b9c0e424380693d6416fc2e1a3c793a355f7d05f963f435"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004be0efb4841df37abcdcf3f28ddb0d5751a92a0fe7a3e88d1ab02832cbb53ccd66b9c0e424380693d6416fc2e1a3c793a355f7d05f963f435",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABL4O+0hB3zerzc8/KN2w1XUakqD+\nej6I0asCgyy7U8zWa5wOQkOAaT1kFvwuGjx5OjVffQX5Y/Q1\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 154,
+          "tcId" : 168,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2662,21 +2927,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004bc0272e3693a05e788392c880f9de95c72e293fd1b13f1e22a9907a3699506e4590fa90c6257b1c4e3632ccc486cb833cbbcbf21b4a26041",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLwCcuNpOgXniDksiA+d6Vxy4pP9\nGxPx4iqZB6NplQbkWQ+pDGJXscTjYyzMSGy4M8u8vyG0omBB\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04bc0272e3693a05e788392c880f9de95c72e293fd1b13f1e22a9907a3699506e4590fa90c6257b1c4e3632ccc486cb833cbbcbf21b4a26041",
         "wx" : "00bc0272e3693a05e788392c880f9de95c72e293fd1b13f1e22a9907a3",
         "wy" : "699506e4590fa90c6257b1c4e3632ccc486cb833cbbcbf21b4a26041"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004bc0272e3693a05e788392c880f9de95c72e293fd1b13f1e22a9907a3699506e4590fa90c6257b1c4e3632ccc486cb833cbbcbf21b4a26041",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLwCcuNpOgXniDksiA+d6Vxy4pP9\nGxPx4iqZB6NplQbkWQ+pDGJXscTjYyzMSGy4M8u8vyG0omBB\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 155,
+          "tcId" : 169,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2688,21 +2953,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a83bc3e9043cb938dae167bbea2f7d623486f4038df45312e8467bda7363fa58af363a71835da09413c88227849c6f0ffe8e4e40aff51023",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKg7w+kEPLk42uFnu+ovfWI0hvQD\njfRTEuhGe9pzY/pYrzY6cYNdoJQTyIInhJxvD/6OTkCv9RAj\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a83bc3e9043cb938dae167bbea2f7d623486f4038df45312e8467bda7363fa58af363a71835da09413c88227849c6f0ffe8e4e40aff51023",
         "wx" : "00a83bc3e9043cb938dae167bbea2f7d623486f4038df45312e8467bda",
         "wy" : "7363fa58af363a71835da09413c88227849c6f0ffe8e4e40aff51023"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a83bc3e9043cb938dae167bbea2f7d623486f4038df45312e8467bda7363fa58af363a71835da09413c88227849c6f0ffe8e4e40aff51023",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKg7w+kEPLk42uFnu+ovfWI0hvQD\njfRTEuhGe9pzY/pYrzY6cYNdoJQTyIInhJxvD/6OTkCv9RAj\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 156,
+          "tcId" : 170,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2714,21 +2979,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043bd08a1c46638564521ded3fa77ce9c95538e49703ebb9f8d36be6f7276ffa128051671f7e4c63e9b8132de9f3389cc525d72682b6019ec3",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDvQihxGY4VkUh3tP6d86clVOOSX\nA+u5+NNr5vcnb/oSgFFnH35MY+m4Ey3p8zicxSXXJoK2AZ7D\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043bd08a1c46638564521ded3fa77ce9c95538e49703ebb9f8d36be6f7276ffa128051671f7e4c63e9b8132de9f3389cc525d72682b6019ec3",
         "wx" : "3bd08a1c46638564521ded3fa77ce9c95538e49703ebb9f8d36be6f7",
         "wy" : "276ffa128051671f7e4c63e9b8132de9f3389cc525d72682b6019ec3"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043bd08a1c46638564521ded3fa77ce9c95538e49703ebb9f8d36be6f7276ffa128051671f7e4c63e9b8132de9f3389cc525d72682b6019ec3",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABDvQihxGY4VkUh3tP6d86clVOOSX\nA+u5+NNr5vcnb/oSgFFnH35MY+m4Ey3p8zicxSXXJoK2AZ7D\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 157,
+          "tcId" : 171,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2740,21 +3005,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a3db2b3e2c62c42bf4fb0e11c2908fd17fe83da3ac9c0980234efdbd3cbeec4027bd7c109b27ae2f7cf04dc65eeaf13faa224d32a20f3163",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKPbKz4sYsQr9PsOEcKQj9F/6D2j\nrJwJgCNO/b08vuxAJ718EJsnri988E3GXurxP6oiTTKiDzFj\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04a3db2b3e2c62c42bf4fb0e11c2908fd17fe83da3ac9c0980234efdbd3cbeec4027bd7c109b27ae2f7cf04dc65eeaf13faa224d32a20f3163",
         "wx" : "00a3db2b3e2c62c42bf4fb0e11c2908fd17fe83da3ac9c0980234efdbd",
         "wy" : "3cbeec4027bd7c109b27ae2f7cf04dc65eeaf13faa224d32a20f3163"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004a3db2b3e2c62c42bf4fb0e11c2908fd17fe83da3ac9c0980234efdbd3cbeec4027bd7c109b27ae2f7cf04dc65eeaf13faa224d32a20f3163",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKPbKz4sYsQr9PsOEcKQj9F/6D2j\nrJwJgCNO/b08vuxAJ718EJsnri988E3GXurxP6oiTTKiDzFj\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 158,
+          "tcId" : 172,
           "comment" : "extreme value for k",
           "flags" : [
             "ArithmeticError"
@@ -2766,21 +3031,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004606ce6f8c77ac17d5b7515d5851eed155ea120cd07ca4277b35b8d365f716b62aee9a81a011bd1d2bceaf37d5f3a61e5f7307e0bb9c892c8",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGBs5vjHesF9W3UV1YUe7RVeoSDN\nB8pCd7NbjTZfcWtirumoGgEb0dK86vN9Xzph5fcwfgu5yJLI\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04606ce6f8c77ac17d5b7515d5851eed155ea120cd07ca4277b35b8d365f716b62aee9a81a011bd1d2bceaf37d5f3a61e5f7307e0bb9c892c8",
         "wx" : "606ce6f8c77ac17d5b7515d5851eed155ea120cd07ca4277b35b8d36",
         "wy" : "5f716b62aee9a81a011bd1d2bceaf37d5f3a61e5f7307e0bb9c892c8"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004606ce6f8c77ac17d5b7515d5851eed155ea120cd07ca4277b35b8d365f716b62aee9a81a011bd1d2bceaf37d5f3a61e5f7307e0bb9c892c8",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABGBs5vjHesF9W3UV1YUe7RVeoSDN\nB8pCd7NbjTZfcWtirumoGgEb0dK86vN9Xzph5fcwfgu5yJLI\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 159,
+          "tcId" : 173,
           "comment" : "extreme value for k and edgecase s",
           "flags" : [
             "ArithmeticError"
@@ -2792,21 +3057,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042affbb8269cb7883dada3350394579912ef756a8df6bdd7da35d398e90213d9382b3d5fb9dde82724d38e5678c17e610f417cfe6f7efcd91",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCr/u4Jpy3iD2tozUDlFeZEu91ao\n32vdfaNdOY6QIT2TgrPV+53egnJNOOVnjBfmEPQXz+b3782R\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "042affbb8269cb7883dada3350394579912ef756a8df6bdd7da35d398e90213d9382b3d5fb9dde82724d38e5678c17e610f417cfe6f7efcd91",
         "wx" : "2affbb8269cb7883dada3350394579912ef756a8df6bdd7da35d398e",
         "wy" : "0090213d9382b3d5fb9dde82724d38e5678c17e610f417cfe6f7efcd91"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00042affbb8269cb7883dada3350394579912ef756a8df6bdd7da35d398e90213d9382b3d5fb9dde82724d38e5678c17e610f417cfe6f7efcd91",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABCr/u4Jpy3iD2tozUDlFeZEu91ao\n32vdfaNdOY6QIT2TgrPV+53egnJNOOVnjBfmEPQXz+b3782R\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 160,
+          "tcId" : 174,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2818,21 +3083,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000419cdd44e2a33113a884558e7ee0efb41bafe1adcdcf95df6de6a25115f428ee998a34856f2ac3f6f39c7237bf1f9de232175d747b5cd97fe",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBnN1E4qMxE6iEVY5+4O+0G6/hrc\n3Pld9t5qJRFfQo7pmKNIVvKsP285xyN78fneIyF110e1zZf+\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "0419cdd44e2a33113a884558e7ee0efb41bafe1adcdcf95df6de6a25115f428ee998a34856f2ac3f6f39c7237bf1f9de232175d747b5cd97fe",
         "wx" : "19cdd44e2a33113a884558e7ee0efb41bafe1adcdcf95df6de6a2511",
         "wy" : "5f428ee998a34856f2ac3f6f39c7237bf1f9de232175d747b5cd97fe"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a000419cdd44e2a33113a884558e7ee0efb41bafe1adcdcf95df6de6a25115f428ee998a34856f2ac3f6f39c7237bf1f9de232175d747b5cd97fe",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABBnN1E4qMxE6iEVY5+4O+0G6/hrc\n3Pld9t5qJRFfQo7pmKNIVvKsP285xyN78fneIyF110e1zZf+\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 161,
+          "tcId" : 175,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2844,21 +3109,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b72f7c1a3c8562cb8de9925eec041ccc263649c6524762b9f4585ee39df756da08d1274ad72d8cac293aa60d150c77131f9fa28ccdffdfa0",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLcvfBo8hWLLjemSXuwEHMwmNknG\nUkdiufRYXuOd91baCNEnStctjKwpOqYNFQx3Ex+foozN/9+g\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b72f7c1a3c8562cb8de9925eec041ccc263649c6524762b9f4585ee39df756da08d1274ad72d8cac293aa60d150c77131f9fa28ccdffdfa0",
         "wx" : "00b72f7c1a3c8562cb8de9925eec041ccc263649c6524762b9f4585ee3",
         "wy" : "009df756da08d1274ad72d8cac293aa60d150c77131f9fa28ccdffdfa0"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b72f7c1a3c8562cb8de9925eec041ccc263649c6524762b9f4585ee39df756da08d1274ad72d8cac293aa60d150c77131f9fa28ccdffdfa0",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLcvfBo8hWLLjemSXuwEHMwmNknG\nUkdiufRYXuOd91baCNEnStctjKwpOqYNFQx3Ex+foozN/9+g\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 162,
+          "tcId" : 176,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2870,21 +3135,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049d3703b3205b123c903a0446973247c16a88d103fea9d04dd02a702b65186b777b57eadee8154c02fce0e95c3f061468499bac3dc6029e8c",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJ03A7MgWxI8kDoERpcyR8FqiNED\n/qnQTdAqcCtlGGt3e1fq3ugVTAL84OlcPwYUaEmbrD3GAp6M\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "049d3703b3205b123c903a0446973247c16a88d103fea9d04dd02a702b65186b777b57eadee8154c02fce0e95c3f061468499bac3dc6029e8c",
         "wx" : "009d3703b3205b123c903a0446973247c16a88d103fea9d04dd02a702b",
         "wy" : "65186b777b57eadee8154c02fce0e95c3f061468499bac3dc6029e8c"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00049d3703b3205b123c903a0446973247c16a88d103fea9d04dd02a702b65186b777b57eadee8154c02fce0e95c3f061468499bac3dc6029e8c",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABJ03A7MgWxI8kDoERpcyR8FqiNED\n/qnQTdAqcCtlGGt3e1fq3ugVTAL84OlcPwYUaEmbrD3GAp6M\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 163,
+          "tcId" : 177,
           "comment" : "extreme value for k and s^-1",
           "flags" : [
             "ArithmeticError"
@@ -2896,21 +3161,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043ea572505a48b1bed085953da7d4c963c2c5b6ad99779d9d54ba401294470074e0252da159a0c0d0b2f8d4c242cb94bab2c2020c4b2df499",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD6lclBaSLG+0IWVPafUyWPCxbat\nmXednVS6QBKURwB04CUtoVmgwNCy+NTCQsuUurLCAgxLLfSZ\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "043ea572505a48b1bed085953da7d4c963c2c5b6ad99779d9d54ba401294470074e0252da159a0c0d0b2f8d4c242cb94bab2c2020c4b2df499",
         "wx" : "3ea572505a48b1bed085953da7d4c963c2c5b6ad99779d9d54ba4012",
         "wy" : "0094470074e0252da159a0c0d0b2f8d4c242cb94bab2c2020c4b2df499"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00043ea572505a48b1bed085953da7d4c963c2c5b6ad99779d9d54ba401294470074e0252da159a0c0d0b2f8d4c242cb94bab2c2020c4b2df499",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABD6lclBaSLG+0IWVPafUyWPCxbat\nmXednVS6QBKURwB04CUtoVmgwNCy+NTCQsuUurLCAgxLLfSZ\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 164,
+          "tcId" : 178,
           "comment" : "extreme value for k",
           "flags" : [
             "ArithmeticError"
@@ -2922,21 +3187,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d58aa56f772c0726f24c6b89e4ecdac24354b9e99caa3f6d3761402cd",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA2QKa0sflz0NAgjsqh9xoyeTOMX\nTB5u/e4SwH1Yqlb3csBybyTGuJ5OzawkNUuemcqj9tN2FALN\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d58aa56f772c0726f24c6b89e4ecdac24354b9e99caa3f6d3761402cd",
         "wx" : "0d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d",
         "wy" : "58aa56f772c0726f24c6b89e4ecdac24354b9e99caa3f6d3761402cd"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d58aa56f772c0726f24c6b89e4ecdac24354b9e99caa3f6d3761402cd",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA2QKa0sflz0NAgjsqh9xoyeTOMX\nTB5u/e4SwH1Yqlb3csBybyTGuJ5OzawkNUuemcqj9tN2FALN\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 165,
+          "tcId" : 179,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -2946,7 +3211,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 166,
+          "tcId" : 180,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -2958,21 +3223,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d7f16ddb2b382f4170551778727042b637b5368bdcd36932208b4be32",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA2QKa0sflz0NAgjsqh9xoyeTOMX\nTB5u/e4SwH1/Ft2ys4L0FwVRd4cnBCtje1Novc02kyIItL4y\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d7f16ddb2b382f4170551778727042b637b5368bdcd36932208b4be32",
         "wx" : "0d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d",
         "wy" : "7f16ddb2b382f4170551778727042b637b5368bdcd36932208b4be32"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d7f16ddb2b382f4170551778727042b637b5368bdcd36932208b4be32",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA2QKa0sflz0NAgjsqh9xoyeTOMX\nTB5u/e4SwH1/Ft2ys4L0FwVRd4cnBCtje1Novc02kyIItL4y\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 167,
+          "tcId" : 181,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -2982,7 +3247,7 @@
           "result" : "invalid"
         },
         {
-          "tcId" : 168,
+          "tcId" : 182,
           "comment" : "public key shares x-coordinate with generator",
           "flags" : [
             "PointDuplication"
@@ -2994,21 +3259,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b554fc25e9f098eaf1466c35328c97305d0d4aa0e4462e8baf7a8e7ed08fc40eb01dc855577baea9e3070770616f57b17ea9854cad93881a",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLVU/CXp8Jjq8UZsNTKMlzBdDUqg\n5EYui696jn7Qj8QOsB3IVVd7rqnjBwdwYW9XsX6phUytk4ga\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04b554fc25e9f098eaf1466c35328c97305d0d4aa0e4462e8baf7a8e7ed08fc40eb01dc855577baea9e3070770616f57b17ea9854cad93881a",
         "wx" : "00b554fc25e9f098eaf1466c35328c97305d0d4aa0e4462e8baf7a8e7e",
         "wy" : "00d08fc40eb01dc855577baea9e3070770616f57b17ea9854cad93881a"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004b554fc25e9f098eaf1466c35328c97305d0d4aa0e4462e8baf7a8e7ed08fc40eb01dc855577baea9e3070770616f57b17ea9854cad93881a",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABLVU/CXp8Jjq8UZsNTKMlzBdDUqg\n5EYui696jn7Qj8QOsB3IVVd7rqnjBwdwYW9XsX6phUytk4ga\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 169,
+          "tcId" : 183,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -3018,7 +3283,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 170,
+          "tcId" : 184,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -3028,7 +3293,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 171,
+          "tcId" : 185,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -3038,7 +3303,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 172,
+          "tcId" : 186,
           "comment" : "pseudorandom signature",
           "flags" : [
             "ValidSignature"
@@ -3050,21 +3315,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004802a0f51204ef6a829211bc0740887461ee4aba736e9caee000000007fb931e06300451362d444106eeb5dabddca650fec4be55fc545f7c8",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIAqD1EgTvaoKSEbwHQIh0Ye5Kun\nNunK7gAAAAB/uTHgYwBFE2LURBBu612r3cplD+xL5V/FRffI\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04802a0f51204ef6a829211bc0740887461ee4aba736e9caee000000007fb931e06300451362d444106eeb5dabddca650fec4be55fc545f7c8",
         "wx" : "00802a0f51204ef6a829211bc0740887461ee4aba736e9caee00000000",
         "wy" : "7fb931e06300451362d444106eeb5dabddca650fec4be55fc545f7c8"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004802a0f51204ef6a829211bc0740887461ee4aba736e9caee000000007fb931e06300451362d444106eeb5dabddca650fec4be55fc545f7c8",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIAqD1EgTvaoKSEbwHQIh0Ye5Kun\nNunK7gAAAAB/uTHgYwBFE2LURBBu612r3cplD+xL5V/FRffI\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 173,
+          "tcId" : 187,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3074,7 +3339,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 174,
+          "tcId" : 188,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3084,7 +3349,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 175,
+          "tcId" : 189,
           "comment" : "x-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3096,21 +3361,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004cb320c84f26c00a1b4ad7146914cae126529165de7363d8aef9abd05a397d46b87283176b7f69da1f94615ca4431fc47b2a0e60c00000000",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMsyDITybAChtK1xRpFMrhJlKRZd\n5zY9iu+avQWjl9Rrhygxdrf2naH5RhXKRDH8R7Kg5gwAAAAA\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04cb320c84f26c00a1b4ad7146914cae126529165de7363d8aef9abd05a397d46b87283176b7f69da1f94615ca4431fc47b2a0e60c00000000",
         "wx" : "00cb320c84f26c00a1b4ad7146914cae126529165de7363d8aef9abd05",
         "wy" : "00a397d46b87283176b7f69da1f94615ca4431fc47b2a0e60c00000000"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004cb320c84f26c00a1b4ad7146914cae126529165de7363d8aef9abd05a397d46b87283176b7f69da1f94615ca4431fc47b2a0e60c00000000",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMsyDITybAChtK1xRpFMrhJlKRZd\n5zY9iu+avQWjl9Rrhygxdrf2naH5RhXKRDH8R7Kg5gwAAAAA\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 176,
+          "tcId" : 190,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3120,7 +3385,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 177,
+          "tcId" : 191,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3130,7 +3395,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 178,
+          "tcId" : 192,
           "comment" : "y-coordinate of the public key has many trailing 0's",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3142,21 +3407,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040000000081df971744a25ac99472c3ff5a8fc49b86fc9fb570448ff977f2d07c1c9296b2f77478d13d5ab1c63993962f2dd08ee7c313dece",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABAAAAACB35cXRKJayZRyw/9aj8Sb\nhvyftXBEj/l38tB8HJKWsvd0eNE9WrHGOZOWLy3QjufDE97O\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040000000081df971744a25ac99472c3ff5a8fc49b86fc9fb570448ff977f2d07c1c9296b2f77478d13d5ab1c63993962f2dd08ee7c313dece",
         "wx" : "0081df971744a25ac99472c3ff5a8fc49b86fc9fb570448ff9",
         "wy" : "77f2d07c1c9296b2f77478d13d5ab1c63993962f2dd08ee7c313dece"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040000000081df971744a25ac99472c3ff5a8fc49b86fc9fb570448ff977f2d07c1c9296b2f77478d13d5ab1c63993962f2dd08ee7c313dece",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABAAAAACB35cXRKJayZRyw/9aj8Sb\nhvyftXBEj/l38tB8HJKWsvd0eNE9WrHGOZOWLy3QjufDE97O\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 179,
+          "tcId" : 193,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3166,7 +3431,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 180,
+          "tcId" : 194,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3176,7 +3441,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 181,
+          "tcId" : 195,
           "comment" : "x-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3188,21 +3453,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3b000000002801d48382861684b8d2cbd7e5989a0d7c15a7e819b573aa",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA0otPf+H2xvpqd9EeQ70+knF1jf\nNMZfpXem3TsAAAAAKAHUg4KGFoS40svX5ZiaDXwVp+gZtXOq\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3b000000002801d48382861684b8d2cbd7e5989a0d7c15a7e819b573aa",
         "wx" : "0d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3b",
         "wy" : "2801d48382861684b8d2cbd7e5989a0d7c15a7e819b573aa"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3b000000002801d48382861684b8d2cbd7e5989a0d7c15a7e819b573aa",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA0otPf+H2xvpqd9EeQ70+knF1jf\nNMZfpXem3TsAAAAAKAHUg4KGFoS40svX5ZiaDXwVp+gZtXOq\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 182,
+          "tcId" : 196,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3212,7 +3477,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 183,
+          "tcId" : 197,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3222,7 +3487,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 184,
+          "tcId" : 198,
           "comment" : "y-coordinate of the public key is small",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3234,21 +3499,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3bd7c134a9fe419202a79219a0bcff0bafcb066d4a1bc4e20d65134d55",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA0otPf+H2xvpqd9EeQ70+knF1jf\nNMZfpXem3TvXwTSp/kGSAqeSGaC8/wuvywZtShvE4g1lE01V\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3bd7c134a9fe419202a79219a0bcff0bafcb066d4a1bc4e20d65134d55",
         "wx" : "0d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3b",
         "wy" : "00d7c134a9fe419202a79219a0bcff0bafcb066d4a1bc4e20d65134d55"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00040d28b4f7fe1f6c6fa6a77d11e43bd3e9271758df34c65fa577a6dd3bd7c134a9fe419202a79219a0bcff0bafcb066d4a1bc4e20d65134d55",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABA0otPf+H2xvpqd9EeQ70+knF1jf\nNMZfpXem3TvXwTSp/kGSAqeSGaC8/wuvywZtShvE4g1lE01V\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 185,
+          "tcId" : 199,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3258,7 +3523,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 186,
+          "tcId" : 200,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3268,7 +3533,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 187,
+          "tcId" : 201,
           "comment" : "y-coordinate of the public key is large",
           "flags" : [
             "EdgeCasePublicKey"
@@ -3280,21 +3545,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004512e581731c9c460bb705b60da976ccb1b0ef421785106ba2ccdd2380f21d5bacdf81c0cb78fa151237db3130ad4def373f3e523398c2cf7",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFEuWBcxycRgu3BbYNqXbMsbDvQh\neFEGuizN0jgPIdW6zfgcDLePoVEjfbMTCtTe83Pz5SM5jCz3\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04512e581731c9c460bb705b60da976ccb1b0ef421785106ba2ccdd2380f21d5bacdf81c0cb78fa151237db3130ad4def373f3e523398c2cf7",
         "wx" : "512e581731c9c460bb705b60da976ccb1b0ef421785106ba2ccdd238",
         "wy" : "0f21d5bacdf81c0cb78fa151237db3130ad4def373f3e523398c2cf7"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004512e581731c9c460bb705b60da976ccb1b0ef421785106ba2ccdd2380f21d5bacdf81c0cb78fa151237db3130ad4def373f3e523398c2cf7",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABFEuWBcxycRgu3BbYNqXbMsbDvQh\neFEGuizN0jgPIdW6zfgcDLePoVEjfbMTCtTe83Pz5SM5jCz3\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 188,
+          "tcId" : 202,
           "comment" : "y-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3305,7 +3570,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 189,
+          "tcId" : 203,
           "comment" : "y-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3316,7 +3581,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 190,
+          "tcId" : 204,
           "comment" : "y-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3329,21 +3594,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004ac55d1b3fed4aee03fa3615d225a9cba5c0284416fbaf9a76135f76217a888395bced34977a8482370d56ebc62aa1ca81bc330f49d4a141d",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKxV0bP+1K7gP6NhXSJanLpcAoRB\nb7r5p2E192IXqIg5W87TSXeoSCNw1W68YqocqBvDMPSdShQd\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04ac55d1b3fed4aee03fa3615d225a9cba5c0284416fbaf9a76135f76217a888395bced34977a8482370d56ebc62aa1ca81bc330f49d4a141d",
         "wx" : "00ac55d1b3fed4aee03fa3615d225a9cba5c0284416fbaf9a76135f762",
         "wy" : "17a888395bced34977a8482370d56ebc62aa1ca81bc330f49d4a141d"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004ac55d1b3fed4aee03fa3615d225a9cba5c0284416fbaf9a76135f76217a888395bced34977a8482370d56ebc62aa1ca81bc330f49d4a141d",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABKxV0bP+1K7gP6NhXSJanLpcAoRB\nb7r5p2E192IXqIg5W87TSXeoSCNw1W68YqocqBvDMPSdShQd\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 191,
+          "tcId" : 205,
           "comment" : "x-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3354,7 +3619,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 192,
+          "tcId" : 206,
           "comment" : "x-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3365,7 +3630,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 193,
+          "tcId" : 207,
           "comment" : "x-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3378,21 +3643,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59b120f96343deb80093ecb7695c2d2a5be9937a258723d78ed00aa1edf",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIsxny7QdKIOxC2GnH+ZvZFG7YJj\nKXv+AE8nxZsSD5Y0PeuACT7LdpXC0qW+mTeiWHI9eO0Aqh7f\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59b120f96343deb80093ecb7695c2d2a5be9937a258723d78ed00aa1edf",
         "wx" : "008b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59b",
         "wy" : "120f96343deb80093ecb7695c2d2a5be9937a258723d78ed00aa1edf"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59b120f96343deb80093ecb7695c2d2a5be9937a258723d78ed00aa1edf",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIsxny7QdKIOxC2GnH+ZvZFG7YJj\nKXv+AE8nxZsSD5Y0PeuACT7LdpXC0qW+mTeiWHI9eO0Aqh7f\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 194,
+          "tcId" : 208,
           "comment" : "y-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3403,7 +3668,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 195,
+          "tcId" : 209,
           "comment" : "y-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3414,7 +3679,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 196,
+          "tcId" : 210,
           "comment" : "y-coordinate of the public key is small on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3427,21 +3692,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59bc5b19e75e857e67ceb4cb98fb2ff31c9176764ff259d11087e1ea220",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIsxny7QdKIOxC2GnH+ZvZFG7YJj\nKXv+AE8nxZvFsZ516FfmfOtMuY+y/zHJF2dk/yWdEQh+HqIg\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59bc5b19e75e857e67ceb4cb98fb2ff31c9176764ff259d11087e1ea220",
         "wx" : "008b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59b",
         "wy" : "00c5b19e75e857e67ceb4cb98fb2ff31c9176764ff259d11087e1ea220"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a00048b319f2ed074a20ec42d869c7f99bd9146ed8263297bfe004f27c59bc5b19e75e857e67ceb4cb98fb2ff31c9176764ff259d11087e1ea220",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABIsxny7QdKIOxC2GnH+ZvZFG7YJj\nKXv+AE8nxZvFsZ516FfmfOtMuY+y/zHJF2dk/yWdEQh+HqIg\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 197,
+          "tcId" : 211,
           "comment" : "y-coordinate of the public key is large on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3452,7 +3717,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 198,
+          "tcId" : 212,
           "comment" : "y-coordinate of the public key is large on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3463,7 +3728,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 199,
+          "tcId" : 213,
           "comment" : "y-coordinate of the public key is large on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3476,21 +3741,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c5dc5135f050a96bbb0d21885195b49a574d5198baac4b4602b21bc8b5f38b7fe661003faee1b7af670e165bfab70b018965e83329d405bc",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMXcUTXwUKlruw0hiFGVtJpXTVGY\nuqxLRgKyG8i184t/5mEAP67ht69nDhZb+rcLAYll6DMp1AW8\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c5dc5135f050a96bbb0d21885195b49a574d5198baac4b4602b21bc8b5f38b7fe661003faee1b7af670e165bfab70b018965e83329d405bc",
         "wx" : "00c5dc5135f050a96bbb0d21885195b49a574d5198baac4b4602b21bc8",
         "wy" : "00b5f38b7fe661003faee1b7af670e165bfab70b018965e83329d405bc"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c5dc5135f050a96bbb0d21885195b49a574d5198baac4b4602b21bc8b5f38b7fe661003faee1b7af670e165bfab70b018965e83329d405bc",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMXcUTXwUKlruw0hiFGVtJpXTVGY\nuqxLRgKyG8i184t/5mEAP67ht69nDhZb+rcLAYll6DMp1AW8\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 200,
+          "tcId" : 214,
           "comment" : "y-coordinate of the public key has many trailing 0's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3501,7 +3766,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 201,
+          "tcId" : 215,
           "comment" : "y-coordinate of the public key has many trailing 0's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3512,7 +3777,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 202,
+          "tcId" : 216,
           "comment" : "y-coordinate of the public key has many trailing 0's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3525,21 +3790,21 @@
       ]
     },
     {
-      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c1b56a1ad154e11556b723fc7493f36e66509d8f68fad0e62c40f0859b04780a85e69abf98def3335ce643cd3554167a8b50d596b9538895",
-      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMG1ahrRVOEVVrcj/HST825mUJ2P\naPrQ5ixA8IWbBHgKheaav5je8zNc5kPNNVQWeotQ1Za5U4iV\n-----END PUBLIC KEY-----\n",
-      "sha" : "SHA-224",
       "type" : "EcdsaP1363Verify",
       "publicKey" : {
+        "type" : "EcPublicKey",
         "curve" : "brainpoolP224r1",
         "keySize" : 224,
-        "type" : "EcPublicKey",
         "uncompressed" : "04c1b56a1ad154e11556b723fc7493f36e66509d8f68fad0e62c40f0859b04780a85e69abf98def3335ce643cd3554167a8b50d596b9538895",
         "wx" : "00c1b56a1ad154e11556b723fc7493f36e66509d8f68fad0e62c40f085",
         "wy" : "009b04780a85e69abf98def3335ce643cd3554167a8b50d596b9538895"
       },
+      "publicKeyDer" : "3052301406072a8648ce3d020106092b2403030208010105033a0004c1b56a1ad154e11556b723fc7493f36e66509d8f68fad0e62c40f0859b04780a85e69abf98def3335ce643cd3554167a8b50d596b9538895",
+      "publicKeyPem" : "-----BEGIN PUBLIC KEY-----\nMFIwFAYHKoZIzj0CAQYJKyQDAwIIAQEFAzoABMG1ahrRVOEVVrcj/HST825mUJ2P\naPrQ5ixA8IWbBHgKheaav5je8zNc5kPNNVQWeotQ1Za5U4iV\n-----END PUBLIC KEY-----\n",
+      "sha" : "SHA-224",
       "tests" : [
         {
-          "tcId" : 203,
+          "tcId" : 217,
           "comment" : "x-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3550,7 +3815,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 204,
+          "tcId" : 218,
           "comment" : "x-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
@@ -3561,7 +3826,7 @@
           "result" : "valid"
         },
         {
-          "tcId" : 205,
+          "tcId" : 219,
           "comment" : "x-coordinate of the public key has many trailing 1's on brainpoolP224t1",
           "flags" : [
             "EdgeCasePublicKey",
