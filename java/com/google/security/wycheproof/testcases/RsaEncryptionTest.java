@@ -65,8 +65,6 @@ public class RsaEncryptionTest {
    * the key in ASN encoding encoded hexadecimal "keyPem": the key in Pem format encoded hexadecimal
    * The test can use the format that is most convenient.
    */
-  // This is a false positive, since errorprone cannot track values passed into a method.
-  @SuppressWarnings("InsecureCryptoUsage")
   protected static PrivateKey getPrivateKey(JsonObject object) throws Exception {
     KeyFactory kf;
     kf = KeyFactory.getInstance("RSA");
@@ -125,7 +123,7 @@ public class RsaEncryptionTest {
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDecryption(String filename) throws Exception {
     final String expectedSchema = "rsaes_pkcs1_decrypt_schema.json";
-    JsonObject test = JsonUtil.getTestVectors(filename);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
     String schema = test.get("schema").getAsString();
     if (!schema.equals(expectedSchema)) {
       System.out.println(
