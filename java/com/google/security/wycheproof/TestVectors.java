@@ -11,12 +11,14 @@
  */
 package com.google.security.wycheproof;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * TestVectors is a wrapper around a JSON file with test vectors.
@@ -27,7 +29,12 @@ import java.util.Set;
  * list of bug descriptions.
  *
  * <p>A main goal of this class is to allow easy access to all information for a given test vector
- * identified by a tcId. This allows to call tests individually.
+ * identified by a tcId. The class allows to manipulate sets of test vectors. For example it
+ * is possible to generate a subset of test vectors that fail a test, so that this subset can
+ * be rerun against new versions of a library. If additional operations on test vectors sets
+ * are necessary (e.g. union, intersection, inclusion test etc.) then these operations should
+ * be added here. This class would also be a good place to define a lenient hash function for
+ * test vectors (i.e. a hash function that ignores non-essential fields such as comments).
  */
 class TestVectors {
   // The JSON object that is wrapped.
@@ -56,6 +63,9 @@ class TestVectors {
   private int cntValid;
   // The number of invalid test vectors in the file.
   private int cntInvalid;
+  // The number of acceptable test vectors in the file.
+  // TODO(bleichen): This number should be reduced as far as possible.
+  private int cntAcceptable;
 
   public TestVectors(JsonObject test, String name) {
     this.test = test;
@@ -66,6 +76,7 @@ class TestVectors {
     legacyBugTypes = new HashSet<>();
     legacyBugTypes.add("LEGACY");
     cntValid = 0;
+    cntAcceptable = 0;
     cntInvalid = 0;
     JsonObject n = test.getAsJsonObject("notes");
     for (var entry : n.entrySet()) {
@@ -84,6 +95,8 @@ class TestVectors {
         String result = testcase.get("result").getAsString();
         if (result.equals("valid")) {
           cntValid++;
+        } else if (result.equals("acceptable")) {
+          cntAcceptable++;
         } else if (result.equals("invalid")) {
           cntInvalid++;
         }
@@ -112,6 +125,11 @@ class TestVectors {
   /** Returns the number of valid test vectors in the file. */
   int numValid() {
     return cntValid;
+  }
+
+  /** Returns the number of acceptable test vectors in the file. */
+  int numAcceptable() {
+    return cntAcceptable;
   }
 
   /** Returns the number of invalid test vectors in the file. */
@@ -188,11 +206,81 @@ class TestVectors {
    * @return True if one of the flags of the bug is marked as a legacy test case.
    */
   boolean isLegacy(int tcId) {
+    if (get(tcId).get("result").getAsString().equals("acceptable")) {
+      return true;
+    }
     for (var bugType : getBugTypes(tcId)) {
       if (legacyBugTypes.contains(bugType)) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Returns a subset of a set of test vectors.
+   *
+   * <p>The implementation attempts to compact the JSON object to the information that is actually
+   * used. The tcIds remain the same as in the original. Hence the tcIds are no longer continuous.
+   *
+   * @param subSet a set of test vectors to select. tcIds in subSet must exist.
+   * @return the selected subset.
+   */
+  TestVectors subSet(Set<Integer> subSet) {
+    JsonObject newTest = new JsonObject();
+    newTest.add("algorithm", test.get("algorithm"));
+    newTest.add("schema", test.get("schema"));
+    newTest.add("generatorVersion", test.get("generatorVersion"));
+    newTest.addProperty("numberOfTests", subSet.size());
+    newTest.add("header", test.get("header"));
+    Set<String> flags = new TreeSet<>();
+    for (int tcId : subSet) {
+      for (var flag : get(tcId).getAsJsonArray("flags")) {
+        flags.add(flag.getAsString());
+      }
+    }
+    JsonObject newNotes = new JsonObject();
+    for (String flag : flags) {
+      newNotes.add(flag, notes.get(flag));
+    }
+    newTest.add("notes", newNotes);
+    JsonArray newGroups = new JsonArray();
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      JsonArray newTests = null;
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        JsonObject testcase = t.getAsJsonObject();
+        int tcid = testcase.get("tcId").getAsInt();
+        if (subSet.contains(tcid)) {
+          if (newTests == null) {
+            newTests = new JsonArray();
+          }
+          newTests.add(testcase);
+        }
+      }
+      if (newTests != null) {
+        JsonObject newGroup = new JsonObject();
+        for (var entry : group.entrySet()) {
+          if (!entry.getKey().equals("tests")) {
+            newGroup.add(entry.getKey(), entry.getValue());
+          }
+        }
+        newGroup.add("tests", newTests);
+        newGroups.add(newGroup);
+      }
+    }
+    newTest.add("testGroups", newGroups);
+    return new TestVectors(newTest, name);
+  }
+
+  /** Returns a subset of this containing just one test vector. */
+  TestVectors singleTest(int tcId) {
+    Set<Integer> test = new HashSet<>();
+    test.add(tcId);
+    // NOTE(bleichen): subset loops through all test groups of this.
+    //   Usually there are not too many test groups in a test vector file.
+    //   However, if performance is a problem then it would be possible to
+    //   speed up this method.
+    return subSet(test);
   }
 }

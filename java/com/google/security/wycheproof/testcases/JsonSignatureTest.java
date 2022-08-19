@@ -374,8 +374,6 @@ public class JsonSignatureTest {
   /**
    * Checks a single test vector.
    *
-   * <p>This is code shared by singleTest and testVerification.
-   *
    * @param testVectors the test vectors containing the test vector to check.
    * @param testcase the test vector to verify
    * @param verifier a signature instance. This instance is not initialized. However, if the
@@ -384,7 +382,7 @@ public class JsonSignatureTest {
    * @param key the public key
    * @param testResult the result of the test are added to testResult
    */
-  private void singleTestImpl(
+  private static void singleTest(
       TestVectors testVectors,
       JsonObject testcase,
       Signature verifier,
@@ -444,43 +442,13 @@ public class JsonSignatureTest {
         if (testVectors.isLegacy(tcid)) {
           res = TestResult.Type.PASSED_LEGACY;
         } else {
-          res = TestResult.Type.PASSED_INVALID;
+          res = TestResult.Type.NOT_REJECTED_INVALID;
         }
       } else {
         res = TestResult.Type.REJECTED_INVALID;
       }
     }
     testResult.addResult(tcid, res, "");
-  }
-
-  /**
-   * Checks a single test vector.
-   *
-   * @param testVectors the test vectors form which a test is selected.
-   * @param tcid the identifier of the test vector. The tcid is an integer satisfying 1 <= tcid <=
-   *     testVectors.numTests().
-   * @return a test result
-   */
-  public TestResult singleTest(TestVectors testVectors, int tcid) throws Exception {
-    var testResult = new TestResult(testVectors);
-    String schema = testVectors.getSchema();
-    Format signatureFormat = getSignatureFormat(schema);
-    assertFalse("Unsupported schema:" + schema, signatureFormat == Format.UNKNOWN);
-    SignatureAlgorithm signatureAlgorithm = getSignatureAlgorithm(schema);
-    assertFalse("Unsupported schema:" + schema, signatureAlgorithm == SignatureAlgorithm.UNKNOWN);
-    JsonObject group = testVectors.getGroup(tcid);
-    PublicKey key;
-    Signature verifier;
-    try {
-      key = getPublicKey(group, signatureAlgorithm);
-      verifier = getSignatureInstance(group, signatureAlgorithm, signatureFormat);
-    } catch (GeneralSecurityException ex) {
-      testResult.addException(TestResult.Type.REJECTED_ALGORITHM, ex);
-      return testResult;
-    }
-    JsonObject testcase = testVectors.get(tcid);
-    singleTestImpl(testVectors, testcase, verifier, key, testResult);
-    return testResult;
   }
 
   /**
@@ -493,7 +461,7 @@ public class JsonSignatureTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) throws Exception {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String schema = getString(test, "schema");
@@ -509,12 +477,12 @@ public class JsonSignatureTest {
         key = getPublicKey(group, signatureAlgorithm);
         verifier = getSignatureInstance(group, signatureAlgorithm, signatureFormat);
       } catch (GeneralSecurityException ex) {
-        testResult.addException(TestResult.Type.REJECTED_ALGORITHM, ex);
+        testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
         continue;
       }
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        singleTestImpl(testVectors, testcase, verifier, key, testResult);
+        singleTest(testVectors, testcase, verifier, key, testResult);
       }
     }
     return testResult;

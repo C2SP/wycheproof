@@ -45,16 +45,24 @@ class TestResult {
   public enum Type {
     // A valid test vector was verified.
     PASSED_VALID,
-    // An invalid test vector incorrectly passed.
-    PASSED_INVALID,
+    // An invalid test vector with malformed input passed the
+    // test with the expected result as a valid well-formed input.
+    // A main example where this type is used is ECDH. If the ephemeral public key is
+    // malformed but the compuation behaves like an equivalent correct public key then this
+    // is less severe than if the result is wrong. In the later case an invalid curve attack
+    // is likely.
+    PASSED_MALFORMED,
     // A test vector with legacy behaviour was verified.
     PASSED_LEGACY,
     // A valid test vector was rejected.
     REJECTED_VALID,
-    // An invalid test vector passed the test.
+    // An invalid test vector was correctly rejected.
     REJECTED_INVALID,
+    // An invalid test vector was not rejected.
+    NOT_REJECTED_INVALID,
     // The algorithm was rejected. This includes keys with unsupported
     // parameters (e.g. unknown curves, small key sizes etc.)
+    // An invalid test vector incorrectly passed.
     REJECTED_ALGORITHM,
     // The test vector was skipped by the test.
     SKIPPED,
@@ -78,8 +86,8 @@ class TestResult {
   private final Map<Integer, String> comment;
   // A count of the bug types
   private final Map<Type, Integer> count;
-  // Exceptions not assigned to individual test vectors.
-  private Set<String> exceptions;
+  // Failures not assigned to individual test vectors.
+  private final Set<String> failures;
   // The number of performed tests.
   private int numTests;
 
@@ -88,20 +96,19 @@ class TestResult {
     result = new TreeMap<>();
     comment = new TreeMap<>();
     count = new HashMap<>();
-    exceptions = new TreeSet<>();
+    failures = new TreeSet<>();
     numTests = 0;
   }
 
   /**
-   * Adds an exception that happend before testing a test vector. The typical case is an unknown
-   * algorithm.
+   * Adds a failure that was not caused by a specific test vector.
    *
    * @param type the type of the bug. Typical values are REJECTED_ALGORITHM or WRONG_SETUP.
-   * @param ex the exception that was thrown.
+   * @param reason a description of the failure.
    */
-  public void addException(Type type, Exception ex) {
+  public void addFailure(Type type, String reason) {
     count.put(type, count.getOrDefault(type, 0) + 1);
-    exceptions.add(ex.toString());
+    failures.add(reason);
   }
 
   /**
@@ -178,21 +185,36 @@ class TestResult {
     boolean hasValid = getCount(Type.PASSED_VALID) > 0;
     for (var entry : result.entrySet()) {
       switch (entry.getValue()) {
+        case PASSED_VALID:
+        case PASSED_LEGACY:
+        case REJECTED_INVALID:
+          break;
         case REJECTED_VALID:
           if (hasValid) {
             failed.add(entry.getKey());
           }
           break;
-        case PASSED_INVALID:
+        case NOT_REJECTED_INVALID:
         case WRONG_RESULT:
         case WRONG_EXCEPTION:
+        case PASSED_MALFORMED:
           failed.add(entry.getKey());
           break;
-        default:
+        case SKIPPED:
+        case WRONG_SETUP:
+        case REJECTED_ALGORITHM:
+          // The test was not performed.
           break;
       }
     }
     return failed;
+  }
+
+  /**
+   * Returns the set of failing test vectors.
+   */
+  public TestVectors failingTests() {
+    return testVectors.subSet(failedTcIds());
   }
 
   /**
@@ -208,9 +230,10 @@ class TestResult {
     if (hasValid) {
       countFailed += getCount(Type.REJECTED_VALID);
     }
-    countFailed += getCount(Type.PASSED_INVALID);
+    countFailed += getCount(Type.NOT_REJECTED_INVALID);
     countFailed += getCount(Type.WRONG_RESULT);
     countFailed += getCount(Type.WRONG_EXCEPTION);
+    countFailed += getCount(Type.PASSED_MALFORMED);
     return countFailed;
   }
 
@@ -307,30 +330,35 @@ class TestResult {
     }
     out.append("Total number of failed tests: ").append(errors()).append("\n");
     Set<Integer> failed = failedTcIds();
-    if (failed.size() > 10) {
-      // If there are many failures, just print the tcIds
+    if (!failed.isEmpty()) {
+      out.append("--- Possible explanations (by labels) ---\n");
+      out.append(countLabels(failed));
+      out.append("--- Failing tests ---\n");
       for (int tcId : failed) {
         out.append(" ").append(tcId);
-      }
-    } else {
-      // print some information about each test case.
-      for (int tcId : failed) {
-        out.append(" ").append(tcId);
+        out.append(" ").append(result.get(tcId).name());
         JsonObject testCase = testVectors.get(tcId);
         out.append(": ").append(comment.get(tcId)).append("; ");
         out.append(testCase.get("comment").getAsString()).append(";");
+        for (String flag : testVectors.getFlags(tcId)) {
+          out.append(" ").append(flag);
+        }
+        /* TODO(bleichen): Does not appear to be helpful.
         for (String bugType : testVectors.getBugTypes(tcId)) {
           out.append(" ").append(bugType);
-        }
+        }*/
         out.append("\n");
-        // Some test vectors should get more attention
-        // I.e., if an invalid test vector passed, details are printed.
-        if (result.get(tcId) == Type.PASSED_INVALID) {
-          out.append(getResult(tcId));
-        }
+      }
+
+      // Print test test failing test vectors, but only when there are not
+      // too many.
+      if (failed.size() <= 10) {
+        out.append("--- Failing test vectors ---\n");
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        out.append(gson.toJson(failingTests().getTest()));
+        out.append("\n");
       }
     }
-    out.append(countLabels(failed));
     return out.toString();
   }
 
