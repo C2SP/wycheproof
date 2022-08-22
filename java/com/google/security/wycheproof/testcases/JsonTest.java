@@ -46,6 +46,9 @@ public class JsonTest {
         return JsonSignatureTest.allTests(testVectors);
       case "ecdh_test_schema.json":
         return JsonEcdhTest.allTests(testVectors);
+      case "xdh_asn_comp_schema.json":
+      case "xdh_comp_schema.json":
+        return JsonXdhTest.allTests(testVectors);
       default:
         TestResult failedTest = new TestResult(testVectors);
         failedTest.addFailure(TestResult.Type.WRONG_SETUP, "Unknown schema: " + schema);
