@@ -25,6 +25,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.KeyAgreement;
 import org.junit.Test;
@@ -83,7 +84,7 @@ public class JsonEcdhTest {
       testResult.addResult(tcId, res, comment);
     } catch (NoSuchAlgorithmException ex) {
       testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
-    } catch (InvalidKeySpecException | InvalidKeyException ex) {
+    } catch (InvalidKeySpecException | InvalidKeyException | InvalidParameterSpecException ex) {
       if (result.equals("valid")) {
         testResult.addResult(tcId, TestResult.Type.REJECTED_VALID, ex.toString());
       } else {
