@@ -14,7 +14,6 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,10 +43,37 @@ import org.junit.runners.JUnit4;
  *       probability.
  * </ul>
  *
- * This test does not cover key wrapping with AEAD algorithms such as AES-GCM. Testing such
- * algorithms would require an additional test vector type. I.e., the JCE interface requires that
- * the caller himself handles the IV. I.e. each wrapping has to use a new unique IV. This IV has to
- * be stored additionally with the wrapped key and has to be passed as parameter to unwrap.
+ * <p>References:
+ *
+ * <ul>
+ *   <li>RFC 3394 defines the key wrap algorithm for AES.
+ *   <li>RFC 5649 defines the key wrap algroithm with padding for AES.
+ *   <li>NIST SP 800-38F also define key wrap and key wrap with padding for AES. This document also
+ *       includes similar algorithms for Triple DES. (However, triple DES not tested here.)
+ *   <li>RFC 3657 generalizes RFC 3394 to Camellia. There is no version with padding.
+ *   <li>RFC 4010 generalizes RFC 3394 to SEED.
+ *   <li>RFC 5794 generalizes KW and KWP to ARIA.
+ * </ul>
+ *
+ * <p><b>Algorithm names</b>: Unfortunately, the algorithm names for the various key wrapping
+ * algorithms differ by provider. The code uses the algorithm names proposed by Oracle
+ * https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html . I.e., the
+ * proposed algorithm names are "AESWrap" and "AESWrapPad". Alternative names are:
+ *
+ * <ul>
+ *   <li>OpenJdk also allows names with explicit key size (e.g. "AESWrap_128" or "AESWrapPad_128"
+ *       etc.). Alternatively it also knows the the cipher algorithm modes "KW" and "KWP". Hence
+ *       "AES/KW/NoPadding" and "AES/KWP/NoPadding" are options.
+ *   <li>BouncyCastle knows "AESWRAP" and "AESWRAPPAD". Alternatively, the algorithm name
+ *       AESRFC5649WRAP is possible. AESRFC3211WRAP is an unrelated algorithm not tested here.
+ *       BouncyCastle also implements key wrappings using Aria, Camellia and Seed. (There are also
+ *       implementations using RC2 and DesEDE. These are not tested here.)
+ *   <li>IAIK allows algorithm names such as "AESWrap/ECB/RFC5649Padding" and "AESWrapWithPadding".
+ *       https://javadoc.iaik.tugraz.at/iaik_jce/current/iaik/security/cipher/AESKeyWrap.html
+ *   <li>Other names that can be found are "AESWrap/ECB/ZeroPadding" or AESWrap/ECB/PKCS5Padding.
+ * </ul>
+ *
+ * The algorithm names used in the test vectors Are <cipher>-WRAP and <cipher>-KWP.
  */
 @RunWith(JUnit4.class)
 public class JsonKeyWrapTest {
@@ -57,21 +83,39 @@ public class JsonKeyWrapTest {
     return JsonUtil.asByteArray(object.get(name));
   }
 
-  /**
-   * Initialize a Cipher instance for key wrapping.
-   *
-   * @param cipher an instance of a symmetric cipher that will be initialized.
-   * @param algorithm the name of the algorithm used (e.g. 'KW')
-   * @param opmode either Cipher.WRAP_MODE or Cipher.UNWRAP_MODE
-   * @param key raw key bytes
-   */
-  protected static void initCipher(Cipher cipher, String algorithm, int opmode, byte[] key)
-      throws Exception {
-    if (algorithm.toUpperCase().equals("AESWRAP")
-            || algorithm.toUpperCase().equals("AESRFC5649WRAP")) {
-      cipher.init(opmode, new SecretKeySpec(key, "AES"));
-    } else {
-      fail("Unsupported algorithm:" + algorithm);
+  protected static Cipher getCipher(String algorithm) throws Exception {
+    switch (algorithm) {
+      case "AES-WRAP":
+        return Cipher.getInstance("AESWRAP");
+      case "AES-KWP":
+        return Cipher.getInstance("AESWRAPPAD");
+      case "ARIA-WRAP":
+        return Cipher.getInstance("ARIAWRAP");
+      case "ARIA-KWP":
+        return Cipher.getInstance("ARIAWRAPPAD");
+      case "CAMELLIA-WRAP":
+        return Cipher.getInstance("CAMELLIAWRAP");
+      case "SEED-WRAP":
+        return Cipher.getInstance("SEEDWRAP");
+      default:
+        throw new NoSuchAlgorithmException(algorithm);
+    }
+  }
+
+  protected static SecretKeySpec getSecretKeySpec(String algorithm, byte[] key) throws Exception {
+    switch (algorithm) {
+      case "AES-WRAP":
+      case "AES-KWP":
+        return new SecretKeySpec(key, "AES");
+      case "ARIA-WRAP":
+      case "ARIA-KWP":
+        return new SecretKeySpec(key, "ARIA");
+      case "CAMELLIA-WRAP":
+        return new SecretKeySpec(key, "CAMELLIA");
+      case "SEED-WRAP":
+        return new SecretKeySpec(key, "SEED");
+      default:
+        throw new NoSuchAlgorithmException(algorithm);
     }
   }
 
@@ -101,8 +145,7 @@ public class JsonKeyWrapTest {
    */
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testKeywrap(
-      String filename, String algorithm, String wrappedAlgorithm, boolean paddingAttacks)
+  public void testKeywrap(String filename, String wrappedAlgorithm, boolean paddingAttacks)
       throws Exception {
     // Testing with old test vectors may a reason for a test failure.
     // Version number have the format major.minor[status].
@@ -110,20 +153,16 @@ public class JsonKeyWrapTest {
     // Versions after 1.0 change the major number if the format changes and change
     // the minor number if only the test vectors (but not the format) changes.
     // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4.1";
-    JsonObject test = JsonUtil.getTestVectors(filename);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
     Set<String> exceptions = new TreeSet<String>();
-    String generatorVersion = test.get("generatorVersion").getAsString();
-    if (!generatorVersion.equals(expectedVersion)) {
-      System.out.printf("%s expects test vectors with version %s found version %s.",
-                        algorithm, expectedVersion, generatorVersion);
-    }
+    String algorithm = test.get("algorithm").getAsString();
+
     int errors = 0;
     Cipher cipher;
     try {
-      cipher = Cipher.getInstance(algorithm);
+      cipher = getCipher(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm is not supported. Skipping test for " + algorithm);
+      TestUtil.skipTest("Algorithm " + algorithm + " is not supported.");
       return;
     }
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
@@ -143,16 +182,10 @@ public class JsonKeyWrapTest {
 
         // Test wrapping
         try {
-          initCipher(cipher, algorithm, Cipher.WRAP_MODE, key);
-        } catch (GeneralSecurityException ex) {
-          // Some libraries may restrict key size.
-          // Because of this the initialization of the cipher might fail.
-          System.out.println(ex.toString());
-          continue;
-        }
-        try {
-          SecretKeySpec keyspec = new SecretKeySpec(data, wrappedAlgorithm);
-          byte[] wrapped = cipher.wrap(keyspec);
+          SecretKeySpec keySpec = getSecretKeySpec(algorithm, key);
+          cipher.init(Cipher.WRAP_MODE, keySpec);
+          SecretKeySpec keyToWrap = new SecretKeySpec(data, wrappedAlgorithm);
+          byte[] wrapped = cipher.wrap(keyToWrap);
           boolean eq = Arrays.equals(expected, wrapped);
           if (result.equals("invalid")) {
             if (eq) {
@@ -185,15 +218,10 @@ public class JsonKeyWrapTest {
         // However, all the test vectors in Wycheproof are constructed such that they have
         // invalid padding. If this changes then the test below is too strict.
         try {
-          initCipher(cipher, algorithm, Cipher.UNWRAP_MODE, key);
-        } catch (GeneralSecurityException ex) {
-          System.out.printf("Parameters accepted for wrapping but not unwrapping:%s", tc);
-          errors++;
-          continue;
-        }
-        try {
-          Key keyspec = cipher.unwrap(expected, wrappedAlgorithm, Cipher.SECRET_KEY);
-          byte[] unwrapped = keyspec.getEncoded();
+          SecretKeySpec keySpec = getSecretKeySpec(algorithm, key);
+          cipher.init(Cipher.UNWRAP_MODE, keySpec);
+          Key wrappedKey = cipher.unwrap(expected, wrappedAlgorithm, Cipher.SECRET_KEY);
+          byte[] unwrapped = wrappedKey.getEncoded();
           boolean eq = Arrays.equals(data, unwrapped);
           if (result.equals("invalid")) {
             System.out.printf("Unwrapped invalid test case:%s unwrapped:%s", tc,
@@ -234,13 +262,16 @@ public class JsonKeyWrapTest {
     }
   }
 
-  // There are fixes in version 1.67, not sure if this solves all issues.
+  // BouncyCastle 1.64 tries to do unwrapping in constant time, but the code forgets to
+  // do a number of range checks. This results in a number of runtime exceptions, which
+  // is of course worse than timing differences.
+  // There are fixes in version 1.67, that may fix the issues.
   @NoPresubmitTest(
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/77572633"})
   @Test
   public void testAesWrap() throws Exception {
-    testKeywrap("kw_test.json", "AESWRAP", "HMACSHA256", false);
+    testKeywrap("aes_wrap_test.json", "HMACSHA256", false);
   }
 
   // There are fixes in version 1.67, not sure if this solves all issues.
@@ -248,9 +279,39 @@ public class JsonKeyWrapTest {
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/77572633"})
   @Test
-  public void testAesRFC5649Wrap() throws Exception {
-    testKeywrap("kwp_test.json", "AESRFC5649WRAP", "HMACSHA256", false);
+  public void testAesKwp() throws Exception {
+    testKeywrap("aes_kwp_test.json", "HMACSHA256", false);
   }
 
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testAriaWrap() throws Exception {
+    testKeywrap("aria_wrap_test.json", "HMACSHA256", false);
+  }
 
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testAriaKwp() throws Exception {
+    testKeywrap("aria_kwp_test.json", "HMACSHA256", false);
+  }
+
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testCamelliaWrap() throws Exception {
+    testKeywrap("camellia_wrap_test.json", "HMACSHA256", false);
+  }
+
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testSeedWrap() throws Exception {
+    testKeywrap("seed_wrap_test.json", "HMACSHA256", false);
+  }
 }
