@@ -16,9 +16,6 @@ package com.google.security.wycheproof;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
-import com.google.security.wycheproof.WycheproofRunner.ProviderType;
-import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -28,7 +25,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
@@ -78,30 +74,17 @@ public class RsaPssTest {
    *        (typically the same as sha).
    * @param saltLength the length of the salt in bytes (typically the digest size of sha,
    *        i.e. 32 for "SHA-256")
-   * @throws NoSuchMethodException if the AlgorithmParameterSpec is not
-   *   supported (i.e. this happens before jdk11).
    */
   public RSAKeyGenParameterSpec getPssAlgorithmParameters(
       int keySizeInBits,
       String sha,
       String mgf,
       String mgfSha,
-      int saltLength) throws Exception {
+      int saltLength) {
     BigInteger publicExponent = new BigInteger("65537");
     PSSParameterSpec params =
         new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), saltLength, 1);
-    // TODO(bleichen): Replace with direct call.
-    //   This function requires jdk11, which is already quite old.
-    //   Using reflection here leads to bigger problems.
-    // Uses reflection to call
-    // public RSAKeyGenParameterSpec(int keysize, BigInteger publicExponent,
-    //        AlgorithmParameterSpec keyParams)
-    // because this method is only supported in jdk11. This throws a NoSuchMethodException
-    // for older jdks.
-    Constructor<RSAKeyGenParameterSpec> c =
-        RSAKeyGenParameterSpec.class.getConstructor(
-            int.class, BigInteger.class, AlgorithmParameterSpec.class);
-    return c.newInstance(keySizeInBits, publicExponent, params);
+    return new RSAKeyGenParameterSpec(keySizeInBits, publicExponent, params);
   }
 
   /**
@@ -175,13 +158,9 @@ public class RsaPssTest {
    * <p>RSASSA-PSS keys contain the PSSParameters, hence their encodings are somewhat different than
    * plain RSA keys.
    */
-  // TODO(bleichen): This should be fixed in jdk11.
   // TODO(bleichen): Check against other providers.
   //   Since this format was new in jdk11, other providers did not support
   //   ASN.1 encoded keys with parameters. Maybe this has changed.
-  @NoPresubmitTest(
-      providers = {ProviderType.OPENJDK},
-      bugs = {"b/120406853"})
   @Test
   public void testEncodeDecodePublic() throws Exception {
     int keySizeInBits = 2048;
@@ -216,7 +195,7 @@ public class RsaPssTest {
       keyGen.initialize(params);
       KeyPair keypair = keyGen.genKeyPair();
       pub = keypair.getPublic();
-    } catch (NoSuchAlgorithmException | NoSuchMethodException ex) {
+    } catch (NoSuchAlgorithmException ex) {
       TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
