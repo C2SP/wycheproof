@@ -14,6 +14,7 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
@@ -24,6 +25,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.AlgorithmParameterSpec;
@@ -31,23 +33,38 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-// TODO(bleichen): Add more tests.
-//   Add a test for passing null as random number generator.
-//   https://github.com/bcgit/bc-java/pull/632:
-//
-//   Add a check for the randomization of RSAPSS./
-//   Failing to properly randomize RSA-PSS signatures is not critical, but may reduce the
-//   security of RSA-PSS signatures. (see e.g. RFC 8017, Section 8.1.
 
 /**
  * Tests for RSA-PSS.
  */
 @RunWith(JUnit4.class)
 public class RsaPssTest {
+
+  /**
+   * Returns a PSSParameterSpec.
+   *
+   * @param sha the name of the hash function for hashing the input (e.g. "SHA-256")
+   * @param mgf the name of the mask generating function (typically "MGF1")
+   * @param mgfSha the name of the hash function for the mask generating function (typically the
+   *     same as sha).
+   * @param saltLen the length of the salt in bytes (typically the digest size of sha, i.e. 32 for
+   *     "SHA-256")
+   * @throws NoSuchAlgorithmException if the ParameterSpec could not be constructed.
+   */
+  protected static PSSParameterSpec getPssParameterSpec(
+      String sha, String mgf, String mgfSha, int saltLen, int trailerField)
+      throws NoSuchAlgorithmException {
+    if (mgf.equals("MGF1")) {
+      return new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), saltLen, trailerField);
+    } else {
+      throw new NoSuchAlgorithmException("Unknown MGF:" + mgf);
+    }
+  }
 
   /**
    * Returns an AlgorithmParameterSpec for generating a RSASSA-PSS key,
@@ -73,6 +90,9 @@ public class RsaPssTest {
     BigInteger publicExponent = new BigInteger("65537");
     PSSParameterSpec params =
         new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), saltLength, 1);
+    // TODO(bleichen): Replace with direct call.
+    //   This function requires jdk11, which is already quite old.
+    //   Using reflection here leads to bigger problems.
     // Uses reflection to call
     // public RSAKeyGenParameterSpec(int keysize, BigInteger publicExponent,
     //        AlgorithmParameterSpec keyParams)
@@ -85,15 +105,83 @@ public class RsaPssTest {
   }
 
   /**
+   * JCE often uses compact names for message digests. For example "SHA-256" is shortened to
+   * "SHA256" in algorithm names such as "SHA256WITHRSAandMGF1". See
+   * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html
+   */
+  protected static String compactDigestName(String md) {
+    switch (md) {
+      case "SHA-1":
+        return "SHA1";
+      case "SHA-224":
+        return "SHA224";
+      case "SHA-256":
+        return "SHA256";
+      case "SHA-384":
+        return "SHA384";
+      case "SHA-512":
+        return "SHA512";
+      case "SHA-512/224":
+        return "SHA512/224";
+      case "SHA-512/256":
+        return "SHA512/256";
+      // RSA-PSS with SHA-3 does not yet have standard algorithm names, hence the naming is unclear.
+      // For other algorithms names such as "SHA3-224", "SHA3-256", "SHA3-384" and "SHA3-512" are
+      // not modified. E.g. SHA3-256withRSA is a valid algorithm name.
+      default:
+        return md;
+    }
+  }
+
+  /**
+   * Returns the algorithm name for the RSA-PSS signature scheme. Oracle previously specified that
+   * algorithm names for RSA-PSS are strings like "SHA256WITHRSAandMGF1". See
+   * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html These
+   * algorithm names fail to specify the hash function for the MGF. A cleaner solution in jdk11 is
+   * to use the algorithm name "RSASSA-PSS" and specify the parameters separately. Conscrypt uses
+   * algorithm names such as "SHA256withRSA/PSS", which are incompatible with other providers. This
+   * function simply attempts to return an algorithm name that works. BouncyCastle allows to use
+   * "RSASSA-PSS" or "SHA256withRSAandMGF1".
+   *
+   * @param sha the message digest (e.g. "SHA-256")
+   * @param mgf the mask generation function (e.g. "MGF1")
+   * @return the algorithm name
+   * @throws NoSuchAlgorithmException if no algorithm name was found
+   */
+  private static String getAlgorithmName(String sha, String mgf) throws NoSuchAlgorithmException {
+    try {
+      Signature.getInstance("RSASSA-PSS");
+      return "RSASSA-PSS";
+    } catch (NoSuchAlgorithmException ex) {
+      // RSASSA-PSS is not known. Try the other options.
+    }
+    String md = compactDigestName(sha);
+    try {
+      // Try the legacy naming for JCE.
+      String name = md + "WITHRSAand" + mgf;
+      Signature.getInstance(name);
+      return name;
+    } catch (NoSuchAlgorithmException ex) {
+      // name is not supported. Try other options.
+    }
+    String name = md + "withRSA/PSS";
+    Signature.getInstance(name);
+    return name;
+  }
+
+  /**
    * Tries encoding and decoding of RSASSA-PSS keys generated with RSASSA-PSS.
    *
-   * RSASSA-PSS keys contain the PSSParameters, hence their encodings are
-   * somewhat different than plain RSA keys.
+   * <p>RSASSA-PSS keys contain the PSSParameters, hence their encodings are somewhat different than
+   * plain RSA keys.
    */
+  // TODO(bleichen): This should be fixed in jdk11.
+  // TODO(bleichen): Check against other providers.
+  //   Since this format was new in jdk11, other providers did not support
+  //   ASN.1 encoded keys with parameters. Maybe this has changed.
   @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/120406853"}
-  )
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/120406853"})
   @Test
   public void testEncodeDecodePublic() throws Exception {
     int keySizeInBits = 2048;
@@ -104,7 +192,7 @@ public class RsaPssTest {
       KeyPair keypair = keyGen.genKeyPair();
       pub = keypair.getPublic();
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Key generation for RSASSA-PSS is not supported.");
+      TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
     byte[] encoded = pub.getEncoded();
@@ -129,7 +217,7 @@ public class RsaPssTest {
       KeyPair keypair = keyGen.genKeyPair();
       pub = keypair.getPublic();
     } catch (NoSuchAlgorithmException | NoSuchMethodException ex) {
-      System.out.println("Key generation for RSASSA-PSS is not supported.");
+      TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
     byte[] encoded2 = pub.getEncoded();
@@ -249,6 +337,93 @@ public class RsaPssTest {
     testDefaultForAlgorithm("SHA3-256withRSAandMGF1", "SHA3-256", "MGF1", "SHA3-256", 32, 1);
     testDefaultForAlgorithm("SHA3-384withRSAandMGF1", "SHA3-384", "MGF1", "SHA3-384", 48, 1);
     testDefaultForAlgorithm("SHA3-512withRSAandMGF1", "SHA3-512", "MGF1", "SHA3-512", 64, 1);
+  }
+
+  /**
+   * RSA-PSS is a randomized signature scheme (unless the length of the salt is 0).
+   *
+   * <p>This test checks that RSA-PSS signatures are randomized. Failing to properly randomize
+   * RSA-PSS signatures is not a critical mistake. But doing so may reduce the security of RSA-PSS
+   * signatures. (see e.g. RFC 8017, Section 8.1).
+   */
+  @Test
+  public void testRandomization() throws Exception {
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLen = 32;
+    int keySizeInBits = 2048;
+    int samples = 8;
+    Signature signer;
+    PrivateKey priv;
+    try {
+      String algorithm = getAlgorithmName(sha, mgf);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+      keyGen.initialize(keySizeInBits);
+      KeyPair keypair = keyGen.genKeyPair();
+      priv = keypair.getPrivate();
+      signer = Signature.getInstance(algorithm);
+      PSSParameterSpec params = getPssParameterSpec(sha, mgf, sha, saltLen, 1);
+      signer.setParameter(params);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA key generation is not supported.");
+      return;
+    }
+    Set<String> signatures = new HashSet<String>();
+    byte[] messageBytes = new byte[8];
+    for (int i = 0; i < samples; i++) {
+      signer.initSign(priv);
+      signer.update(messageBytes);
+      byte[] signature = signer.sign();
+      String hex = TestUtil.bytesToHex(signature);
+      assertTrue("Same signature computed twice", signatures.add(hex));
+    }
+  }
+
+  /**
+   * Tests RSA-PSS when initialized with null instead of a SecureRandom instance.
+   *
+   * <p>The expected behaviour is that Signature.initSign(RSAPrivateKey, null) behaves simlar to
+   * Signature.initSign(RsaPrivateKey), i.e. that in both cases a default instance of SecureRandom
+   * is used. Similar to testRandomization() a failure to set a random seed would not be critical.
+   *
+   * <p>The test also verifies that Signature.initSign(RSAPrivateKey, null) does not throw an
+   * exception. Throwing a NullPointerException would not violate any contracts (as far as I know).
+   * However, some applications expect that null is valid an most provider use a default instance of
+   * SecureRandom. Hence not accepting null would likely lead to incompatibilities.
+   *
+   * <p>See also: https://github.com/bcgit/bc-java/pull/632
+   */
+  @Test
+  public void testNullRandom() throws Exception {
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLen = 32;
+    int keySizeInBits = 2048;
+    int samples = 8;
+    Signature signer;
+    PrivateKey priv;
+    try {
+      String algorithm = getAlgorithmName(sha, mgf);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+      keyGen.initialize(keySizeInBits);
+      KeyPair keypair = keyGen.genKeyPair();
+      priv = keypair.getPrivate();
+      signer = Signature.getInstance(algorithm);
+      PSSParameterSpec params = getPssParameterSpec(sha, mgf, sha, saltLen, 1);
+      signer.setParameter(params);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA key generation is not supported.");
+      return;
+    }
+    Set<String> signatures = new HashSet<String>();
+    byte[] messageBytes = new byte[8];
+    for (int i = 0; i < samples; i++) {
+      signer.initSign(priv, null);
+      signer.update(messageBytes);
+      byte[] signature = signer.sign();
+      String hex = TestUtil.bytesToHex(signature);
+      assertTrue("Same signature computed twice", signatures.add(hex));
+    }
   }
 }
 
