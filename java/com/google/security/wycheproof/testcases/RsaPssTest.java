@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -38,9 +40,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for RSA-PSS.
- */
+// TODO(bleichen): Add a basic test.
+//   Many of the tests here use the JCE interface in unoptimal ways.
+//   Such code can mislead users that simply look for typical use cases.
+// TODO(bleichen): RFC 8702 adds SHAKE128 and SHAKE256 as mask generation function.
+//   BouncyCastle adds support in version 1.69.
+// TODO(bleichen): RSA-PSS parameters can be defined multiple times.
+//   It is not clear how providers should behave in such cases.
+
+/** Tests for RSA-PSS. */
 @RunWith(JUnit4.class)
 public class RsaPssTest {
 
@@ -55,7 +63,7 @@ public class RsaPssTest {
    *     "SHA-256")
    * @throws NoSuchAlgorithmException if the ParameterSpec could not be constructed.
    */
-  protected static PSSParameterSpec getPssParameterSpec(
+  private static PSSParameterSpec getPssParameterSpec(
       String sha, String mgf, String mgfSha, int saltLen, int trailerField)
       throws NoSuchAlgorithmException {
     if (mgf.equals("MGF1")) {
@@ -123,7 +131,7 @@ public class RsaPssTest {
    * "SHA256" in algorithm names such as "SHA256WITHRSAandMGF1". See
    * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html
    */
-  protected static String compactDigestName(String md) {
+  private static String compactDigestName(String md) {
     switch (md) {
       case "SHA-1":
         return "SHA1";
@@ -148,14 +156,19 @@ public class RsaPssTest {
   }
 
   /**
-   * Returns the algorithm name for the RSA-PSS signature scheme. Oracle previously specified that
-   * algorithm names for RSA-PSS are strings like "SHA256WITHRSAandMGF1". See
-   * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html These
-   * algorithm names fail to specify the hash function for the MGF. A cleaner solution in jdk11 is
-   * to use the algorithm name "RSASSA-PSS" and specify the parameters separately. Conscrypt uses
-   * algorithm names such as "SHA256withRSA/PSS", which are incompatible with other providers. This
-   * function simply attempts to return an algorithm name that works. BouncyCastle allows to use
-   * "RSASSA-PSS" or "SHA256withRSAandMGF1".
+   * Tries to find a working algorithm name for the RSA-PSS signature scheme.
+   *
+   * <p>The prefered algorithm name is "RSASSA-PSS". Oracle previously specified that algorithm
+   * names for RSA-PSS are strings like "SHA256WITHRSAandMGF1" (see
+   * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html). These
+   * algorithm names do not specify the hash function for the MGF. Providers typically use default
+   * values for the missing parameters and allow to specify them when they differ from the defaults.
+   * A cleaner solution in jdk11 is to use the algorithm name "RSASSA-PSS" and specify the
+   * parameters separately.
+   *
+   * <p>Some provider add their own algorithm names: Conscrypt uses algorithm names such as
+   * "SHA256withRSA/PSS", which are incompatible with other providers. BouncyCastle allows to use
+   * "RSASSA-PSS", "NONEwithRSASSA-PSS" or "SHA256withRSAandMGF1".
    *
    * @param sha the message digest (e.g. "SHA-256")
    * @param mgf the mask generation function (e.g. "MGF1")
@@ -333,7 +346,42 @@ public class RsaPssTest {
   }
 
   /**
-   * Tests the default parameters used for a given algorithm name.
+   * Tests the default parameters for legacy algorithm names.
+   *
+   * <p>This test checks legacy algorithm names such as "SHA256WithRSAandMGF1". The standard
+   * algorithm name for RSA-PSS is "RSASSA-PSS", which is a preferable choice, since the algorithm
+   * parameters can be specified with less ambiguity by including them in the key or specifying them
+   * with an explicit call to KeyGenerator.init().
+   *
+   * <p>RSA-PSS has a number of parameters. RFC 8017 specifies the parameters as follows:
+   *
+   * <pre>
+   * RSASSA-PSS-params :: = SEQUENCE {
+   *   hashAlgorithm            [0] HashAlgorithm     DEFAULT sha1,
+   *   maskGenerationAlgorithm  [1] MaskGenAlgorithm  DEFAULT mgf1SHA1,
+   *   saltLength               [2] INTEGER           DEFAULT 20,
+   *   trailerField             [3] TrailerField      DEFAULT trailerFieldBC
+   * }
+   * </pre>
+   *
+   * <p>The same can't be said about the previous algorithm names defined here:
+   * https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html I.e. the
+   * previous standard names had the format <digest>with<encryption>and<mgf>, e.g.,
+   * SHA256withRSAandMGF1. This name only specifies the hashAlgorithm and the mask generation
+   * algorithm, but not the hash used for the mask generation algorithm, the salt length and the
+   * trailerField. A common choice is to use the same hash function for hashing the message and for
+   * the mask generation function. Another common choice is to use a salt length that is as long as
+   * the message digest of one of the hash functions. It should be noted that these choices are
+   * different from the default values for the ASN.1 encoding shown above.
+   *
+   * <p>Not using the defaults from RFC 8017 is of course a good idea, since the default values
+   * there are weak. These default values are only needed to ensure compatible ASN.1 encodings of
+   * RSA keys and are not recommended parameter choices as discussed in section B.1 of RFC 8017.
+   *
+   * <p>This test checks that implementations are compatible with each other by checking if a
+   * provider uses commonly used defaults. The test that the two hash algorithm (for message hashing
+   * and mgf) are the same. It also expects that the saltLength is the same as the size of the
+   * message digest. Finally it expects that the default for the trailerField is 1.
    *
    * @param algorithm the algorithm name for an RSA-PSS instance. (e.g. "SHA256WithRSAandMGF1")
    * @param expectedHash the hash algorithm expected for the given algorithm
@@ -342,13 +390,14 @@ public class RsaPssTest {
    * @param expectedSaltLength the expected salt length in bytes for the given algorithm
    * @param expectedTrailerField the expected value for the tailer field (e.g. 1 for 0xbc).
    */
-  protected void testDefaultForAlgorithm(
+  private void testDefaultForAlgorithm(
       String algorithm,
       String expectedHash,
       String expectedMgf,
       String expectedMgfHash,
       int expectedSaltLength,
-      int expectedTrailerField) throws Exception {
+      int expectedTrailerField)
+      throws Exception {
     // An X509 encoded 2048-bit RSA public key.
     String pubKey =
         "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
@@ -361,16 +410,15 @@ public class RsaPssTest {
             + "fb3aef9fe58d9e4ef6e4922711a3bbcd8adcfe868481fd1aa9c13e5c658f5172"
             + "617204314665092b4d8dca1b05dc7f4ecd7578b61edeb949275be8751a5a1fab"
             + "c30203010001";
-    KeyFactory kf;
-    kf = KeyFactory.getInstance("RSA");
-    X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
-    PublicKey key = kf.generatePublic(x509keySpec);
     Signature verifier;
     try {
+      KeyFactory kf = KeyFactory.getInstance("RSA");
+      X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
+      PublicKey key = kf.generatePublic(x509keySpec);
       verifier = Signature.getInstance(algorithm);
       verifier.initVerify(key);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Unsupported algorithm:" + algorithm);
+      TestUtil.skipTest("Unsupported algorithm:" + algorithm);
       return;
     }
     AlgorithmParameters params = verifier.getParameters();
@@ -390,58 +438,88 @@ public class RsaPssTest {
     }
   }
 
-  /**
-   * Tests the default values for PSS parameters.
-   *
-   * <p>RSA-PSS has a number of parameters. RFC 8017 specifies the parameters as follows:
-   *
-   * <pre>
-   * RSASSA-PSS-params :: = SEQUENCE {
-   *   hashAlgorithm            [0] HashAlgorithm     DEFAULT sha1,
-   *   maskGenerationAlgorithm  [1] MaskGenAlgorithm  DEFAULT mgf1SHA1,
-   *   saltLength               [2] INTEGER           DEFAULT 20,
-   *   trailerField             [3] TrailerField      DEFAULT trailerFieldBC
-   * }
-   * </pre>
-   *
-   * <p>The algorithm name for RSA-PSS used in jdk11 is "RSASSA-PSS". Previously, the algorithm
-   * names for RSA-PSS were defined in the section "Signature Algorithms" of
-   * https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
-   * I.e. the proposed standard names had the format <digest>with<encryption>and<mgf>, e.g.,
-   * SHA256withRSAandMGF1. This name only specifies the hashAlgorithm and the mask generation
-   * algorithm, but not the hash used for the mask generation algorithm, the salt length and
-   * the trailerField. The missing parameters can be explicitly specified with and instance
-   * of PSSParameterSpec. The test below checks that distinct providers use the same default values
-   * when no PSSParameterSpec is given.
-   *
-   * <p>In particular, the test expects that the two hash algorithm (for message hashing and mgf)
-   * are the same. It expects that the saltLength is the same as the size of the message digest.
-   * It expects that the default for the trailerField is 1. These expectations are based on
-   * existing implementations. They differ from the ASN defaults in RFC 8017.
-   *
-   * <p>There is no test for defaults for the algorithm name "RSASSA-PSS".
-   * "RSASSA-PSS" does not specify any parameters. Using the default values from RFC 8017
-   * (i.e. SHA-1 for both hashes) leads to potential weaknesses and hence is of course a bad
-   * choice. Other defaults lead to incompatibilities and hence isn't a reasonable choice either.
-   * jdk11 requires that the parameters are always specified. BouncyCastle however uses the SHA-1
-   * default. The behaviour in jdk11 is preferable, since it requires that an implementor chooses
-   * PSSParameters explicitly, and does not default to weak behaviour.
-   */
   @Test
-  public void testDefaults() throws Exception {
+  public void testDefaultsSha1WithRSAandMGF1() throws Exception {
     testDefaultForAlgorithm("SHA1withRSAandMGF1", "SHA-1", "MGF1", "SHA-1", 20, 1);
+  }
+
+  @Test
+  public void testDefaultsSha224WithRSAandMGF1() throws Exception {
     testDefaultForAlgorithm("SHA224withRSAandMGF1", "SHA-224", "MGF1", "SHA-224", 28, 1);
+  }
+
+  @Test
+  public void testDefaultsSha256WithRSAandMGF1() throws Exception {
     testDefaultForAlgorithm("SHA256withRSAandMGF1", "SHA-256", "MGF1", "SHA-256", 32, 1);
+  }
+
+  @Test
+  public void testDefaultsSha384WithRSAandMGF1() throws Exception {
     testDefaultForAlgorithm("SHA384withRSAandMGF1", "SHA-384", "MGF1", "SHA-384", 48, 1);
+  }
+
+  @Test
+  public void testDefaultsSha512WithRSAandMGF1() throws Exception {
     testDefaultForAlgorithm("SHA512withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 64, 1);
-    testDefaultForAlgorithm(
-        "SHA512/224withRSAandMGF1", "SHA-512/224", "MGF1", "SHA-512/224", 28, 1);
-    testDefaultForAlgorithm(
-        "SHA512/256withRSAandMGF1", "SHA-512/256", "MGF1", "SHA-512/256", 32, 1);
-    testDefaultForAlgorithm("SHA3-224withRSAandMGF1", "SHA3-224", "MGF1", "SHA3-224", 28, 1);
-    testDefaultForAlgorithm("SHA3-256withRSAandMGF1", "SHA3-256", "MGF1", "SHA3-256", 32, 1);
-    testDefaultForAlgorithm("SHA3-384withRSAandMGF1", "SHA3-384", "MGF1", "SHA3-384", 48, 1);
-    testDefaultForAlgorithm("SHA3-512withRSAandMGF1", "SHA3-512", "MGF1", "SHA3-512", 64, 1);
+  }
+
+  /**
+   * Checks that the algorithm name "RSASSA-PSS" does not use default values.
+   *
+   * <p>The old algorithm names like "SHA256withRSAandMGF1" include the hash function in their name.
+   * As a result it is possible to choose resonable default values for the parameters that are not
+   * specified.
+   *
+   * <p>However, the algorithm name "RSASSA-PSS" does not specify any parameters at all. This means
+   * that selecting default parameters for the algorithm name "RSASSA-PSS" is dangerous. For example
+   * using the default values from RFC 8017 leads to weak implementations since RFC 8017 uses SHA-1
+   * as default for both hashes. Using other default values leads to incompatible behavior.
+   *
+   * <p>Since there are no good choices for default values when the algorithm name "RSASSA-PSS" is
+   * used, any such choice is considered a weakness and fails the test.
+   *
+   * <p>For example, jdk11 does not set any algorithm parameters and requires that parameters are
+   * either provided by the key or are explicitely passed in during initialization. Hence jdk11
+   * passes the test. On the other hand BouncyCastle v 1.64 fails the test because it chooses
+   * default parameters. (In fact BouncyCastle v 1.64 chooses SHA-1, MGF1 with SHA-1 and salt length
+   * 20. These are weak choices.)
+   */
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/243905306"})
+  @Test
+  public void testNoDefaultForParameters() throws Exception {
+    // An X509 encoded 2048-bit RSA public key.
+    String pubKey =
+        "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
+            + "00bdf90898577911c71c4d9520c5f75108548e8dfd389afdbf9c997769b8594e"
+            + "7dc51c6a1b88d1670ec4bb03fa550ba6a13d02c430bfe88ae4e2075163017f4d"
+            + "8926ce2e46e068e88962f38112fc2dbd033e84e648d4a816c0f5bd89cadba0b4"
+            + "d6cac01832103061cbb704ebacd895def6cff9d988c5395f2169a6807207333d"
+            + "569150d7f569f7ebf4718ddbfa2cdbde4d82a9d5d8caeb467f71bfc0099b0625"
+            + "a59d2bad12e3ff48f2fd50867b89f5f876ce6c126ced25f28b1996ee21142235"
+            + "fb3aef9fe58d9e4ef6e4922711a3bbcd8adcfe868481fd1aa9c13e5c658f5172"
+            + "617204314665092b4d8dca1b05dc7f4ecd7578b61edeb949275be8751a5a1fab"
+            + "c30203010001";
+    KeyFactory kf;
+    kf = KeyFactory.getInstance("RSA");
+    X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
+    PublicKey key = kf.generatePublic(x509keySpec);
+    Signature verifier;
+    try {
+      verifier = Signature.getInstance("RSASSA-PSS");
+      verifier.initVerify(key);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSASSA-PSS is not supported.");
+      return;
+    }
+    AlgorithmParameters params = verifier.getParameters();
+    if (params != null) {
+      PSSParameterSpec pssParams = params.getParameterSpec(PSSParameterSpec.class);
+      // The provider uses some default parameters. This easily leads to weak or
+      // incompatible implementations.
+      fail("RSASSA-PSS uses default parameters:" + pssParameterSpecToString(pssParams));
+    }
   }
 
   /**
