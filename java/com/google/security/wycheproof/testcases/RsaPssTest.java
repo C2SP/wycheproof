@@ -15,6 +15,7 @@ package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -25,6 +26,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
@@ -60,6 +63,34 @@ public class RsaPssTest {
     } else {
       throw new NoSuchAlgorithmException("Unknown MGF:" + mgf);
     }
+  }
+
+  /**
+   * Converts PSS parameters to a string.
+   *
+   * <p>This function can be used to check that two parameter sets are equal. Comparing two
+   * parameter sets assumes that MGF1 is being used. This is probably OK, since MGF1 is the only
+   * existing mask generation function, and newer proposals (such as the one using SHAKE), use OIDs
+   * that uniquely specify all the algorithm parameters.
+   *
+   * @param spec the PSS parameters.
+   * @return a readable representation of spec.
+   */
+  private static String pssParameterSpecToString(PSSParameterSpec spec) {
+    StringBuilder res = new StringBuilder();
+    res.append("digestAlgorithm:")
+        .append(spec.getDigestAlgorithm())
+        .append("\nmgfAlgorithm:")
+        .append(spec.getMGFAlgorithm())
+        .append("\nsaltLength:")
+        .append(spec.getSaltLength())
+        .append("\ntrailerField:")
+        .append(spec.getTrailerField());
+    if (spec.getMGFAlgorithm().equals("MGF1")) {
+      MGF1ParameterSpec mgf1Params = (MGF1ParameterSpec) spec.getMGFParameters();
+      res.append("\nmgf1 digestAlgorithm:").append(mgf1Params.getDigestAlgorithm());
+    }
+    return res.toString();
   }
 
   /**
@@ -153,19 +184,109 @@ public class RsaPssTest {
   }
 
   /**
+   * Tries decoding an RSASSA-PSS key with algorithm parameters.
+   *
+   * <p>RFC 8017 Section A.2 defines algorithm identifiers to use for RSA keys. I.e., it defines the
+   * following OIDs:
+   *
+   * <pre>
+   *   PKCS1Algorithms    ALGORITHM-IDENTIFIER ::= {
+   *    { OID rsaEncryption                PARAMETERS NULL } |
+   *    { OID md2WithRSAEncryption         PARAMETERS NULL } |
+   *    { OID md5WithRSAEncryption         PARAMETERS NULL } |
+   *    { OID sha1WithRSAEncryption        PARAMETERS NULL } |
+   *    { OID sha224WithRSAEncryption      PARAMETERS NULL } |
+   *    { OID sha256WithRSAEncryption      PARAMETERS NULL } |
+   *    { OID sha384WithRSAEncryption      PARAMETERS NULL } |
+   *    { OID sha512WithRSAEncryption      PARAMETERS NULL } |
+   *    { OID sha512-224WithRSAEncryption  PARAMETERS NULL } |
+   *    { OID sha512-256WithRSAEncryption  PARAMETERS NULL } |
+   *    { OID id-RSAES-OAEP   PARAMETERS RSAES-OAEP-params } |
+   *    PKCS1PSourceAlgorithms                               |
+   *    { OID id-RSASSA-PSS   PARAMETERS RSASSA-PSS-params },
+   *    ...  -- Allows for future expansion --
+   *  }
+   * </pre>
+   *
+   * <p>Commonly, RSA keys don't use these algorithm identifiers, i.e., they simply use the object
+   * identifier rsaEncryption regardless of the purpose of the key.
+   *
+   * <p>The object identifier id-RSASSA-PSS would be much more suitable for RSASSA-PSS keys, since
+   * in this case all the algorithm parameters are included in the key. Unfortunately, RSA keys with
+   * this object identifier are not widely supported.
+   *
+   * <p>OpenJdk allows to use keys both types of keys. The support of id-RSASSA-PSS is newer. A
+   * drawback is that the caller has to know the encoding of the RSA keys:
+   * RSA keys with object identifier rsaEncryption require to use KeyFactory.getInstance("RSA"),
+   * whereas keys with object identifier id-RSASSA-PSS require to use
+   * KeyFactory.getInstance("RSASSA-PSS").
+   *
+   * <p>The main purpose of the test below is simply to check if a provider supports RSA keys with
+   * id-RSASSA-PSS.
+   *
+   * <p>The test passes if id-RSASSA-PSS is supported. The test is skipped if such keys are not
+   * supported or if a provider uses alternative algorithm names for KeyFactory. The test fails
+   * (rsp. should fail) if KeyFactory.getInstance("RSASSA-PSS") is supported but does not accept
+   * keys with OID id-RSASSA-PSS or if the test results in incorrect parameters.
+   */
+  @Test
+  public void testDecodePublicKeyWithPssParameters() throws Exception {
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLength = 20;
+    PSSParameterSpec expectedParams =
+        new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(sha), saltLength, 1);
+    // Below is an RSA key where the algorithm parameter use the object
+    // identifier id-RSASSA-PSS together with the message digest SHA-256,
+    // MGF1 and saltLength 20.
+    String encodedPubKey =
+        "30820151303c06092a864886f70d01010a302fa00f300d060960864801650304"
+            + "02010500a11c301a06092a864886f70d010108300d0609608648016503040201"
+            + "05000382010f003082010a0282010100b09191ef91e8b4ab58f7c66430636641"
+            + "0988d8cba6f2e0f33495d37b355828d04554472e854dff7d8c1dfd1ea50123de"
+            + "12d34b77280220184b924db82a535978e9bfe7a6111f455028f18cd923c54144"
+            + "08a247409d7121a99c3594708c0dd9cdebf1c9bb0060ff1c4c0363e25fac0d5b"
+            + "bf85013945f393b0b9673780c6f579353ae895d7dc891220a92bac0a8deb35b5"
+            + "20803cf82b19c27232a889d0f04fb2bde6623f357e3e56027298379d10bee8fa"
+            + "4e0c29029a78fde01694719d2d036fe726aa5633205553565f127a78fec46918"
+            + "182e41a16c5cc86bd3b77d26c5113082cb1f2d83d9213eca019bbdee99001e11"
+            + "16bcfec1242ece175558b15c5bbbc4710203010001";
+    RSAPublicKey pubKey;
+    try {
+      KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
+      X509EncodedKeySpec spec = new X509EncodedKeySpec(TestUtil.hexToBytes(encodedPubKey));
+      pubKey = (RSAPublicKey) kf.generatePublic(spec);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSASSA-PSS keys with parameters are not supported.");
+      return;
+    }
+    AlgorithmParameterSpec params = pubKey.getParams();
+    if (params == null) {
+      // No parameters found.
+      // This means that the algorithm parameters in the encoded key have
+      // been ignored. Incompatible implementations are a likely consequence
+      // of this.
+      fail("getParameters is null");
+    }
+    PSSParameterSpec pssParams = (PSSParameterSpec) params;
+    String found = pssParameterSpecToString(pssParams);
+    String expected = pssParameterSpecToString(expectedParams);
+    assertEquals(expected, found);
+  }
+
+  /**
    * Tries encoding and decoding of RSASSA-PSS keys generated with RSASSA-PSS.
    *
    * <p>RSASSA-PSS keys contain the PSSParameters, hence their encodings are somewhat different than
    * plain RSA keys.
    */
-  // TODO(bleichen): Check against other providers.
-  //   Since this format was new in jdk11, other providers did not support
-  //   ASN.1 encoded keys with parameters. Maybe this has changed.
   @Test
   public void testEncodeDecodePublic() throws Exception {
     int keySizeInBits = 2048;
     PublicKey pub;
+    KeyFactory kf;
     try {
+      kf = KeyFactory.getInstance("RSASSA-PSS");
       KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
       keyGen.initialize(keySizeInBits);
       KeyPair keypair = keyGen.genKeyPair();
@@ -177,14 +298,20 @@ public class RsaPssTest {
     byte[] encoded = pub.getEncoded();
     assertEquals(
         "The test assumes that the public key is in X.509 format", "X.509", pub.getFormat());
-    System.out.println("Generated RSA-PSS key");
-    System.out.println(TestUtil.bytesToHex(encoded));
-    KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
     kf.generatePublic(spec);
+  }
 
-    // Tries to generate another pair or keys. This time the generator is given an
-    // RSAKeyGenParameterSpec containing the key size an the PSS parameters.
+  /**
+   * Tries encoding and decoding of RSASSA-PSS keys generated with RSASSA-PSS.
+   *
+   * <p>RSASSA-PSS keys contain the PSSParameters, hence their encodings are somewhat different than
+   * plain RSA keys.
+   */
+  @Test
+  public void testEncodeDecodePublicWithParameters() throws Exception {
+    int keySizeInBits = 2048;
+    PublicKey pub;
     String sha = "SHA-256";
     String mgf = "MGF1";
     int saltLength = 20;
@@ -199,11 +326,10 @@ public class RsaPssTest {
       TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
-    byte[] encoded2 = pub.getEncoded();
-    System.out.println("Generated RSA-PSS key with PSS parameters");
-    System.out.println(TestUtil.bytesToHex(encoded2));
-    X509EncodedKeySpec spec2 = new X509EncodedKeySpec(encoded2);
-    kf.generatePublic(spec2);
+    byte[] encoded = pub.getEncoded();
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
+    KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
+    kf.generatePublic(spec);
   }
 
   /**
