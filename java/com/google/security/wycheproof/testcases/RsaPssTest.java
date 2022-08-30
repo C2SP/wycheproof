@@ -28,6 +28,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
@@ -345,6 +347,103 @@ public class RsaPssTest {
     kf.generatePublic(spec);
   }
 
+  /** Tries to sign and verify ab RSASSA-PSS signature with algorithm parameters. */
+  @Test
+  public void testSignVerifyWithParameters() throws Exception {
+    int keySizeInBits = 2048;
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLength = 20;
+    KeyPair keypair;
+    try {
+      RSAKeyGenParameterSpec params =
+          getPssAlgorithmParameters(keySizeInBits, sha, mgf, sha, saltLength);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
+      keyGen.initialize(params);
+      keypair = keyGen.genKeyPair();
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
+      return;
+    }
+    byte[] msg = new byte[4];
+    RSAPublicKey pub = (RSAPublicKey) keypair.getPublic();
+    RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
+    Signature signer = Signature.getInstance("RSASSA-PSS");
+    signer.initSign(priv);
+    byte[] signature;
+    try {
+      signer.update(msg);
+      signature = signer.sign();
+    } catch (SignatureException ex) {
+      // A likely case for this exception is:
+      // java.security.SignatureException: Parameters required for RSASSA-PSS signatures
+      //
+      // At least some OpenJDK versions do not copy the algorithm parameters in priv
+      // during .initSign and .initVerify. This leads to a SignatureException,
+      // because RSASSA-PSS requires algorithm parameters. We additionally have the test
+      // testSignVerifyCopyParameters below which will also succeed if this is the case.
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
+    Signature verifier = Signature.getInstance("RSASSA-PSS");
+    verifier.initVerify(pub);
+    verifier.setParameter(pub.getParams());
+    verifier.update(msg);
+    boolean verified = verifier.verify(signature);
+    assertTrue("Signature did not verify", verified);
+  }
+
+  /**
+   * Tries to sign and verify an RSASSA-PSS signature with algorithm parameters.
+   *
+   * <p>This test checks a potential fallback method for the non-intuitive behavior of OpenJdk:
+   * Signature.initSign(PrivateKey) and Signature.initVerify(PublicKey) do not set the algorithm
+   * parameters even if the keys have suitable parameters.
+   *
+   * <p>This test patches the behavior above by copying parameters present in the RSAKey if the
+   * Signature instance constructed from this key does not contain any parameters.
+   */
+  @Test
+  public void testSignVerifyCopyParameters() throws Exception {
+    int keySizeInBits = 2048;
+    String sha = "SHA-256";
+    String mgf = "MGF1";
+    int saltLength = 20;
+    KeyPair keypair;
+    try {
+      RSAKeyGenParameterSpec params =
+          getPssAlgorithmParameters(keySizeInBits, sha, mgf, sha, saltLength);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
+      keyGen.initialize(params);
+      keypair = keyGen.genKeyPair();
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
+      return;
+    }
+    byte[] msg = new byte[4];
+    RSAPublicKey pub = (RSAPublicKey) keypair.getPublic();
+    RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
+    Signature signer = Signature.getInstance("RSASSA-PSS");
+    signer.initSign(priv);
+    if (priv.getParams() != null && signer.getParameters() == null) {
+      // The private key has algorithm parameters, but they were not copied to
+      // signer during initSign. Hence, we have to copy them explicitly.
+      signer.setParameter(priv.getParams());
+    }
+    signer.update(msg);
+    byte[] signature = signer.sign();
+    Signature verifier = Signature.getInstance("RSASSA-PSS");
+    verifier.initVerify(pub);
+    if (pub.getParams() != null && verifier.getParameters() == null) {
+      // The public key has algorithm parameters, but they were not copied to
+      // verifier during initVerify. Hence, we have to copy them explicitly.
+      verifier.setParameter(pub.getParams());
+    }
+    verifier.update(msg);
+    boolean verified = verifier.verify(signature);
+    assertTrue("Signature did not verify", verified);
+  }
+
   /**
    * Tests the default parameters for legacy algorithm names.
    *
@@ -479,7 +578,7 @@ public class RsaPssTest {
    * used, any such choice is considered a weakness and fails the test.
    *
    * <p>For example, jdk11 does not set any algorithm parameters and requires that parameters are
-   * either provided by the key or are explicitely passed in during initialization. Hence jdk11
+   * either provided by the key or are explicitly passed in during initialization. Hence jdk11
    * passes the test. On the other hand BouncyCastle v 1.64 fails the test because it chooses
    * default parameters. (In fact BouncyCastle v 1.64 chooses SHA-1, MGF1 with SHA-1 and salt length
    * 20. These are weak choices.)
