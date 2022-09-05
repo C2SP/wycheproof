@@ -35,25 +35,66 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+
 /**
  * Checks implementations of RSA-OAEP.
+ *
+ * TODO(bleichen): check if OAEPParameterSpec is needed with algorithm name OAEPPadding.
+ *   https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims:
+ *   If OAEPPadding is used, Cipher objects are initialized with a
+ *   javax.crypto.spec.OAEPParameterSpec object to supply values needed for OAEPPadding.
+ * TODO(bleichen): testDefaults() showed incompatible choices in old versions.
+ *                 Maybe there is a way to fix this now.
+ * TODO(bleichen): jdk11 adds parameters to the RSA keys. This needs tests.
+ * TODO(bleichen): Use TestInput and TestResult for the tests with JSON.
+ * TODO(bleichen): Maybe add timing tests with long labels
+ * TODO(bleichen): add documentation.
+ * TODO(bleichen): add additional algorithm names.
  */
-@RunWith(JUnit4.class)
+ @RunWith(JUnit4.class)
 public class RsaOaepTest {
 
   /**
-   * A list of algorithm names for RSA-OAEP.
+   * A list of potential algorithm names for RSA-OAEP.
    *
-   * The standard algorithm names for RSA-OAEP are defined in
-   * https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html
+   * <p>The list contains incorrect and undefined algorithm names.
+   *
+   * <p>The standard algorithm names for RSA-OAEP are defined in
+   * https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html A good choice
+   * is to use "RSA/ECB/OAEPPadding" only and specify the algorithm parameters with
+   * OAEPParameterSpec.
    */
   static String[] OaepAlgorithmNames = {
-      "RSA/None/OAEPPadding",
-      "RSA/None/OAEPwithSHA-1andMGF1Padding",
-      "RSA/None/OAEPwithSHA-224andMGF1Padding",
-      "RSA/None/OAEPwithSHA-256andMGF1Padding",
-      "RSA/None/OAEPwithSHA-384andMGF1Padding",
-      "RSA/None/OAEPwithSHA-512andMGF1Padding",
+    "RSA/ECB/OAEPPadding",
+    "RSA/ECB/OAEPwithSHA-1andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA-224andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA-256andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA-384andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA-512andMGF1Padding",
+    // Algorithm names supported by BouncyCastle.
+    "RSA/None/OAEPPadding",
+    "RSA/None/OAEPwithSHA-1andMGF1Padding",
+    "RSA/None/OAEPwithSHA-224andMGF1Padding",
+    "RSA/None/OAEPwithSHA-256andMGF1Padding",
+    "RSA/None/OAEPwithSHA-384andMGF1Padding",
+    "RSA/None/OAEPwithSHA-512andMGF1Padding",
+    // Algorithm names possibly used by other providers.
+    // They may also be just typos.
+    "RSA/OAEP",
+    // Incorrect algorithm names.
+    "RSA/ECB/OAEPwithSHA1andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA224andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA256andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA384andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA512andMGF1Padding",
+    // Uncommon hash functions
+    "RSA/ECB/OAEPwithSHA-512/224andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA-512/256andMGF1Padding",
+    // Not defined as far as I know.
+    "RSA/ECB/OAEPwithSHA3-224andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA3-256andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA3-384andMGF1Padding",
+    "RSA/ECB/OAEPwithSHA3-512andMGF1Padding",
   };
 
   protected static void printParameters(AlgorithmParameterSpec params) {
@@ -69,23 +110,22 @@ public class RsaOaepTest {
       System.out.println("digestAlgorithm:" + mgf1Params.getDigestAlgorithm());
     } else {
       System.out.println(params.toString());
-    } 
+    }
   }
-  
+
   /**
-   * This is not a real test. The JCE algorithm names only specify one hash algorithm. But OAEP
-   * uses two hases. One hash algorithm is used to hash the labels. The other hash algorithm is
-   * used for the mask generation function.
+   * This is not a real test. The JCE algorithm names only specify one hash algorithm. But OAEP uses
+   * two hases. One hash algorithm is used to hash the labels. The other hash algorithm is used for
+   * the mask generation function.
    *
    * <p>Different provider use different default values for the hash function that is not specified
    * in the algorithm name. Jdk uses mgfsha1 as default. BouncyCastle and Conscrypt use the same
-   * hash for labels and mgf. Every provider allows to specify all the parameters using 
-   * an OAEPParameterSpec instance.
+   * hash for labels and mgf. Every provider allows to specify all the parameters using an
+   * OAEPParameterSpec instance.
    *
    * <p>This test simply tries a number of algorithm names for RSA-OAEP and prints the OAEP
    * parameters for the case where no OAEPParameterSpec is used.
    */
-  // TODO(bleichen): jdk11 will also add parameters to the RSA keys. This will need more tests.
   @Test
   public void testDefaults() throws Exception {
     String pubKey =
@@ -104,14 +144,20 @@ public class RsaOaepTest {
     X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
     PublicKey key = kf.generatePublic(x509keySpec);
     for (String oaepName : OaepAlgorithmNames) {
+      Cipher c;
       try {
-        Cipher c = Cipher.getInstance(oaepName);
+        c = Cipher.getInstance(oaepName);
+      } catch (NoSuchAlgorithmException ex) {
+        System.out.println("Algorithm " + oaepName + " not supported");
+        continue;
+      }
+      try {
         c.init(Cipher.ENCRYPT_MODE, key);
         System.out.println("Algorithm " + oaepName + " uses the following defaults");
         AlgorithmParameters params = c.getParameters();
         printParameters(params.getParameterSpec(OAEPParameterSpec.class));
-      } catch (NoSuchAlgorithmException ex) {
-        continue;
+      } catch (GeneralSecurityException ex) {
+        System.out.println("Algorithm " + oaepName + " throws " + ex.toString());
       }
     }
   }
@@ -143,12 +189,6 @@ public class RsaOaepTest {
     return kf.generatePrivate(keySpec);
   }
 
-  protected static String getOaepAlgorithmName(JsonObject group) throws Exception {
-    String mgf = getString(group, "mgf");
-    String mgfSha = getString(group, "mgfSha");
-    return "RSA/ECB/OAEPwith" + mgfSha + "and" + mgf + "Padding";
-  }
-
   protected static OAEPParameterSpec getOaepParameters(JsonObject group,
                                                        JsonObject test) throws Exception {
     String sha = getString(group, "sha");
@@ -158,20 +198,22 @@ public class RsaOaepTest {
     if (test.has("label")) {
       p = new PSource.PSpecified(getBytes(test, "label"));
     }
-    return new OAEPParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), p); 
+    return new OAEPParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), p);
   }
 
-  /** 
+  /**
    * Tests the signature verification with test vectors in a given JSON file.
    *
-   * <p> Example format for test vectors
+   * <p>Example format for test vectors
+   *
+   * <pre>
    * { "algorithm" : "RSA-OAEP",
    *   "schema" : "rsaes_oaep_decrypt_schema.json",
    *   "generatorVersion" : "0.7",
    *   ...
    *   "testGroups" : [
    *     {
-   *       "d" : "...", 
+   *       "d" : "...",
    *       "e" : "10001",
    *       "n" : "...",
    *       "keysize" : 2048,
@@ -186,25 +228,24 @@ public class RsaOaepTest {
    *           "tcId" : 1,
    *           "comment" : "",
    *           "msg" : "30313233343030",
-   *           "ct" : "...", 
+   *           "ct" : "...",
    *           "label" : "",
    *           "result" : "valid",
    *           "flags" : [],
    *         },
    *        ...
+   * </pre>
    *
    * @param filename the filename of the test vectors
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
-   *        Most of the tests below are using allowSkippingKeys == false. The reason for doing this
-   *        is that providers have distinctive defaults. E.g., no OAEPParameterSpec is given then
-   *        BouncyCastle and Conscrypt use the same hash function for hashing the label and for the
-   *        mask generation function, while jdk uses MGF1SHA1. This is unfortunate and probably
-   *        difficult to fix. Hence, the tests below simply require that providers support each
-   *        others default parameters under the assumption that the OAEPParameterSpec is fully
-   *        specified.
-   **/
-  public void testOaep(String filename, boolean allowSkippingKeys)
-      throws Exception {
+   *     Most of the tests below are using allowSkippingKeys == false. The reason for doing this is
+   *     that providers have distinctive defaults. E.g., no OAEPParameterSpec is given then
+   *     BouncyCastle and Conscrypt use the same hash function for hashing the label and for the
+   *     mask generation function, while jdk uses MGF1SHA1. This is unfortunate and probably
+   *     difficult to fix. Hence, the tests below simply require that providers support each others
+   *     default parameters under the assumption that the OAEPParameterSpec is fully specified.
+   */
+  public void testOaep(String filename, boolean allowSkippingKeys) throws Exception {
     JsonObject test = JsonUtil.getTestVectors(filename);
 
     // Compares the expected and actual JSON schema of the test vector file.
@@ -238,8 +279,20 @@ public class RsaOaepTest {
         }
         continue;
       }
-      String algorithm = getOaepAlgorithmName(group);
-      Cipher decrypter = Cipher.getInstance(algorithm);
+      // There are two ways to specify the algorithm for RSA-OAEP. The first way is to use
+      // <code>
+      //   cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+      //   OAEPParameterSpec params = ...;
+      //   cipher.init(mode, key, params);
+      // </code>
+      // The second method is to specify parameters in the algorithm name:
+      // <code>
+      //   cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
+      //   cipher.init(mode, key, params);
+      // </code>
+      // The second method does not specify all algorithm parameters. In particular it does
+      // not specify the hash algorithm used for MGF1.
+      Cipher decrypter = Cipher.getInstance("RSA/ECB/OAEPPadding");
       for (JsonElement t : group.getAsJsonArray("tests")) {
         cntTests++;
         JsonObject testcase = t.getAsJsonObject();
@@ -385,6 +438,6 @@ public class RsaOaepTest {
   public void testRsaOaepMisc() throws Exception {
    testOaep("rsa_oaep_misc_test.json", false);
   }
- 
+
 }
 
