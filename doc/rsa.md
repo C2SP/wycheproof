@@ -88,12 +88,6 @@ Timing leakages because of differences in parsing the padding can leak
 information (e.g. [[CVE-2015-7827]](bib.md#cve-2015-1827)). Such differences are
 too small to be reliably detectable in unit tests.
 
-## RSA OAEP
-
-Manger describes an chosen ciphertext attack against RSA in
-[[Manger01]](bib.md#manger01). There are implementations that were susceptible
-to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
-
 ## RSA PKCS #1 v1.5 signatures
 
 **Potential problems**
@@ -101,7 +95,7 @@ to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
 *   Some libraries parse PKCS #1 v1.5 padding during signature verification
     incorrectly.
 *   Some libraries determine the hash function from the signature (rather than
-    encoding this in the key) Effect:
+    encoding this in the key).
 *   If the verification is buggy then an attacker might be able to generate
     signatures for keys with a small (i.e. e=3) public exponent.
 *   If the hash algorithm is not determined by in an authentic manner then
@@ -262,7 +256,8 @@ RSASSA-PSS. It allows to specify the algorithm parameters of the signature
 scheme. Unfortunately, many implementations don't use this OID. Rather they use
 the object identifier rsaEncryption regardless of the purpose of the key. Using
 the OID id-RSASSA-PSS would be preferable, since this would make it easier to
-ensure that a key is only used for a single purpose. Wycheproof contains test
+ensure that a key is only used for a single purpose. RFC 5756 gives some guide
+lines when to use RSASSA-PSS parameters in certifiates. Wycheproof contains test
 vector for both key formats. The key formats are distinguised by the schema of
 the file:
 
@@ -281,3 +276,91 @@ the file:
 RFC 8702 adds SHAKE128 and SHAKE256 to RSASSA-PSS. Support for these functions
 is currently quite small. An advantage of the new functions is that each
 function only supports a single set of parameter choices.
+
+## RSA OAEP
+
+**Manger's attack**
+
+Manger describes an chosen ciphertext attack against RSA in
+[[Manger01]](bib.md#manger01). There are implementations that were susceptible
+to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
+
+**Algorithm parameters**
+
+The algorithm parameters for RSA OAEP are described in RFC 8017 A.2.1.
+<pre>
+  RSAES-OAEP-params ::= SEQUENCE {
+       hashAlgorithm      [0] HashAlgorithm     DEFAULT sha1,
+       maskGenAlgorithm   [1] MaskGenAlgorithm  DEFAULT mgf1SHA1,
+       pSourceAlgorithm   [2] PSourceAlgorithm  DEFAULT pSpecifiedEmpty
+   }
+</pre>
+It should be noted that the mask generation algorithm requires a second hash function,
+that can be different than the hash algorithm already specified. When using a library
+one has to ensure that all parties involved use the same parameters.
+
+The security of OAEP does not depend on collision resistance
+(https://eprint.iacr.org/2006/223.pdf). Hence, using OAEP with SHA-1 does not
+pose a security risk.
+
+**JCE algorithm names**
+
+The algorithm names for RSA OAEP are not uniformly used in various providers. A
+few specifications can be found here:
+https://docs.oracle.com/en/java/javase/18/docs/specs/security/standard-names.html
+E.g., this document specifies that the preferred encryption mode is "ECB" not
+"NONE". (The encryption mode is not used and does not change the ciphertexts).
+Hash functions (SHA-1, SHA-256 etc. ) should contain a dash, hence algorithm
+names such as "RSA/ECB/OAEPwithSHA224andMGF1Padding" are not well formed and
+only supported by some providers.
+
+The hash function for the mask generating function is not specified by the
+algorithm name. This leads to a number of incompatibilities. The following table
+shows a number of algorithm names for OAEP, their support among some providers
+and the default values used for the algorithm parameters:
+
+Algorithm name                            | jdk19                  | BouncyCastle 1.64       | Conscrypt 1.0
+----------------------------------------- | ---------------------- | ----------------------- | -------------
+RSA/ECB/OAEPPadding                       | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
+RSA/ECB/OAEPwithSHA-1andMGF1Padding       | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
+RSA/ECB/OAEPwithSHA-224andMGF1Padding     | SHA-224, MGF1-SHA1     | SHA-224, MGF1-SHA224    | SHA-224, MGF1-SHA224
+RSA/ECB/OAEPwithSHA-256andMGF1Padding     | SHA-256, MGF1-SHA1     | SHA-256, MGF1-SHA256    | SHA-256, MGF1-SHA256
+RSA/ECB/OAEPwithSHA-384andMGF1Padding     | SHA-384, MGF1-SHA1     | SHA-384, MGF1-SHA384    | SHA-384, MGF1-SHA384
+RSA/ECB/OAEPwithSHA-512andMGF1Padding     | SHA-512, MGF1-SHA1     | SHA-512, MGF1-SHA512    | SHA-512, MGF1-SHA512
+RSA/None/OAEPPadding                      | not supported          | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
+RSA/None/OAEPwithSHA-1andMGF1Padding      | not supported          | SHA-1, MGF1-SHA1        | not supported
+RSA/None/OAEPwithSHA-224andMGF1Padding    | not supported          | SHA-224, MGF1-SHA224    | not supported
+RSA/None/OAEPwithSHA-256andMGF1Padding    | not supported          | SHA-256, MGF1-SHA256    | not supported
+RSA/None/OAEPwithSHA-384andMGF1Padding    | not supported          | SHA-384, MGF1-SHA384    | not supported
+RSA/None/OAEPwithSHA-512andMGF1Padding    | not supported          | SHA-512, MGF1-SHA512    | not supported
+RSA/ECB/OAEPwithSHA1andMGF1Padding        | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | not supported
+RSA/ECB/OAEPwithSHA224andMGF1Padding      | not supported          | SHA-224, MGF1-SHA224    | not supported
+RSA/ECB/OAEPwithSHA256andMGF1Padding      | not supported          | SHA-256, MGF1-SHA256    | not supported
+RSA/ECB/OAEPwithSHA384andMGF1Padding      | not supported          | SHA-384, MGF1-SHA384    | not supported
+RSA/ECB/OAEPwithSHA512andMGF1Padding      | not supported          | SHA-512, MGF1-SHA512    | not supported
+RSA/ECB/OAEPwithSHA-512/224andMGF1Padding | SHA-512/224, MGF1-SHA1 | not supported           | not supported
+RSA/ECB/OAEPwithSHA-512/256andMGF1Padding | SHA-512/256, MGF1-SHA1 | not supported           | not supported
+RSA/ECB/OAEPwithSHA3-224andMGF1Padding    | not supported          | SHA3-224, MGF1-SHA3-224 | not supported
+RSA/ECB/OAEPwithSHA3-256andMGF1Padding    | not supported          | SHA3-256, MGF1-SHA3-256 | not supported
+RSA/ECB/OAEPwithSHA3-384andMGF1Padding    | not supported          | SHA3-384, MGF1-SHA3-384 | not supported
+RSA/ECB/OAEPwithSHA3-512andMGF1Padding    | not supported          | SHA3-512, MGF1-SHA3-512 | not supported
+
+Because of these incompatibilities it may be a good idea to use the following
+pattern, when implementing RSA OAEP:
+
+```java
+  Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+  OAEPParameterSpec params = ...
+  cipher.init(mode, key, params);
+```
+
+**SHA-3 / SHAKE**
+
+It would in principle be possible to use SHAKE128 and SHAKE256 as an alternative
+to MGF1 (similar to RFC 8702). Since we are not aware of any standards or RFC
+makeing such a proposal, there are no test vectors using SHA-3.
+
+**Encoding keys** It is possible to include RSAES-OAEP parameters in DER and PEM
+encoded RSA keys. To our knowledge this option is rarely used and supported.
+Because of this situation all the RSA keys in our test vectors contain the
+object identifier rsaEncryption and no parameters and not id-RSAES-OAEP.

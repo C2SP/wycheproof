@@ -63,9 +63,15 @@ Bellare, Rogaway,
 "Encode-Then-Encipher Encryption: How to exploit nonces or redundancy in plaintexts for efficient cryptography",
 Asiacrypt 2000, pp.317--330.
 
+### Brown07
+
+D. R. L. Brown "What Hashes Make RSA-OAEP Secure?", IACR e-print, 2007,
+https://eprint.iacr.org/2006/223.pdf
+
 ### BFKLSST12
+
 R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
-"Efficient padding oracle attacks on cryptographic hardware" Crypto 2012
+"Efficient padding oracle attacks on cryptographic hardware", Crypto 2012
 
 ### Ferguson05
 N. Ferguson, "Authentication weaknesses in GCM",
@@ -93,8 +99,9 @@ D. Genkin, L. Pachmanov, I. Pipman, E. Tromer,
 http://cs.tau.ac.il/~tromer/papers/ecdh.pdf
 
 ### HowSma99
-N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature Schemes"
-http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
+
+N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature
+Schemes", http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
 
 ### Joux-Gcm
 A. Joux,
