@@ -17,9 +17,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
-import java.util.Locale;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -32,19 +34,25 @@ import org.junit.runners.JUnit4;
 public class JsonMacTest {
 
   /** Convenience method to get a byte array from an JsonObject */
-  protected static byte[] getBytes(JsonObject obj, String name) throws Exception {
+  private static byte[] getBytes(JsonObject obj, String name) throws Exception {
     return JsonUtil.asByteArray(obj.get(name));
   }
 
-  protected static boolean arrayEquals(byte[] a, byte[] b) {
-    if (a.length != b.length) {
-      return false;
+  private static Mac getMac(String algorithmName) throws NoSuchAlgorithmException {
+    try {
+      return Mac.getInstance(algorithmName);
+    } catch (NoSuchAlgorithmException ex) {
+      // Some provider use alternative algorithm names.
     }
-    byte res = 0;
-    for (int i = 0; i < a.length; i++) {
-      res |= (byte) (a[i] ^ b[i]);
+    switch (algorithmName) {
+      case "AES-CMAC":
+        // BouncyCastle generally uses a hyphen for CMAC algorithms.
+        // However, AES-CMAC is an exception.
+        return Mac.getInstance("AESCMAC");
+      default:
+        break;
     }
-    return res == 0;
+    throw new NoSuchAlgorithmException(algorithmName);
   }
 
   /**
@@ -55,34 +63,36 @@ public class JsonMacTest {
    * @param msg the message to MAC.
    * @param tagSize the expected size of the tag in bits.
    * @return the tag
-   * @throws GeneralSecurityException if the algorithm or the parameter sizes are not supported or
-   *     if the initialization failed. For example one case are GMACs with a tag size othe than 128
-   *     bits, since the JCE interface does not seem to support such a specification.
+   * @throws NoSuchAlgorithmException if truncation is not supported. The JCE interface is not well
+   *     defined for truncating MACs, hence this test does not try to call a MAC with specific
+   *     parameter. For MACs where truncation is well defined, (e.g., HMAC), truncation is done in
+   *     this function. Otherwise a NoSuchAlgorithmException is thrown.
+   * @throws InvalidKeyException if the key is invalid
    */
-  protected static byte[] computeMac(String algorithm, byte[] key, byte[] msg, int tagSize)
-      throws GeneralSecurityException {
-    Mac mac = Mac.getInstance(algorithm);
-    algorithm = algorithm.toUpperCase(Locale.ENGLISH);
-    if (algorithm.startsWith("HMAC")) {
-      SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
-      // TODO(bleichen): Is there a provider independent truncation?
-      //   The class javax.xml.crypto.dsig.spec.HMACParameterSpec would allow to
-      //   truncate HMAC tags as follows:
-      //   <pre>
-      //     HMACParameterSpec params = new HMACParameterSpec(tagSize);
-      //     mac.init(keySpec, params);
-      //     mac.update(msg);
-      //     return mac.doFinal();
-      //   </pre>
-      //   But this class is often not supported. Hence the computation here, just computes a
-      //   full length tag and truncates it. The drawback of having to truncate tags is that
-      //   the caller has to compare truncated tags during verification.
-      mac.init(keySpec);
-      mac.update(msg);
-      byte[] tag = mac.doFinal();
+  private static byte[] computeMac(String algorithm, byte[] key, byte[] msg, int tagSize)
+      throws NoSuchAlgorithmException, InvalidKeyException {
+    Mac mac = getMac(algorithm);
+    SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
+    // TODO(bleichen): Is there a provider independent truncation?
+    //   The class javax.xml.crypto.dsig.spec.HMACParameterSpec would allow to
+    //   truncate HMAC tags as follows:
+    //   <pre>
+    //     HMACParameterSpec params = new HMACParameterSpec(tagSize);
+    //     mac.init(keySpec, params);
+    //     mac.update(msg);
+    //     return mac.doFinal();
+    //   </pre>
+    //   But this class is often not supported. Hence the computation here just computes a
+    //   full length tag and truncates the tag in some known cases.
+    mac.init(keySpec);
+    mac.update(msg);
+    byte[] tag = mac.doFinal();
+    if (tag.length == tagSize / 8) {
+      return tag;
+    } else if (algorithm.startsWith("HMAC")) {
       return Arrays.copyOf(tag, tagSize / 8);
     } else {
-      throw new NoSuchAlgorithmException(algorithm);
+      throw new NoSuchAlgorithmException("Truncation not supported for " + algorithm);
     }
   }
 
@@ -94,12 +104,12 @@ public class JsonMacTest {
    */
   public void testMac(String filename) throws Exception {
     // Checking preconditions.
-    JsonObject test = JsonUtil.getTestVectors(filename);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
     String algorithm = test.get("algorithm").getAsString();
     try {
-      Mac.getInstance(algorithm);
+      Mac unused = getMac(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm is not supported. Skipping test for " + algorithm);
+      TestUtil.skipTest("Algorithm is not supported. Skipping test for " + algorithm);
       return;
     }
 
@@ -136,7 +146,7 @@ public class JsonMacTest {
           continue;
         }
 
-        boolean eq = arrayEquals(expectedTag, computedTag);
+        boolean eq = MessageDigest.isEqual(expectedTag, computedTag);
         if (result.equals("invalid")) {
           if (eq) {
             // Some test vectors use invalid parameters that should be rejected.
@@ -173,48 +183,52 @@ public class JsonMacTest {
    * @param key the key bytes
    * @param iv the bytes of the initialization vector
    * @param tagSize the expected size of the tag in bits.
-   * @return an initialized instance of a MAC.
-   * @throws GeneralSecurityException if the algorithm or the parameter sizes are not supported or
-   *     if the initialization failed. For example one case are GMACs with a tag size othe than 128
+   * @return the mac
+   * @throws NoSuchAlgorithmException if the algorithm or the parameter sizes are not supported or
+   *     if the initialization failed. For example one case are GMACs with a tag size other than 128
    *     bits, since the JCE interface does not seem to support such a specification.
+   * @throws InvalidKeyException if the key is invalid
+   * @throws InvalidAlgorithmParameterException if algorithm parameters are invalid
    */
-  protected static Mac getInitializedMacWithIv(String algorithm, byte[] key, byte[] iv, int tagSize)
-      throws GeneralSecurityException {
-    Mac mac = Mac.getInstance(algorithm);
-    algorithm = algorithm.toUpperCase(Locale.ENGLISH);
-    if (algorithm.equals("AES-GMAC")) {
-      SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-      if (tagSize != 128) {
-        throw new InvalidAlgorithmParameterException("only 128-bit tag is supported");
-      }
-      IvParameterSpec params = new IvParameterSpec(iv);
-      // TODO(bleichen): I'm unaware of a method that allows to specify the tag size in JCE.
-      //   E.g. the following parameter specification does not work (at least not in BC):
-      //   GCMParameterSpec params = new GCMParameterSpec(tagSize, iv);
-      mac.init(keySpec, params);
-      return mac;
-    } else {
-      throw new NoSuchAlgorithmException(algorithm);
+  private static byte[] computeMacWithIv(
+      String algorithm, byte[] key, byte[] iv, byte[] msg, int tagSize)
+      throws NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
+    Mac mac = getMac(algorithm);
+    switch (algorithm) {
+      case "AES-GMAC":
+        // TODO(bleichen): I'm unaware of a method that allows to specify the tag size in JCE.
+        //   E.g. the following parameter specification does not work (at least not in BC):
+        //   GCMParameterSpec params = new GCMParameterSpec(tagSize, iv);
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        AlgorithmParameterSpec params = new IvParameterSpec(iv);
+        if (tagSize != 128) {
+          throw new NoSuchAlgorithmException("Only 128-bit tags supported for " + algorithm);
+        }
+        mac.init(keySpec, params);
+        return mac.doFinal(msg);
+      default:
+        throw new NoSuchAlgorithmException("Not supported:" + algorithm);
     }
   }
 
   /**
-   * Tests a randomized MAC (i.e. a message authetication that takes an additional IV as
-   * parameter) against test vectors.
+   * Tests a randomized MAC (i.e. a message authetication that takes an additional IV as parameter)
+   * against test vectors.
    *
    * @param filename the JSON file with the test vectors.
-   * @param algorithm the JCE name of the algorithm to test.
    */
-  public void testMacWithIv(String filename, String algorithm) throws Exception {
+  public void testMacWithIv(String filename) throws Exception {
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    String algorithm = test.get("algorithm").getAsString();
+
     // Checking preconditions.
     try {
       Mac.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm is not supported. Skipping test for " + algorithm);
+      TestUtil.skipTest("Algorithm is not supported. Skipping test for " + algorithm);
       return;
     }
 
-    JsonObject test = JsonUtil.getTestVectors(filename);
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
     int passedTests = 0;
@@ -236,10 +250,9 @@ public class JsonMacTest {
         // "invalid" are test vectors with invalid parameters or invalid ciphertext and tag.
         // "acceptable" are test vectors with weak parameters or legacy formats.
         String result = testcase.get("result").getAsString();
-
-        Mac mac;
+        byte[] computedTag;
         try {
-          mac = getInitializedMacWithIv(algorithm, key, iv, tagSize);
+          computedTag = computeMacWithIv(algorithm, key, iv, msg, tagSize);
         } catch (GeneralSecurityException ex) {
           // Some libraries restrict key size, iv size and tag size.
           // Because of the initialization of the Mac might fail.
@@ -248,9 +261,7 @@ public class JsonMacTest {
           // Thrown by javax.crypto.spec.SecretKeySpec (e.g. when the key is empty).
           continue;
         }
-
-        byte[] computedTag = mac.doFinal(msg);
-        boolean eq = arrayEquals(expectedTag, computedTag);
+        boolean eq = MessageDigest.isEqual(expectedTag, computedTag);
         if (result.equals("invalid")) {
           if (eq) {
             // Some test vectors use invalid parameters that should be rejected.
@@ -281,6 +292,11 @@ public class JsonMacTest {
   }
 
   @Test
+  public void testAesCmac() throws Exception {
+    testMac("aes_cmac_test.json");
+  }
+
+  @Test
   public void testHmacSha1() throws Exception {
     testMac("hmac_sha1_test.json");
   }
@@ -306,6 +322,16 @@ public class JsonMacTest {
   }
 
   @Test
+  public void testHmacSha512_224() throws Exception {
+    testMac("hmac_sha512_224_test.json");
+  }
+
+  @Test
+  public void testHmacSha512_256() throws Exception {
+    testMac("hmac_sha512_256_test.json");
+  }
+
+  @Test
   public void testHmacSha3_224() throws Exception {
     testMac("hmac_sha3_224_test.json");
   }
@@ -326,7 +352,12 @@ public class JsonMacTest {
   }
 
   @Test
-  public void testAesGmac() throws Exception {
-    testMacWithIv("gmac_test.json", "AES-GMAC");
+  public void testSipHash24() throws Exception {
+    testMac("siphash_2_4_test.json");
+  }
+
+  @Test
+  public void testSipHash48() throws Exception {
+    testMac("siphash_4_8_test.json");
   }
 }
