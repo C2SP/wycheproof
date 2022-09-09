@@ -14,12 +14,13 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -35,23 +36,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/** Checks implementations of RSA-OAEP. */
 
-/**
- * Checks implementations of RSA-OAEP.
- *
- * TODO(bleichen): check if OAEPParameterSpec is needed with algorithm name OAEPPadding.
- *   https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims:
- *   If OAEPPadding is used, Cipher objects are initialized with a
- *   javax.crypto.spec.OAEPParameterSpec object to supply values needed for OAEPPadding.
- * TODO(bleichen): testDefaults() showed incompatible choices in old versions.
- *                 Maybe there is a way to fix this now.
- * TODO(bleichen): jdk11 adds parameters to the RSA keys. This needs tests.
- * TODO(bleichen): Use TestInput and TestResult for the tests with JSON.
- * TODO(bleichen): Maybe add timing tests with long labels
- * TODO(bleichen): add documentation.
- * TODO(bleichen): add additional algorithm names.
- */
- @RunWith(JUnit4.class)
+// TODO(bleichen): check if OAEPParameterSpec is needed with algorithm name OAEPPadding.
+//   https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims:
+//   If OAEPPadding is used, Cipher objects are initialized with a
+//  javax.crypto.spec.OAEPParameterSpec object to supply values needed for OAEPPadding.
+//
+// TODO(bleichen): testDefaults() showed incompatible choices in old versions.
+//                 Maybe there is a way to fix this now.
+// TODO(bleichen): jdk11 adds parameters to the RSA keys. This needs tests.
+// TODO(bleichen): Use TestInput and TestResult for the tests with JSON.
+// TODO(bleichen): Maybe add timing tests with long labels
+// TODO(bleichen): add documentation.
+
+@RunWith(JUnit4.class)
 public class RsaOaepTest {
 
   /**
@@ -97,7 +96,7 @@ public class RsaOaepTest {
     "RSA/ECB/OAEPwithSHA3-512andMGF1Padding",
   };
 
-  protected static void printParameters(AlgorithmParameterSpec params) {
+  private static void printParameters(AlgorithmParameterSpec params) {
     if (params instanceof OAEPParameterSpec) {
       OAEPParameterSpec oaepParams = (OAEPParameterSpec) params;
       System.out.println("OAEPParameterSpec");
@@ -125,6 +124,12 @@ public class RsaOaepTest {
    *
    * <p>This test simply tries a number of algorithm names for RSA-OAEP and prints the OAEP
    * parameters for the case where no OAEPParameterSpec is used.
+   *
+   * <p>https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims: If
+   * OAEPPadding is used, Cipher objects are initialized with a javax.crypto.spec.OAEPParameterSpec
+   * object to supply values needed for OAEPPadding. The claim is somewhat ambiguous. All providers
+   * tested use default parameters for "RSA-OAEP". This is different than for example "RSASSA-PSS",
+   * where jdk requires that parameters are set explicitly.
    */
   @Test
   public void testDefaults() throws Exception {
@@ -163,25 +168,31 @@ public class RsaOaepTest {
   }
 
   /** Convenience mehtod to get a String from a JsonObject */
-  protected static String getString(JsonObject object, String name) throws Exception {
+  private static String getString(JsonObject object, String name) {
     return object.get(name).getAsString();
   }
 
   /** Convenience method to get a byte array from a JsonObject */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
+  private static byte[] getBytes(JsonObject object, String name) {
     return JsonUtil.asByteArray(object.get(name));
   }
 
   /**
-   * Get a PublicKey from a JsonObject.
+   * Get a PrivateKey from a JsonObject.
    *
-   * <p>object contains the key in multiple formats: "key" : elements of the public key "keyDer":
-   * the key in ASN encoding encoded hexadecimal "keyPem": the key in Pem format encoded hexadecimal
-   * The test can use the format that is most convenient.
+   * <p>object contains the private key in multiple formats:
+   *
+   * <ul>
+   *   <li>"privateKey" : the private key as a dictionary.
+   *   <li>"privateKeyPkcs8" : the private key encoded in the PKCS #8 format.
+   *   <li>"privateKeyPem" : the PEM encoded private key.
+   * </ul>
+   *
+   * The code below assumes that the object identifier of the key is equal to rsaEncryption. An
+   * alternative would be to use OID id-RSASSA-PSS, but we are not aware of a provider that support
+   * such keys.
    */
-  // This is a false positive, since errorprone cannot track values passed into a method.
-  @SuppressWarnings("InsecureCryptoUsage")
-  protected static PrivateKey getPrivateKey(JsonObject object) throws Exception {
+  private static PrivateKey getPrivateKey(JsonObject object) throws Exception {
     KeyFactory kf;
     kf = KeyFactory.getInstance("RSA");
     byte[] encoded = TestUtil.hexToBytes(getString(object, "privateKeyPkcs8"));
@@ -189,8 +200,8 @@ public class RsaOaepTest {
     return kf.generatePrivate(keySpec);
   }
 
-  protected static OAEPParameterSpec getOaepParameters(JsonObject group,
-                                                       JsonObject test) throws Exception {
+  private static OAEPParameterSpec getOaepParameters(JsonObject group, JsonObject test)
+      throws Exception {
     String sha = getString(group, "sha");
     String mgf = getString(group, "mgf");
     String mgfSha = getString(group, "mgfSha");
@@ -202,150 +213,171 @@ public class RsaOaepTest {
   }
 
   /**
-   * Tests the signature verification with test vectors in a given JSON file.
+   * Checks a single test vector.
+   *
+   * @param testcase the test vector to verify
+   * @param decrypter a Cipher instance. This instance is not initialized.
+   * @param key the public key
+   * @param testResult the result of the test are added to testResult
+   */
+  private static void singleTest(
+      JsonObject testcase,
+      Cipher decrypter,
+      PrivateKey key,
+      OAEPParameterSpec params,
+      TestResult testResult) {
+    int tcid = testcase.get("tcId").getAsInt();
+    byte[] ciphertext = getBytes(testcase, "ct");
+    byte[] message = getBytes(testcase, "msg");
+    String messageHex = TestUtil.bytesToHex(message);
+    String result = getString(testcase, "result");
+    try {
+      decrypter.init(Cipher.DECRYPT_MODE, key, params);
+    } catch (InvalidKeyException | InvalidAlgorithmParameterException ex) {
+      testResult.addResult(tcid, TestResult.Type.REJECTED_ALGORITHM, "init throws " + ex);
+      return;
+    } catch (RuntimeException ex) {
+      testResult.addResult(tcid, TestResult.Type.WRONG_EXCEPTION, "init throws " + ex);
+      return;
+    }
+
+    byte[] decrypted = null;
+    try {
+      decrypted = decrypter.doFinal(ciphertext);
+    // Some provider throw RuntimeExceptions instead of GeneralSecurityException.
+    // For example BouncyCastle throws org.bouncycastle.crypto.DataLengthException
+    // when the ciphertext has the wrong length.
+    // While throwing a RuntimeException is a mistake, we catch it here so that the
+    // test can check for an even bigger issue: Manger's attack.
+    } catch (GeneralSecurityException | RuntimeException ex) {
+      if (!result.equals("valid")) {
+        testResult.addResult(tcid, TestResult.Type.REJECTED_INVALID, "doFinal throws " + ex);
+      } else {
+        testResult.addResult(tcid, TestResult.Type.REJECTED_VALID, "doFinal throws " + ex);
+      }
+      return;
+    }
+    String decryptedHex = TestUtil.bytesToHex(decrypted);
+    if (result.equals("invalid")) {
+      testResult.addResult(
+          tcid, TestResult.Type.PASSED_MALFORMED, "Invalid ciphertext returned " + decryptedHex);
+    } else if (decryptedHex.equals(messageHex)) {
+      testResult.addResult(tcid, TestResult.Type.PASSED_VALID, "");
+    } else {
+      testResult.addResult(tcid, TestResult.Type.WRONG_RESULT, "got: " + decryptedHex);
+    }
+  }
+
+  /**
+   * Checks each test vector in a file of test vectors.
+   *
+   * <p>This method is the part of testVerification that does not log any result. The main idea
+   * behind splitting off this part from testVerification is that it may be easier to call from a
+   * third party.
+   *
+   * @param testVectors the test vectors
+   * @return a test result
+   */
+  public static TestResult allTests(TestVectors testVectors) throws Exception {
+    var testResult = new TestResult(testVectors);
+    JsonObject test = testVectors.getTest();
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      PrivateKey key;
+      Cipher decrypter;
+      try {
+        key = getPrivateKey(group);
+        // There are two ways to specify the algorithm for RSA-OAEP. The first way is to use
+        // <code>
+        //   cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+        //   OAEPParameterSpec params = ...;
+        //   cipher.init(mode, key, params);
+        // </code>
+        // The second method is to specify parameters in the algorithm name:
+        // <code>
+        //   cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
+        //   cipher.init(mode, key, params);
+        // </code>
+        // The second method does not specify all algorithm parameters. In particular it does
+        // not specify the hash algorithm used for MGF1 or any label.
+        decrypter = Cipher.getInstance("RSA/ECB/OAEPPadding");
+      } catch (GeneralSecurityException ex) {
+        testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+        continue;
+      }
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        JsonObject testcase = t.getAsJsonObject();
+        OAEPParameterSpec params = getOaepParameters(group, testcase);
+        singleTest(testcase, decrypter, key, params, testResult);
+      }
+    }
+    return testResult;
+  }
+
+  /**
+   * Tests OAEP decryption with test vectors from a JSON file.
    *
    * <p>Example format for test vectors
    *
    * <pre>
-   * { "algorithm" : "RSA-OAEP",
-   *   "schema" : "rsaes_oaep_decrypt_schema.json",
-   *   "generatorVersion" : "0.7",
-   *   ...
-   *   "testGroups" : [
-   *     {
-   *       "d" : "...",
-   *       "e" : "10001",
-   *       "n" : "...",
-   *       "keysize" : 2048,
-   *       "sha" : "SHA-256",
-   *       "mgf" : "MGF1",
-   *       "mgfSha" : "SHA-256",
-   *       "privateKeyPem" : "-----BEGIN RSA PRIVATE KEY-----\n...",
-   *       "privateKeyPkcs8" : "...",
-   *       "type" : "RSAES",
-   *       "tests" : [
-   *         {
-   *           "tcId" : 1,
-   *           "comment" : "",
-   *           "msg" : "30313233343030",
-   *           "ct" : "...",
-   *           "label" : "",
-   *           "result" : "valid",
-   *           "flags" : [],
-   *         },
-   *        ...
+   * { "algorithm" : "RSAES-OAEP",
+   * "schema" : "rsaes_oaep_decrypt_schema.json",
+   * "generatorVersion" : "0.9",
+   * ...
+   * "testGroups" : [
+   * {
+   * "type" : "RsaesOaepDecrypt",
+   *  "keySize" : 2048,
+   *  "sha" : "SHA-256",
+   *  "mgf" : "MGF1",
+   *  "mgfSha" : "SHA-1",
+   *  "privateKey" : {
+   *    "modulus" : "...",
+   *    "privateExponent" : "...",
+   *    "publicExponent" : "010001",
+   *    "prime1" : "...",
+   *    "prime2" : "...",
+   *    "exponent1" : "...",
+   *    "exponent2" : "...",
+   *    "coefficient" : "...",
+   *  },
+   *  "privateKeyPkcs8" : "...",
+   *  "privateKeyPem" : "-----BEGIN PRIVATE KEY-----\n...",
+   *  "tests" : [
+   *    {
+   *      "tcId" : 1,
+   *      "comment" : "",
+   *      "flags" : [
+   *        "Normal"
+   *      ],
+   *      "msg" : "",
+   *      "ct" : "...",
+   *      "label" : "",
+   *      "result" : "valid"
+   *    },
+   *    ...
    * </pre>
    *
    * @param filename the filename of the test vectors
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
-   *     Most of the tests below are using allowSkippingKeys == false. The reason for doing this is
-   *     that providers have distinctive defaults. E.g., no OAEPParameterSpec is given then
-   *     BouncyCastle and Conscrypt use the same hash function for hashing the label and for the
-   *     mask generation function, while jdk uses MGF1SHA1. This is unfortunate and probably
-   *     difficult to fix. Hence, the tests below simply require that providers support each others
-   *     default parameters under the assumption that the OAEPParameterSpec is fully specified.
+   *     This is for example used for files with test vectors that use elliptic curves that are not
+   *     commonly supported.
    */
   public void testOaep(String filename, boolean allowSkippingKeys) throws Exception {
-    JsonObject test = JsonUtil.getTestVectors(filename);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestVectors testVectors = new TestVectors(test, filename);
+    TestResult testResult = allTests(testVectors);
 
-    // Compares the expected and actual JSON schema of the test vector file.
-    // Mismatched JSON schemas will likely lead to a test failure.
-    String generatorVersion = getString(test, "generatorVersion");
-    String expectedSchema = "rsaes_oaep_decrypt_schema.json";
-    String actualSchema = getString(test, "schema");
-    if (!expectedSchema.equals(actualSchema)) {
-      System.out.println(
-          "Expecting test vectors with schema "
-              + expectedSchema
-              + " found vectors with schema "
-              + actualSchema
-              + " generatorVersion:"
-              + generatorVersion);
+    if (testResult.skipTest()) {
+      System.out.println("Skipping " + filename + " no ciphertext decrypted.");
+      TestUtil.skipTest("No ciphertext decrypted");
+      return;
     }
-
-    int numTests = test.get("numberOfTests").getAsInt();
-    int cntTests = 0;
-    int errors = 0;
-    int skippedKeys = 0;
-    for (JsonElement g : test.getAsJsonArray("testGroups")) {
-      JsonObject group = g.getAsJsonObject();
-      PrivateKey key;
-      try {
-        key = getPrivateKey(group);
-      } catch (GeneralSecurityException ex) {
-        skippedKeys++;
-        if (!allowSkippingKeys) {
-          System.out.printf("Key generation throws:%s\n", ex.toString());
-        }
-        continue;
-      }
-      // There are two ways to specify the algorithm for RSA-OAEP. The first way is to use
-      // <code>
-      //   cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
-      //   OAEPParameterSpec params = ...;
-      //   cipher.init(mode, key, params);
-      // </code>
-      // The second method is to specify parameters in the algorithm name:
-      // <code>
-      //   cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
-      //   cipher.init(mode, key, params);
-      // </code>
-      // The second method does not specify all algorithm parameters. In particular it does
-      // not specify the hash algorithm used for MGF1.
-      Cipher decrypter = Cipher.getInstance("RSA/ECB/OAEPPadding");
-      for (JsonElement t : group.getAsJsonArray("tests")) {
-        cntTests++;
-        JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String messageHex = TestUtil.bytesToHex(getBytes(testcase, "msg"));
-        OAEPParameterSpec params = getOaepParameters(group, testcase);
-        byte[] ciphertext = getBytes(testcase, "ct");
-        String ciphertextHex = TestUtil.bytesToHex(ciphertext);
-        String result = getString(testcase, "result");
-        decrypter.init(Cipher.DECRYPT_MODE, key, params);
-        byte[] decrypted = null;
-        try {
-          decrypted = decrypter.doFinal(ciphertext);
-        } catch (GeneralSecurityException ex) {
-          decrypted = null;
-        } catch (Exception ex) {
-          // Other exceptions (i.e. unchecked exceptions) are considered as error
-          // since a third party should never be able to cause such exceptions.
-          System.out.printf("Decryption throws %s. filename:%s tcId:%d ct:%s\n",
-                            ex.toString(), filename, tcid, ciphertextHex);
-          decrypted = null;
-          // TODO(bleichen): BouncyCastle throws some non-conforming exceptions.
-          //   For the moment we do not count this as a problem to avoid that
-          //   more serious bugs remain hidden.
-          // errors++;
-        }
-        if (decrypted == null && result.equals("valid")) {
-            System.out.printf(
-                "Valid ciphertext not decrypted. filename:%s tcId:%d ct:%s\n",
-                filename, tcid, ciphertextHex);
-          errors++;
-        } else if (decrypted != null) {
-          String decryptedHex = TestUtil.bytesToHex(decrypted);
-          if (result.equals("invalid")) {
-            System.out.printf(
-                "Invalid ciphertext decrypted. filename:%s tcId:%d expected:%s decrypted:%s\n",
-                filename, tcid, messageHex, decryptedHex);
-             errors++;
-          } else if (!decryptedHex.equals(messageHex)) {
-            System.out.printf(
-                "Incorrect decryption. filename:%s tcId:%d expected:%s decrypted:%s\n",
-                filename, tcid, messageHex, decryptedHex);
-             errors++;
-          }
-        }
-      }
-    }
-    assertEquals(0, errors);
-    if (skippedKeys > 0) {
-      System.out.println("RSAES-OAEP: file:" + filename + " skipped key:" + skippedKeys);
-      assertTrue(allowSkippingKeys);
-    } else {
-      assertEquals(numTests, cntTests);
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
+    if (!allowSkippingKeys) {
+      int skippedKeys = testResult.getCount(TestResult.Type.REJECTED_ALGORITHM);
+      assertEquals(0, skippedKeys);
     }
   }
 
@@ -440,4 +472,5 @@ public class RsaOaepTest {
   }
 
 }
+
 
