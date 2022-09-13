@@ -38,17 +38,12 @@ import org.junit.runners.JUnit4;
 
 /** Checks implementations of RSA-OAEP. */
 
-// TODO(bleichen): check if OAEPParameterSpec is needed with algorithm name OAEPPadding.
-//   https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims:
-//   If OAEPPadding is used, Cipher objects are initialized with a
-//  javax.crypto.spec.OAEPParameterSpec object to supply values needed for OAEPPadding.
-//
-// TODO(bleichen): testDefaults() showed incompatible choices in old versions.
-//                 Maybe there is a way to fix this now.
-// TODO(bleichen): jdk11 adds parameters to the RSA keys. This needs tests.
-// TODO(bleichen): Use TestInput and TestResult for the tests with JSON.
+// TODO(bleichen): jdk11 adds parameters to the RSA keys.
+//   RSASSA-PSS allows key with such parameters by using KeyFactory.getInstance("RSASSA-PSS").
+//   Is there an equivalent algorithm name for RSA-OAEP?
 // TODO(bleichen): Maybe add timing tests with long labels
 // TODO(bleichen): add documentation.
+// TODO(bleichen): merge JSON tests with RSA/PKCS1 v1.5 tests.
 
 @RunWith(JUnit4.class)
 public class RsaOaepTest {
@@ -125,11 +120,16 @@ public class RsaOaepTest {
    * <p>This test simply tries a number of algorithm names for RSA-OAEP and prints the OAEP
    * parameters for the case where no OAEPParameterSpec is used.
    *
-   * <p>https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims: If
-   * OAEPPadding is used, Cipher objects are initialized with a javax.crypto.spec.OAEPParameterSpec
-   * object to supply values needed for OAEPPadding. The claim is somewhat ambiguous. All providers
-   * tested use default parameters for "RSA-OAEP". This is different than for example "RSASSA-PSS",
-   * where jdk requires that parameters are set explicitly.
+   * <p>https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html claims:
+   * "... If OAEPPadding is used, Cipher objects are initialized with a
+   * javax.crypto.spec.OAEPParameterSpec object to supply values needed for OAEPPadding ...". This
+   * claim is somewhat ambiguous. All providers tested use default parameters for "RSA-OAEP". This
+   * is different than for example "RSASSA-PSS", where jdk requires that parameters are set
+   * explicitly.
+   *
+   * <p>The default parameters for "RSA/ECB/OAEPPadding" is to use SHA-1 and MGF1-SHA1. These values
+   * are acceptable since RSA-OAEP does not require a collision resistant hash function for its
+   * security.
    */
   @Test
   public void testDefaults() throws Exception {
@@ -311,6 +311,9 @@ public class RsaOaepTest {
         singleTest(testcase, decrypter, key, params, testResult);
       }
     }
+    // Test vectors with invalid OAEP padding must show indistinguishable
+    // behavior. Otherwise Manger's attack may be possible.
+    testResult.checkIndistinguishableResult("InvalidOaepPadding");
     return testResult;
   }
 

@@ -161,6 +161,19 @@ class TestVectors {
     return flags;
   }
 
+  /** Returns the tcIds of the test vectors that have a given flag. */
+  Set<Integer> withFlag(String flag) {
+    Set<Integer> tcIds = new TreeSet<Integer>();
+    for (var testcase : testcases.entrySet()) {
+      for (var flagTestCase : testcase.getValue().getAsJsonArray("flags")) {
+        if (flag.equals(flagTestCase.getAsString())) {
+          tcIds.add(testcase.getKey());
+        }
+      }
+    }
+    return tcIds;
+  }
+
   /**
    * Returns a JsonObject that describes a flag.
    *

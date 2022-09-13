@@ -76,6 +76,9 @@ class TestResult {
     // Examples are unknown files, unsupported algorithms, missing files or
     // files with incorrect format.
     WRONG_SETUP,
+    // Test vectors that should have indistinguishable behavior are
+    // distinguishable,
+    DISTINGUISHABLE,
   };
 
   // The source of the test result.
@@ -198,6 +201,7 @@ class TestResult {
         case WRONG_RESULT:
         case WRONG_EXCEPTION:
         case PASSED_MALFORMED:
+        case DISTINGUISHABLE:
           failed.add(entry.getKey());
           break;
         case SKIPPED:
@@ -220,7 +224,7 @@ class TestResult {
   /**
    * Returns the number of errors.
    *
-   * <p>This is the same as failedTcIds.size()
+   * <p>This is the same as failedTcIds().size()
    *
    * @return the number of errors.
    */
@@ -234,6 +238,7 @@ class TestResult {
     countFailed += getCount(Type.WRONG_RESULT);
     countFailed += getCount(Type.WRONG_EXCEPTION);
     countFailed += getCount(Type.PASSED_MALFORMED);
+    countFailed += getCount(Type.DISTINGUISHABLE);
     return countFailed;
   }
 
@@ -245,6 +250,23 @@ class TestResult {
    */
   public boolean skipTest() {
     return (getCount(Type.PASSED_VALID) == 0 && errors() == 0);
+  }
+
+  public void checkIndistinguishableResult(String flag) {
+    Set<Type> results = new TreeSet<Type>();
+    Set<String> comments = new TreeSet<String>();
+    for (int tcId : testVectors.withFlag(flag)) {
+      results.add(result.get(tcId));
+      comments.add(comment.get(tcId));
+    }
+    if (results.size() > 1 || comments.size() > 1) {
+      for (int tcId : testVectors.withFlag(flag)) {
+        // This line overrides previous test results.
+        // This is done because distinguishable paddings are likely more
+        // important that other errors.
+        addResult(tcId, Type.DISTINGUISHABLE, comment.get(tcId));
+      }
+    }
   }
 
   /**
@@ -343,10 +365,6 @@ class TestResult {
         for (String flag : testVectors.getFlags(tcId)) {
           out.append(" ").append(flag);
         }
-        /* TODO(bleichen): Does not appear to be helpful.
-        for (String bugType : testVectors.getBugTypes(tcId)) {
-          out.append(" ").append(bugType);
-        }*/
         out.append("\n");
       }
 
