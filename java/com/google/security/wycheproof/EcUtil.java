@@ -42,6 +42,17 @@ public class EcUtil {
    */
   public static ECParameterSpec getCurveSpec(String name)
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
+    AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+    parameters.init(new ECGenParameterSpec(name));
+    return parameters.getParameterSpec(ECParameterSpec.class);
+  }
+
+  /**
+   * Returns a constructed ECParameterSpec for a named curve. Some provider have distinct behavior
+   * when this format is used.
+   */
+  public static ECParameterSpec getCurveSpecConstructed(String name)
+      throws NoSuchAlgorithmException, InvalidParameterSpecException {
     try {
       AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
       parameters.init(new ECGenParameterSpec(name));
@@ -58,10 +69,14 @@ public class EcUtil {
       return getNistP384Params();
     } else if (name.equals("secp521r1")) {
       return getNistP521Params();
-    } else if (name.equals("brainpoolp224r1")) {
+    } else if (name.equals("brainpoolP224r1")) {
       return getBrainpoolP224r1Params();
-    } else if (name.equals("brainpoolp256r1")) {
+    } else if (name.equals("brainpoolP256r1")) {
       return getBrainpoolP256r1Params();
+    } else if (name.equals("secp256k1")) {
+      return getBrainpoolP256r1Params();
+    } else if (name.equals("FRP256v1")) {
+      return getFRP256v1Params();
     } else {
       throw new NoSuchAlgorithmException("Curve not implemented:" + name);
     }
@@ -180,6 +195,50 @@ public class EcUtil {
     BigInteger n =
         new BigInteger("A9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7", 16);
     final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
+  }
+
+  public static ECParameterSpec getSecp256k1Params() {
+    BigInteger p =
+        new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F", 16);
+    BigInteger a = BigInteger.ZERO;
+    BigInteger b = new BigInteger("7", 16);
+    BigInteger x =
+        new BigInteger("79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
+    BigInteger y =
+        new BigInteger("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
+    BigInteger n =
+        new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+    final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
+  }
+
+  /**
+   * FRP256v1 is a rather unknown curve defined in
+   * https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000024668816 The curve was added because
+   * implementations of this curve have a large chance to use generic EC code, rather than optimized
+   * special case code.
+   */
+  public static ECParameterSpec getFRP256v1Params() {
+    BigInteger p =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B3961ADBCABC8CA6DE8FCF353D86E9C03", 16);
+    BigInteger a =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B3961ADBCABC8CA6DE8FCF353D86E9C00", 16);
+    BigInteger b =
+        new BigInteger("EE353FCA5428A9300D4ABA754A44C00FDFEC0C9AE4B1A1803075ED967B7BB73F", 16);
+    BigInteger n =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B53DC67E140D2BF941FFDD459C6D655E1", 16);
+    final int h = 1;
+    BigInteger x =
+        new BigInteger("B6B3D4C356C139EB31183D4749D423958C27D2DCAF98B70164C97A2DD98F5CFF", 16);
+    BigInteger y =
+        new BigInteger("6142E0F7C8B204911F9271F0F3ECEF8C2701C307E8E4C9E183115A1554062CFB", 16);
     ECFieldFp fp = new ECFieldFp(p);
     EllipticCurve curve = new EllipticCurve(fp, a, b);
     ECPoint g = new ECPoint(x, y);

@@ -507,23 +507,200 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   };
 
   /** Checks that key agreement using ECDH works. */
-  @Test
-  public void testBasic() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    keyGen.initialize(ecSpec);
-    KeyPair keyPairA = keyGen.generateKeyPair();
-    KeyPair keyPairB = keyGen.generateKeyPair();
+  private void testSupport(String curve) throws Exception {
+    KeyPairGenerator keyGen;
+    KeyAgreement kaA;
+    KeyAgreement kaB;
+    KeyPair keyPairA;
+    KeyPair keyPairB;
+    try {
+      keyGen = KeyPairGenerator.getInstance("EC");
+      ECGenParameterSpec ecSpec = new ECGenParameterSpec(curve);
+      keyGen.initialize(ecSpec);
+      keyPairA = keyGen.generateKeyPair();
+      keyPairB = keyGen.generateKeyPair();
 
-    KeyAgreement kaA = KeyAgreement.getInstance("ECDH");
-    KeyAgreement kaB = KeyAgreement.getInstance("ECDH");
-    kaA.init(keyPairA.getPrivate());
-    kaB.init(keyPairB.getPrivate());
-    kaA.doPhase(keyPairB.getPublic(), true);
-    kaB.doPhase(keyPairA.getPublic(), true);
-    byte[] kAB = kaA.generateSecret();
-    byte[] kBA = kaB.generateSecret();
-    assertEquals(TestUtil.bytesToHex(kAB), TestUtil.bytesToHex(kBA));
+      kaA = KeyAgreement.getInstance("ECDH");
+      kaB = KeyAgreement.getInstance("ECDH");
+      kaA.init(keyPairA.getPrivate());
+      kaB.init(keyPairB.getPrivate());
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve not supported");
+      return;
+    }
+
+    // Prints some debug information to detect classes from another provider.
+    // JCE is not always easy to predict.
+    ECPublicKey pub = (ECPublicKey) keyPairB.getPublic();
+    ECPrivateKey priv = (ECPrivateKey) keyPairB.getPrivate();
+    ECPoint w = pub.getW();
+    System.out.println("===== testSupport: " + curve);
+    System.out.println("key pair generator: " + keyGen.getProvider().getName());
+    System.out.println("key agreement: " + kaA.getProvider().getName());
+    System.out.println("private key:" + priv.getClass().getName());
+    System.out.println("public key:" + pub.getClass().getName());
+    System.out.println("public point:" + w.getClass().getName());
+    System.out.println("x:" + w.getAffineX());
+    System.out.println("y:" + w.getAffineY());
+
+    // Some provider check the validity of the curves and keys
+    // only during the key agreement. If this happens then the
+    // test is skipped.
+    byte[] secretAB;
+    byte[] secretBA;
+    try {
+      kaA.doPhase(keyPairB.getPublic(), true);
+      kaB.doPhase(keyPairA.getPublic(), true);
+      secretAB = kaA.generateSecret();
+      secretBA = kaB.generateSecret();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve rejected during key agreement");
+      return;
+    }
+    assertEquals(TestUtil.bytesToHex(secretAB), TestUtil.bytesToHex(secretBA));
+    System.out.println("shared secret:" + TestUtil.bytesToHex(secretAB));
+  }
+
+  @Test
+  public void testSupportSecp224r1() throws Exception {
+    testSupport("secp224r1");
+  }
+
+  @Test
+  public void testSupportSecp256r1() throws Exception {
+    testSupport("secp256r1");
+  }
+
+  @Test
+  public void testSupportSecp384r1() throws Exception {
+    testSupport("secp384r1");
+  }
+
+  @Test
+  public void testSupportSecp521r1() throws Exception {
+    testSupport("secp521r1");
+  }
+
+  @Test
+  public void testSupportBrainpoolP224r1() throws Exception {
+    testSupport("brainpoolP224r1");
+  }
+
+  @Test
+  public void testSupportBrainpoolP256r1() throws Exception {
+    testSupport("brainpoolP256r1");
+  }
+
+  @Test
+  public void testSupportSecp256k1() throws Exception {
+    testSupport("secp256k1");
+  }
+
+  /**
+   * Checks support using ECParameterSpec.
+   *
+   * <p>This test can be used to test unusual curves.
+   *
+   * @param curve the name of the curve.
+   */
+  private void testSupportParameterSpec(String curve) throws Exception {
+    KeyPairGenerator keyGen;
+    KeyAgreement kaA;
+    KeyAgreement kaB;
+    KeyPair keyPairA;
+    KeyPair keyPairB;
+    ECParameterSpec spec = EcUtil.getCurveSpecConstructed(curve);
+    try {
+      keyGen = KeyPairGenerator.getInstance("EC");
+      keyGen.initialize(spec);
+      keyPairA = keyGen.generateKeyPair();
+      keyPairB = keyGen.generateKeyPair();
+      kaA = KeyAgreement.getInstance("ECDH");
+      kaB = KeyAgreement.getInstance("ECDH");
+      kaA.init(keyPairA.getPrivate());
+      kaB.init(keyPairB.getPrivate());
+    } catch (GeneralSecurityException ex) {
+      System.out.println(curve + " throws " + ex.toString());
+      TestUtil.skipTest("curve not supported");
+      return;
+    }
+
+    // Prints some debug information to detect classes from another provider.
+    ECPublicKey pub = (ECPublicKey) keyPairB.getPublic();
+    ECPrivateKey priv = (ECPrivateKey) keyPairB.getPrivate();
+    ECPoint w = pub.getW();
+    System.out.println("===== testSupportParameterSpec: " + curve);
+    System.out.println("key pair generator: " + keyGen.getProvider().getName());
+    System.out.println("key agreement: " + kaA.getProvider().getName());
+    System.out.println("private key:" + priv.getClass().getName());
+    System.out.println("public key:" + pub.getClass().getName());
+    System.out.println("public point:" + w.getClass().getName());
+    System.out.println("x:" + w.getAffineX());
+    System.out.println("y:" + w.getAffineY());
+
+    // Some provider check the validity of the curves and keys
+    // only during the key agreement. If this happens then the
+    // test is skipped.
+    byte[] secretAB;
+    byte[] secretBA;
+    try {
+      kaA.doPhase(keyPairB.getPublic(), true);
+      kaB.doPhase(keyPairA.getPublic(), true);
+      secretAB = kaA.generateSecret();
+      secretBA = kaB.generateSecret();
+    } catch (GeneralSecurityException ex) {
+      System.out.println(curve + " throws " + ex.toString());
+      TestUtil.skipTest("curve rejected during key agreement");
+      return;
+    }
+    assertEquals(TestUtil.bytesToHex(secretAB), TestUtil.bytesToHex(secretBA));
+    System.out.println("shared secret:" + TestUtil.bytesToHex(secretAB));
+  }
+
+  @Test
+  public void testSupportParamsSecp224r1() throws Exception {
+    testSupportParameterSpec("secp224r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp256r1() throws Exception {
+    testSupportParameterSpec("secp256r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp384r1() throws Exception {
+    testSupportParameterSpec("secp384r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp521r1() throws Exception {
+    testSupportParameterSpec("secp521r1");
+  }
+
+  @Test
+  public void testSupportParamsBrainpoolP224r1() throws Exception {
+    testSupportParameterSpec("brainpoolP224r1");
+  }
+
+  @Test
+  public void testSupportParamsBrainpoolP256r1() throws Exception {
+    testSupportParameterSpec("brainpoolP256r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp256k1() throws Exception {
+    testSupportParameterSpec("secp256k1");
+  }
+
+  /**
+   * Supporting FRP256v1 very likely indicates that the library implements generic elliptic curves.
+   *
+   * <p>Adding a lot of curves to a library is not necessarily a good thing, since doing so may lead
+   * to more bugs.
+   */
+  @Test
+  public void testSupportParamsFRP256v1() throws Exception {
+    testSupportParameterSpec("FRP256v1");
   }
 
   @NoPresubmitTest(
@@ -608,7 +785,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     try {
       ka = KeyAgreement.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("testWrongOrder: " + algorithm + " not supported");
+      TestUtil.skipTest("testModifiedPublicSpec: " + algorithm + " not supported");
       return;
     }
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
@@ -642,8 +819,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         // able to learn the private key with a simple binary search.
         assertEquals("algorithm:" + algorithm + " test:" + test.comment, expected, shared);
       } catch (GeneralSecurityException ex) {
-        // OK, since the public keys have been modified.
-        System.out.println("testModifiedPublic:" + test.comment + " throws " + ex.toString());
+        // Expected, since the public keys have been modified.
       }
     }
   }
@@ -660,6 +836,85 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     testModifiedPublicSpec("ECDHC");
   }
 
+  /**
+   * This test checks ECDH with an invalid public key on an explicitly specified curve.
+   *
+   * <p>Specifying a curve by the curve parameters instead of using its name sometimes uses a
+   * distinct code path. Such distinct behavior can in the worst case allow invalid curve attacks
+   * and at the same time hide them if the tests use a different construction of the
+   * ECParameterSpecs.
+   */
+  private void testInvalidPublicParams(String curve) throws Exception {
+    KeyPairGenerator keyGen;
+    KeyAgreement ka;
+    KeyPair keyPair;
+    ECParameterSpec spec = EcUtil.getCurveSpecConstructed(curve);
+    try {
+      keyGen = KeyPairGenerator.getInstance("EC");
+      keyGen.initialize(spec);
+      keyPair = keyGen.generateKeyPair();
+      ka = KeyAgreement.getInstance("ECDH");
+      ka.init(keyPair.getPrivate());
+    } catch (GeneralSecurityException ex) {
+      System.out.println(curve + " throws " + ex.toString());
+      TestUtil.skipTest("curve not supported");
+      return;
+    }
+
+    try {
+      ECPoint invalid = new ECPoint(BigInteger.ONE, BigInteger.ONE);
+      ECPublicKeySpec invalidPublicSpec = new ECPublicKeySpec(invalid, spec);
+      KeyFactory kf = KeyFactory.getInstance("EC");
+      ECPublicKey invalidPublic = (ECPublicKey) kf.generatePublic(invalidPublicSpec);
+      ka.doPhase(invalidPublic, true);
+      byte[] secret = ka.generateSecret();
+      String secretHex = TestUtil.bytesToHex(secret);
+      fail("Generated secret with invalid public key on " + curve + " : " + secretHex);
+    } catch (GeneralSecurityException ex) {
+      System.out.println("ECDH on " + curve + " with invalid public throws:" + ex);
+    }
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp224r1() throws Exception {
+    testInvalidPublicParams("secp224r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp256r1() throws Exception {
+    testInvalidPublicParams("secp256r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp384r1() throws Exception {
+    testInvalidPublicParams("secp384r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp521r1() throws Exception {
+    testInvalidPublicParams("secp521r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsBrainpoolP224r1() throws Exception {
+    testInvalidPublicParams("brainpoolP224r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsBrainpoolP256r1() throws Exception {
+    testInvalidPublicParams("brainpoolP256r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp256k1() throws Exception {
+    testInvalidPublicParams("secp256k1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsFRP256v1() throws Exception {
+    testInvalidPublicParams("FRP256v1");
+  }
+
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDistinctCurves(String algorithm, ECPrivateKey priv, ECPublicKey pub)
       throws Exception {
@@ -667,7 +922,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     try {
       kaA = KeyAgreement.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm not supported: " + algorithm);
+      TestUtil.skipTest("Algorithm not supported: " + algorithm);
       return;
     }
     byte[] shared;
@@ -715,6 +970,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     System.out.println("generated shared secret:" + TestUtil.bytesToHex(shared));
     fail("Generated secret with distinct Curves using " + algorithm);
   }
+
 
   /**
    * This test modifies the order of group in the public key. A severe bug would be an
@@ -853,38 +1109,46 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   }
 
   /**
-   * This test tries to determine whether point multipliplication using two distinct
-   * points leads to distinguishable timings.
+   * This test tries to determine whether point multipliplication using two distinct points leads to
+   * distinguishable timings.
    *
-   * The main goal here is to determine if the attack by Toru Akishita and Tsuyoshi Takagi
-   * in https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf
-   * might be applicable. I.e. one of the points contains a zero value when multiplied
-   * by mul, the other one does not.
+   * <p>The main goal here is to determine if the attack by Toru Akishita and Tsuyoshi Takagi in
+   * https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf might be applicable.
+   * I.e. one of the points contains a zero value when multiplied by mul, the other one does not.
    *
-   * In its current form the test here is quite weak for a number of reasons:
-   * (1) The timing is often noisy, because the test is run as a unit test.
-   * (2) The test is executed with only a small number of input points.
-   * (3) The number of samples is rather low. Running this test with a larger sample
-   *     size would detect more timing differences. Unfortunately
-   * (4) The test does not determine if a variable run time is exploitable. For example
-   *     if the tested provider uses windowed exponentiation and the special point is
-   *     in the precomputation table then timing differences are easy to spot, but more
-   *     difficult to exploit and hence additional experiments would be necessary.
+   * <p>In its current form the test here is quite weak for a number of reasons:
+   *
+   * <ol>
+   *   <li>The timing is often noisy, because the test is run as a unit test.
+   *   <li>The test is executed with only a small number of input points.
+   *   <li>The number of samples is rather low. Running this test with a larger sample size would
+   *       detect more timing differences.
+   *   <li>The test does not determine if a variable run time is exploitable. For example if the
+   *       tested provider uses windowed exponentiation and the special point is in the
+   *       precomputation table then timing differences are easy to spot, but more difficult to
+   *       exploit and hence additional experiments would be necessary.
+   * </ol>
    *
    * @param spec the specification of the curve
-   * @param p0 This is a special point. I.e. multiplying this point by mul
-   *           may lead to a zero value that may be observable.
+   * @param p0 This is a special point. I.e. multiplying this point by mul may lead to a zero value
+   *     that may be observable.
    * @param p1 a random point on the curve
-   * @param mul an integer, such that multiplying p0 with this value may lead to a timing
-   *        difference
+   * @param mul an integer, such that multiplying p0 with this value may lead to a timing difference
    * @param privKeySize the size of the private key in bits
    * @param comment describes the test case
    */
-  private void testTiming(ECParameterSpec spec, ECPoint p0, ECPoint p1,
-                          BigInteger mul, int privKeySize, String comment) throws Exception {
+  private void testTiming(String curve, ECPoint p0, ECPoint p1, BigInteger mul, int privKeySize)
+      throws Exception {
+    ECParameterSpec spec;
+    try {
+      spec = EcUtil.getCurveSpecConstructed(curve);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(curve + " not supported");
+      return;
+    }
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
-      System.out.println("getCurrentThreadCpuTime is not supported. Skipping");
+      TestUtil.skipTest("getCurrentThreadCpuTime is not supported. Skipping");
       return;
     }
     SecureRandom random = new SecureRandom();
@@ -922,6 +1186,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       publicKeys[1] = kf.generatePublic(new ECPublicKeySpec(p1, spec));
     } catch (InvalidKeySpecException ex) {
       // unsupported curve
+      TestUtil.skipTest("unsupported curve");
       return;
     }
     PrivateKey[] privKeys = new PrivateKey[sampleSize];
@@ -954,7 +1219,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
 
     // Performs some statistics.
     boolean noisy = false;  // Set to true, if the timings have a large variance.
-    System.out.println("ECDH timing test:" + comment);
+    System.out.println("ECDH timing test:" + curve);
     double[] avg = new double[2];
     double[] var = new double[2];
     for (int i = 0; i < 2; i++) {
@@ -998,7 +1263,9 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       }
     }
     point0Faster += equal / 2;
-    System.out.println("Point 0 multiplication is faster: " + point0Faster);
+    System.out.println(
+        "Point 0 multiplication is faster than point 1: " + point0Faster + " out of " + sampleSize);
+    System.out.println("Expected range " + minCount + " to " + (sampleSize - minCount));
     if (point0Faster < minCount || point0Faster > sampleSize - minCount) {
       fail("Timing differences in ECDH computation detected");
     } else if (noisy) {
@@ -1022,7 +1289,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     BigInteger y2 =
         new BigInteger("bc2c9ecd44af916ca58d9e3ef1257f698d350ef486eb86137fe69a7375bcc191", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getNistP256Params(), p1, p2, new BigInteger("2"), 256, "secp256r1");
+    testTiming("secp256r1", p1, p2, new BigInteger("2"), 256);
   }
 
   @SlowTest(
@@ -1045,7 +1312,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         new BigInteger("9dcbc4d843af8944eb4ba018d369b351a9ea0f7b9e3561df2ee218d54e198f7c"
                        + "837a3abaa41dffd2d2cb771a7599ed9e", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getNistP384Params(), p1, p2, new BigInteger("2"), 384, "secp384r1");
+    testTiming("secp384r1", p1, p2, new BigInteger("2"), 384);
   }
 
   @SlowTest(
@@ -1065,8 +1332,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     BigInteger y2 =
         new BigInteger("25cdd610243c7e693fad7bd69b43ae3e63e94317c4c6b717d9c8bc3be8c996fb", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getBrainpoolP256r1Params(), p1, p2, new BigInteger("2"), 255,
-               "brainpoolP256r1");
+    testTiming("brainpoolP256r1", p1, p2, new BigInteger("2"), 255);
   }
 }
 
