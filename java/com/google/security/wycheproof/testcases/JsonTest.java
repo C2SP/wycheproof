@@ -44,6 +44,9 @@ public class JsonTest {
       case "rsassa_pss_verify_schema.json":
       case "eddsa_verify_schema.json":
         return JsonSignatureTest.allTests(testVectors);
+      case "rsaes_oaep_decrypt_schema.json":
+      case "rsaes_pkcs1_decrypt_schema.json":
+        return JsonRsaEncryptionTest.allTests(testVectors);
       case "ecdh_test_schema.json":
         return JsonEcdhTest.allTests(testVectors);
       case "xdh_asn_comp_schema.json":

@@ -21,7 +21,9 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import javax.crypto.Cipher;
@@ -35,7 +37,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class JsonRsaEncryptionTest {
 
-  /** Convenience mehtod to get a String from a JsonObject */
+  /** Convenience method to get a String from a JsonObject */
   private static String getString(JsonObject object, String name) {
     return object.get(name).getAsString();
   }
@@ -68,16 +70,46 @@ public class JsonRsaEncryptionTest {
     return kf.generatePrivate(keySpec);
   }
 
-  private static OAEPParameterSpec getOaepParameters(JsonObject group, JsonObject test)
-      throws Exception {
-    String sha = getString(group, "sha");
-    String mgf = getString(group, "mgf");
-    String mgfSha = getString(group, "mgfSha");
-    PSource p = PSource.PSpecified.DEFAULT;
-    if (test.has("label")) {
-      p = new PSource.PSpecified(getBytes(test, "label"));
+  private static Cipher getCipher(String schema) throws GeneralSecurityException {
+    switch (schema) {
+      case "rsaes_oaep_decrypt_schema.json":
+        // There are two ways to specify the algorithm for RSA-OAEP. The first way is to use
+        // <code>
+        //   cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+        //   OAEPParameterSpec params = ...;
+        //   cipher.init(mode, key, params);
+        // </code>
+        // The second method is to specify parameters in the algorithm name:
+        // <code>
+        //   cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
+        //   cipher.init(mode, key);
+        // </code>
+        // The second method does not specify all algorithm parameters. In particular it does
+        // not specify the hash algorithm used for MGF1 or any label.
+        // Because of this the test just use RSA/ECB/OAEPPadding as algorithm name. The
+        // function getParameters is then used to determine the algorithm parameters of RSA-OAEP.
+        return Cipher.getInstance("RSA/ECB/OAEPPadding");
+      case "rsaes_pkcs1_decrypt_schema.json":
+        return Cipher.getInstance("RSA/ECB/PKCS1Padding");
+      default:
+        throw new NoSuchAlgorithmException("Unknown schema:" + schema);
     }
-    return new OAEPParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), p);
+  }
+
+  private static AlgorithmParameterSpec getParameters(
+      JsonObject group, JsonObject test, String schema) throws Exception {
+    if (schema.equals("rsaes_oaep_decrypt_schema.json")) {
+      String sha = getString(group, "sha");
+      String mgf = getString(group, "mgf");
+      String mgfSha = getString(group, "mgfSha");
+      PSource p = PSource.PSpecified.DEFAULT;
+      if (test.has("label")) {
+        p = new PSource.PSpecified(getBytes(test, "label"));
+      }
+      return new OAEPParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), p);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -92,7 +124,7 @@ public class JsonRsaEncryptionTest {
       JsonObject testcase,
       Cipher decrypter,
       PrivateKey key,
-      OAEPParameterSpec params,
+      AlgorithmParameterSpec params,
       TestResult testResult) {
     int tcid = testcase.get("tcId").getAsInt();
     byte[] ciphertext = getBytes(testcase, "ct");
@@ -100,7 +132,11 @@ public class JsonRsaEncryptionTest {
     String messageHex = TestUtil.bytesToHex(message);
     String result = getString(testcase, "result");
     try {
-      decrypter.init(Cipher.DECRYPT_MODE, key, params);
+      if (params != null) {
+        decrypter.init(Cipher.DECRYPT_MODE, key, params);
+      } else {
+        decrypter.init(Cipher.DECRYPT_MODE, key);
+      }
     } catch (InvalidKeyException | InvalidAlgorithmParameterException ex) {
       testResult.addResult(tcid, TestResult.Type.REJECTED_ALGORITHM, "init throws " + ex);
       return;
@@ -149,44 +185,38 @@ public class JsonRsaEncryptionTest {
   public static TestResult allTests(TestVectors testVectors) throws Exception {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
+    String schema = test.get("schema").getAsString();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       PrivateKey key;
       Cipher decrypter;
       try {
         key = getPrivateKey(group);
-        // There are two ways to specify the algorithm for RSA-OAEP. The first way is to use
-        // <code>
-        //   cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
-        //   OAEPParameterSpec params = ...;
-        //   cipher.init(mode, key, params);
-        // </code>
-        // The second method is to specify parameters in the algorithm name:
-        // <code>
-        //   cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
-        //   cipher.init(mode, key, params);
-        // </code>
-        // The second method does not specify all algorithm parameters. In particular it does
-        // not specify the hash algorithm used for MGF1 or any label.
-        decrypter = Cipher.getInstance("RSA/ECB/OAEPPadding");
+        decrypter = getCipher(schema);
       } catch (GeneralSecurityException ex) {
         testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
         continue;
       }
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        OAEPParameterSpec params = getOaepParameters(group, testcase);
+        AlgorithmParameterSpec params = getParameters(group, testcase, schema);
         singleTest(testcase, decrypter, key, params, testResult);
       }
     }
-    // Test vectors with invalid OAEP padding must show indistinguishable
-    // behavior. Otherwise Manger's attack may be possible.
-    testResult.checkIndistinguishableResult("InvalidOaepPadding");
+    // Test vectors with invalid padding must have indistinguishable behavior.
+    // The test here checks for distinct exceptions. There are other ways to
+    // distinguish paddings, such as timing differences. Such differences are
+    // not checked here.
+    if (schema.equals("rsaes_oaep_decrypt_schema.json")) {
+      testResult.checkIndistinguishableResult("InvalidOaepPadding");
+    } else if (schema.equals("rsaes_pkcs1_decrypt_schema.json")) {
+      testResult.checkIndistinguishableResult("InvalidPkcs1Padding");
+    }
     return testResult;
   }
 
   /**
-   * Tests OAEP decryption with test vectors from a JSON file.
+   * Tests RSA decryption with test vectors from a JSON file.
    *
    * <p>Example format for test vectors
    *
@@ -231,10 +261,10 @@ public class JsonRsaEncryptionTest {
    *
    * @param filename the filename of the test vectors
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
-   *     This is for example used for files with test vectors that use elliptic curves that are not
-   *     commonly supported.
+   *     This is for example used for files with test vectors with keys that use OIDs other
+   *     rsaEncryption and hence are keys formats that are not commonly supported.
    */
-  public void testOaep(String filename, boolean allowSkippingKeys) throws Exception {
+  public void testDecryption(String filename, boolean allowSkippingKeys) throws Exception {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);
     TestResult testResult = allTests(testVectors);
@@ -253,92 +283,107 @@ public class JsonRsaEncryptionTest {
   }
 
   @Test
+  public void testRsaPkcs1_2048() throws Exception {
+    testDecryption("rsa_pkcs1_2048_test.json", false);
+  }
+
+  @Test
+  public void testRsaPkcs1_3072() throws Exception {
+    testDecryption("rsa_pkcs1_3072_test.json", false);
+  }
+
+  @Test
+  public void testRsaPkcs1_4096() throws Exception {
+    testDecryption("rsa_pkcs1_4096_test.json", false);
+  }
+
+  @Test
   public void testRsaOaep2048Sha1Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_2048_sha1_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_2048_sha1_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha224Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_2048_sha224_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_2048_sha224_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha224Mgf1Sha224() throws Exception {
-   testOaep("rsa_oaep_2048_sha224_mgf1sha224_test.json", false);
+    testDecryption("rsa_oaep_2048_sha224_mgf1sha224_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha256Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_2048_sha256_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_2048_sha256_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha256Mgf1Sha256() throws Exception {
-   testOaep("rsa_oaep_2048_sha256_mgf1sha256_test.json", false);
+    testDecryption("rsa_oaep_2048_sha256_mgf1sha256_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha384Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_2048_sha384_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_2048_sha384_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha384Mgf1Sha384() throws Exception {
-   testOaep("rsa_oaep_2048_sha384_mgf1sha384_test.json", false);
+    testDecryption("rsa_oaep_2048_sha384_mgf1sha384_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha512Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_2048_sha512_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_2048_sha512_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep2048Sha512Mgf1Sha512() throws Exception {
-   testOaep("rsa_oaep_2048_sha512_mgf1sha512_test.json", false);
+    testDecryption("rsa_oaep_2048_sha512_mgf1sha512_test.json", false);
   }
 
   @Test
   public void testRsaOaep3072Sha256Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_3072_sha256_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_3072_sha256_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep3072Sha256Mgf1Sha256() throws Exception {
-   testOaep("rsa_oaep_3072_sha256_mgf1sha256_test.json", false);
+    testDecryption("rsa_oaep_3072_sha256_mgf1sha256_test.json", false);
   }
 
   @Test
   public void testRsaOaep3072Sha512Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_3072_sha512_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_3072_sha512_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep3072Sha512Mgf1Sha512() throws Exception {
-   testOaep("rsa_oaep_3072_sha512_mgf1sha512_test.json", false);
+    testDecryption("rsa_oaep_3072_sha512_mgf1sha512_test.json", false);
   }
 
   @Test
   public void testRsaOaep4096Sha256Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_4096_sha256_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_4096_sha256_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep4096Sha256Mgf1Sha256() throws Exception {
-   testOaep("rsa_oaep_4096_sha256_mgf1sha256_test.json", false);
+    testDecryption("rsa_oaep_4096_sha256_mgf1sha256_test.json", false);
   }
 
   @Test
   public void testRsaOaep4096Sha512Mgf1Sha1() throws Exception {
-   testOaep("rsa_oaep_4096_sha512_mgf1sha1_test.json", false);
+    testDecryption("rsa_oaep_4096_sha512_mgf1sha1_test.json", false);
   }
 
   @Test
   public void testRsaOaep4096Sha512Mgf1Sha512() throws Exception {
-   testOaep("rsa_oaep_4096_sha512_mgf1sha512_test.json", false);
+    testDecryption("rsa_oaep_4096_sha512_mgf1sha512_test.json", false);
   }
 
   @Test
   public void testRsaOaepMisc() throws Exception {
-   testOaep("rsa_oaep_misc_test.json", false);
+    testDecryption("rsa_oaep_misc_test.json", false);
   }
 }
