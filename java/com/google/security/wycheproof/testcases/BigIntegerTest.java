@@ -43,7 +43,7 @@ public class BigIntegerTest {
   @Test
   public void testIsProbablePrimeVectors() throws Exception {
     String filename = "primality_test.json";
-    JsonObject test = JsonUtil.getTestVectors(filename);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
     int errors = 0;
     int passedTests = 0;
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
