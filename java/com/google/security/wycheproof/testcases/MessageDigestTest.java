@@ -182,6 +182,7 @@ public class MessageDigestTest {
                   + i);
         }
       } catch (CloneNotSupportedException ex) {
+        
         System.out.println("Cloning " + algorithm + " is not supported. Skipping test.");
         return;
       }
@@ -193,7 +194,7 @@ public class MessageDigestTest {
     try {
       MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      TestUtil.skipTest("Algorithm " + algorithm + " is not supported");
       return;
     }
     testUpdate(algorithm, 48);
@@ -254,6 +255,26 @@ public class MessageDigestTest {
     testMessageDigest("SHA3-512");
   }
 
+  @Test
+  public void testKeccak224() throws Exception {
+    testMessageDigest("KECCAK-224");
+  }
+
+  @Test
+  public void testKeccak256() throws Exception {
+    testMessageDigest("KECCAK-256");
+  }
+
+  @Test
+  public void testKeccak384() throws Exception {
+    testMessageDigest("KECCAK-384");
+  }
+
+  @Test
+  public void testKeccak_512() throws Exception {
+    testMessageDigest("KECCAK-512");
+  }
+
   /**
    * Computes the hash of a message repeated multiple times.
    *
@@ -305,7 +326,7 @@ public class MessageDigestTest {
     try {
       MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      TestUtil.skipTest("Algorithm " + algorithm + " is not supported.");
       return;
     }
 
@@ -316,8 +337,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageMd5() throws Exception {
     testLongMessage("MD5", "a", 2147483647L, "bb2ef53aae423cb9fbf8788f187601e6");
@@ -325,8 +345,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageSha1() throws Exception {
     testLongMessage("SHA-1", "a", 2147483647L, "1e5b490b10255e37fd96d0964f2fbfb91ed47536");
@@ -334,8 +353,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageSha256() throws Exception {
     testLongMessage(
@@ -351,8 +369,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageSha224() throws Exception {
     testLongMessage(
@@ -362,8 +379,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageSha384() throws Exception {
     testLongMessage(
@@ -381,8 +397,7 @@ public class MessageDigestTest {
   }
 
   @SlowTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE}
-  )
+      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
   public void testLongMessageSha512() throws Exception {
     testLongMessage(
@@ -459,5 +474,101 @@ public class MessageDigestTest {
         5000000000L,
         "348216749aefd183244737248de016fdc113877aad833e0ad4ae5631c5af1362"
             + "e6cc5a81a5ff634f31be8f71ae8a271369abd86e6baaddfa7b9a016a6084afc2");
+  }
+
+  /**
+   * KECCAK-224, KECCAK-256, KECCAK-384 and KECCAK-512 are hash functions based on KECCAK that were
+   * defined before NIST finailized the SHA-3 standard. These hash functions are implemented in a
+   * number of libraries such as BouncyCastle. The hash functions are almost identical to SHA3-224,
+   * SHA3-256, SHA3-384 and SHA3-512. The only difference is the padding of the input. NIST appends
+   * a small number of fixed bits to each message that is hashed. The purpose of these bits is
+   * domain separation between different uses of KECCAK.
+   *
+   * <p>E.g. using NIST notation
+   *
+   * <pre>
+   * SHA3-256(M)   = Keccak[512](M || 01, 256), whereas
+   * KECCAK-256(M) = Keccak[512](M, 256)
+   * </pre>
+   *
+   * <p>The algorithm names "KECCAK-224", "KECCAK-256", "KECCAK-384" and "KECCAK-512" are used by
+   * BouncyCastle. Since they are not standard algorithm names it is likely that other providers
+   * implementing the hash functions used different names.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageKeccak224() throws Exception {
+    testLongMessage(
+        "KECCAK-224", "a", 10000000L, "e6a07dafdde2ff8e6d67e3efc6dc871b4d0b04e4e8b87fb8d4f183ec");
+    testLongMessage(
+        "KECCAK-224", "a", 2147483647L, "ecbd20f13ccec2ca90e638825d815e2823193a15476bbd9c70fa1cf8");
+    testLongMessage(
+        "KECCAK-224", "a", 5000000000L, "eb0d1cbaf604ed955fafd528c1d945f05f97ba6bfcfc57984d662913");
+  }
+
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageKeccak256() throws Exception {
+    testLongMessage(
+        "KECCAK-256",
+        "a",
+        10000000L,
+        "c28e150b82236d82db552b84edb49ddef86e5dd3f6ba9a7ee7b82e4090d7c4ae");
+    testLongMessage(
+        "KECCAK-256",
+        "a",
+        2147483647L,
+        "9932ed01cadcaffa583c7cac4586bf3aa2b82e3c28501200276d778423f471f8");
+    testLongMessage(
+        "KECCAK-256",
+        "a",
+        5000000000L,
+        "875ff21c135ab9eb8a57da79f0f02c3ce0913dc9faad111e6f165dfce9715c45");
+  }
+
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageKeccak384() throws Exception {
+    testLongMessage(
+        "KECCAK-384",
+        "a",
+        10000000L,
+        "cc692ad0d7b580b431c3658367cbd798c9d0c31e36ba1dcce07a48d537d93521"
+            + "fcc47abb5dd04e359570285a77d49c46");
+    testLongMessage(
+        "KECCAK-384",
+        "a",
+        2147483647L,
+        "6fad5d86e01ac7cda864fb89fb5f9533516af12a2730aae663c766a910316677"
+            + "cf0833f9f7d8ff2316d63737fb25e74a");
+    testLongMessage(
+        "KECCAK-384",
+        "a",
+        5000000000L,
+        "529028480fc183ca7c6dc5a84270b5fe14babaf9618ce4512e27210ba1041fbd"
+            + "c55f6557098335eff1982cc8b078ec4f");
+  }
+
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageKeccak512() throws Exception {
+    testLongMessage(
+        "KECCAK-512",
+        "a",
+        10000000L,
+        "34272039cd0cc8344f469076a581160ee0dfbcb8ddaa9f28ff73fa3dfe8d613a"
+            + "8bbcb31706d5186727bd8590bbc709ca3628c16a935a2c2e515e49b80bf26820");
+    testLongMessage(
+        "KECCAK-512",
+        "a",
+        2147483647L,
+        "d0dab1cf3b6b87a38593ebf9f9dfea85513a8e2884f2c8f126f456b0e730fbcf"
+            + "b423a9bd32849f077885ab9b0632402968448b872990e8255448e52883dc04ae");
+    testLongMessage(
+        "KECCAK-512",
+        "a",
+        5000000000L,
+        "08e38c32234f19c7c7dfb60b9632e60f33b67eebaa9305908861657d51af9850"
+            + "a82ea7a0a0733ffd83b3c6ecca437ace980048307b40df4e69ed7b290df3ea0b");
   }
 }
