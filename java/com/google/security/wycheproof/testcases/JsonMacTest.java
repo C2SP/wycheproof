@@ -174,10 +174,24 @@ public class JsonMacTest {
     System.out.println("passed Tests for " + algorithm + ":" + passedTests);
     assertEquals(0, errors);
     assertEquals(numTests, cntTests);
+    // It is possible that an algorithm is implemented, but that the implementation
+    // is so specialized that no valid test vectors passed the test.
+    // For example, boringSSL used to implement AES-CCM only for the parameter sizes
+    // used in bluetooth. This generated no overlap with the test vectors from
+    // Wycheproof.
+    // In such cases the test is marked as skipped.
+    if (passedTests == 0) {
+      TestUtil.skipTest("No test passed");
+    }
   }
 
   /**
-   * Returns an initialized instance of a randomized MAC.
+   * Computes a randomized MAC.
+   *
+   * <p>Randomized MACs are MACs that require a nonce for their security. A typical example are
+   * Carter-Wegman constructions. These MACs are often used in AEAD constructions that have to be
+   * randomized anyway. They are seldom used as a standalone MAC, because the requirement of a
+   * nonce makes them more difficult to use and results in longer digests.
    *
    * @param algorithm the algorithm.
    * @param key the key bytes
@@ -196,9 +210,19 @@ public class JsonMacTest {
     Mac mac = getMac(algorithm);
     switch (algorithm) {
       case "AES-GMAC":
-        // TODO(bleichen): I'm unaware of a method that allows to specify the tag size in JCE.
-        //   E.g. the following parameter specification does not work (at least not in BC):
+        // GMAC is defined in NIST SP 800-38d, Section 3. It is simply a GCM encryption
+        // where the message is empty and only the AD is authenticated.
+        // Hence the most portable way to implement AES-GMAC appears to be using AES-GCM.
+        // GMAC like GCM requires that each call uses a unique IV.
+        //
+        // AES-GMAC as a MAC is to our knowledge only implemented by BouncyCastle.
+        // Additionally the implementation in BouncyCastle is further restricted as we have not
+        // been able to find a way to specify the tagSize.
+        // E.g., using parameters defined as
+        // <code>
         //   GCMParameterSpec params = new GCMParameterSpec(tagSize, iv);
+        // </code>
+        // only works for AES-GCM but not nor AES-GMAC.
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         AlgorithmParameterSpec params = new IvParameterSpec(iv);
         if (tagSize != 128) {
@@ -289,6 +313,9 @@ public class JsonMacTest {
     System.out.println("passed Tests for " + algorithm + ":" + passedTests);
     assertEquals(0, errors);
     assertEquals(numTests, cntTests);
+    if (passedTests == 0) {
+      TestUtil.skipTest("No test passed");
+    }
   }
 
   @Test
@@ -359,5 +386,10 @@ public class JsonMacTest {
   @Test
   public void testSipHash48() throws Exception {
     testMac("siphash_4_8_test.json");
+  }
+
+  @Test
+  public void testAesGmac() throws Exception {
+    testMacWithIv("aes_gmac_test.json");
   }
 }
