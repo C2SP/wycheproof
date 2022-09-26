@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -94,6 +95,7 @@ public class JsonSignatureTest {
     }
     if (schema.equals("rsassa_pkcs1_verify_schema.json")
         || schema.equals("rsassa_pss_verify_schema.json")
+        || schema.equals("rsassa_pss_with_parameters_verify_schema.json")
         || schema.equals("eddsa_verify_schema.json")) {
       return Format.RAW;
     }
@@ -114,8 +116,11 @@ public class JsonSignatureTest {
     }
     if (schema.equals("rsassa_pss_verify_schema.json")) {
       // Used for RSASSA-PSS without parameters in the key.
-      // TODO(bleichen): add a different schema for RSASSA-PSS with parameters.
       return SignatureAlgorithm.RSA_PSS_WITHOUT_PARAMS;
+    }
+    if (schema.equals("rsassa_pss_with_parameters_verify_schema.json")) {
+      // Used for RSASSA-PSS with parameters in the key.
+      return SignatureAlgorithm.RSA_PSS_WITH_PARAMS;
     }
     if (schema.equals("eddsa_verify_schema.json")) {
       return SignatureAlgorithm.EDDSA;
@@ -220,7 +225,10 @@ public class JsonSignatureTest {
    * @throws InvalidAlgorithmParameterException if the parameters are wrong
    */
   protected static Signature getSignatureInstance(
-      JsonObject group, SignatureAlgorithm signatureAlgorithm, Format signatureFormat)
+      JsonObject group,
+      SignatureAlgorithm signatureAlgorithm,
+      Format signatureFormat,
+      PublicKey key)
       throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     String md = "";
     if (group.has("sha")) {
@@ -286,7 +294,14 @@ public class JsonSignatureTest {
         break;
       case RSA_PSS_WITH_PARAMS:
         if (signatureFormat == Format.RAW) {
-          return Signature.getInstance("RSASSA-PSS");
+          Signature signature = Signature.getInstance("RSASSA-PSS");
+          // Copies the RSASSA-PSS parameters from key into signature.
+          // It is somewhat unexpected that this step is necessary.
+          // At least one jdk version tested does not copy algorithm parameters
+          // from key into signature during signature.init(key).
+          RSAPublicKey pub = (RSAPublicKey) key;
+          signature.setParameter(pub.getParams());
+          return signature;
         }
         break;
       case EDDSA:
@@ -475,7 +490,7 @@ public class JsonSignatureTest {
       Signature verifier;
       try {
         key = getPublicKey(group, signatureAlgorithm);
-        verifier = getSignatureInstance(group, signatureAlgorithm, signatureFormat);
+        verifier = getSignatureInstance(group, signatureAlgorithm, signatureFormat, key);
       } catch (GeneralSecurityException ex) {
         testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
         continue;
@@ -1000,6 +1015,57 @@ public class JsonSignatureTest {
   @Test
   public void testRsaPss2048Sha256Mgf1Sha1() throws Exception {
     testVerification("rsa_pss_2048_sha1_mgf1_20_test.json", true);
+  }
+
+  // RSASSA-PSS with algorithm parameters
+  @Test
+  public void testRsaPss2048Sha1Mgf1Params() throws Exception {
+    testVerification("rsa_pss_2048_sha1_mgf1_20_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2048Sha256Mgf1Params() throws Exception {
+    testVerification("rsa_pss_2048_sha256_mgf1_32_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2048Sha256Mgf1NoSaltParams() throws Exception {
+    testVerification("rsa_pss_2048_sha256_mgf1_0_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2048Sha512Mgf1Sha1Params() throws Exception {
+    testVerification("rsa_pss_2048_sha512_mgf1sha256_32_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss3072Sha256Mgf1Params() throws Exception {
+    testVerification("rsa_pss_3072_sha256_mgf1_32_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss4096Sha512Mgf1Params() throws Exception {
+    testVerification("rsa_pss_4096_sha512_mgf1_64_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss4096Sha512Mgf1Sha512_32Params() throws Exception {
+    testVerification("rsa_pss_4096_sha512_mgf1_32_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2048Shake128Params() throws Exception {
+    testVerification("rsa_pss_2048_shake128_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2072Shake256Params() throws Exception {
+    testVerification("rsa_pss_3072_shake256_params_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss4096Shake256Params() throws Exception {
+    testVerification("rsa_pss_4096_shake256_params_test.json", true);
   }
 }
 
