@@ -244,6 +244,9 @@ public class RsaPssTest {
    * (rsp. should fail) if KeyFactory.getInstance("RSASSA-PSS") is supported but does not accept
    * keys with OID id-RSASSA-PSS or if the test results in incorrect parameters.
    */
+    @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/253038666"})
   @Test
   public void testDecodePublicKeyWithPssParameters() throws Exception {
     String sha = "SHA-256";
