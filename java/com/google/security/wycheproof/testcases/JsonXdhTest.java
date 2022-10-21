@@ -377,7 +377,7 @@ public class JsonXdhTest {
   }
 
   @NoPresubmitTest(
-      providers = {ProviderType.OPENJDK},
+      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK},
       bugs = {"b/138722408"})
   @Test
   public void testX25519Asn() throws Exception {
@@ -385,7 +385,7 @@ public class JsonXdhTest {
   }
 
   @NoPresubmitTest(
-      providers = {ProviderType.OPENJDK},
+      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK},
       bugs = {"b/138722408"})
   @Test
   public void testX448Asn() throws Exception {
