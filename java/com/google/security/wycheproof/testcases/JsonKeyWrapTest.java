@@ -274,10 +274,6 @@ public class JsonKeyWrapTest {
     testKeywrap("aes_wrap_test.json", "HMACSHA256", false);
   }
 
-  // There are fixes in version 1.67, not sure if this solves all issues.
-  @NoPresubmitTest(
-      providers = {ProviderType.BOUNCY_CASTLE},
-      bugs = {"b/77572633"})
   @Test
   public void testAesKwp() throws Exception {
     testKeywrap("aes_kwp_test.json", "HMACSHA256", false);
@@ -291,9 +287,6 @@ public class JsonKeyWrapTest {
     testKeywrap("aria_wrap_test.json", "HMACSHA256", false);
   }
 
-  @NoPresubmitTest(
-      providers = {ProviderType.BOUNCY_CASTLE},
-      bugs = {"b/77572633"})
   @Test
   public void testAriaKwp() throws Exception {
     testKeywrap("aria_kwp_test.json", "HMACSHA256", false);
