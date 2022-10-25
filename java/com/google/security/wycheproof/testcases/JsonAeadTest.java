@@ -18,8 +18,6 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
-import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
@@ -62,9 +60,9 @@ public class JsonAeadTest {
   /**
    * Returns an initialized instance of Cipher. Typically it is somewhat
    * time consuming to generate a new instance of Cipher for each encryption.
-   * However, some implementations of ciphers (e.g. AES-GCM in jdk) check that 
+   * However, some implementations of ciphers (e.g. AES-GCM in jdk) check that
    * the same key and nonce are not reused twice in a row to catch simple
-   * programming errors. This precaution can interfere with the tests, since 
+   * programming errors. This precaution can interfere with the tests, since
    * the test vectors do sometimes repeat nonces. To avoid such problems cipher
    * instances are not reused.
    * @param algorithm the cipher algorithm including encryption mode and padding.
@@ -74,17 +72,19 @@ public class JsonAeadTest {
    * @param tagSize the expected size of the tag
    * @return an initialized instance of Cipher
    * @throws Exception if the initialization failed.
-   */ 
+   */
   protected static Cipher getInitializedCipher(
       String algorithm, int opmode, byte[] key, byte[] iv, int tagSize)
       throws Exception {
     Cipher cipher = Cipher.getInstance(algorithm);
-    if (algorithm.equalsIgnoreCase("AES/GCM/NoPadding")) {
+    if (algorithm.equalsIgnoreCase("AES/GCM/NoPadding")
+        || algorithm.equalsIgnoreCase("ARIA/GCM/NoPadding")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       GCMParameterSpec parameters = new GCMParameterSpec(tagSize, iv);
       cipher.init(opmode, keySpec, parameters);
     } else if (algorithm.equalsIgnoreCase("AES/EAX/NoPadding")
-               || algorithm.equalsIgnoreCase("AES/CCM/NoPadding")) {
+        || algorithm.equalsIgnoreCase("AES/CCM/NoPadding")
+        || algorithm.equalsIgnoreCase("ARIA/CCM/NoPadding")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       // TODO(bleichen): This works for BouncyCastle but looks non-standard.
       //   org.bouncycastle.crypto.params.AEADParameters works too, but would add a dependency that
@@ -101,7 +101,9 @@ public class JsonAeadTest {
     return cipher;
   }
 
+
   /** Example format for test vectors
+   * <pre>
    * {
    *   "algorithm" : "AES-EAX",
    *   "generatorVersion" : "0.0a14",
@@ -125,6 +127,7 @@ public class JsonAeadTest {
    *           "tcId" : 1
    *         },
    *        ...
+   * </pre>
    **/
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
@@ -135,35 +138,26 @@ public class JsonAeadTest {
     // the minor number if only the test vectors (but not the format) changes.
     // Subversions are release candidate for the next version.
     //
-    // Relevant version changes: 
+    // Relevant version changes:
     // <ul>
     // <li> Version 0.5 adds test vectors for CCM.
     // <li> Version 0.6 adds test vectors for Chacha20-Poly1305.
     //      Chacha20-Poly1305 is a new cipher added in jdk11.
+    // <li> Version 0.9 adds test vectors for ARIA-GCM and ARIA-CCM.
+    //      These algorithms are supported by BouncyCastle.
     // </ul>
-    final String expectedVersion = "0.6";
-
-    // Checking preconditions.
     try {
       Cipher.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm is not supported. Skipping test for " + algorithm);
+      TestUtil.skipTest("Unsupported algorithm" + algorithm);
       return;
     }
 
-    JsonObject test = JsonUtil.getTestVectors(filename);
-    String generatorVersion = test.get("generatorVersion").getAsString();
-    if (!generatorVersion.equals(expectedVersion)) {
-      System.out.println(
-          algorithm
-              + ": expecting test vectors with version "
-              + expectedVersion
-              + " found vectors with version "
-              + generatorVersion);
-    }
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
     int errors = 0;
+    int passed = 0;
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       int tagSize = group.get("tagSize").getAsInt();
@@ -212,6 +206,8 @@ public class JsonAeadTest {
                       + " ciphertext:"
                       + TestUtil.bytesToHex(encrypted));
               errors++;
+            } else {
+              passed++;
             }
           }
         } catch (GeneralSecurityException ex) {
@@ -253,6 +249,10 @@ public class JsonAeadTest {
     }
     assertEquals(0, errors);
     assertEquals(numTests, cntTests);
+    if (passed == 0) {
+      // Test vectors contain no valid parameter set
+      TestUtil.skipTest("No test vector passed");
+    }
   }
 
   @Test
@@ -265,32 +265,30 @@ public class JsonAeadTest {
     testAead("aes_eax_test.json", "AES/EAX/NoPadding");
   }
 
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/111153892"}
-  )
   @Test
   public void testAesCcm() throws Exception {
     testAead("aes_ccm_test.json", "AES/CCM/NoPadding");
   }
 
+  @Test
+  public void testAriaGcm() throws Exception {
+    testAead("aria_gcm_test.json", "ARIA/GCM/NoPadding");
+  }
+
+  @Test
+  public void testAriaCcm() throws Exception {
+    testAead("aria_ccm_test.json", "ARIA/CCM/NoPadding");
+  }
+
   /**
    * Tests ChaCha20-Poly1305 defined in RFC 7539.
    *
-   * <p>The algorithm name for ChaCha20-Poly1305 is not well defined:
-   * jdk11 uses "ChaCha20-Poly1305".
-   * ConsCrypt uses "ChaCha20/Poly1305/NoPadding".
-   * These two implementations implement RFC 7539.
-   * 
-   * <p>BouncyCastle has a cipher "ChaCha7539". This implementation
-   * only implements ChaCha20 with a 12 byte IV. An implementation
-   * of RFC 7539 is the class JceChaCha20Poly1305. It is unclear
-   * whether this class can be accessed through the JCA interface.
+   * <p>Multiple algorithm names for ChaCha20-Poly1305 are in use: jdk11 and BouncyCastle use
+   * "ChaCha20-Poly1305". ConsCrypt uses "ChaCha20/Poly1305/NoPadding".
+   *
+   * <p>BouncyCastle has a cipher "ChaCha7539". This implementation only implements ChaCha20 with a
+   * 12 byte IV.
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/117642565"}
-  )
   @Test
   public void testChaCha20Poly1305() throws Exception {
     // A list of potential algorithm names for ChaCha20-Poly1305.
@@ -306,6 +304,7 @@ public class JsonAeadTest {
       testAead("chacha20_poly1305_test.json", name);
       return;
     }
-    System.out.println("ChaCha20-Poly1305 is not supported: skipping test");
-  } 
+    TestUtil.skipTest("ChaCha20-Poly1305 is not supported");
+    return;
+  }
 }
