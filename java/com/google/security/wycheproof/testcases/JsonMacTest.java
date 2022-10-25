@@ -49,6 +49,9 @@ public class JsonMacTest {
         // BouncyCastle generally uses a hyphen for CMAC algorithms.
         // However, AES-CMAC is an exception.
         return Mac.getInstance("AESCMAC");
+      case "SipHashX-2-4":
+        // Try the name used by BouncyCastle.
+        return Mac.getInstance("SIPHASH128-2-4");
       default:
         break;
     }
@@ -386,6 +389,11 @@ public class JsonMacTest {
   @Test
   public void testSipHash48() throws Exception {
     testMac("siphash_4_8_test.json");
+  }
+
+  @Test
+  public void testSipHashX24() throws Exception {
+    testMac("siphashx_2_4_test.json");
   }
 
   @Test
