@@ -24,7 +24,14 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class BasicTest {
 
-  /** List all algorithms known to the security manager. */
+  /**
+   * List all algorithms known to the security manager.
+   *
+   * <p>Some links for additional information about providers are:
+   * https://docs.oracle.com/en/java/javase/19/security/oracle-providers.html
+   * https://github.com/google/conscrypt/blob/master/CAPABILITIES.md
+   * https://www.bouncycastle.org/specifications.html
+   */
   @Test
   public void testListAllAlgorithms() {
     for (Provider p : Security.getProviders()) {
@@ -32,13 +39,21 @@ public class BasicTest {
       System.out.println("Provider: " + p.getName() + " " + p.getVersion());
       // Using a TreeSet here, because the elements are sorted.
       TreeSet<String> list = new TreeSet<String>();
-      for (Object key : p.keySet()) {
-        list.add((String) key);
-      }
-      for (String algorithm : list) {
-        if (algorithm.startsWith("Alg.Alias.")) {
+      for (var entry : p.entrySet()) {
+        String algorithm = (String) entry.getKey();
+        Object value = entry.getValue();
+        if (algorithm.startsWith("Alg.Alias")
+            || algorithm.endsWith("ImplementedIn")
+            || algorithm.endsWith("SupportedKeyClasses")) {
           continue;
         }
+        if (algorithm.contains(" ")) {
+          list.add(algorithm + " : " + value);
+        } else {
+          list.add(algorithm);
+        }
+      }
+      for (String algorithm : list) {
         System.out.println(algorithm);
       }
     }
