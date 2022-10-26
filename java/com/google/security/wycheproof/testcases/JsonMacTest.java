@@ -52,6 +52,9 @@ public class JsonMacTest {
       case "SipHashX-2-4":
         // Try the name used by BouncyCastle.
         return Mac.getInstance("SIPHASH128-2-4");
+      case "SipHashX-4-8":
+        // Try the name used by BouncyCastle.
+        return Mac.getInstance("SIPHASH128-4-8");
       default:
         break;
     }
@@ -394,6 +397,11 @@ public class JsonMacTest {
   @Test
   public void testSipHashX24() throws Exception {
     testMac("siphashx_2_4_test.json");
+  }
+
+  @Test
+  public void testSipHashX48() throws Exception {
+    testMac("siphashx_4_8_test.json");
   }
 
   @Test
