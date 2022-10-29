@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
@@ -315,12 +317,14 @@ public class EciesTest {
     testAlgorithmParameters("ECIES");
     testAlgorithmParameters("ECIESWithAES-CBC");
   }
-  
+
   /**
-   * Encryption with ByteBuffers.
-   * This test failed with BouncyCastle v 1.52 probably because of this bug
-   * http://www.bouncycastle.org/jira/browse/BJA-577
+   * Encryption with ByteBuffers. This test failed with BouncyCastle v 1.52 probably because of this
+   * bug http://www.bouncycastle.org/jira/browse/BJA-577
    */
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/256023899"})
   @Test
   public void testByteBuffer() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
