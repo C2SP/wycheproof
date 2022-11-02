@@ -90,6 +90,10 @@ public class JsonMacTest {
     //   </pre>
     //   But this class is often not supported. Hence the computation here just computes a
     //   full length tag and truncates the tag in some known cases.
+    //
+    //   Truncation is not always possible. For example a 128-bit KMAC cannot be
+    //   derived from a 256-bit KMAC by truncation, since the length of the output is
+    //   encoded in the input.
     mac.init(keySpec);
     mac.update(msg);
     byte[] tag = mac.doFinal();
@@ -407,5 +411,23 @@ public class JsonMacTest {
   @Test
   public void testAesGmac() throws Exception {
     testMacWithIv("aes_gmac_test.json");
+  }
+
+  /**
+   * Tests for KMAC.
+   *
+   * <p>KMAC has an optional customization argument. To our knowledge there is currently no easy way
+   * to specify this customization argument through the JCE interface. Additionally, JCE provider
+   * that implement KMAC (e.g. BouncyCastle) do not appear to accept a customization argument. Hence
+   * the tests below test KMAC with an empty customization string.
+   */
+  @Test
+  public void testKmac128() throws Exception {
+    testMac("kmac128_no_customization_test.json");
+  }
+
+  @Test
+  public void testKmac256() throws Exception {
+    testMac("kmac256_no_customization_test.json");
   }
 }
