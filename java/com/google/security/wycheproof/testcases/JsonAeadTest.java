@@ -95,6 +95,10 @@ public class JsonAeadTest {
       SecretKeySpec keySpec = new SecretKeySpec(key, "ChaCha20");
       IvParameterSpec parameters = new IvParameterSpec(iv);
       cipher.init(opmode, keySpec, parameters);
+    } else if (algorithm.equalsIgnoreCase("AES/GCM-SIV/NoPadding")) {
+      SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+      IvParameterSpec parameters = new IvParameterSpec(iv);
+      cipher.init(opmode, keySpec, parameters);
     } else {
       fail("Algorithm not supported:" + algorithm);
     }
@@ -258,6 +262,22 @@ public class JsonAeadTest {
   @Test
   public void testAesGcm() throws Exception {
     testAead("aes_gcm_test.json", "AES/GCM/NoPadding");
+  }
+
+  /**
+   * AES-GCM-SIV is defined in RFC 8452.
+   * There are no concrete plans yet to add AES-GCM-SIV to jdk
+   * (see https://bugs.openjdk.org/browse/JDK-8256530).
+   * Some provider add support, but it is unclear if they use
+   * compatible interfaces and algorithm names. The following
+   * test is based on the choices made in Conscrypt.
+   * BouncyCastle adds AES-GCM-SIV in version 1.69. The test
+   * does not run yet because the algorithm name is not yet
+   * defined. Maybe a later version will add it.
+   */
+  @Test
+  public void testAesGcmSiv() throws Exception {
+    testAead("aes_gcm_siv_test.json", "AES/GCM-SIV/NoPadding");
   }
 
   @Test
