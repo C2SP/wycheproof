@@ -160,7 +160,7 @@ public class MessageDigestTest {
                   + i);
         }
       } catch (CloneNotSupportedException ex) {
-        System.out.println("Cloning " + algorithm + " is not supported. Skipping test.");
+        TestUtil.skipTest("Cloning " + algorithm + " is not supported. Skipping test.");
         return;
       }
     }
@@ -182,8 +182,7 @@ public class MessageDigestTest {
                   + i);
         }
       } catch (CloneNotSupportedException ex) {
-        
-        System.out.println("Cloning " + algorithm + " is not supported. Skipping test.");
+        TestUtil.skipTest("Cloning " + algorithm + " is not supported. Skipping test.");
         return;
       }
       md.update(message[i]);
@@ -273,6 +272,24 @@ public class MessageDigestTest {
   @Test
   public void testKeccak_512() throws Exception {
     testMessageDigest("KECCAK-512");
+  }
+
+  /**
+   * SHAKE128 and SHAKE256 are sometimes used as hash function. When used as hash function the
+   * output size is double the security strength. Hence the output of SHAKE128 would be 256 bits and
+   * the output of SHAKE256 would be 512 bits.
+   *
+   * <p>Two hash function based on SHAKE are implemented in BouncyCastle. BouncyCastle uses the
+   * algorithm names "SHAKE128-256" and "SHAKE256-512".
+   */
+  @Test
+  public void testShake128_256() throws Exception {
+    testMessageDigest("SHAKE128-256");
+  }
+
+  @Test
+  public void testShake256_512() throws Exception {
+    testMessageDigest("SHAKE256-512");
   }
 
   /**
@@ -570,5 +587,47 @@ public class MessageDigestTest {
         5000000000L,
         "08e38c32234f19c7c7dfb60b9632e60f33b67eebaa9305908861657d51af9850"
             + "a82ea7a0a0733ffd83b3c6ecca437ace980048307b40df4e69ed7b290df3ea0b");
+  }
+
+  /**
+   * Tests SHAKE128 when used as a hash function with 256 bit output.
+   *
+   * <p>BouncyCastle uses algorithm name "SHAKE128-256" for this function.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageShake128_256() throws Exception {
+    testLongMessage(
+        "SHAKE128-256",
+        "a",
+        2147483647L,
+        "df99e7bfce73322df3c7b26e782f08366fc7bf17c100f52233464e4fdbefb00d");
+    testLongMessage(
+        "SHAKE128-256",
+        "a",
+        5000000000L,
+        "5cb33910aeb298dbc368e3fb2add2accd5a19addf66d4e30595517b7d3285172");
+  }
+
+  /**
+   * Tests SHAKE256 when used as a hash function with 512 bit output.
+   *
+   * <p>BouncyCastle uses algorithm name "SHAKE256-512" for this function.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testLongMessageShake256_512() throws Exception {
+    testLongMessage(
+        "SHAKE256-512",
+        "a",
+        2147483647L,
+        "bbb16c288890bfbc83ff9006821f6169d92cff3a4210e30fa50ea90cb4e71eb5"
+            + "5604bc55a1438a9a3f8883ec866bea932315dec6321263b31c89758272df12ac");
+    testLongMessage(
+        "SHAKE256-512",
+        "a",
+        5000000000L,
+        "68649c37e983ad0ed3fb50ff242542d4236c56a30e32f77aa8d55c9616575b52"
+            + "89b44845a536f0196bf06f7d248cc3ddc8378eb6c1e71d7c4e16c49f6c9e081f");
   }
 }
