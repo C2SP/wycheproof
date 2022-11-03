@@ -389,6 +389,11 @@ public class JsonMacTest {
   }
 
   @Test
+  public void testHmacSm3() throws Exception {
+    testMac("hmac_sm3_test.json");
+  }
+
+  @Test
   public void testSipHash24() throws Exception {
     testMac("siphash_2_4_test.json");
   }
