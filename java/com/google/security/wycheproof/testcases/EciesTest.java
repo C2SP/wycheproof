@@ -32,6 +32,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import org.junit.Test;
@@ -111,7 +112,7 @@ public class EciesTest {
    */
   AlgorithmParameters getAlgorithmParameters(String algorithmName) throws Exception {
     String paramsHex;
-    switch (algorithmName.toUpperCase()) {
+    switch (algorithmName.toUpperCase(Locale.ENGLISH)) {
       case "ECIES":
       case "ECIESWITHSHA1":
       case "ECIESWITHSHA256":
@@ -168,7 +169,7 @@ public class EciesTest {
         return -1; // Compiler does not know that fail never returns.
     }
     int kemSize = compressed ? (1 + coordinateSize) : (1 + 2 * coordinateSize);
-    switch (algorithm.toUpperCase()) {
+    switch (algorithm.toUpperCase(Locale.ENGLISH)) {
       case "ECIESWITHAES-CBC":
         {
           // public point || PKCS5 padded ciphertext || 20-byte HMAC-digest.

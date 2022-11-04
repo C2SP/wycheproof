@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
@@ -76,26 +77,26 @@ public class JsonAeadTest {
   protected static Cipher getInitializedCipher(
       String algorithm, int opmode, byte[] key, byte[] iv, int tagSize)
       throws Exception {
+    algorithm = algorithm.toUpperCase(Locale.ENGLISH);
     Cipher cipher = Cipher.getInstance(algorithm);
-    if (algorithm.equalsIgnoreCase("AES/GCM/NoPadding")
-        || algorithm.equalsIgnoreCase("ARIA/GCM/NoPadding")) {
+    if (algorithm.equals("AES/GCM/NOPADDING") || algorithm.equals("ARIA/GCM/NOPADDING")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       GCMParameterSpec parameters = new GCMParameterSpec(tagSize, iv);
       cipher.init(opmode, keySpec, parameters);
-    } else if (algorithm.equalsIgnoreCase("AES/EAX/NoPadding")
-        || algorithm.equalsIgnoreCase("AES/CCM/NoPadding")
-        || algorithm.equalsIgnoreCase("ARIA/CCM/NoPadding")) {
+    } else if (algorithm.equals("AES/EAX/NOPADDING")
+        || algorithm.equals("AES/CCM/NOPADDING")
+        || algorithm.equals("ARIA/CCM/NOPADDING")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       // TODO(bleichen): This works for BouncyCastle but looks non-standard.
       //   org.bouncycastle.crypto.params.AEADParameters works too, but would add a dependency that
       //   we want to avoid.
       GCMParameterSpec parameters = new GCMParameterSpec(tagSize, iv);
       cipher.init(opmode, keySpec, parameters);
-    } else if (algorithm.toUpperCase().startsWith("CHACHA")) {
+    } else if (algorithm.startsWith("CHACHA")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "ChaCha20");
       IvParameterSpec parameters = new IvParameterSpec(iv);
       cipher.init(opmode, keySpec, parameters);
-    } else if (algorithm.equalsIgnoreCase("AES/GCM-SIV/NoPadding")) {
+    } else if (algorithm.equals("AES/GCM-SIV/NOPADDING")) {
       SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
       IvParameterSpec parameters = new IvParameterSpec(iv);
       cipher.init(opmode, keySpec, parameters);
@@ -261,7 +262,7 @@ public class JsonAeadTest {
 
   @Test
   public void testAesGcm() throws Exception {
-    testAead("aes_gcm_test.json", "AES/GCM/NoPadding");
+    testAead("aes_gcm_test.json", "AES/GCM/NOPADDING");
   }
 
   /**
@@ -277,34 +278,34 @@ public class JsonAeadTest {
    */
   @Test
   public void testAesGcmSiv() throws Exception {
-    testAead("aes_gcm_siv_test.json", "AES/GCM-SIV/NoPadding");
+    testAead("aes_gcm_siv_test.json", "AES/GCM-SIV/NOPADDING");
   }
 
   @Test
   public void testAesEax() throws Exception {
-    testAead("aes_eax_test.json", "AES/EAX/NoPadding");
+    testAead("aes_eax_test.json", "AES/EAX/NOPADDING");
   }
 
   @Test
   public void testAesCcm() throws Exception {
-    testAead("aes_ccm_test.json", "AES/CCM/NoPadding");
+    testAead("aes_ccm_test.json", "AES/CCM/NOPADDING");
   }
 
   @Test
   public void testAriaGcm() throws Exception {
-    testAead("aria_gcm_test.json", "ARIA/GCM/NoPadding");
+    testAead("aria_gcm_test.json", "ARIA/GCM/NOPADDING");
   }
 
   @Test
   public void testAriaCcm() throws Exception {
-    testAead("aria_ccm_test.json", "ARIA/CCM/NoPadding");
+    testAead("aria_ccm_test.json", "ARIA/CCM/NOPADDING");
   }
 
   /**
    * Tests ChaCha20-Poly1305 defined in RFC 7539.
    *
    * <p>Multiple algorithm names for ChaCha20-Poly1305 are in use: jdk11 and BouncyCastle use
-   * "ChaCha20-Poly1305". ConsCrypt uses "ChaCha20/Poly1305/NoPadding".
+   * "ChaCha20-Poly1305". ConsCrypt uses "ChaCha20/Poly1305/NOPADDING".
    *
    * <p>BouncyCastle has a cipher "ChaCha7539". This implementation only implements ChaCha20 with a
    * 12 byte IV.
@@ -312,9 +313,7 @@ public class JsonAeadTest {
   @Test
   public void testChaCha20Poly1305() throws Exception {
     // A list of potential algorithm names for ChaCha20-Poly1305.
-    String[] algorithms =
-        new String[]{"ChaCha20-Poly1305",
-                     "ChaCha20/Poly1305/NoPadding"};
+    String[] algorithms = new String[] {"ChaCha20-Poly1305", "ChaCha20/Poly1305/NOPADDING"};
     for (String name : algorithms) {
       try {
         Cipher.getInstance(name);

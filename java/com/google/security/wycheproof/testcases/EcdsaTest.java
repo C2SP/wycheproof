@@ -33,6 +33,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -54,7 +55,7 @@ public class EcdsaTest {
    * message digest, i.e., SHA-256.
    */
   private String getHashAlgorithm(String ecdsaAlgorithm) {
-    ecdsaAlgorithm = ecdsaAlgorithm.toUpperCase();
+    ecdsaAlgorithm = ecdsaAlgorithm.toUpperCase(Locale.ENGLISH);
     int idx = ecdsaAlgorithm.indexOf("WITH");
     if (idx > 0) {
       if (ecdsaAlgorithm.startsWith("SHA")) {
