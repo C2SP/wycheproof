@@ -33,6 +33,7 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -152,22 +153,24 @@ public class JsonSignatureTest {
    * @return the name of the message digest when used in a signature algorithm.
    */
   protected static String convertMdName(String md) {
-    if (md.equalsIgnoreCase("SHA-1")) {
-      return "SHA1";
-    } else if (md.equalsIgnoreCase("SHA-224")) {
-      return "SHA224";
-    } else if (md.equalsIgnoreCase("SHA-256")) {
-      return "SHA256";
-    } else if (md.equalsIgnoreCase("SHA-384")) {
-      return "SHA384";
-    } else if (md.equalsIgnoreCase("SHA-512")) {
-      return "SHA512";
-    } else if (md.equalsIgnoreCase("SHA-512/224")) {
-      return "SHA512/224";
-    } else if (md.equalsIgnoreCase("SHA-512/256")) {
-      return "SHA512/256";
+    switch (md.toUpperCase(Locale.ENGLISH)) {
+      case "SHA-1":
+        return "SHA1";
+      case "SHA-224":
+        return "SHA224";
+      case "SHA-256":
+        return "SHA256";
+      case "SHA-384":
+        return "SHA384";
+      case "SHA-512":
+        return "SHA512";
+      case "SHA-512/224":
+        return "SHA512/224";
+      case "SHA-512/256":
+        return "SHA512/256";
+      default:
+        return md;
     }
-    return md;
   }
 
   protected static Signature getPssInstance(JsonObject group) throws NoSuchAlgorithmException {
@@ -711,6 +714,36 @@ public class JsonSignatureTest {
     testVerification("ecdsa_secp521r1_sha3_512_test.json", true);
   }
 
+  @Test
+  public void testSecp224r1Shake128() throws Exception {
+    testVerification("ecdsa_secp224r1_shake128_test.json", true);
+  }
+
+  @Test
+  public void testSecp256r1Shake128() throws Exception {
+    testVerification("ecdsa_secp256r1_shake128_test.json", true);
+  }
+
+  @Test
+  public void testSecp256k1Shake128() throws Exception {
+    testVerification("ecdsa_secp256k1_shake128_test.json", true);
+  }
+
+  @Test
+  public void testSecp256k1Shake256() throws Exception {
+    testVerification("ecdsa_secp256k1_shake256_test.json", true);
+  }
+
+  @Test
+  public void testSecp384r1Shake256() throws Exception {
+    testVerification("ecdsa_secp384r1_shake256_test.json", true);
+  }
+
+  @Test
+  public void testSecp521Shake256() throws Exception {
+    testVerification("ecdsa_secp521r1_shake256_test.json", true);
+  }
+
   // jdk11 adds P1363 encoded signatures.
   @Test
   public void testSecp160k1Sha256inP1363Format() throws Exception {
@@ -810,6 +843,36 @@ public class JsonSignatureTest {
   @Test
   public void testBrainpoolP512r1Sha512inP1363Format() throws Exception {
     testVerification("ecdsa_brainpoolP512r1_sha512_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp224r1Shake128inP1363Format() throws Exception {
+    testVerification("ecdsa_secp224r1_shake128_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp256r1Shake128inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256r1_shake128_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp256k1Shake128inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256k1_shake128_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp256k1Shake256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp256k1_shake256_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp384r1Shake256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp384r1_shake256_p1363_test.json", true);
+  }
+
+  @Test
+  public void testSecp521Shake256inP1363Format() throws Exception {
+    testVerification("ecdsa_secp521r1_shake256_p1363_test.json", true);
   }
 
   @Test
