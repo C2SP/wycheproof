@@ -175,14 +175,20 @@ public class JsonSignatureTest {
 
   protected static Signature getPssInstance(JsonObject group) throws NoSuchAlgorithmException {
     String md = convertMdName(getString(group, "sha"));
-    String mgfSha = convertMdName(getString(group, "mgfSha"));
+    String mgf = convertMdName(getString(group, "mgf"));
     try {
       return Signature.getInstance("RSASSA-PSS");
     } catch (NoSuchAlgorithmException ex) {
       // RSASSA-PSS is not known. Try the other options.
     }
     try {
-      String name = md + "WITHRSAand" + mgfSha;
+      String name;
+      if (mgf.equals("MGF1")) {
+        String mgfSha = convertMdName(getString(group, "mgfSha"));
+        name = md + "WITHRSAand" + mgfSha;
+      } else {
+        name = md + "WITHRSAand" + mgf;
+      }
       return Signature.getInstance(name);
     } catch (NoSuchAlgorithmException ex) {
       // RSASSA-PSS using legacy JCE naming is not known.
@@ -211,6 +217,12 @@ public class JsonSignatureTest {
     int trailerField = 1;
     if (mgf.equals("MGF1")) {
       return new PSSParameterSpec(sha, mgf, new MGF1ParameterSpec(mgfSha), saltLen, trailerField);
+    } else if (mgf.equals("SHAKE128") || mgf.equals("SHAKE256")) {
+      // RFC 8702 specifies that
+      //    mgf="SHAKE128" implies sha="SHAKE128" and saltLen = 32 and
+      //    mgf="SHAKE256" implies sha="SHAKE256" and saltLen = 64.
+      // BouncyCastle allows additional combinations.
+      return new PSSParameterSpec(sha, mgf, null, saltLen, trailerField);
     } else {
       throw new NoSuchAlgorithmException("Unknown MGF:" + mgfSha);
     }
@@ -303,7 +315,10 @@ public class JsonSignatureTest {
           // At least one jdk version tested does not copy algorithm parameters
           // from key into signature during signature.init(key).
           RSAPublicKey pub = (RSAPublicKey) key;
-          signature.setParameter(pub.getParams());
+          AlgorithmParameterSpec params = pub.getParams();
+          if (params != null) {
+            signature.setParameter(pub.getParams());
+          }
           return signature;
         }
         break;
@@ -1051,6 +1066,17 @@ public class JsonSignatureTest {
   @Test
   public void testRsaPss4096Sha512() throws Exception {
     testVerification("rsa_pss_4096_sha512_mgf1_32_test.json", true);
+  }
+
+  // RSA-PSS with SHAKE
+  @Test
+  public void testRsaPss2048Shake128() throws Exception {
+    testVerification("rsa_pss_2048_shake128_test.json", true);
+  }
+
+  @Test
+  public void testRsaPss2048Shake256() throws Exception {
+    testVerification("rsa_pss_2048_shake256_test.json", true);
   }
 
   // Testing RSA-PSS implementation where the salt is 0.
