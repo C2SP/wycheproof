@@ -62,8 +62,10 @@ import org.junit.runners.JUnit4;
  *
  * <ul>
  *   <li>OpenJdk also allows names with explicit key size (e.g. "AESWrap_128" or "AESWrapPad_128"
- *       etc.). Alternatively it also knows the the cipher algorithm modes "KW" and "KWP". Hence
- *       "AES/KW/NoPadding" and "AES/KWP/NoPadding" are options.
+ *       etc.).
+ *   <li>JDK-8261910 added the algorithm modes "KW" and "KWP". Hence "AES/KW/NoPadding" and
+ *       "AES/KWP/NoPadding" are options. This change also added "AES/KW/Pkcs5Padding". This
+ *       algorithm is not tested here.
  *   <li>BouncyCastle knows "AESWRAP" and "AESWRAPPAD". Alternatively, the algorithm name
  *       AESRFC5649WRAP is possible. AESRFC3211WRAP is an unrelated algorithm not tested here.
  *       BouncyCastle also implements key wrappings using Aria, Camellia and Seed. (There are also
@@ -86,9 +88,19 @@ public class JsonKeyWrapTest {
   protected static Cipher getCipher(String algorithm) throws Exception {
     switch (algorithm) {
       case "AES-WRAP":
-        return Cipher.getInstance("AESWRAP");
+        try {
+          return Cipher.getInstance("AESWRAP");
+        } catch (NoSuchAlgorithmException ex) {
+          // AESWRAP is not known, but the encryption mode KW might be supported.
+        }
+        return Cipher.getInstance("AES/KW/NoPadding");
       case "AES-KWP":
-        return Cipher.getInstance("AESWRAPPAD");
+        try {
+          return Cipher.getInstance("AESWRAPPAD");
+        } catch (NoSuchAlgorithmException ex) {
+          // AESWRAPPAD is not known, but the encryption mode KWP might be supported.
+        }
+        return Cipher.getInstance("AES/KWP/NoPadding");
       case "ARIA-WRAP":
         return Cipher.getInstance("ARIAWRAP");
       case "ARIA-KWP":
