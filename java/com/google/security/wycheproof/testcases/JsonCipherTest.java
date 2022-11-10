@@ -18,6 +18,9 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
@@ -59,7 +62,7 @@ public class JsonCipherTest {
    * Initialize a Cipher instance.
    *
    * @param cipher an instance of a symmetric cipher that will be initialized.
-   * @param algorithm the name of the algorithm used (e.g. 'AES')
+   * @param algorithm the name of the algorithm used (e.g. "AES/CBC/PKCS5Padding")
    * @param opmode either Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
    * @param key raw key bytes
    * @param iv the initialisation vector
@@ -76,52 +79,61 @@ public class JsonCipherTest {
     cipher.init(opmode, keySpec, ivSpec);
   }
 
-
-  /** Example format for test vectors
+  /**
+   * Example format for test vectors
+   *
+   * <pre>
    * {
-   *   "algorithm" : "AES-CBC-PKCS5",
-   *   "generatorVersion" : "0.2.1",
-   *   "numberOfTests" : 183,
-   *   "header" : [
-   *   ],
-   *   "testGroups" : [
-   *     {
-   *       "ivSize" : 128,
-   *       "keySize" : 128,
-   *       "type" : "IndCpaTest",
-   *       "tests" : [
-   *         {
-   *           "tcId" : 1,
-   *           "comment" : "empty message",
-   *           "key" : "e34f15c7bd819930fe9d66e0c166e61c",
-   *           "iv" : "da9520f7d3520277035173299388bee2",
-   *           "msg" : "",
-   *           "ct" : "b10ab60153276941361000414aed0a9d",
-   *           "result" : "valid"
-   *         },
-   *         ...
-   **/
+   * "algorithm" : "AES-CBC-PKCS5",
+   * "schema" : "ind_cpa_test_schema.json",
+   * "generatorVersion" : "0.9",
+   * "numberOfTests" : 216,
+   * "header" : [
+   *   ...
+   * ],
+   * "notes" : {
+   *   "BadPadding" : {
+   *     "bugType" : "MISSING_STEP",
+   *     "description" : "..."
+   *   },
+   *   ...
+   * },
+   * "testGroups" : [
+   *   {
+   *     "type" : "IndCpaTest",
+   *     "keySize" : 128,
+   *     "ivSize" : 128,
+   *     "tests" : [
+   *       {
+   *         "tcId" : 1,
+   *         "comment" : "empty message",
+   *         "flags" : [
+   *           "Pseudorandom"
+   *         ],
+   *         "key" : "e34f15c7bd819930fe9d66e0c166e61c",
+   *         "iv" : "da9520f7d3520277035173299388bee2",
+   *         "msg" : "",
+   *         "ct" : "b10ab60153276941361000414aed0a9d",
+   *         "result" : "valid"
+   *       },
+   *       ...
+   * </pre>
+   */
   // This is a false positive, since errorprone cannot track values passed into a method.
   @SuppressWarnings("InsecureCryptoUsage")
   public void testCipher(String filename, String algorithm) throws Exception {
-    // Testing with old test vectors may a reason for a test failure.
-    // Version number have the format major.minor[status].
-    // Versions before 1.0 are experimental and  use formats that are expected to change.
-    // Versions after 1.0 change the major number if the format changes and change
-    // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4";
-    JsonObject test = JsonUtil.getTestVectors(filename);
-    Set<String> exceptions = new TreeSet<String>();
-    String generatorVersion = test.get("generatorVersion").getAsString();
-    if (!generatorVersion.equals(expectedVersion)) {
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    String schema = test.get("schema").getAsString();
+    String expectedSchema = "ind_cpa_test_schema.json";
+    if (!schema.equals(expectedSchema)) {
       System.out.println(
           algorithm
-              + ": expecting test vectors with version "
-              + expectedVersion
-              + " found vectors with version "
-              + generatorVersion);
+              + ": expecting test vectors with schema "
+              + expectedSchema
+              + " found "
+              + schema);
     }
+    Set<String> exceptions = new TreeSet<>();
     int numTests = test.get("numberOfTests").getAsInt();
     int cntTests = 0;
     int errors = 0;
@@ -222,19 +234,28 @@ public class JsonCipherTest {
     // Generally it is preferable if trying to decrypt ciphertexts with incorrect paddings
     // does not leak information about invalid paddings through exceptions.
     // Such information could simplify padding attacks. Ideally, providers should not include
-    // any distinguishing features in the exception. Hence, we expect just one exception here.
+    // any distinguishing features in the exception. Hence, we expect just one exception among
+    // all test vectors that have the flag BadPadding. Using the class TestResult, will
+    // support such a test. Exceptions for other test vectors (e.g., ciphertexts with a size
+    // that are not a multiple of the block size) need not be indistinguishable.
     //
-    // Seeing distinguishable exception, doesn't necessarily mean that protocols using
-    // AES/CBC/PKCS5Padding with the tested provider are vulnerable to attacks. Rather it means
-    // that the provider might simplify attacks if the protocol is using AES/CBC/PKCS5Padding
-    // incorrectly.
+    // Seeing distinguishable exceptions, doesn't necessarily mean that protocols using
+    // the cipher with the tested provider are vulnerable to attacks. Rather it means
+    // that the provider might simplify attacks if an implementation is careless.
     System.out.println("Number of distinct exceptions:" + exceptions.size());
     for (String ex : exceptions) {
       System.out.println(ex);
     }
-    assertEquals(1, exceptions.size());
   }
 
+  // jdk11 accepts an empty ciphertext.
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/258666069"})
+  @ExcludedTest(
+    providers = {ProviderType.CONSCRYPT},
+    comment = "Conscrypt accepts empyt ciphertexts."
+  )
   @Test
   public void testAesCbcPkcs5() throws Exception {
     testCipher("aes_cbc_pkcs5_test.json", "AES/CBC/PKCS5Padding");
