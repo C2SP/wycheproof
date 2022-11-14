@@ -43,6 +43,26 @@ good idea to test an implementation with test vectors that use the same radix as
 a planned use case. As a result the existing test vectors try to cover common
 alphabets.
 
+## Rounding errors
+
+Some implementations use floating point arithmetic to compute bounds. One place
+where the use of floating point arithmetic can easily lead to incorrect results
+is step 3 of Algorithm 7. This step computes
+
+b = ⎡ ⎡v log<sub>2</sub>(radix)⎤/8⎤.
+
+It is important that log<sub>2</sub>(radix) is computed without rounding errors
+when radix is a power of 2. E.g., using the equivalence
+
+log<sub>2</sub>(radix) = ln(radix) / ln(2)
+
+easily leads to floating point values slightly bigger than the correct result.
+The immediately following ceil will then round up to the next higher integer.
+
+An example that sometimes fails is v = 29 and radix = 256. Computing v
+log<sub>2</sub>(radix) as v log(radix) / log(2) using double gives v log(radix)
+/ log(2) = 232.00000000000003 and b = 30 instead of the correct result b = 29.
+
 ## A proposed simplification
 
 There are some ways to reduce the amount of integer arithmetic done during
