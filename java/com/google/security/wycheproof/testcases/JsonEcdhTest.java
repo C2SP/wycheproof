@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -153,6 +155,10 @@ public class JsonEcdhTest {
     assertEquals(0, testResult.errors());
   }
 
+  // This bug vanishes in jdk19, because secp224r1 is no longer supported.
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/237634445"})
   @Test
   public void testSecp224r1() throws Exception {
     testEcdhComp("ecdh_secp224r1_test.json");
@@ -173,6 +179,10 @@ public class JsonEcdhTest {
     testEcdhComp("ecdh_secp521r1_test.json");
   }
 
+  // This bug vanishes in jdk19, because secp256k1 is no longer supported.
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/237635484"})
   @Test
   public void testSecp256k1() throws Exception {
     testEcdhComp("ecdh_secp256k1_test.json");
