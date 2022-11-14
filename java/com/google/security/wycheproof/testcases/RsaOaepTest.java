@@ -35,7 +35,6 @@ import org.junit.runners.JUnit4;
 //   Is there an equivalent algorithm name for RSA-OAEP?
 // TODO(bleichen): Maybe add timing tests with long labels
 // TODO(bleichen): add documentation.
-// TODO(bleichen): merge JSON tests with RSA/PKCS1 v1.5 tests.
 
 @RunWith(JUnit4.class)
 public class RsaOaepTest {
@@ -76,7 +75,10 @@ public class RsaOaepTest {
     // Uncommon hash functions
     "RSA/ECB/OAEPwithSHA-512/224andMGF1Padding",
     "RSA/ECB/OAEPwithSHA-512/256andMGF1Padding",
-    // Not defined as far as I know.
+    // To our knowledge, RSA-OAEP with SHA-3 is not defined by any standards or RFC.
+    // For example, it is unclear if RSA-OAEP with SHA-3 should simply replace
+    // SHA-xxx with SHA3-xxx or if MGF1 should be replaced by SHAKE (similar to RFC 8702).
+    // However, the following algorithm names are supported by BouncyCastle.
     "RSA/ECB/OAEPwithSHA3-224andMGF1Padding",
     "RSA/ECB/OAEPwithSHA3-256andMGF1Padding",
     "RSA/ECB/OAEPwithSHA3-384andMGF1Padding",
@@ -119,9 +121,12 @@ public class RsaOaepTest {
    * is different than for example "RSASSA-PSS", where jdk requires that parameters are set
    * explicitly.
    *
-   * <p>The default parameters for "RSA/ECB/OAEPPadding" is to use SHA-1 and MGF1-SHA1. These values
-   * are acceptable since RSA-OAEP does not require a collision resistant hash function for its
-   * security.
+   * <p>The default parameters for "RSA/ECB/OAEPPadding" are typically SHA-1 and MGF1-SHA1. These
+   * values are acceptable since RSA-OAEP does not require a collision resistant hash function for
+   * its security.
+   *
+   * <p>https://jdk.java.net/19/release-notes claims that OAEPParameterSpec.DEFAULT static constant
+   * is deprecated. Hence callers should not rely on such default behaviour.
    */
   @Test
   public void testDefaults() throws Exception {
