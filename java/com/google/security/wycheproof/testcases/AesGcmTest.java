@@ -837,17 +837,9 @@ public class AesGcmTest {
    * <p>The test is slow as we have to encrypt 2^32 blocks.
    */
   @ExcludedTest(
-    providers = {ProviderType.CONSCRYPT, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE},
-    comment = "Conscrypt doesn't support streaming, would crash. BouncyCastle needs > 1h."
-  )
-  @SlowTest(
-    providers = {
-      ProviderType.BOUNCY_CASTLE,
-      ProviderType.CONSCRYPT,
-      ProviderType.OPENJDK,
-      ProviderType.SPONGY_CASTLE
-    }
-  )
+      providers = {ProviderType.CONSCRYPT, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE},
+      comment = "Conscrypt doesn't support streaming, would crash. BouncyCastle needs > 1h.")
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testWrappedAroundCounter() throws Exception {
     try {

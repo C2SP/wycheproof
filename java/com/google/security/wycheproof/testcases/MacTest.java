@@ -296,13 +296,7 @@ public class MacTest {
     assertEquals(expected, hexmac);
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMacSha1() throws Exception {
     testLongMac(
@@ -319,13 +313,7 @@ public class MacTest {
         "d7f4c387f2237ea119fcc27cd7520fc5132b6230");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMacSha256() throws Exception {
     testLongMac(
@@ -342,13 +330,7 @@ public class MacTest {
         "59a75754df7093fa4339aa618b64b104f153a5b42cc85394fdb8735b13ea684a");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMacSha384() throws Exception {
     testLongMac(
@@ -369,13 +351,7 @@ public class MacTest {
             + "a477e6a84d159d8b7a3daaa89c4f2372");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMacSha512() throws Exception {
     testLongMac(

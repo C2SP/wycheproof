@@ -353,24 +353,21 @@ public class MessageDigestTest {
     assertEquals(expected, hexdigest);
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageMd5() throws Exception {
     testLongMessage("MD5", "a", 2147483647L, "bb2ef53aae423cb9fbf8788f187601e6");
     testLongMessage("MD5", "a", 5000000000L, "cf3147924864955e385804daee42d3ef");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha1() throws Exception {
     testLongMessage("SHA-1", "a", 2147483647L, "1e5b490b10255e37fd96d0964f2fbfb91ed47536");
     testLongMessage("SHA-1", "a", 5000000000L, "109b426b74c3dc1bd0e15d3524c5b837557647f2");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha256() throws Exception {
     testLongMessage(
@@ -385,8 +382,7 @@ public class MessageDigestTest {
         "59fefaeb480c09b569fb8e5f277e0165e3f33bd322a2d2148cf6dd49af40779c");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha224() throws Exception {
     testLongMessage(
@@ -395,8 +391,7 @@ public class MessageDigestTest {
         "SHA-224", "a", 5000000000L, "01acee23c428420235b7cd6a4e8c7ee453242f094f1d4477de6ad61a");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha384() throws Exception {
     testLongMessage(
@@ -413,8 +408,7 @@ public class MessageDigestTest {
             + "35eef2e1dd576960b9e5a0cd10607c43");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha512() throws Exception {
     testLongMessage(
@@ -431,8 +425,7 @@ public class MessageDigestTest {
             + "4006f962f4fb31640642aece873f7906180cc3ebf794cd319d27d30889428011");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha3_224() throws Exception {
     testLongMessage(
@@ -441,8 +434,7 @@ public class MessageDigestTest {
         "SHA3-224", "a", 5000000000L, "96ce1138a9f42ba22929594a636404c13a99fe3c31a05fe3a00a8fda");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha3_256() throws Exception {
     testLongMessage(
@@ -457,8 +449,7 @@ public class MessageDigestTest {
         "ecb2ba5fe2a2632ea91c59ec40b113d843409f3c91cb7ec4cced351cec1202fb");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha3_384() throws Exception {
     testLongMessage(
@@ -475,8 +466,7 @@ public class MessageDigestTest {
             + "85c8317579057d90637da979f82e71f3");
   }
 
-  @SlowTest(
-      providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageSha3_512() throws Exception {
     testLongMessage(
@@ -512,7 +502,7 @@ public class MessageDigestTest {
    * BouncyCastle. Since they are not standard algorithm names it is likely that other providers
    * implementing the hash functions used different names.
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageKeccak224() throws Exception {
     testLongMessage(
@@ -523,7 +513,7 @@ public class MessageDigestTest {
         "KECCAK-224", "a", 5000000000L, "eb0d1cbaf604ed955fafd528c1d945f05f97ba6bfcfc57984d662913");
   }
 
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageKeccak256() throws Exception {
     testLongMessage(
@@ -543,7 +533,7 @@ public class MessageDigestTest {
         "875ff21c135ab9eb8a57da79f0f02c3ce0913dc9faad111e6f165dfce9715c45");
   }
 
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageKeccak384() throws Exception {
     testLongMessage(
@@ -566,7 +556,7 @@ public class MessageDigestTest {
             + "c55f6557098335eff1982cc8b078ec4f");
   }
 
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageKeccak512() throws Exception {
     testLongMessage(
@@ -594,7 +584,7 @@ public class MessageDigestTest {
    *
    * <p>BouncyCastle uses algorithm name "SHAKE128-256" for this function.
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageShake128_256() throws Exception {
     testLongMessage(
@@ -614,7 +604,7 @@ public class MessageDigestTest {
    *
    * <p>BouncyCastle uses algorithm name "SHAKE256-512" for this function.
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testLongMessageShake256_512() throws Exception {
     testLongMessage(

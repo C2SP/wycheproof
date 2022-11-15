@@ -521,14 +521,7 @@ public class EcdsaTest {
     }
   }
 
-  @SlowTest(
-    providers = {
-      ProviderType.BOUNCY_CASTLE,
-      ProviderType.CONSCRYPT,
-      ProviderType.OPENJDK,
-      ProviderType.SPONGY_CASTLE
-    }
-  )
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingAll() throws Exception {
     testTiming("SHA256WithECDSA", "secp256r1");

@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
@@ -46,11 +47,17 @@ public class WycheproofRunner extends Suite {
 
   /** List of supported providers. */
   public enum ProviderType {
+    ALL,
     BOUNCY_CASTLE,
     CONSCRYPT,
     OPENJDK,
     SPONGY_CASTLE,
-    AMAZON_CORRETTO_CRYPTO_PROVIDER
+    AMAZON_CORRETTO_CRYPTO_PROVIDER,
+    // Runs the test suites with both OpenJDK and Conscrypt installed.
+    // Sometimes installing multiple providers leads to unwanted interactions.
+    // Such situation can for example occur if an encoded key is parsed by
+    // one provider, but then used by the second provider.
+    OPENJDK_AND_CONSCRYPT,
   }
 
   // Annotations for test runners.
@@ -152,6 +159,12 @@ public class WycheproofRunner extends Suite {
       return isOkayToRunTest(description);
     }
 
+    private boolean containsTargetOrAll(ProviderType[] providers) {
+      List<ProviderType> providerList = Arrays.asList(providers);
+      return providerList.contains(targetProvider.value())
+          || providerList.contains(ProviderType.ALL);
+    }
+
     private boolean isOkayToRunTest(Description description) {
       if (targetProvider == null) {
         // Run all test functions if the test runner is not annotated with {@code @Provider}.
@@ -159,16 +172,14 @@ public class WycheproofRunner extends Suite {
       }
       // Skip @ExcludedTest tests
       ExcludedTest excludedTest = description.getAnnotation(ExcludedTest.class);
-      if (excludedTest != null
-          && Arrays.asList(excludedTest.providers()).contains(targetProvider.value())) {
+      if (excludedTest != null && containsTargetOrAll(excludedTest.providers())) {
         return false;
       }
 
       // If the runner class is annotated with @Presubmit, skip non-presubmit tests
       if (presubmit != null) {
         NoPresubmitTest ignoreOn = description.getAnnotation(NoPresubmitTest.class);
-        if (ignoreOn != null
-            && Arrays.asList(ignoreOn.providers()).contains(targetProvider.value())) {
+        if (ignoreOn != null && containsTargetOrAll(ignoreOn.providers())) {
           return false;
         }
       }
@@ -176,8 +187,7 @@ public class WycheproofRunner extends Suite {
       // If the runner class is annotated with @Fast, skip slow tests
       if (fast != null) {
         SlowTest ignoreOn = description.getAnnotation(SlowTest.class);
-        if (ignoreOn != null
-            && Arrays.asList(ignoreOn.providers()).contains(targetProvider.value())) {
+        if (ignoreOn != null && containsTargetOrAll(ignoreOn.providers())) {
           return false;
         }
       }
