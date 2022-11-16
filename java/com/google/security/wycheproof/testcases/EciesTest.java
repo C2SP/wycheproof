@@ -551,9 +551,6 @@ public class EciesTest {
    * Encryption with ByteBuffers. This test failed with BouncyCastle v 1.52 probably because of this
    * bug http://www.bouncycastle.org/jira/browse/BJA-577
    */
-  @NoPresubmitTest(
-      providers = {ProviderType.BOUNCY_CASTLE},
-      bugs = {"b/256023899"})
   @Test
   public void testByteBuffer() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
@@ -575,10 +572,22 @@ public class EciesTest {
 
     // Decryption
     ctBuffer.flip();
-    ByteBuffer decrypted = ByteBuffer.allocate(message.length);
     cipher.init(Cipher.DECRYPT_MODE, priv, params);
+    // The class java.base/share/classes/javax/crypto/CipherSpi.java
+    // requires that the ByteBuffer contains at least as many bytes
+    // as cipher.getOutputSize() returns. Otherwise it throws a
+    // ShortBufferException. This happens even if the actually encrypted
+    // message would fit in the provided ByteBuffer.
+    //
+    // This means that a caller has to provide a ByteBuffer with more
+    // remaining bytes than actually necessary.
+    int requiredBufferSize = cipher.getOutputSize(ctBuffer.remaining());
+    ByteBuffer decrypted = ByteBuffer.allocate(requiredBufferSize);
     cipher.doFinal(ctBuffer, decrypted);
-    assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decrypted.array()));
+    decrypted.flip();
+    byte[] decryptedBytes = new byte[decrypted.remaining()];
+    decrypted.get(decryptedBytes);
+    assertEquals(TestUtil.bytesToHex(message), TestUtil.bytesToHex(decryptedBytes));
   }
 
   /**
