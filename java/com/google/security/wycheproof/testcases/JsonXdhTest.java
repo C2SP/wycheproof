@@ -264,7 +264,11 @@ public class JsonXdhTest {
   }
 
   private static void singleTest(
-      NamedParameterSpec paramSpec, String schema, JsonObject testcase, TestResult testResult)
+      TestVectors testvectors,
+      NamedParameterSpec paramSpec,
+      String schema,
+      JsonObject testcase,
+      TestResult testResult)
       throws Exception {
     int tcId = testcase.get("tcId").getAsInt();
     String result = testcase.get("result").getAsString();
@@ -282,7 +286,7 @@ public class JsonXdhTest {
       TestResult.Type res;
       String comment = "";
       if (expectedHex.equals(sharedHex)) {
-        if (result.equals("valid") || result.equals("acceptable")) {
+        if (result.equals("valid") || testvectors.isLegacy(tcId)) {
           res = TestResult.Type.PASSED_VALID;
         } else {
           // A shared secret was computed with an invalid input.
@@ -290,7 +294,7 @@ public class JsonXdhTest {
           res = TestResult.Type.PASSED_MALFORMED;
         }
       } else {
-        if (result.equals("valid") || result.equals("acceptable")) {
+        if (result.equals("valid") || testvectors.isLegacy(tcId)) {
           res = TestResult.Type.WRONG_RESULT;
         } else {
           // An invalid shared secret was computed with an invalid input.
@@ -304,7 +308,11 @@ public class JsonXdhTest {
       testResult.addResult(tcId, res, comment);
     } catch (NoSuchAlgorithmException ex) {
       testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
-    } catch (InvalidKeySpecException | InvalidKeyException ex) {
+    } catch (InvalidKeySpecException | InvalidKeyException | IllegalStateException ex) {
+      // IllegalStateException is a RuntimeException. Normally a provider should not throw
+      // any RuntimeException, when the input is malformed. Unfortunately, the interface
+      // KeyAgreement.generateSecret only allows ShortBufferException and IllegalStateException.
+      // Hence some provider throw, IllegalStateExceptions when the shared secret is invalid.
       if (result.equals("valid")) {
         testResult.addResult(tcId, TestResult.Type.REJECTED_VALID, ex.toString());
       } else {
@@ -359,7 +367,7 @@ public class JsonXdhTest {
       NamedParameterSpec paramSpec = getParameterSpec(curve);
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        singleTest(paramSpec, schema, testcase, testResult);
+        singleTest(testVectors, paramSpec, schema, testcase, testResult);
       }
     }
     return testResult;
