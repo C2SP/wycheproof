@@ -78,7 +78,15 @@ public class JsonMacTest {
   private static byte[] computeMac(String algorithm, byte[] key, byte[] msg, int tagSize)
       throws NoSuchAlgorithmException, InvalidKeyException {
     Mac mac = getMac(algorithm);
-    SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
+    SecretKeySpec keySpec;
+
+    try {
+      keySpec = new SecretKeySpec(key, algorithm);
+    } catch (IllegalArgumentException ex) {
+      // Thrown by javax.crypto.spec.SecretKeySpec (e.g. when the key is empty).
+      // Better is to throw an InvalidKeyException.
+      throw new InvalidKeyException(ex);
+    }
     // TODO(bleichen): Is there a provider independent truncation?
     //   The class javax.xml.crypto.dsig.spec.HMACParameterSpec would allow to
     //   truncate HMAC tags as follows:
@@ -103,95 +111,6 @@ public class JsonMacTest {
       return Arrays.copyOf(tag, tagSize / 8);
     } else {
       throw new NoSuchAlgorithmException("Truncation not supported for " + algorithm);
-    }
-  }
-
-  /**
-   * Tests a randomized MAC (i.e. a message authetication that takes an additional IV as parameter)
-   * against test vectors.
-   *
-   * @param filename the JSON file with the test vectors.
-   */
-  public void testMac(String filename) throws Exception {
-    // Checking preconditions.
-    JsonObject test = JsonUtil.getTestVectorsV1(filename);
-    String algorithm = test.get("algorithm").getAsString();
-    try {
-      Mac unused = getMac(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("Algorithm is not supported. Skipping test for " + algorithm);
-      return;
-    }
-
-    int numTests = test.get("numberOfTests").getAsInt();
-    int cntTests = 0;
-    int passedTests = 0;
-    int errors = 0;
-    for (JsonElement g : test.getAsJsonArray("testGroups")) {
-      JsonObject group = g.getAsJsonObject();
-      int tagSize = group.get("tagSize").getAsInt();
-      for (JsonElement t : group.getAsJsonArray("tests")) {
-        cntTests++;
-        JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String tc = "tcId: " + tcid + " " + testcase.get("comment").getAsString();
-        byte[] key = getBytes(testcase, "key");
-        byte[] msg = getBytes(testcase, "msg");
-        byte[] expectedTag = getBytes(testcase, "tag");
-        // Result is one of "valid", "invalid", "acceptable".
-        // "valid" are test vectors with matching plaintext, ciphertext and tag.
-        // "invalid" are test vectors with invalid parameters or invalid ciphertext and tag.
-        // "acceptable" are test vectors with weak parameters or legacy formats.
-        String result = testcase.get("result").getAsString();
-
-        byte[] computedTag = null;
-        try {
-          computedTag = computeMac(algorithm, key, msg, tagSize);
-        } catch (GeneralSecurityException ex) {
-          // Some libraries restrict key size or tag size. Hence valid MACs might be
-          // rejected.
-          continue;
-        } catch (IllegalArgumentException ex) {
-          // Thrown by javax.crypto.spec.SecretKeySpec (e.g. when the key is empty).
-          continue;
-        }
-
-        boolean eq = MessageDigest.isEqual(expectedTag, computedTag);
-        if (result.equals("invalid")) {
-          if (eq) {
-            // Some test vectors use invalid parameters that should be rejected.
-            // E.g. an implementation must not allow AES-GMAC with an IV of length 0,
-            // since this leaks the authentication key.
-            System.out.println("Computed mac for test case " + tc);
-            errors++;
-          }
-        } else {
-          if (eq) {
-            passedTests++;
-          } else {
-            System.out.println(
-                "Incorrect tag for "
-                    + tc
-                    + " expected:"
-                    + TestUtil.bytesToHex(expectedTag)
-                    + " computed:"
-                    + TestUtil.bytesToHex(computedTag));
-            errors++;
-          }
-        }
-      }
-    }
-    System.out.println("passed Tests for " + algorithm + ":" + passedTests);
-    assertEquals(0, errors);
-    assertEquals(numTests, cntTests);
-    // It is possible that an algorithm is implemented, but that the implementation
-    // is so specialized that no valid test vectors passed the test.
-    // For example, boringSSL used to implement AES-CCM only for the parameter sizes
-    // used in bluetooth. This generated no overlap with the test vectors from
-    // Wycheproof.
-    // In such cases the test is marked as skipped.
-    if (passedTests == 0) {
-      TestUtil.skipTest("No test passed");
     }
   }
 
@@ -245,88 +164,109 @@ public class JsonMacTest {
     }
   }
 
+  private static void singleTest(
+      String algorithm, int tagSize, boolean withIv, JsonObject testcase, TestResult testResult)
+      throws Exception {
+    int tcId = testcase.get("tcId").getAsInt();
+    byte[] key = getBytes(testcase, "key");
+    byte[] msg = getBytes(testcase, "msg");
+    byte[] expectedTag = getBytes(testcase, "tag");
+    String result = testcase.get("result").getAsString();
+    byte[] computedTag = null;
+    try {
+      if (withIv) {
+        byte[] iv = getBytes(testcase, "iv");
+        computedTag = computeMacWithIv(algorithm, key, iv, msg, tagSize);
+      } else {
+        computedTag = computeMac(algorithm, key, msg, tagSize);
+      }
+      // TODO(bleichen): We shouldn't accept IllegalArgumentException here.
+      //   Some providers throw this exception when the key size is incorrect.
+    } catch (GeneralSecurityException | IllegalArgumentException ex) {
+      testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+      return;
+    } catch (Exception ex) {
+      testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
+      return;
+    }
+    boolean eq = MessageDigest.isEqual(expectedTag, computedTag);
+    TestResult.Type resultType;
+    String comment = "";
+    if (eq) {
+      if (result.equals("invalid")) {
+        resultType = TestResult.Type.NOT_REJECTED_INVALID;
+      } else {
+        resultType = TestResult.Type.PASSED_VALID;
+      }
+    } else {
+      if (result.equals("valid")) {
+        resultType = TestResult.Type.WRONG_RESULT;
+        comment = TestUtil.bytesToHex(computedTag);
+      } else {
+        resultType = TestResult.Type.REJECTED_INVALID;
+      }
+    }
+    testResult.addResult(tcId, resultType, comment);
+  }
+
+  /**
+   * Checks each test vector in a file of test vectors.
+   *
+   * <p>This method is the part of testVerification that does not log any result. The main idea
+   * behind splitting off this part from testVerification is that it may be easier to call from a
+   * third party.
+   *
+   * @param testVectors the test vectors
+   * @return a test result
+   */
+  public static TestResult allTests(TestVectors testVectors) throws Exception {
+    var testResult = new TestResult(testVectors);
+    JsonObject test = testVectors.getTest();
+    String algorithm = test.get("algorithm").getAsString();
+    String schema = test.get("schema").getAsString();
+    boolean withIv;
+    switch (schema) {
+      case "mac_test_schema.json":
+        withIv = false;
+        break;
+      case "mac_with_iv_test_schema.json":
+        withIv = true;
+        break;
+      default:
+        testResult.addFailure(TestResult.Type.WRONG_SETUP, "Unknown schema: " + schema);
+        return testResult;
+    }
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      int tagSize = group.get("tagSize").getAsInt();
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        JsonObject testcase = t.getAsJsonObject();
+        singleTest(algorithm, tagSize, withIv, testcase, testResult);
+      }
+    }
+    return testResult;
+  }
+
   /**
    * Tests a randomized MAC (i.e. a message authetication that takes an additional IV as parameter)
    * against test vectors.
    *
    * @param filename the JSON file with the test vectors.
    */
-  public void testMacWithIv(String filename) throws Exception {
-    JsonObject test = JsonUtil.getTestVectorsV1(filename);
-    String algorithm = test.get("algorithm").getAsString();
-
+  public void testMac(String filename) throws Exception {
     // Checking preconditions.
-    try {
-      Mac.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("Algorithm is not supported. Skipping test for " + algorithm);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestVectors testVectors = new TestVectors(test, filename);
+    TestResult testResult = allTests(testVectors);
+
+    if (testResult.skipTest()) {
+      TestUtil.skipTest("No MACs computed");
       return;
     }
-
-    int numTests = test.get("numberOfTests").getAsInt();
-    int cntTests = 0;
-    int passedTests = 0;
-    int errors = 0;
-    for (JsonElement g : test.getAsJsonArray("testGroups")) {
-      JsonObject group = g.getAsJsonObject();
-      int tagSize = group.get("tagSize").getAsInt();
-      for (JsonElement t : group.getAsJsonArray("tests")) {
-        cntTests++;
-        JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String tc = "tcId: " + tcid + " " + testcase.get("comment").getAsString();
-        byte[] key = getBytes(testcase, "key");
-        byte[] iv = getBytes(testcase, "iv");
-        byte[] msg = getBytes(testcase, "msg");
-        byte[] expectedTag = getBytes(testcase, "tag");
-        // Result is one of "valid", "invalid", "acceptable".
-        // "valid" are test vectors with matching plaintext, ciphertext and tag.
-        // "invalid" are test vectors with invalid parameters or invalid ciphertext and tag.
-        // "acceptable" are test vectors with weak parameters or legacy formats.
-        String result = testcase.get("result").getAsString();
-        byte[] computedTag;
-        try {
-          computedTag = computeMacWithIv(algorithm, key, iv, msg, tagSize);
-        } catch (GeneralSecurityException ex) {
-          // Some libraries restrict key size, iv size and tag size.
-          // Because of the initialization of the Mac might fail.
-          continue;
-        } catch (IllegalArgumentException ex) {
-          // Thrown by javax.crypto.spec.SecretKeySpec (e.g. when the key is empty).
-          continue;
-        }
-        boolean eq = MessageDigest.isEqual(expectedTag, computedTag);
-        if (result.equals("invalid")) {
-          if (eq) {
-            // Some test vectors use invalid parameters that should be rejected.
-            // E.g. an implementation must not allow AES-GMAC with an IV of length 0,
-            // since this leaks the authentication key.
-            System.out.println("Computed mac for test case " + tc);
-            errors++;
-          }
-        } else {
-          if (eq) {
-            passedTests++;
-          } else {
-            System.out.println(
-                "Incorrect tag for "
-                    + tc
-                    + " expected:"
-                    + TestUtil.bytesToHex(expectedTag)
-                    + " computed:"
-                    + TestUtil.bytesToHex(computedTag));
-            errors++;
-          }
-        }
-      }
-    }
-    System.out.println("passed Tests for " + algorithm + ":" + passedTests);
-    assertEquals(0, errors);
-    assertEquals(numTests, cntTests);
-    if (passedTests == 0) {
-      TestUtil.skipTest("No test passed");
-    }
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
   }
+
 
   @Test
   public void testAesCmac() throws Exception {
@@ -415,7 +355,7 @@ public class JsonMacTest {
 
   @Test
   public void testAesGmac() throws Exception {
-    testMacWithIv("aes_gmac_test.json");
+    testMac("aes_gmac_test.json");
   }
 
   /**
