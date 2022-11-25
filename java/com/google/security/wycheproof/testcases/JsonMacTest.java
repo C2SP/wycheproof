@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4;
 public class JsonMacTest {
 
   /** Convenience method to get a byte array from an JsonObject */
-  private static byte[] getBytes(JsonObject obj, String name) throws Exception {
+  private static byte[] getBytes(JsonObject obj, String name) {
     return JsonUtil.asByteArray(obj.get(name));
   }
 
@@ -165,8 +165,7 @@ public class JsonMacTest {
   }
 
   private static void singleTest(
-      String algorithm, int tagSize, boolean withIv, JsonObject testcase, TestResult testResult)
-      throws Exception {
+      String algorithm, int tagSize, boolean withIv, JsonObject testcase, TestResult testResult) {
     int tcId = testcase.get("tcId").getAsInt();
     byte[] key = getBytes(testcase, "key");
     byte[] msg = getBytes(testcase, "msg");
@@ -185,7 +184,7 @@ public class JsonMacTest {
     } catch (GeneralSecurityException | IllegalArgumentException ex) {
       testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
       return;
-    } catch (Exception ex) {
+    } catch (RuntimeException ex) {
       testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
       return;
     }
@@ -219,7 +218,7 @@ public class JsonMacTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String algorithm = test.get("algorithm").getAsString();

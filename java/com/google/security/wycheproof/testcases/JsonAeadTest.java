@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -43,11 +44,12 @@ public class JsonAeadTest {
   }
 
   /** Convenience method to get a byte array from an JsonObject */
-  protected static byte[] getBytes(JsonObject obj, String name) throws Exception {
+  protected static byte[] getBytes(JsonObject obj, String name) {
     return JsonUtil.asByteArray(obj.get(name));
   }
 
-  protected static Cipher getCipher(String algorithm) throws GeneralSecurityException {
+  protected static Cipher getCipher(String algorithm)
+      throws NoSuchAlgorithmException, NoSuchPaddingException {
     switch (algorithm) {
       case "AES-GCM":
         return Cipher.getInstance("AES/GCM/NoPadding");
@@ -217,7 +219,7 @@ public class JsonAeadTest {
    * </pre>
    */
   private static void singleTest(
-      String algorithm, int tagSize, JsonObject testcase, TestResult testResult) throws Exception {
+      String algorithm, int tagSize, JsonObject testcase, TestResult testResult) {
     int tcId = testcase.get("tcId").getAsInt();
     byte[] key = getBytes(testcase, "key");
     byte[] iv = getBytes(testcase, "iv");
@@ -318,13 +320,13 @@ public class JsonAeadTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String algorithm = test.get("algorithm").getAsString();
     try {
       Cipher unused = getCipher(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
       testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
       return testResult;
     }

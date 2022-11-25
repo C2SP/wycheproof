@@ -159,8 +159,7 @@ public class JsonKeyWrapTest {
     }
   }
 
-  private static void singleTest(String algorithm, JsonObject testcase, TestResult testResult)
-      throws Exception {
+  private static void singleTest(String algorithm, JsonObject testcase, TestResult testResult) {
     int tcId = testcase.get("tcId").getAsInt();
     byte[] key = getBytes(testcase, "key");
     byte[] data = getBytes(testcase, "msg");
@@ -181,14 +180,14 @@ public class JsonKeyWrapTest {
     Cipher cipher;
     try {
       cipher = getCipher(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
       testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
       return;
     }
     SecretKeySpec keySpec;
     try {
       keySpec = getSecretKeySpec(algorithm, key);
-    } catch (InvalidKeyException ex) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException ex) {
       testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
       return;
     }
@@ -273,13 +272,13 @@ public class JsonKeyWrapTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String algorithm = test.get("algorithm").getAsString();
     try {
       Cipher unused = getCipher(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
       testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
       return testResult;
     }
