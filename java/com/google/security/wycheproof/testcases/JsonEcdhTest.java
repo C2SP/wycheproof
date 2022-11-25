@@ -39,18 +39,16 @@ import org.junit.runners.JUnit4;
 public class JsonEcdhTest {
 
   /** Convenience method to get a BigInteger from a JsonObject */
-  protected static BigInteger getBigInteger(JsonObject object, String name) throws Exception {
+  protected static BigInteger getBigInteger(JsonObject object, String name) {
     return JsonUtil.asBigInteger(object.get(name));
   }
 
   /** Convenience method to get a byte array from a JsonObject */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
+  protected static byte[] getBytes(JsonObject object, String name) {
     return JsonUtil.asByteArray(object.get(name));
   }
 
-  private static void singleTest(JsonObject testcase, String curve, TestResult testResult)
-      throws Exception {
-
+  private static void singleTest(JsonObject testcase, String curve, TestResult testResult) {
     BigInteger priv = getBigInteger(testcase, "private");
     byte[] publicEncoded = getBytes(testcase, "public");
     String result = testcase.get("result").getAsString();
@@ -92,7 +90,7 @@ public class JsonEcdhTest {
       } else {
         testResult.addResult(tcId, TestResult.Type.REJECTED_INVALID, ex.toString());
       }
-    } catch (Exception ex) {
+    } catch (RuntimeException ex) {
       testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
     }
   }
@@ -125,13 +123,18 @@ public class JsonEcdhTest {
    *     ...
    * </pre>
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     String name = testVectors.getName();
     JsonObject test = testVectors.getTest();
     final String expectedSchema = "ecdh_test_schema.json";
     String schema = test.get("schema").getAsString();
-    assertEquals("Unexpected schema in:" + name, expectedSchema, schema);
+    if (!schema.equals(expectedSchema)) {
+      testResult.addFailure(
+          TestResult.Type.WRONG_SETUP,
+          "Unexpected schema in " + name + ": " + schema + " instead of " + expectedSchema);
+      return testResult;
+    }
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       String curve = group.get("curve").getAsString();

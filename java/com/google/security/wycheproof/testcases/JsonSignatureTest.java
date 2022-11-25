@@ -14,7 +14,6 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -362,7 +361,7 @@ public class JsonSignatureTest {
    * format encoded hexadecimal The test can use the format that is most convenient.
    */
   protected static PublicKey getPublicKey(JsonObject group, SignatureAlgorithm algorithm)
-      throws Exception {
+      throws GeneralSecurityException {
     KeyFactory kf;
     switch (algorithm) {
       case ECDSA:
@@ -494,14 +493,16 @@ public class JsonSignatureTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String schema = getString(test, "schema");
     Format signatureFormat = getSignatureFormat(schema);
-    assertFalse("Unsupported schema:" + schema, signatureFormat == Format.UNKNOWN);
     SignatureAlgorithm signatureAlgorithm = getSignatureAlgorithm(schema);
-    assertFalse("Unsupported schema:" + schema, signatureAlgorithm == SignatureAlgorithm.UNKNOWN);
+    if (signatureFormat == Format.UNKNOWN || signatureAlgorithm == SignatureAlgorithm.UNKNOWN) {
+      testResult.addFailure(TestResult.Type.WRONG_SETUP, "Unknown schema: " + schema);
+      return testResult;
+    }
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       PublicKey key;
@@ -604,17 +605,17 @@ public class JsonSignatureTest {
 
   @Test
   public void testSecp224r1Sha224() throws Exception {
-    testVerification("ecdsa_secp224r1_sha224_test.json", false);
+    testVerification("ecdsa_secp224r1_sha224_test.json", true);
   }
 
   @Test
   public void testSecp224r1Sha256() throws Exception {
-    testVerification("ecdsa_secp224r1_sha256_test.json", false);
+    testVerification("ecdsa_secp224r1_sha256_test.json", true);
   }
 
   @Test
   public void testSecp224r1Sha512() throws Exception {
-    testVerification("ecdsa_secp224r1_sha512_test.json", false);
+    testVerification("ecdsa_secp224r1_sha512_test.json", true);
   }
 
   @Test
@@ -892,7 +893,7 @@ public class JsonSignatureTest {
 
   @Test
   public void testRsaSignature2048sha224() throws Exception {
-    testVerification("rsa_signature_2048_sha224_test.json", false);
+    testVerification("rsa_signature_2048_sha224_test.json", true);
   }
 
   @Test

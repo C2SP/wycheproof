@@ -62,7 +62,7 @@ public class JsonRsaEncryptionTest {
    * alternative would be to use OID id-RSASSA-PSS, but we are not aware of a provider that support
    * such keys.
    */
-  private static PrivateKey getPrivateKey(JsonObject object) throws Exception {
+  private static PrivateKey getPrivateKey(JsonObject object) throws GeneralSecurityException {
     KeyFactory kf;
     kf = KeyFactory.getInstance("RSA");
     byte[] encoded = TestUtil.hexToBytes(getString(object, "privateKeyPkcs8"));
@@ -97,7 +97,7 @@ public class JsonRsaEncryptionTest {
   }
 
   private static AlgorithmParameterSpec getParameters(
-      JsonObject group, JsonObject test, String schema) throws Exception {
+      JsonObject group, JsonObject test, String schema) {
     if (schema.equals("rsaes_oaep_decrypt_schema.json")) {
       String sha = getString(group, "sha");
       String mgf = getString(group, "mgf");
@@ -182,7 +182,7 @@ public class JsonRsaEncryptionTest {
    * @param testVectors the test vectors
    * @return a test result
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
     JsonObject test = testVectors.getTest();
     String schema = test.get("schema").getAsString();

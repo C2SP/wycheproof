@@ -142,7 +142,7 @@ public class JsonXdhTest {
   }
 
   /** Convenience method to get a byte array from a JsonObject */
-  private static byte[] getBytes(JsonObject object, String name) throws Exception {
+  private static byte[] getBytes(JsonObject object, String name) {
     return JsonUtil.asByteArray(object.get(name));
   }
 
@@ -218,7 +218,8 @@ public class JsonXdhTest {
    * @return the public key
    */
   private static KeySpec getPublicKeySpec(
-      NamedParameterSpec paramSpec, String schema, JsonObject testcase) throws Exception {
+      NamedParameterSpec paramSpec, String schema, JsonObject testcase)
+      throws InvalidKeySpecException, NoSuchAlgorithmException {
     byte[] pub = getBytes(testcase, "public");
     switch (schema) {
       case "xdh_asn_comp_schema.json":
@@ -240,7 +241,8 @@ public class JsonXdhTest {
    * @return the private key
    */
   private static KeySpec getPrivateKeySpec(
-      NamedParameterSpec paramSpec, String schema, JsonObject testcase) throws Exception {
+      NamedParameterSpec paramSpec, String schema, JsonObject testcase)
+      throws NoSuchAlgorithmException {
     byte[] priv = getBytes(testcase, "private");
     switch (schema) {
       case "xdh_asn_comp_schema.json":
@@ -252,7 +254,7 @@ public class JsonXdhTest {
     }
   }
 
-  private static NamedParameterSpec getParameterSpec(String curve) throws Exception {
+  private static NamedParameterSpec getParameterSpec(String curve) throws NoSuchAlgorithmException {
     switch (curve) {
       case "curve25519":
         return NamedParameterSpec.X25519;
@@ -268,13 +270,12 @@ public class JsonXdhTest {
       NamedParameterSpec paramSpec,
       String schema,
       JsonObject testcase,
-      TestResult testResult)
-      throws Exception {
+      TestResult testResult) {
     int tcId = testcase.get("tcId").getAsInt();
     String result = testcase.get("result").getAsString();
     String expectedHex = testcase.get("shared").getAsString();
-    KeyFactory kf = KeyFactory.getInstance("XDH");
     try {
+      KeyFactory kf = KeyFactory.getInstance("XDH");
       KeySpec privKeySpec = getPrivateKeySpec(paramSpec, schema, testcase);
       PrivateKey privKey = kf.generatePrivate(privKeySpec);
       KeySpec pubKeySpec = getPublicKeySpec(paramSpec, schema, testcase);
@@ -318,7 +319,7 @@ public class JsonXdhTest {
       } else {
         testResult.addResult(tcId, TestResult.Type.REJECTED_INVALID, ex.toString());
       }
-    } catch (Exception ex) {
+    } catch (RuntimeException ex) {
       testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
     }
   }
@@ -357,14 +358,26 @@ public class JsonXdhTest {
    *         ...
    * </pre>
    */
-  public static TestResult allTests(TestVectors testVectors) throws Exception {
+  public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
+    try {
+      KeyAgreement unused = KeyAgreement.getInstance("XDH");
+    } catch (NoSuchAlgorithmException ex) {
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, "XDH is not known");
+      return testResult;
+    }
     JsonObject test = testVectors.getTest();
     String schema = test.get("schema").getAsString();
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       String curve = group.get("curve").getAsString();
-      NamedParameterSpec paramSpec = getParameterSpec(curve);
+      NamedParameterSpec paramSpec;
+      try {
+        paramSpec = getParameterSpec(curve);
+      } catch (NoSuchAlgorithmException ex) {
+        testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+        continue;
+      }
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
         singleTest(testVectors, paramSpec, schema, testcase, testResult);
