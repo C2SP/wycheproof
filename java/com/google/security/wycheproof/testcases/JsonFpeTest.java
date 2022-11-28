@@ -37,7 +37,7 @@ import org.junit.runners.JUnit4;
 public class JsonFpeTest {
 
   /** Wycheproof represents byte arrays as hexadeciamal strings. */
-  private static byte[] getBytes(JsonObject object, String name) throws Exception {
+  private static byte[] getBytes(JsonObject object, String name) {
     String hex = object.get(name).getAsString();
     return TestUtil.hexToBytes(hex);
   }
@@ -46,7 +46,7 @@ public class JsonFpeTest {
    * Plaintext and ciphertexts are represented as list of integers in the range 0 .. radix-1.
    * BouncyCastle uses bytes.
    */
-  private static byte[] getMessage(JsonObject object, String name, int radix) throws Exception {
+  private static byte[] getMessage(JsonObject object, String name, int radix) {
     JsonArray ba = object.get(name).getAsJsonArray();
     byte[] res = new byte[ba.size()];
     for (int i = 0; i < ba.size(); i++) {
@@ -70,7 +70,7 @@ public class JsonFpeTest {
    *     not happen unless the code here is incorrect or incomplete.
    */
   private static AlgorithmParameterSpec algorithmParameters(int radix, byte[] tweak)
-      throws Exception {
+      throws NoSuchAlgorithmException, ReflectiveOperationException {
     try {
       // Tries the parameter specification from BouncyCastle.
       // This code uses reflection, because there appears to be no way to use the JCA interface.
@@ -83,19 +83,19 @@ public class JsonFpeTest {
     throw new NoSuchAlgorithmException("Can't construct an AlgorithmParameterSpec");
   }
 
-  protected static byte[] encrypt(Cipher cipher, byte[] key, byte[] tweak, byte[] pt, int radix)
-      throws Exception {
-    AlgorithmParameterSpec fpeParameterSpec = algorithmParameters(radix, tweak);
+  private static byte[] encrypt(
+      Cipher cipher, AlgorithmParameterSpec params, byte[] key, byte[] pt)
+      throws GeneralSecurityException {
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-    cipher.init(Cipher.ENCRYPT_MODE, keySpec, fpeParameterSpec);
+    cipher.init(Cipher.ENCRYPT_MODE, keySpec, params);
     return cipher.doFinal(pt);
   }
 
-  protected static byte[] decrypt(Cipher cipher, byte[] key, byte[] tweak, byte[] ct, int radix)
-      throws Exception {
-    AlgorithmParameterSpec fpeParameterSpec = algorithmParameters(radix, tweak);
+  private static byte[] decrypt(
+      Cipher cipher, AlgorithmParameterSpec params, byte[] key, byte[] ct)
+      throws GeneralSecurityException {
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-    cipher.init(Cipher.DECRYPT_MODE, keySpec, fpeParameterSpec);
+    cipher.init(Cipher.DECRYPT_MODE, keySpec, params);
     return cipher.doFinal(ct);
   }
 
@@ -106,6 +106,137 @@ public class JsonFpeTest {
     } else {
       throw new NoSuchAlgorithmException(algorithmName + " not supported");
     }
+  }
+
+  private static void singleTest(
+      String algorithm, int radix, JsonObject testcase, TestResult testResult) {
+    Cipher cipher;
+    try {
+      cipher = getCipher(algorithm);
+    } catch (GeneralSecurityException ex) {
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
+      return;
+    }
+    int tcid = testcase.get("tcId").getAsInt();
+    byte[] key = getBytes(testcase, "key");
+    byte[] tweak = getBytes(testcase, "tweak");
+    byte[] msg = getMessage(testcase, "msg", radix);
+    byte[] ct = getMessage(testcase, "ct", radix);
+    if (msg == null || ct == null) {
+      return;
+    }
+    String result = testcase.get("result").getAsString();
+    TestResult.Type resultType;
+    String comment = "";
+    // Normally the test tries to encrypt and decrypt a ciphertext.
+    // tryDecrypt is set to false if the result from encryption is serious enough,
+    // so that trying to decrypt no longer makes sense.
+    boolean tryDecrypt = true;
+    AlgorithmParameterSpec fpeParameterSpec;
+    try {
+      fpeParameterSpec = algorithmParameters(radix, tweak);
+    } catch (NoSuchAlgorithmException ex) {
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
+      return;
+    } catch (ReflectiveOperationException ex) {
+      testResult.addFailure(TestResult.Type.WRONG_SETUP, ex.toString());
+      return;
+    }
+    try {
+      byte[] encrypted = encrypt(cipher, fpeParameterSpec, key, msg);
+      boolean eq = Arrays.equals(ct, encrypted);
+      if (result.equals("invalid")) {
+        if (eq) {
+          // Some test vectors use invalid parameters that should be rejected.
+          // E.g. an implementation must never encrypt using AES-GCM with an IV of length 0,
+          // since this leaks the authentication key.
+          resultType = TestResult.Type.NOT_REJECTED_INVALID;
+          tryDecrypt = false;
+        } else {
+          // Invalid test vectors frequently have invalid tags.
+          // Hence encryption just gives a different result.
+          resultType = TestResult.Type.REJECTED_INVALID;
+        }
+      } else {
+        if (!eq) {
+          // If encryption returns the wrong result then something is
+          // broken. Hence we can stop here.
+          resultType = TestResult.Type.WRONG_RESULT;
+          comment = "ciphertext: " + TestUtil.bytesToHex(encrypted);
+          tryDecrypt = false;
+        } else {
+          resultType = TestResult.Type.PASSED_VALID;
+        }
+      }
+    } catch (GeneralSecurityException | IllegalArgumentException ex) {
+      if (result.equals("valid")) {
+        // Test vectors can be rejected because of the message size.
+        resultType = TestResult.Type.REJECTED_ALGORITHM;
+        tryDecrypt = false;
+      } else {
+        resultType = TestResult.Type.REJECTED_INVALID;
+      }
+    }
+
+    if (tryDecrypt) {
+      // Test decryption
+      try {
+        byte[] decrypted = decrypt(cipher, fpeParameterSpec, key, ct);
+        boolean eq = Arrays.equals(decrypted, msg);
+        if (result.equals("invalid")) {
+          resultType = TestResult.Type.NOT_REJECTED_INVALID;
+        } else if (!eq) {
+          resultType = TestResult.Type.WRONG_RESULT;
+          comment = "decrypted:" + TestUtil.bytesToHex(decrypted);
+        } else {
+          resultType = TestResult.Type.PASSED_VALID;
+        }
+      } catch (GeneralSecurityException | IllegalArgumentException ex) {
+        comment = ex.toString();
+        if (result.equals("valid")) {
+          resultType = TestResult.Type.REJECTED_VALID;
+        } else {
+          resultType = TestResult.Type.REJECTED_INVALID;
+        }
+      }
+    }
+    testResult.addResult(tcid, resultType, comment);
+  }
+
+  /**
+   * Checks each test vector in a file of test vectors.
+   *
+   * <p>This method is the part of testVerification that does not log any result. The main idea
+   * behind splitting off this part from testVerification is that it may be easier to call from a
+   * third party.
+   *
+   * @param testVectors the test vectors
+   * @return a test result
+   */
+  public static TestResult allTests(TestVectors testVectors) {
+    var testResult = new TestResult(testVectors);
+    JsonObject test = testVectors.getTest();
+    String algorithm = test.get("algorithm").getAsString();
+    try {
+      Cipher unused = getCipher(algorithm);
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
+      return testResult;
+    }
+
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      int radix = group.get("radix").getAsInt();
+      if (radix > 256) {
+        // This is not implemented since messages use byte arrays.
+        continue;
+      }
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        JsonObject testcase = t.getAsJsonObject();
+        singleTest(algorithm, radix, testcase, testResult);
+      }
+    }
+    return testResult;
   }
 
   /**
@@ -151,113 +282,16 @@ public class JsonFpeTest {
     // the minor number if only the test vectors (but not the format) changes.
     // Versions meant for distribution have no status.
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
-    String algorithm = test.get("algorithm").getAsString();
-    Cipher cipher;
-    try {
-      cipher = getCipher(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest(algorithm + " not implemented");
+    TestVectors testVectors = new TestVectors(test, filename);
+    TestResult testResult = allTests(testVectors);
+
+    if (testResult.skipTest()) {
+      System.out.println("Skipping " + filename + " no ciphertext decrypted.");
+      TestUtil.skipTest("No ciphertext decrypted");
       return;
     }
-
-    int errors = 0;
-    int validEncryptions = 0;
-    int validDecryptions = 0;
-    for (JsonElement g : test.getAsJsonArray("testGroups")) {
-      JsonObject group = g.getAsJsonObject();
-      int radix = group.get("radix").getAsInt();
-      if (radix > 256) {
-        continue;
-      }
-      for (JsonElement t : group.getAsJsonArray("tests")) {
-        JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String comment = testcase.get("comment").getAsString();
-        String tc = "tcId: " + tcid + " " + comment;
-        byte[] key = getBytes(testcase, "key");
-        byte[] tweak = getBytes(testcase, "tweak");
-        byte[] msg = getMessage(testcase, "msg", radix);
-        byte[] ct = getMessage(testcase, "ct", radix);
-        if (msg == null || ct == null) {
-          continue;
-        }
-        String result = testcase.get("result").getAsString();
-        // Test encryption
-        byte[] encrypted;
-        try {
-          encrypted = encrypt(cipher, key, tweak, msg, radix);
-          boolean eq = Arrays.equals(ct, encrypted);
-          if (result.equals("invalid")) {
-            if (eq) {
-              // Some test vectors use invalid parameters that should be rejected.
-              // E.g. an implementation must never encrypt using AES-GCM with an IV of length 0,
-              // since this leaks the authentication key.
-              System.out.println("Encryted " + tc);
-              errors++;
-            }
-          } else {
-            if (!eq) {
-              System.out.println(
-                  "Incorrect ciphertext for "
-                      + tc
-                      + " ciphertext:"
-                      + TestUtil.bytesToHex(encrypted));
-              errors++;
-            } else {
-              validEncryptions++;
-            }
-          }
-
-          // BouncyCastle throws IllegalArgumentException when IVs are 0 bytes.
-        } catch (GeneralSecurityException | IllegalArgumentException ex) {
-          // Encryption can fail for a number of reasons:
-          // <ul>
-          // <li>There is no support for generating an instance of AlgorithmParameterSpec.
-          //     This typically result in a NoSuchAlgorithmException. </li>
-          // <li>Implementations of Fpe often restrict the input sizes. Lower limits for
-          //    the message sizes differ between versions of the NIST standard. Upper limits
-          //    may depend on the integer types used in the implementation.</li>
-          // <li>The radix is not supported.</li>
-          // </ul>
-          // Because of these limits tests will not fail if an implementation does not encrypt
-          // some message. However, if a message is encrypted then the test expects that the
-          // ciphertext can be decrypted.
-          continue;
-        }
-        // Test decryption
-        try {
-          byte[] decrypted = decrypt(cipher, key, tweak, ct, radix);
-          boolean eq = Arrays.equals(decrypted, msg);
-          if (result.equals("invalid")) {
-            System.out.println("Decrypted invalid ciphertext " + tc + " eq:" + eq);
-            errors++;
-          } else {
-            if (!eq) {
-              System.out.println(
-                  "Incorrect decryption " + tc + " decrypted:" + TestUtil.bytesToHex(decrypted));
-            } else {
-              validDecryptions++;
-            }
-          }
-          // BouncyCastle throws IllegalArgumentException when the IV is of size 0.
-          // Unfortunately, CryptoException is not a subclass of GeneralSecurityException.
-        } catch (GeneralSecurityException | IllegalArgumentException ex) {
-          System.out.println("Failed to decrypt " + tc);
-          errors++;
-        }
-      }
-    }
-    if (errors == 0 && validEncryptions == 0 && validDecryptions == 0) {
-      TestUtil.skipTest("No messages encrypted or decrypted");
-      return;
-    }
-    System.out.println(
-        filename
-            + " validEncryptions:"
-            + validEncryptions
-            + " validDecryptions:"
-            + validDecryptions);
-    assertEquals(0, errors);
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
   }
 
   @Test
@@ -265,6 +299,9 @@ public class JsonFpeTest {
     testFpe("aes_ff1_radix10_test.json");
   }
 
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/257491344"})
   @Test
   public void testAesFf1Radix16() throws Exception {
     testFpe("aes_ff1_radix16_test.json");
@@ -275,6 +312,9 @@ public class JsonFpeTest {
     testFpe("aes_ff1_radix26_test.json");
   }
 
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/257491344"})
   @Test
   public void testAesFf1Radix32() throws Exception {
     testFpe("aes_ff1_radix32_test.json");
