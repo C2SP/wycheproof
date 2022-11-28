@@ -22,6 +22,11 @@ package com.google.security.wycheproof;
  * <p>One potential use case of this class is to rerun failing tests to check if bugs have been
  * fixed. In particular, testResult.failingTests() returns all the test vectors that fail a test.
  * Hence it may be possible to rerun such a subset against new versions of a library.
+ * <p>A main goal is to distinguish between test failures caused by faulty proviers and
+ * test failures caused by faulty test setups (such as missing or incorrect test vectors).
+ * Incorrect setups should result in a failure of type TestResult.Type.WRONG_SETUP,
+ * while other types are used for unexpected behavior of the tested provider.
+ * If a test throws a RuntimeException then this should be treated as an invalid setup.
  */
 public class JsonTest {
 
@@ -33,7 +38,7 @@ public class JsonTest {
    * @param testVectors a set of test vectors
    * @return the test results.
    */
-  public static TestResult run(TestVectors testVectors) throws Exception {
+  public static TestResult run(TestVectors testVectors) {
     String schema = testVectors.getTest().get("schema").getAsString();
     switch (schema) {
       case "ecdsa_verify_schema.json":
@@ -52,6 +57,17 @@ public class JsonTest {
       case "xdh_asn_comp_schema.json":
       case "xdh_comp_schema.json":
         return JsonXdhTest.allTests(testVectors);
+      case "ind_cpa_test_schema.json":
+        return JsonCipherTest.allTests(testVectors);
+      case "aead_test_schema.json":
+        return JsonAeadTest.allTests(testVectors);
+      case "mac_test_schema.json":
+      case "mac_with_iv_test_schema.json":
+        return JsonMacTest.allTests(testVectors);
+      case "keywrap_test_schema.json":
+        return JsonKeyWrapTest.allTests(testVectors);
+      case "fpe_list_test_schema.json":
+        return JsonFpeTest.allTests(testVectors);
       default:
         TestResult failedTest = new TestResult(testVectors);
         failedTest.addFailure(TestResult.Type.WRONG_SETUP, "Unknown schema: " + schema);
@@ -66,7 +82,7 @@ public class JsonTest {
    * @param tcId the tcId of the test vector to test
    * @return the test results.
    */
-  public TestResult singleTest(TestVectors testVectors, int tcId) throws Exception {
+  public TestResult singleTest(TestVectors testVectors, int tcId) {
     TestVectors singleTest = testVectors.singleTest(tcId);
     return run(singleTest);
   }
