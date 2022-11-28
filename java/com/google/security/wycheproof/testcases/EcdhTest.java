@@ -117,6 +117,22 @@ public class EcdhTest {
     final Integer h; // cofactor: may be null
     final BigInteger pubx; // x-coordinate of the public point
     final BigInteger puby; // y-coordinate of the public point
+    // Hex encoded value of the expected shared secret under the assumption that it is
+    // computed on the curve of the private key using the point of the public key.
+    //
+    // If a provider computes an ECDH exchange when public and private key have distinct parameters
+    // then it is important that the computation was done on the curve specified by the private key.
+    // If the computation uses a curve different than the one used by the private key then
+    // an invalid curve attack is possible. If the curve of the private key was used then
+    // this often indicates that curve parameters were not carefully checked, but that an
+    // invalid curve attack is rather unlikely.
+    //
+    // The value is "" for cases where the public point is not on the curve. The value
+    // can also be set to "" for test cases with invalid public keys that should be caught
+    // by an implementation.
+    // An example is the test case "new curve with generator of order 3 that is also on secp256r1".
+    // An ECDH secret is computed if SUNEC and Conscrypt are both installed.
+    final String expected;
 
     public EcPublicKeyTestVector(
         String comment,
@@ -129,7 +145,8 @@ public class EcdhTest {
         BigInteger gy,
         Integer h,
         BigInteger pubx,
-        BigInteger puby) {
+        BigInteger puby,
+        String expected) {
       this.comment = comment;
       this.encoded = encoded;
       this.p = p;
@@ -141,11 +158,15 @@ public class EcdhTest {
       this.h = h;
       this.pubx = pubx;
       this.puby = puby;
+      this.expected = expected;
     }
 
     /**
-     * Returns this key as ECPublicKeySpec or null if the key cannot be represented as
-     * ECPublicKeySpec. The later happens for example if the order of cofactor are not positive.
+     * Returns this key as ECPublicKeySpec or null if an exception was thrown.
+     *
+     * <p>The later happens when parameters are rejected. The constructors ECFieldFp, ECPoint,
+     * ECParameterSpec and ECPublicKeySpec only perform a very limited number of parameter checks.
+     * Hence it is easily possible to construct instances of ECPublicKeySpec with invalid values.
      */
     public ECPublicKeySpec getSpec() {
       try {
@@ -160,8 +181,7 @@ public class EcdhTest {
         ECPoint pubPoint = new ECPoint(pubx, puby);
         ECPublicKeySpec pub = new ECPublicKeySpec(pubPoint, params);
         return pub;
-      } catch (Exception ex) {
-        System.out.println(comment + " throws " + ex.toString());
+      } catch (IllegalArgumentException ex) {
         return null;
       }
     }
@@ -171,7 +191,13 @@ public class EcdhTest {
     }
   }
 
-public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
+  // The private key used for the test vectors below.
+  public static final ECPrivateKeySpec EC_VALID_PRIVATE_KEY =
+      new ECPrivateKeySpec(
+          new BigInteger("c82eac4ec0c77fa4bb057b1cff9fa7e01f11d17f878a81b476c10c1a76e03c6f", 16),
+          EcUtil.getNistP256Params());
+
+  public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       new EcPublicKeyTestVector(
           "unmodified",
           "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
@@ -185,325 +211,342 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
           new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
           1,
           new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16));
+          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+          "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547");
 
   public static final EcPublicKeyTestVector[] EC_MODIFIED_PUBLIC_KEYS = {
-      // Modified keys
-      new EcPublicKeyTestVector(
-          "public point not on curve",
-          "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
-              + "3e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b84"
-              + "29598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca", 16)),
-      new EcPublicKeyTestVector(
-          "public point = (0,0)",
-          "3059301306072a8648ce3d020106082a8648ce3d030107034200040000000000"
-              + "0000000000000000000000000000000000000000000000000000000000000000"
-              + "000000000000000000000000000000000000000000000000000000",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("0"),
-          new BigInteger("0")),
-      new EcPublicKeyTestVector(
-          "order = 1",
-          "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f502010102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("01", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "order = 26959946660873538060741835960514744168612397095220107664918121663170",
-          "3082012f3081e806072a8648ce3d02013081dc020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5021d00ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac202010103420004cdeb39edd03e2b1a11a5e134ec"
-              + "99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c"
-              + "3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "generator = (0,0)",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b04410400000000000000000000000000000000000000"
-              + "0000000000000000000000000000000000000000000000000000000000000000"
-              + "00000000000000000000000000022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("0"),
-          new BigInteger("0"),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "generator not on curve",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f7022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f7", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = 2",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010203420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          2,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = None",
-          "308201303081e906072a8648ce3d02013081dd020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255103420004cdeb39edd03e2b1a11a5e134"
-              + "ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb8"
-              + "5c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          null,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "modified prime",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200"
-              + "e8bbc1453044042002f6efa55976c9cb06ff16bb629c0a8d4d5143b40084b1a1"
-              + "cc0e4dff17443eb704205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441040000000000000000000006597fa94b1fd90000"
-              + "000000000000000000000000021b8c7dd77f9a95627922eceefea73f028f1ec9"
-              + "5ba9b8fa95a3ad24bdf9fff414022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004000000000000000000"
-              + "0006597fa94b1fd90000000000000000000000000000021b8c7dd77f9a956279"
-              + "22eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414",
-          new BigInteger("fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200e8bbc145", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
-          new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
-          1,
-          new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
-          new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16)),
-      new EcPublicKeyTestVector(
-          "using secp224r1",
-          "304e301006072a8648ce3d020106052b81040021033a0004074f56dc2ea648ef"
-              + "89c3b72e23bbd2da36f60243e4d2067b70604af1c2165cec2f86603d60c8a611"
-              + "d5b84ba3d91dfe1a480825bcc4af3bcf",
-          new BigInteger("ffffffffffffffffffffffffffffffff000000000000000000000001", 16),
-          new BigInteger("ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d", 16),
-          new BigInteger("fffffffffffffffffffffffffffffffefffffffffffffffffffffffe", 16),
-          new BigInteger("b4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4", 16),
-          new BigInteger("b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", 16),
-          new BigInteger("bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34", 16),
-          1,
-          new BigInteger("074f56dc2ea648ef89c3b72e23bbd2da36f60243e4d2067b70604af1", 16),
-          new BigInteger("c2165cec2f86603d60c8a611d5b84ba3d91dfe1a480825bcc4af3bcf", 16)),
-      new EcPublicKeyTestVector(
-          "a = 0",
-          "308201143081cd06072a8648ce3d02013081c1020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30250401000420f104880c3980129c7efa19b6b0cb04e547b8d0fc0b"
-              + "95f4946496dd4ac4a7c440044104cdeb39edd03e2b1a11a5e134ec99d5f25f21"
-              + "673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c3303ddb155"
-              + "3c3b761c2caacca71606ba9ebac8022100ffffffff00000000ffffffffffffff"
-              + "ffbce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a"
-              + "11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c"
-              + "0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("0"),
-          new BigInteger("f104880c3980129c7efa19b6b0cb04e547b8d0fc0b95f4946496dd4ac4a7c440", 16),
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "new curve with generator of order 3 that is also on secp256r1",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff3044042046dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb251"
-              + "3fb10a737afece170420bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec"
-              + "28b244d4d823d15935e2044104701c05255026aa4630b78fc6b769e388059ab1"
-              + "443cbdd1f8348bedc3be589dc34cfdab998ad27738ae382aa013986ade0f4859"
-              + "2a9a1ae37ca61d25ec5356f1bd022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004701c05255026aa4630"
-              + "b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3b3025465752d88c851"
-              + "c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("46dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb2513fb10a737afece17", 16),
-          new BigInteger("bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec28b244d4d823d15935e2", 16),
-          new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
-          new BigInteger("4cfdab998ad27738ae382aa013986ade0f48592a9a1ae37ca61d25ec5356f1bd", 16),
-          1,
-          new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
-          new BigInteger("b3025465752d88c851c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42", 16)),
-      // Invalid keys
-      new EcPublicKeyTestVector(
-          "order = -1157920892103562487626974469494075735299969552241357603"
-              + "42422259061068512044369",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f50221ff00000000ffffffff0000000000000000"
-              + "4319055258e8617b0c46353d039cdaaf02010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger(
-              "-115792089210356248762697446949407573529996955224135760342422259061068512044369"),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "order = 0",
-          "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f502010002010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("0"),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = -1",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc6325510201ff03420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          -1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = 0",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010003420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          0,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
+    // Modified keys
+    new EcPublicKeyTestVector(
+        "public point not on curve",
+        "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
+            + "3e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b84"
+            + "29598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca", 16),
+        ""),
+    new EcPublicKeyTestVector(
+        "public point = (0,0)",
+        "3059301306072a8648ce3d020106082a8648ce3d030107034200040000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000000"
+            + "000000000000000000000000000000000000000000000000000000",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("0"),
+        new BigInteger("0"),
+        ""),
+    new EcPublicKeyTestVector(
+        "order = 1",
+        "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f502010102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("01", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "order = 26959946660873538060741835960514744168612397095220107664918121663170",
+        "3082012f3081e806072a8648ce3d02013081dc020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5021d00ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac202010103420004cdeb39edd03e2b1a11a5e134ec"
+            + "99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c"
+            + "3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "generator = (0,0)",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b04410400000000000000000000000000000000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000000"
+            + "00000000000000000000000000022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("0"),
+        new BigInteger("0"),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "generator not on curve",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f7022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f7", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = 2",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010203420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        2,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = None",
+        "308201303081e906072a8648ce3d02013081dd020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255103420004cdeb39edd03e2b1a11a5e134"
+            + "ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb8"
+            + "5c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        null,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "modified prime",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200"
+            + "e8bbc1453044042002f6efa55976c9cb06ff16bb629c0a8d4d5143b40084b1a1"
+            + "cc0e4dff17443eb704205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441040000000000000000000006597fa94b1fd90000"
+            + "000000000000000000000000021b8c7dd77f9a95627922eceefea73f028f1ec9"
+            + "5ba9b8fa95a3ad24bdf9fff414022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004000000000000000000"
+            + "0006597fa94b1fd90000000000000000000000000000021b8c7dd77f9a956279"
+            + "22eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414",
+        new BigInteger("fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200e8bbc145", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
+        new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
+        1,
+        new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
+        new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "using secp224r1",
+        "304e301006072a8648ce3d020106052b81040021033a0004074f56dc2ea648ef"
+            + "89c3b72e23bbd2da36f60243e4d2067b70604af1c2165cec2f86603d60c8a611"
+            + "d5b84ba3d91dfe1a480825bcc4af3bcf",
+        new BigInteger("ffffffffffffffffffffffffffffffff000000000000000000000001", 16),
+        new BigInteger("ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d", 16),
+        new BigInteger("fffffffffffffffffffffffffffffffefffffffffffffffffffffffe", 16),
+        new BigInteger("b4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4", 16),
+        new BigInteger("b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", 16),
+        new BigInteger("bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34", 16),
+        1,
+        new BigInteger("074f56dc2ea648ef89c3b72e23bbd2da36f60243e4d2067b70604af1", 16),
+        new BigInteger("c2165cec2f86603d60c8a611d5b84ba3d91dfe1a480825bcc4af3bcf", 16),
+        ""),
+    new EcPublicKeyTestVector(
+        "a = 0",
+        "308201143081cd06072a8648ce3d02013081c1020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30250401000420f104880c3980129c7efa19b6b0cb04e547b8d0fc0b"
+            + "95f4946496dd4ac4a7c440044104cdeb39edd03e2b1a11a5e134ec99d5f25f21"
+            + "673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c3303ddb155"
+            + "3c3b761c2caacca71606ba9ebac8022100ffffffff00000000ffffffffffffff"
+            + "ffbce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a"
+            + "11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c"
+            + "0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("0"),
+        new BigInteger("f104880c3980129c7efa19b6b0cb04e547b8d0fc0b95f4946496dd4ac4a7c440", 16),
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "new curve with generator of order 3 that is also on secp256r1",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff3044042046dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb251"
+            + "3fb10a737afece170420bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec"
+            + "28b244d4d823d15935e2044104701c05255026aa4630b78fc6b769e388059ab1"
+            + "443cbdd1f8348bedc3be589dc34cfdab998ad27738ae382aa013986ade0f4859"
+            + "2a9a1ae37ca61d25ec5356f1bd022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004701c05255026aa4630"
+            + "b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3b3025465752d88c851"
+            + "c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("46dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb2513fb10a737afece17", 16),
+        new BigInteger("bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec28b244d4d823d15935e2", 16),
+        new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
+        new BigInteger("4cfdab998ad27738ae382aa013986ade0f48592a9a1ae37ca61d25ec5356f1bd", 16),
+        1,
+        new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
+        new BigInteger("b3025465752d88c851c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42", 16),
+        "02fcb9d485d720221dab73f2c890aae577bf2f9c40ebeadf4cb3f34dfda825e1"),
+    // Invalid keys
+    new EcPublicKeyTestVector(
+        "order = -1157920892103562487626974469494075735299969552241357603"
+            + "42422259061068512044369",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f50221ff00000000ffffffff0000000000000000"
+            + "4319055258e8617b0c46353d039cdaaf02010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger(
+            "-115792089210356248762697446949407573529996955224135760342422259061068512044369"),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "order = 0",
+        "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f502010002010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("0"),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = -1",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc6325510201ff03420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        -1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = 0",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010003420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        0,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
   };
 
   /** Checks that key agreement using ECDH works. */
@@ -734,6 +777,9 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
    * the public key. Also a severe bug would be to reduce the private key modulo the order given in
    * the public key parameters.
    */
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK_AND_CONSCRYPT},
+      bugs = {"b/259224556: fails when OpenJDK and Conscrypt are installed."})
   @SuppressWarnings("InsecureCryptoUsage")
   public void testModifiedPublic(String algorithm) throws Exception {
     KeyAgreement ka;
@@ -743,14 +789,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       System.out.println("testWrongOrder: " + algorithm + " not supported");
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    keyGen.initialize(EcUtil.getNistP256Params());
-    ECPrivateKey priv = (ECPrivateKey) keyGen.generateKeyPair().getPrivate();
     KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPublicKey validKey = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
-    ka.init(priv);
-    ka.doPhase(validKey, true);
-    String expected = TestUtil.bytesToHex(ka.generateSecret());
+    ECPrivateKey priv = (ECPrivateKey) kf.generatePrivate(EC_VALID_PRIVATE_KEY);
     for (EcPublicKeyTestVector test : EC_MODIFIED_PUBLIC_KEYS) {
       try {
         X509EncodedKeySpec spec = test.getX509EncodedKeySpec();
@@ -767,13 +807,15 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         // in the public key. An attacker who can modify the order of the public key
         // and who can learn whether such a modification changes the shared secret is
         // able to learn the private key with a simple binary search.
-        assertEquals("algorithm:" + algorithm + " test:" + test.comment, expected, shared);
+        System.out.println(
+            "testModifiedPublic: " + algorithm + " ignored modification in test:" + test.comment);
+        assertEquals("algorithm:" + algorithm + " test:" + test.comment, test.expected, shared);
       } catch (GeneralSecurityException ex) {
         // OK, since the public keys have been modified.
-        System.out.println("testModifiedPublic:" + test.comment + " throws " + ex.toString());
       }
     }
   }
+
 
   /**
    * This is a similar test as testModifiedPublic. However, this test uses test vectors
@@ -788,14 +830,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       TestUtil.skipTest("testModifiedPublicSpec: " + algorithm + " not supported");
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    keyGen.initialize(EcUtil.getNistP256Params());
-    ECPrivateKey priv = (ECPrivateKey) keyGen.generateKeyPair().getPrivate();
     KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPublicKey validKey = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
-    ka.init(priv);
-    ka.doPhase(validKey, true);
-    String expected = TestUtil.bytesToHex(ka.generateSecret());
+    ECPrivateKey priv = (ECPrivateKey) kf.generatePrivate(EC_VALID_PRIVATE_KEY);
     for (EcPublicKeyTestVector test : EC_MODIFIED_PUBLIC_KEYS) {
       ECPublicKeySpec spec = test.getSpec();
       if (spec == null) {
@@ -817,7 +853,9 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         // in the public key. An attacker who can modify the order of the public key
         // and who can learn whether such a modification changes the shared secret is
         // able to learn the private key with a simple binary search.
-        assertEquals("algorithm:" + algorithm + " test:" + test.comment, expected, shared);
+        System.out.println(
+            "testModifiedPublic: " + algorithm + " ignored modification in test:" + test.comment);
+        assertEquals("algorithm:" + algorithm + " test:" + test.comment, test.expected, shared);
       } catch (GeneralSecurityException ex) {
         // Expected, since the public keys have been modified.
       }
@@ -1273,8 +1311,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     }
   }
 
-  @SlowTest(
-      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingSecp256r1() throws Exception {
     // edge case for projective coordinates
@@ -1292,8 +1329,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     testTiming("secp256r1", p1, p2, new BigInteger("2"), 256);
   }
 
-  @SlowTest(
-      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingSecp384r1() throws Exception {
     // edge case for projective coordinates
@@ -1315,8 +1351,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     testTiming("secp384r1", p1, p2, new BigInteger("2"), 384);
   }
 
-  @SlowTest(
-      providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingBrainpoolP256r1() throws Exception {
     // edge case for Jacobian and projective coordinates
