@@ -40,7 +40,6 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonRsaEncryptionTest.class,
   JsonSignatureTest.class,
   MessageDigestTest.class,
-  RsaEncryptionTest.class,
   RsaKeyTest.class,
   RsaSignatureTest.class
 })

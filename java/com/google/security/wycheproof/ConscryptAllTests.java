@@ -42,7 +42,6 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonXdhTest.class,
   MacTest.class,
   MessageDigestTest.class,
-  RsaEncryptionTest.class,
   RsaKeyTest.class,
   RsaOaepTest.class,
   RsaPssTest.class,
