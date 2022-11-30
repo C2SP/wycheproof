@@ -106,15 +106,19 @@ public class EcdsaTest {
 
   /**
    * Extract the integer r from an ECDSA signature. This method implicitely assumes that the ECDSA
-   * signature is DER encoded. and that the order of the curve is smaller than 2^1024.
+   * signature is DER encoded and that the order of the curve is smaller than 2^1024.
    */
-  BigInteger extractR(byte[] signature) throws Exception {
+  BigInteger extractR(byte[] signature) {
     int startR = (signature[1] & 0x80) != 0 ? 3 : 2;
     int lengthR = signature[startR + 1];
     return new BigInteger(Arrays.copyOfRange(signature, startR + 2, startR + 2 + lengthR));
   }
 
-  BigInteger extractS(byte[] signature) throws Exception {
+  /**
+   * Extract the integer s from an ECDSA signature. This method implicitely assumes that the ECDSA
+   * signature is DER encoded and that the order of the curve is smaller than 2^1024.
+   */
+  BigInteger extractS(byte[] signature) {
     int startR = (signature[1] & 0x80) != 0 ? 3 : 2;
     int lengthR = signature[startR + 1];
     int startS = startR + 2 + lengthR;
@@ -123,9 +127,14 @@ public class EcdsaTest {
   }
 
   /** Extract the k that was used to sign the signature. */
-  BigInteger extractK(byte[] signature, BigInteger h, ECPrivateKey priv) throws Exception {
+  BigInteger extractK(byte[] signature, byte[] digest, ECPrivateKey priv) {
+    BigInteger h = new BigInteger(1, digest);
     BigInteger x = priv.getS();
     BigInteger n = priv.getParams().getOrder();
+    int bitLengthOrder = n.bitLength();
+    if (bitLengthOrder < digest.length * 8) {
+      h = h.shiftRight(digest.length * 8 - bitLengthOrder);
+    }
     BigInteger r = extractR(signature);
     BigInteger s = extractS(signature);
     BigInteger k = x.multiply(r).add(h).multiply(s.modInverse(n)).mod(n);
@@ -225,11 +234,13 @@ public class EcdsaTest {
   /** Checks whether the one time key k in ECDSA is biased. */
   public void testBias(String algorithm, String curve) throws Exception {
     String hashAlgorithm = getHashAlgorithm(algorithm);
+    MessageDigest md;
     Signature signer;
     try {
+      md = MessageDigest.getInstance(hashAlgorithm);
       signer = Signature.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest(algorithm + " is not supported.");
+      TestUtil.skipTest(ex.toString());
       return;
     }
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
@@ -253,12 +264,9 @@ public class EcdsaTest {
     signer.initSign(priv);
     for (int i = 0; i < tests; i++) {
       signer.update(message[i]);
+      byte[] digest = md.digest(message[i]);
       byte[] signature = signer.sign();
-      byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(message[i]);
-      // TODO(bleichen): Truncate the digest if the digest size is larger than the
-      //   curve size.
-      BigInteger h = new BigInteger(1, digest);
-      kList[i] = extractK(signature, h, priv);
+      kList[i] = extractK(signature, digest, priv);
     }
 
     // Checks whether the most significant bits and the least significant bits
@@ -461,8 +469,16 @@ public class EcdsaTest {
     KeyPair keyPair = keyGen.generateKeyPair();
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
 
+    MessageDigest md;
+    Signature signer;
     String hashAlgorithm = getHashAlgorithm(algorithm);
-    Signature signer = Signature.getInstance(algorithm);
+    try {
+      md = MessageDigest.getInstance(hashAlgorithm);
+      signer = Signature.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
     // The number of samples used for the test. This number is a bit low.
     // I.e. it just barely detects that SunEC leaks information about the size of k.
     int samples = 50000;
@@ -475,9 +491,8 @@ public class EcdsaTest {
       long start = bean.getCurrentThreadCpuTime();
       byte[] signature = signer.sign();
       timing[i] = bean.getCurrentThreadCpuTime() - start;
-      byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(message[i]);
-      BigInteger h = new BigInteger(1, digest);
-      k[i] = extractK(signature, h, priv);
+      byte[] digest = md.digest(message[i]);
+      k[i] = extractK(signature, digest, priv);
     }
     long[] sorted = Arrays.copyOf(timing, timing.length);
     Arrays.sort(sorted);
