@@ -18,6 +18,7 @@ import static org.junit.Assert.fail;
 
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -30,247 +31,232 @@ import org.junit.runners.JUnit4;
 
 /**
  * Tests for message digests.
- *
- * <p>TODO(bleichen): The tests are quite incomplete. Some of the missing stuff: More test vectors
- * with known results are necessary. So far only simple test vectors for long messages are
- * available. The paper "Finding Bugs in Cryptographic Hash Function Implementations" by Mouha,
- * Raunak, Kuhn, and Kacker, https://eprint.iacr.org/2017/891.pdf contains an analysis of
- * implementations submitted to the SHA-3 competition. Many of the implementations contain bugs.
  */
 @RunWith(JUnit4.class)
 public class MessageDigestTest {
 
-  /** Compute the same result in different ways and compare the result. */
-  private void testUpdate(String algorithm, int messageLength) throws Exception {
-    SecureRandom rand = new SecureRandom();
-    byte[] message = new byte[messageLength];
-    rand.nextBytes(message);
-    MessageDigest md = MessageDigest.getInstance(algorithm);
-    // Compute the hash of message in one go.
-    md.update(message);
-    byte[] digest1 = md.digest();
-
-    // Compute the hash of message in multiple parts
-    for (int i = 0; i <= messageLength; i++) {
-      md.update(message, 0, i);
-      md.update(message, i, message.length - i);
-      byte[] digest2 = md.digest();
-      if (!Arrays.equals(digest1, digest2)) {
-        fail(
-            "Different hashes for same input digest1:"
-                + TestUtil.bytesToHex(digest1)
-                + " digest2:"
-                + TestUtil.bytesToHex(digest2)
-                + " i:"
-                + i);
-      }
+  /**
+   * Computes the maximum of an array with at least one element.
+   *
+   * @param values the values from which the max is computed.
+   * @return the maximum
+   * @throws IllegalArgumentException if values is empty of null.
+   */
+  private static int max(int[] values) {
+    if (values == null || values.length == 0) {
+      throw new IllegalArgumentException("Expecting an array with at least one element");
     }
-  }
-
-  /** Same test as above using ByteBuffers instead. */
-  private void testByteBuffer(String algorithm, int messageLength) throws Exception {
-    SecureRandom rand = new SecureRandom();
-    byte[] message = new byte[messageLength];
-    rand.nextBytes(message);
-    MessageDigest md = MessageDigest.getInstance(algorithm);
-    // Compute the hash of message without using ByteBuffer.
-    md.update(message);
-    byte[] digest1 = md.digest();
-
-    // Compute the hash of message in multiple parts
-    for (int i = 0; i <= messageLength; i++) {
-      ByteBuffer part1 = ByteBuffer.wrap(message, 0, i);
-      // Using slice() has the effect that arrayOffset() is not necessarily 0.
-      ByteBuffer part2 = ByteBuffer.wrap(message, i, message.length - i).slice();
-      md.update(part1);
-      md.update(part2);
-      byte[] digest2 = md.digest();
-      if (!Arrays.equals(digest1, digest2)) {
-        fail(
-            "Different hashes for same input digest1:"
-                + TestUtil.bytesToHex(digest1)
-                + " digest2:"
-                + TestUtil.bytesToHex(digest2)
-                + " i:"
-                + i);
-      }
+    int result = Integer.MIN_VALUE;
+    for (int value : values) {
+      result = Math.max(result, value);
     }
+    return result;
   }
 
   /**
-   * Same test as above using readonly ByteBuffers instead. If a ByteBuffer is readonly, then the
-   * underlying array is not accessible. Some providers might have distinct code for ByteBuffers
-   * where the underlying array is accessible and where the underlying array is hidden.
+   * Tests computing a MessageDigest by computing it multiple times.
+   *
+   * <p>The test passes if all the results are the same in all cases.
+   *
+   * @param md the MessageDigest
+   * @param data input data for the message digest. The size of the data must be at least as long as
+   *     the sum of all chunkSizes.
+   * @param chunkSizes the sizes of the chunks used in the calls of update
    */
-  public void testReadOnlyByteBuffer(String algorithm, int messageLength) throws Exception {
-    SecureRandom rand = new SecureRandom();
-    byte[] message = new byte[messageLength];
-    rand.nextBytes(message);
-    MessageDigest md = MessageDigest.getInstance(algorithm);
-    // Compute the hash of message without using ByteBuffer.
-    md.update(message);
-    byte[] digest1 = md.digest();
-
-    // Compute the hash of message in multiple parts
-    for (int i = 0; i <= messageLength; i++) {
-      ByteBuffer part1 = ByteBuffer.wrap(message, 0, i).asReadOnlyBuffer();
-      ByteBuffer part2 = ByteBuffer.wrap(message, i, message.length - i).asReadOnlyBuffer();
-      md.update(part1);
-      md.update(part2);
-      byte[] digest2 = md.digest();
-      if (!Arrays.equals(digest1, digest2)) {
-        fail(
-            "Different hashes for same input digest1:"
-                + TestUtil.bytesToHex(digest1)
-                + " digest2:"
-                + TestUtil.bytesToHex(digest2)
-                + " i:"
-                + i);
-      }
+  private void testUpdateWithChunks(MessageDigest md, byte[] data, int... chunkSizes) {
+    // First evaluation: compute hash in one piece.
+    int totalLength = 0;
+    for (int chunkSize : chunkSizes) {
+      totalLength += chunkSize;
     }
-  }
-
-  /**
-   * Some provider allow to clone instances of MessageDigests. This test checks whether cloning
-   * modifies the hash result.
-   */
-  public void testClone(String algorithm, int messageLength) throws Exception {
-    SecureRandom rand = new SecureRandom();
-    byte[] message = new byte[messageLength];
-    rand.nextBytes(message);
-    MessageDigest md = MessageDigest.getInstance(algorithm);
-    // Compute the hash of message in one go.
-    byte[] digest1 = md.digest(message);
-
-    // Clone md after hashing one part of message.
-    for (int i = 0; i <= messageLength; i++) {
-      md.reset();
-      md.update(message, 0, i);
-      try {
-        MessageDigest md2 = (MessageDigest) md.clone();
-        md2.update(message, i, message.length - i);
-        byte[] digest2 = md2.digest();
-        if (!Arrays.equals(digest1, digest2)) {
-          fail(
-              "Different hashes for same input digest1:"
-                  + TestUtil.bytesToHex(digest1)
-                  + " digest2:"
-                  + TestUtil.bytesToHex(digest2)
-                  + " i:"
-                  + i);
-        }
-      } catch (CloneNotSupportedException ex) {
-        TestUtil.skipTest("Cloning " + algorithm + " is not supported. Skipping test.");
-        return;
-      }
-    }
-
-    // A variant of the test above that checks whether the source message digest is still usable.
     md.reset();
-    for (int i = 0; i < messageLength; i++) {
-      try {
-        MessageDigest md2 = (MessageDigest) md.clone();
-        md2.update(message, i, message.length - i);
-        byte[] digest2 = md2.digest();
-        if (!Arrays.equals(digest1, digest2)) {
-          fail(
-              "Different hashes for same input digest1:"
-                  + TestUtil.bytesToHex(digest1)
-                  + " digest2:"
-                  + TestUtil.bytesToHex(digest2)
-                  + " i:"
-                  + i);
-        }
-      } catch (CloneNotSupportedException ex) {
-        TestUtil.skipTest("Cloning " + algorithm + " is not supported. Skipping test.");
-        return;
-      }
-      md.update(message[i]);
+    md.update(data, 0, totalLength);
+    byte[] digest1 = md.digest();
+
+    // Second evaluation: using multiple chunks
+    md.reset();
+    int start = 0;
+    for (int chunkSize : chunkSizes) {
+      md.update(data, start, chunkSize);
+      start += chunkSize;
+    }
+    byte[] digest2 = md.digest();
+    if (!MessageDigest.isEqual(digest1, digest2)) {
+      fail(
+          "Different hashes for same input:"
+              + " computed as one piece:"
+              + TestUtil.bytesToHex(digest1)
+              + " computed with multiple array segments:"
+              + TestUtil.bytesToHex(digest2));
+    }
+    // Third evaluation: using ByteBuffers
+    md.reset();
+    start = 0;
+    for (int chunkSize : chunkSizes) {
+      ByteBuffer chunk = ByteBuffer.wrap(data, start, chunkSize);
+      md.update(chunk);
+      start += chunkSize;
+    }
+    byte[] digest3 = md.digest();
+    if (!MessageDigest.isEqual(digest1, digest3)) {
+      fail(
+          "Different hashes for same input:"
+              + " computed as one piece:"
+              + TestUtil.bytesToHex(digest1)
+              + " computed with wrapped chunks:"
+              + TestUtil.bytesToHex(digest3));
+    }
+    // Forth evaluation: using ByteBuffer slices.
+    // The effect of using slice() is that the resulting ByteBuffer has
+    // position 0, but possibly an non-zero value for arrayOffset().
+    md.reset();
+    start = 0;
+    for (int chunkSize : chunkSizes) {
+      ByteBuffer chunk = ByteBuffer.wrap(data, start, chunkSize).slice();
+      md.update(chunk);
+      start += chunkSize;
+    }
+    byte[] digest4 = md.digest();
+    if (!MessageDigest.isEqual(digest1, digest4)) {
+      fail(
+          "Different hashes for same input:"
+              + " computed as one piece:"
+              + TestUtil.bytesToHex(digest1)
+              + " computed with ByteBuffer slices:"
+              + TestUtil.bytesToHex(digest4));
+    }
+
+    // Fifth evaluation: using readonly ByteBuffer slices.
+    // The effect of using slice() is that the resulting ByteBuffer has
+    // position 0, but possibly an non-zero value for arrayOffset().
+    md.reset();
+    start = 0;
+    for (int chunkSize : chunkSizes) {
+      ByteBuffer chunk = ByteBuffer.wrap(data, start, chunkSize).slice().asReadOnlyBuffer();
+      md.update(chunk);
+      start += chunkSize;
+    }
+    byte[] digest5 = md.digest();
+    if (!MessageDigest.isEqual(digest1, digest5)) {
+      fail(
+          "Different hashes for same input:"
+              + " computed as one piece:"
+              + TestUtil.bytesToHex(digest1)
+              + " computed with ByteBuffer slices:"
+              + TestUtil.bytesToHex(digest5));
     }
   }
 
-  public void testMessageDigest(String algorithm) throws Exception {
+  /**
+   * The paper "Finding Bugs in Cryptographic Hash Function Implementations" by Mouha, Raunak, Kuhn,
+   * and Kacker, https://eprint.iacr.org/2017/891.pdf contains an analysis of implementations
+   * submitted to the SHA-3 competition. Many of the implementations contain bugs. The authors
+   * propose some tests for cryptographic libraries. The test here implements a check for
+   * incremental updates with the values proposed in Table 3.
+   */
+  private void testUpdate(MessageDigest md) {
+    int[] chunkSize1 = {0, 8, 16, 24, 32, 40, 48, 56, 64};
+    int[] chunkSize2 = {0, 8, 16, 24, 32, 40, 48, 56, 64};
+    int[] chunkSize3 = {0, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+    int[] chunkSize4 = {
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+      26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+      49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 127, 128, 129, 255, 256,
+      257, 511, 512, 513
+    };
+    int maxSize = max(chunkSize1) + max(chunkSize2) + max(chunkSize3) + max(chunkSize4);
+    byte[] data = new byte[maxSize];
+    SecureRandom rand = new SecureRandom();
+    rand.nextBytes(data);
+    for (int size1 : chunkSize1) {
+      for (int size2 : chunkSize2) {
+        for (int size3 : chunkSize3) {
+          for (int size4 : chunkSize4) {
+            testUpdateWithChunks(md, data, size1, size2, size3, size4);
+          }
+        }
+      }
+    }
+  }
+
+  public void testMessageDigest(String algorithm) {
+    MessageDigest md;
     try {
-      MessageDigest.getInstance(algorithm);
+      md = MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("Algorithm " + algorithm + " is not supported");
+      TestUtil.skipTest("Algorithm " + algorithm + " is not supported.");
       return;
     }
-    testUpdate(algorithm, 48);
-    testUpdate(algorithm, 64);
-    testUpdate(algorithm, 256);
-    testByteBuffer(algorithm, 128);
-    testReadOnlyByteBuffer(algorithm, 128);
-    testClone(algorithm, 256);
+    testUpdate(md);
   }
 
   @Test
-  public void testMd5() throws Exception {
+  public void testMd5() {
     testMessageDigest("MD5");
   }
 
   @Test
-  public void testSha1() throws Exception {
+  public void testSha1() {
     testMessageDigest("SHA-1");
   }
 
   @Test
-  public void testSha224() throws Exception {
+  public void testSha224() {
     testMessageDigest("SHA-224");
   }
 
   @Test
-  public void testSha256() throws Exception {
+  public void testSha256() {
     testMessageDigest("SHA-256");
   }
 
   @Test
-  public void testSha384() throws Exception {
+  public void testSha384() {
     testMessageDigest("SHA-384");
   }
 
   @Test
-  public void testSha512() throws Exception {
+  public void testSha512() {
     testMessageDigest("SHA-512");
   }
 
   @Test
-  public void testSha3_224() throws Exception {
+  public void testSha3_224() {
     testMessageDigest("SHA3-224");
   }
 
   @Test
-  public void testSha3_256() throws Exception {
+  public void testSha3_256() {
     testMessageDigest("SHA3-256");
   }
 
   @Test
-  public void testSha3_384() throws Exception {
+  public void testSha3_384() {
     testMessageDigest("SHA3-384");
   }
 
   @Test
-  public void testSha3_512() throws Exception {
+  public void testSha3_512() {
     testMessageDigest("SHA3-512");
   }
 
   @Test
-  public void testKeccak224() throws Exception {
+  public void testKeccak224() {
     testMessageDigest("KECCAK-224");
   }
 
   @Test
-  public void testKeccak256() throws Exception {
+  public void testKeccak256() {
     testMessageDigest("KECCAK-256");
   }
 
   @Test
-  public void testKeccak384() throws Exception {
+  public void testKeccak384() {
     testMessageDigest("KECCAK-384");
   }
 
   @Test
-  public void testKeccak_512() throws Exception {
+  public void testKeccak_512() {
     testMessageDigest("KECCAK-512");
   }
 
@@ -283,13 +269,137 @@ public class MessageDigestTest {
    * algorithm names "SHAKE128-256" and "SHAKE256-512".
    */
   @Test
-  public void testShake128_256() throws Exception {
+  public void testShake128_256() {
     testMessageDigest("SHAKE128-256");
   }
 
   @Test
-  public void testShake256_512() throws Exception {
+  public void testShake256_512() {
     testMessageDigest("SHAKE256-512");
+  }
+
+  /**
+   * Some provider allow to clone instances of MessageDigests. This test checks whether cloning
+   * modifies the hash result.
+   */
+  public void testClone(String algorithm) {
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
+    SecureRandom rand = new SecureRandom();
+    int messageLength = 256;
+    byte[] message = new byte[messageLength];
+    rand.nextBytes(message);
+    // Compute the hash of message in one go.
+    byte[] digest1 = md.digest(message);
+
+    // Clone md after hashing one part of message.
+    for (int i = 0; i <= messageLength; i++) {
+      md.reset();
+      md.update(message, 0, i);
+      MessageDigest md2;
+      try {
+        md2 = (MessageDigest) md.clone();
+      } catch (CloneNotSupportedException ex) {
+        TestUtil.skipTest("Cloning " + algorithm + " is not supported. Skipping test.");
+        return;
+      }
+      md2.update(message, i, message.length - i);
+      byte[] digest2 = md2.digest();
+      if (!Arrays.equals(digest1, digest2)) {
+        fail(
+            "Different hashes for same input digest1:"
+                + TestUtil.bytesToHex(digest1)
+                + " digest2:"
+                + TestUtil.bytesToHex(digest2)
+                + " i:"
+                + i);
+      }
+    }
+  }
+
+  @Test
+  public void testCloneMd5() {
+    testClone("MD5");
+  }
+
+  @Test
+  public void testCloneSha1() {
+    testClone("SHA-1");
+  }
+
+  @Test
+  public void testCloneSha224() {
+    testClone("SHA-224");
+  }
+
+  @Test
+  public void testCloneSha256() {
+    testClone("SHA-256");
+  }
+
+  @Test
+  public void testCloneSha384() {
+    testClone("SHA-384");
+  }
+
+  @Test
+  public void testCloneSha512() {
+    testClone("SHA-512");
+  }
+
+  @Test
+  public void testCloneSha3_224() {
+    testClone("SHA3-224");
+  }
+
+  @Test
+  public void testCloneSha3_256() {
+    testClone("SHA3-256");
+  }
+
+  @Test
+  public void testCloneSha3_384() {
+    testClone("SHA3-384");
+  }
+
+  @Test
+  public void testCloneSha3_512() {
+    testClone("SHA3-512");
+  }
+
+  @Test
+  public void testCloneKeccak224() {
+    testClone("KECCAK-224");
+  }
+
+  @Test
+  public void testCloneKeccak256() {
+    testClone("KECCAK-256");
+  }
+
+  @Test
+  public void testCloneKeccak384() {
+    testClone("KECCAK-384");
+  }
+
+  @Test
+  public void testCloneKeccak_512() {
+    testClone("KECCAK-512");
+  }
+
+  @Test
+  public void testCloneShake128_256() {
+    testClone("SHAKE128-256");
+  }
+
+  @Test
+  public void testCloneShake256_512() {
+    testClone("SHAKE256-512");
   }
 
   /**
@@ -302,12 +412,11 @@ public class MessageDigestTest {
    * @throws GeneralSecurityException if the computation of the hash fails (e.g. because the
    *     algorithm is unknown).
    */
-  public byte[] hashRepeatedMessage(String algorithm, byte[] message, long repetitions)
-      throws Exception {
-    MessageDigest md = MessageDigest.getInstance(algorithm);
+  public byte[] hashRepeatedMessage(MessageDigest md, byte[] message, long repetitions) {
     // If the message is short then it is more efficient to collect multiple copies
     // of the message in one chunk and call update with the larger chunk.
     final int maxChunkSize = 1 << 16;
+    md.reset();
     if (message.length != 0 && 2 * message.length < maxChunkSize) {
       int repetitionsPerChunk = maxChunkSize / message.length;
       byte[] chunk = new byte[message.length * repetitionsPerChunk];
@@ -338,38 +447,45 @@ public class MessageDigestTest {
    * IMPLEMENTATION RETURNS INCORRECT HASH FOR LARGE SETS OF DATA
    */
   @SuppressWarnings("InsecureCryptoUsage")
-  private void testLongMessage(String algorithm, String message, long repetitions, String expected)
-      throws Exception {
+  private void testLongMessage(
+      String algorithm, String message, long repetitions, String expected) {
+    MessageDigest md;
     try {
-      MessageDigest.getInstance(algorithm);
+      md = MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
       TestUtil.skipTest("Algorithm " + algorithm + " is not supported.");
       return;
     }
 
-    byte[] bytes = message.getBytes("UTF-8");
-    byte[] digest = hashRepeatedMessage(algorithm, bytes, repetitions);
+    byte[] bytes;
+    try {
+      bytes = message.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      fail("This should not happen.");
+      return;
+    }
+    byte[] digest = hashRepeatedMessage(md, bytes, repetitions);
     String hexdigest = TestUtil.bytesToHex(digest);
     assertEquals(expected, hexdigest);
   }
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageMd5() throws Exception {
+  public void testLongMessageMd5() {
     testLongMessage("MD5", "a", 2147483647L, "bb2ef53aae423cb9fbf8788f187601e6");
     testLongMessage("MD5", "a", 5000000000L, "cf3147924864955e385804daee42d3ef");
   }
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha1() throws Exception {
+  public void testLongMessageSha1() {
     testLongMessage("SHA-1", "a", 2147483647L, "1e5b490b10255e37fd96d0964f2fbfb91ed47536");
     testLongMessage("SHA-1", "a", 5000000000L, "109b426b74c3dc1bd0e15d3524c5b837557647f2");
   }
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha256() throws Exception {
+  public void testLongMessageSha256() {
     testLongMessage(
         "SHA-256",
         "a",
@@ -384,7 +500,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha224() throws Exception {
+  public void testLongMessageSha224() {
     testLongMessage(
         "SHA-224", "a", 2147483647L, "bf5dbff84919d0bd40316439d102c6f856553b7a89ef9212fd200d9e");
     testLongMessage(
@@ -393,7 +509,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha384() throws Exception {
+  public void testLongMessageSha384() {
     testLongMessage(
         "SHA-384",
         "a",
@@ -410,7 +526,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha512() throws Exception {
+  public void testLongMessageSha512() {
     testLongMessage(
         "SHA-512",
         "a",
@@ -427,7 +543,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha3_224() throws Exception {
+  public void testLongMessageSha3_224() {
     testLongMessage(
         "SHA3-224", "a", 2147483647L, "24abc6b4055cea68422fa8d73031f45f73f2afda09be9c0dae2ab88e");
     testLongMessage(
@@ -436,7 +552,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha3_256() throws Exception {
+  public void testLongMessageSha3_256() {
     testLongMessage(
         "SHA3-256",
         "a",
@@ -451,7 +567,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha3_384() throws Exception {
+  public void testLongMessageSha3_384() {
     testLongMessage(
         "SHA3-384",
         "a",
@@ -468,7 +584,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageSha3_512() throws Exception {
+  public void testLongMessageSha3_512() {
     testLongMessage(
         "SHA3-512",
         "a",
@@ -504,7 +620,7 @@ public class MessageDigestTest {
    */
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageKeccak224() throws Exception {
+  public void testLongMessageKeccak224() {
     testLongMessage(
         "KECCAK-224", "a", 10000000L, "e6a07dafdde2ff8e6d67e3efc6dc871b4d0b04e4e8b87fb8d4f183ec");
     testLongMessage(
@@ -515,7 +631,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageKeccak256() throws Exception {
+  public void testLongMessageKeccak256() {
     testLongMessage(
         "KECCAK-256",
         "a",
@@ -535,7 +651,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageKeccak384() throws Exception {
+  public void testLongMessageKeccak384() {
     testLongMessage(
         "KECCAK-384",
         "a",
@@ -558,7 +674,7 @@ public class MessageDigestTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageKeccak512() throws Exception {
+  public void testLongMessageKeccak512() {
     testLongMessage(
         "KECCAK-512",
         "a",
@@ -586,7 +702,7 @@ public class MessageDigestTest {
    */
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageShake128_256() throws Exception {
+  public void testLongMessageShake128_256() {
     testLongMessage(
         "SHAKE128-256",
         "a",
@@ -606,7 +722,7 @@ public class MessageDigestTest {
    */
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMessageShake256_512() throws Exception {
+  public void testLongMessageShake256_512() {
     testLongMessage(
         "SHAKE256-512",
         "a",
