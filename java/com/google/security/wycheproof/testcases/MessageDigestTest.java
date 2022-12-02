@@ -13,12 +13,12 @@
  */
 package com.google.security.wycheproof;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -457,13 +457,7 @@ public class MessageDigestTest {
       return;
     }
 
-    byte[] bytes;
-    try {
-      bytes = message.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException ex) {
-      fail("This should not happen.");
-      return;
-    }
+    byte[] bytes = message.getBytes(UTF_8);
     byte[] digest = hashRepeatedMessage(md, bytes, repetitions);
     String hexdigest = TestUtil.bytesToHex(digest);
     assertEquals(expected, hexdigest);
