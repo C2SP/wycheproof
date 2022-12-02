@@ -7,11 +7,14 @@ set -e
 set -x
 
 if [[ -n "${KOKORO_ROOT}" ]] ; then
-  use_bazel.sh "4.1.0"
+  # Change to the repository root.
+  cd git*/wycheproof
+
+  use_bazel.sh "$(cat .bazelversion)"
 fi
 
-# Change to the repository root.
-cd git*/wycheproof
+echo "which java: $(which java)"
+echo "java --version: $(java --version)"
 
 # Verify that all targets build successfully.
 bazel build ...
