@@ -13,11 +13,11 @@
  */
 package com.google.security.wycheproof;
 
-import static com.google.common.truth.TruthJUnit.assume;
 
 import java.nio.ByteBuffer;
 import java.security.Provider;
 import java.security.Security;
+import org.junit.Assume;
 
 /** Test utilities */
 public class TestUtil {
@@ -29,7 +29,7 @@ public class TestUtil {
     // Hence a caller should generally call this function as
     //    skipTest("some reason");
     //    return;
-    assume().fail(reason);
+    Assume.assumeTrue(reason, false);
   }
 
   public static String bytesToHex(byte[] bytes) {
