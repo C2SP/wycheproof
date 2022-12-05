@@ -433,6 +433,79 @@ public class MacTest {
             + "0d176eebbb6a440960024be0726c94960bbf75816548a7fd4552c7baba4585ee");
   }
 
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongKmac128() {
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        100000000L,
+        "d76732c2478b6934b7540a6e14eb0e141490c61cfe19c994672e3d82e67a4e0a");
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        2147483647L,
+        "8fbf0040e0e683725ed05e2dc173e60074558f4ab028758308aa006f89ab85c7");
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        5000000000L,
+        "e0e7fb8ebbc38169b40e4d84c72b71ac8520c88eca8dbfa458f05c2fe1bffc25");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongKmac256() {
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        100000000L,
+        "8c326db82f5293bfdb22e99d1748e4007a65f7b1d946c9001f31219553bea688"
+            + "b3ad85fc7a5a8fc597bb9f5a0890c0fe0fb5e4352b8578b78991a9f8071a5676");
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        2147483647L,
+        "b13915abaf37056dc73dc9ee02d423b43197b93d0565ec235167a2dac603e51d"
+            + "053be97f4cbc14d16a0946d2623cbef73234845d68f9884c34fed5a4e58155c9");
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        5000000000L,
+        "08a2ff8b5a515fed657b776c6074fdc8503dd78149a12e3e0d0aaff7f2411cf3"
+            + "5b01cde641fda9ebbba303cdc3822e1322fcdd372cb2a591dfe94cc185144515");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongSipHash24() {
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 100000000L, "4b9f6118b9f5c32b");
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 2147483647L, "a56c0b5b7697380b");
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 5000000000L, "cd53c50ef11b0bd9");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongSipHash48() {
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 100000000L, "1236d5c1cbd31e3e");
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 2147483647L, "77aa750aabd11dae");
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 5000000000L, "a85ee898fa713536");
+  }
 }
 
 
