@@ -16,6 +16,8 @@ package com.google.security.wycheproof;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -231,6 +233,9 @@ public class CipherInputStreamTest {
   }
 
   @Test
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/261217218"})
   public void testCorruptAesGcm() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -244,19 +249,29 @@ public class CipherInputStreamTest {
   }
 
   /**
-   * Tests the behaviour for corrupt plaintext more strictly than in the tests above.
-   * This test does not accept that an implementation returns an empty plaintext when the
-   * ciphertext has been corrupted.
+   * Tests the behaviour for corrupt plaintext more strictly than in the tests above. This test does
+   * not accept that an implementation returns an empty plaintext when the ciphertext has been
+   * corrupted.
    */
   @Test
-  public void testEmptyPlaintext() throws Exception {
+  @NoPresubmitTest(
+      providers = {ProviderType.ALL},
+      bugs = {"b/261217218"})
+  public void testEmptyPlaintextAesGcm() throws Exception {
+    final String algorithm = "AES/GCM/NoPadding";
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
     final int[] tagSizes = {12, 16};
     final int[] ptSizes = {0};
     final int[] aadSizes = {0, 8, 24};
+    try {
+      Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
     Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     boolean acceptEmptyPlaintext = false;
     testCorruptDecrypt(v, acceptEmptyPlaintext);
   }
@@ -273,13 +288,35 @@ public class CipherInputStreamTest {
     try {
       Cipher.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Skipping testAesEax");
+      TestUtil.skipTest(ex.toString());
       return;
     }
     Iterable<TestVector> v =
         getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     testEncrypt(v);
     testDecrypt(v);
+  }
+
+  /** Tests CipherOutputStream with AES-EAX if this algorithm is supported by the provider. */
+  @Test
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/261217218"})
+  public void testCorruptAesEax() throws Exception {
+    final String algorithm = "AES/EAX/NoPadding";
+    final int[] keySizes = {16, 32};
+    final int[] ivSizes = {12, 16};
+    final int[] tagSizes = {12, 16};
+    final int[] ptSizes = {0, 8, 16, 65, 8100};
+    final int[] aadSizes = {0, 8, 24};
+    try {
+      Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
+    Iterable<TestVector> v =
+        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
     boolean acceptEmptyPlaintext = true;
     testCorruptDecrypt(v, acceptEmptyPlaintext);
   }

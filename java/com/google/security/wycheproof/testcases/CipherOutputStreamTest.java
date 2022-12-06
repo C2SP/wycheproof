@@ -16,6 +16,8 @@ package com.google.security.wycheproof;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -34,20 +36,27 @@ import org.junit.runners.JUnit4;
 /**
  * CipherOutputStream tests
  *
- * <p>CipherOutputStream is a class that is basically unsuitable for authenticated encryption and
- * hence should be avoided whenever possible. The class is unsuitable, because the interface does
- * not provide a method to tell the caller when decryption failed. I.e. the specification now
- * explicitly claims that it catches exceptions thrown by the Cipher class such as
- * BadPaddingException and that it does not rethrow them.
+ * <p>CipherOutputStream is a class that is unsuitable for authenticated encryption and hence should
+ * not be used. CipherOutputStream does not provide a method to tell the caller when decryption
+ * failed. I.e. the specification now explicitly claims that it catches exceptions thrown by the
+ * Cipher class such as BadPaddingException and that it does not rethrow them.
  * http://www.oracle.com/technetwork/java/javase/8u171-relnotes-4308888.html
  *
  * <p>The Jdk implementation has the property that no unauthenticated plaintext is released. In the
  * case of an authentication failure the implementation simply returns an empty plaintext. This
  * allows a trivial attack where the attacker substitutes any message with an empty message.
  *
- * <p>The tests in this class have been adapted to this unfortunate situation. They only pass
- * if exceptions are thrown in the case of an incorrect tag. But they can be called so that
- * they are merely skipped as long as no partial plaintext is leaked.
+ * <p>Ignoring the issue also has the consequence that changes of the underlying code can have
+ * negative consequences for various providers. For example using CipherOutputStream with
+ * BouncyCastle starts leaking unverified plaintext with jdk20.
+ *
+ * <p>Some provider add special classes to deal with this situation. For example BouncyCastle has
+ * the class org.bouncycastle.crypto.io.CipherOutputStream. Uses such classes has the disadvantage
+ * that code become provider dependent.
+ *
+ * <p>The tests in this class have been adapted to this unfortunate situation. They only pass if
+ * exceptions are thrown in the case of an incorrect tag. But they can be called so that they are
+ * merely skipped as long as no partial plaintext is leaked.
  */
 @RunWith(JUnit4.class)
 public class CipherOutputStreamTest {
@@ -234,8 +243,11 @@ public class CipherOutputStreamTest {
   }
 
   @Test
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/261217218"})
   public void testAesGcmCorruptDecrypt() throws Exception {
-    testCorruptDecrypt(getAesGcmTestVectors(), false);
+    testCorruptDecrypt(getAesGcmTestVectors(), true);
   }
 
   @Test
@@ -249,7 +261,10 @@ public class CipherOutputStreamTest {
   }
 
   @Test
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/261217218"})
   public void testAesEaxCorruptDecrypt() throws Exception {
-    testCorruptDecrypt(getAesEaxTestVectors(), false);
+    testCorruptDecrypt(getAesEaxTestVectors(), true);
   }
 }
