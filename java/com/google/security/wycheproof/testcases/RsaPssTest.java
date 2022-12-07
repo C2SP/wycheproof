@@ -21,6 +21,9 @@ import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -32,6 +35,8 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
@@ -231,10 +236,9 @@ public class RsaPssTest {
    * this object identifier are not widely supported.
    *
    * <p>OpenJdk allows to use keys both types of keys. The support of id-RSASSA-PSS is newer. A
-   * drawback is that the caller has to know the encoding of the RSA keys:
-   * RSA keys with object identifier rsaEncryption require to use KeyFactory.getInstance("RSA"),
-   * whereas keys with object identifier id-RSASSA-PSS require to use
-   * KeyFactory.getInstance("RSASSA-PSS").
+   * drawback is that the caller has to know the encoding of the RSA keys: RSA keys with object
+   * identifier rsaEncryption require to use KeyFactory.getInstance("RSA"), whereas keys with object
+   * identifier id-RSASSA-PSS require to use KeyFactory.getInstance("RSASSA-PSS").
    *
    * <p>The main purpose of the test below is simply to check if a provider supports RSA keys with
    * id-RSASSA-PSS.
@@ -244,11 +248,11 @@ public class RsaPssTest {
    * (rsp. should fail) if KeyFactory.getInstance("RSASSA-PSS") is supported but does not accept
    * keys with OID id-RSASSA-PSS or if the test results in incorrect parameters.
    */
-    @NoPresubmitTest(
+  @NoPresubmitTest(
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/253038666"})
   @Test
-  public void testDecodePublicKeyWithPssParameters() throws Exception {
+  public void testDecodePublicKeyWithPssParameters() {
     String sha = "SHA-256";
     String mgf = "MGF1";
     int saltLength = 20;
@@ -274,7 +278,7 @@ public class RsaPssTest {
       KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
       X509EncodedKeySpec spec = new X509EncodedKeySpec(TestUtil.hexToBytes(encodedPubKey));
       pubKey = (RSAPublicKey) kf.generatePublic(spec);
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
       TestUtil.skipTest("RSASSA-PSS keys with parameters are not supported.");
       return;
     }
@@ -292,6 +296,39 @@ public class RsaPssTest {
     assertEquals(expected, found);
   }
 
+  @Test
+  public void testDecodeEncodePublicKeyWithPssParameters() {
+    // Below is an RSA key where the algorithm parameter use the object
+    // identifier id-RSASSA-PSS together with the message digest SHA-256,
+    // MGF1 and saltLength 20.
+    String encodedPubKey =
+        "30820151303c06092a864886f70d01010a302fa00f300d060960864801650304"
+            + "02010500a11c301a06092a864886f70d010108300d0609608648016503040201"
+            + "05000382010f003082010a0282010100b09191ef91e8b4ab58f7c66430636641"
+            + "0988d8cba6f2e0f33495d37b355828d04554472e854dff7d8c1dfd1ea50123de"
+            + "12d34b77280220184b924db82a535978e9bfe7a6111f455028f18cd923c54144"
+            + "08a247409d7121a99c3594708c0dd9cdebf1c9bb0060ff1c4c0363e25fac0d5b"
+            + "bf85013945f393b0b9673780c6f579353ae895d7dc891220a92bac0a8deb35b5"
+            + "20803cf82b19c27232a889d0f04fb2bde6623f357e3e56027298379d10bee8fa"
+            + "4e0c29029a78fde01694719d2d036fe726aa5633205553565f127a78fec46918"
+            + "182e41a16c5cc86bd3b77d26c5113082cb1f2d83d9213eca019bbdee99001e11"
+            + "16bcfec1242ece175558b15c5bbbc4710203010001";
+    RSAPublicKey pubKey;
+    try {
+      KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
+      X509EncodedKeySpec spec = new X509EncodedKeySpec(TestUtil.hexToBytes(encodedPubKey));
+      pubKey = (RSAPublicKey) kf.generatePublic(spec);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+      TestUtil.skipTest("RSASSA-PSS keys with parameters are not supported.");
+      return;
+    }
+    // Ensures that the encoding format is X.509. Other formats would not only break
+    // this test but lead to incompatible implementations.
+    assertEquals("Public key does not use X.509 format", "X.509", pubKey.getFormat());
+    byte[] encoded = pubKey.getEncoded();
+    assertEquals(encodedPubKey, TestUtil.bytesToHex(encoded));
+  }
+
   /**
    * Tries encoding and decoding of RSASSA-PSS keys generated with RSASSA-PSS.
    *
@@ -299,7 +336,7 @@ public class RsaPssTest {
    * plain RSA keys.
    */
   @Test
-  public void testEncodeDecodePublic() throws Exception {
+  public void testEncodeDecodePublic() {
     int keySizeInBits = 2048;
     PublicKey pub;
     KeyFactory kf;
@@ -317,7 +354,11 @@ public class RsaPssTest {
     assertEquals(
         "The test assumes that the public key is in X.509 format", "X.509", pub.getFormat());
     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
-    kf.generatePublic(spec);
+    try {
+      kf.generatePublic(spec);
+    } catch (InvalidKeySpecException ex) {
+      throw new AssertionError("Provider can't decode its own key", ex);
+    }
   }
 
   /**
@@ -327,12 +368,12 @@ public class RsaPssTest {
    * plain RSA keys.
    */
   @Test
-  public void testEncodeDecodePublicWithParameters() throws Exception {
+  public void testEncodeDecodePublicWithParameters() {
     int keySizeInBits = 2048;
     PublicKey pub;
     String sha = "SHA-256";
     String mgf = "MGF1";
-    int saltLength = 20;
+    int saltLength = 32;
     try {
       RSAKeyGenParameterSpec params =
           getPssAlgorithmParameters(keySizeInBits, sha, mgf, sha, saltLength);
@@ -340,19 +381,39 @@ public class RsaPssTest {
       keyGen.initialize(params);
       KeyPair keypair = keyGen.genKeyPair();
       pub = keypair.getPublic();
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ex) {
       TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
     byte[] encoded = pub.getEncoded();
     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
-    KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS");
-    kf.generatePublic(spec);
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("RSASSA-PSS");
+    } catch (NoSuchAlgorithmException ex) {
+      fail("Provider supports KeyPairGenerator but not KeyFactory");
+      return;
+    }
+    try {
+      kf.generatePublic(spec);
+    } catch (InvalidKeySpecException ex) {
+      throw new AssertionError(
+          "Provider failed to decode its own public key: " + TestUtil.bytesToHex(encoded), ex);
+    }
   }
 
-  /** Tries to sign and verify ab RSASSA-PSS signature with algorithm parameters. */
+  /**
+   * Tries to sign and verify ab RSASSA-PSS signature with algorithm parameters.
+   *
+   * <p>The test uses two distinct ways to initialize signer and verifier. The signer is initialized
+   * by setting the parameters with setParameter explicitely. The verifier is initialized by using
+   * the algorithm parameters from the key.
+   */
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/253038666"})
   @Test
-  public void testSignVerifyWithParameters() throws Exception {
+  public void testSignVerifyWithParameters() {
     int keySizeInBits = 2048;
     String sha = "SHA-256";
     String mgf = "MGF1";
@@ -364,87 +425,68 @@ public class RsaPssTest {
       KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
       keyGen.initialize(params);
       keypair = keyGen.genKeyPair();
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ex) {
       TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
       return;
     }
     byte[] msg = new byte[4];
     RSAPublicKey pub = (RSAPublicKey) keypair.getPublic();
     RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
-    Signature signer = Signature.getInstance("RSASSA-PSS");
-    signer.initSign(priv);
+    Signature signer;
+    Signature verifier;
+    try {
+      signer = Signature.getInstance("RSASSA-PSS");
+      verifier = Signature.getInstance("RSASSA-PSS");
+    } catch (NoSuchAlgorithmException ex) {
+      fail("RSASSA-PSS key generation is supported, but signature generation is not");
+      return;
+    }
+    // Signs the message. This part of the code constructs the PSS parameters
+    // explicitely.
+    try {
+      signer.initSign(priv);
+    } catch (InvalidKeyException ex) {
+      fail("Provider rejects its own private key");
+      return;
+    }
+    try {
+      PSSParameterSpec params = getPssParameterSpec(sha, mgf, sha, saltLength, 1);
+      signer.setParameter(params);
+    } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ex) {
+      fail("Parameters accepted as key generation parameters are rejected as algorithm parameters");
+       return;
+    }
     byte[] signature;
     try {
       signer.update(msg);
       signature = signer.sign();
     } catch (SignatureException ex) {
-      // A likely case for this exception is:
-      // java.security.SignatureException: Parameters required for RSASSA-PSS signatures
-      //
-      // At least some OpenJDK versions do not copy the algorithm parameters in priv
-      // during .initSign and .initVerify. This leads to a SignatureException,
-      // because RSASSA-PSS requires algorithm parameters. We additionally have the test
-      // testSignVerifyCopyParameters below which will also succeed if this is the case.
-      TestUtil.skipTest(ex.toString());
+      fail("Could not sign with RSAPSS-PSS:" + ex.toString());
       return;
     }
-    Signature verifier = Signature.getInstance("RSASSA-PSS");
-    verifier.initVerify(pub);
-    verifier.setParameter(pub.getParams());
-    verifier.update(msg);
-    boolean verified = verifier.verify(signature);
-    assertTrue("Signature did not verify", verified);
-  }
 
-  /**
-   * Tries to sign and verify an RSASSA-PSS signature with algorithm parameters.
-   *
-   * <p>This test checks a potential fallback method for the non-intuitive behavior of OpenJdk:
-   * Signature.initSign(PrivateKey) and Signature.initVerify(PublicKey) do not set the algorithm
-   * parameters even if the keys have suitable parameters.
-   *
-   * <p>This test patches the behavior above by copying parameters present in the RSAKey if the
-   * Signature instance constructed from this key does not contain any parameters.
-   */
-  @Test
-  public void testSignVerifyCopyParameters() throws Exception {
-    int keySizeInBits = 2048;
-    String sha = "SHA-256";
-    String mgf = "MGF1";
-    int saltLength = 20;
-    KeyPair keypair;
+    // Verifies the signature. This part of the code tries to copy the PSS parameters
+    // from the public key. Ideally, just calling verifier.initVerify(pub) would
+    // be sufficient, since the public key contains the parameters. Unfortunately,
+    // copying the PSS parameters is necessary for OpenJDK, since OpenJDK does
+    // not copy the algorithm parameters.
+    // Even worse is BouncyCastle, where it is unclear if there is a simple way
+    // to extract the algorithm parameters from the key.
     try {
-      RSAKeyGenParameterSpec params =
-          getPssAlgorithmParameters(keySizeInBits, sha, mgf, sha, saltLength);
-      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSASSA-PSS");
-      keyGen.initialize(params);
-      keypair = keyGen.genKeyPair();
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("Key generation for RSASSA-PSS is not supported.");
+      verifier.initVerify(pub);
+    } catch (InvalidKeyException ex) {
+      fail("Provider rejects its own public key");
       return;
     }
-    byte[] msg = new byte[4];
-    RSAPublicKey pub = (RSAPublicKey) keypair.getPublic();
-    RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
-    Signature signer = Signature.getInstance("RSASSA-PSS");
-    signer.initSign(priv);
-    if (priv.getParams() != null && signer.getParameters() == null) {
-      // The private key has algorithm parameters, but they were not copied to
-      // signer during initSign. Hence, we have to copy them explicitly.
-      signer.setParameter(priv.getParams());
-    }
-    signer.update(msg);
-    byte[] signature = signer.sign();
-    Signature verifier = Signature.getInstance("RSASSA-PSS");
-    verifier.initVerify(pub);
-    if (pub.getParams() != null && verifier.getParameters() == null) {
-      // The public key has algorithm parameters, but they were not copied to
-      // verifier during initVerify. Hence, we have to copy them explicitly.
+    
+    try {
       verifier.setParameter(pub.getParams());
+      verifier.update(msg);
+      boolean verified = verifier.verify(signature);
+      assertTrue("Signature did not verify", verified);
+    } catch (GeneralSecurityException ex) {
+      throw new AssertionError("Provider could not verify its own signature", ex);
     }
-    verifier.update(msg);
-    boolean verified = verifier.verify(signature);
-    assertTrue("Signature did not verify", verified);
   }
 
   /**
@@ -498,8 +540,7 @@ public class RsaPssTest {
       String expectedMgf,
       String expectedMgfHash,
       int expectedSaltLength,
-      int expectedTrailerField)
-      throws Exception {
+      int expectedTrailerField) {
     // An X509 encoded 2048-bit RSA public key.
     String pubKey =
         "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
@@ -519,8 +560,8 @@ public class RsaPssTest {
       PublicKey key = kf.generatePublic(x509keySpec);
       verifier = Signature.getInstance(algorithm);
       verifier.initVerify(key);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("Unsupported algorithm:" + algorithm);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Unsupported algorithm or parameters:" + algorithm);
       return;
     }
     AlgorithmParameters params = verifier.getParameters();
@@ -529,7 +570,13 @@ public class RsaPssTest {
       // incompatible implementations.
       return;
     }
-    PSSParameterSpec pssParams = params.getParameterSpec(PSSParameterSpec.class);
+    PSSParameterSpec pssParams;
+    try {
+      pssParams = params.getParameterSpec(PSSParameterSpec.class);
+    } catch (InvalidParameterSpecException ex) {
+      fail("Can't generate PSSParameterSpec from " + params.getClass().getName());
+      return;
+    }
     assertEquals("digestAlgorithm", expectedHash, pssParams.getDigestAlgorithm());
     assertEquals("mgfAlgorithm", expectedMgf, pssParams.getMGFAlgorithm());
     assertEquals("saltLength", expectedSaltLength, pssParams.getSaltLength());
@@ -541,27 +588,27 @@ public class RsaPssTest {
   }
 
   @Test
-  public void testDefaultsSha1WithRSAandMGF1() throws Exception {
+  public void testDefaultsSha1WithRSAandMGF1() {
     testDefaultForAlgorithm("SHA1withRSAandMGF1", "SHA-1", "MGF1", "SHA-1", 20, 1);
   }
 
   @Test
-  public void testDefaultsSha224WithRSAandMGF1() throws Exception {
+  public void testDefaultsSha224WithRSAandMGF1() {
     testDefaultForAlgorithm("SHA224withRSAandMGF1", "SHA-224", "MGF1", "SHA-224", 28, 1);
   }
 
   @Test
-  public void testDefaultsSha256WithRSAandMGF1() throws Exception {
+  public void testDefaultsSha256WithRSAandMGF1() {
     testDefaultForAlgorithm("SHA256withRSAandMGF1", "SHA-256", "MGF1", "SHA-256", 32, 1);
   }
 
   @Test
-  public void testDefaultsSha384WithRSAandMGF1() throws Exception {
+  public void testDefaultsSha384WithRSAandMGF1() {
     testDefaultForAlgorithm("SHA384withRSAandMGF1", "SHA-384", "MGF1", "SHA-384", 48, 1);
   }
 
   @Test
-  public void testDefaultsSha512WithRSAandMGF1() throws Exception {
+  public void testDefaultsSha512WithRSAandMGF1() {
     testDefaultForAlgorithm("SHA512withRSAandMGF1", "SHA-512", "MGF1", "SHA-512", 64, 1);
   }
 
@@ -590,7 +637,7 @@ public class RsaPssTest {
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/243905306"})
   @Test
-  public void testNoDefaultForParameters() throws Exception {
+  public void testNoDefaultForParameters() {
     // An X509 encoded 2048-bit RSA public key.
     String pubKey =
         "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
@@ -603,21 +650,32 @@ public class RsaPssTest {
             + "fb3aef9fe58d9e4ef6e4922711a3bbcd8adcfe868481fd1aa9c13e5c658f5172"
             + "617204314665092b4d8dca1b05dc7f4ecd7578b61edeb949275be8751a5a1fab"
             + "c30203010001";
-    KeyFactory kf;
-    kf = KeyFactory.getInstance("RSA");
-    X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
-    PublicKey key = kf.generatePublic(x509keySpec);
+    PublicKey key;
     Signature verifier;
+    try {
+      KeyFactory kf = KeyFactory.getInstance("RSA");
+      X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
+      key = kf.generatePublic(x509keySpec);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("RSA key is not supported");
+      return;
+    }
     try {
       verifier = Signature.getInstance("RSASSA-PSS");
       verifier.initVerify(key);
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
       TestUtil.skipTest("RSASSA-PSS is not supported.");
       return;
     }
     AlgorithmParameters params = verifier.getParameters();
     if (params != null) {
-      PSSParameterSpec pssParams = params.getParameterSpec(PSSParameterSpec.class);
+      PSSParameterSpec pssParams;
+      try {
+        pssParams = params.getParameterSpec(PSSParameterSpec.class);
+      } catch (InvalidParameterSpecException ex) {
+        fail("Can't generate PSSParameterSpec from " + params.getClass().getName());
+        return;
+      }
       // The provider uses some default parameters. This easily leads to weak or
       // incompatible implementations.
       fail("RSASSA-PSS uses default parameters:" + pssParameterSpecToString(pssParams));
@@ -632,12 +690,13 @@ public class RsaPssTest {
    * signatures. (see e.g. RFC 8017, Section 8.1).
    */
   @Test
-  public void testRandomization() throws Exception {
+  public void testRandomization() {
     String sha = "SHA-256";
     String mgf = "MGF1";
     int saltLen = 32;
     int keySizeInBits = 2048;
     int samples = 8;
+    Set<String> signatures = new HashSet<String>();
     Signature signer;
     PrivateKey priv;
     try {
@@ -649,18 +708,17 @@ public class RsaPssTest {
       signer = Signature.getInstance(algorithm);
       PSSParameterSpec params = getPssParameterSpec(sha, mgf, sha, saltLen, 1);
       signer.setParameter(params);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("RSA key generation is not supported.");
+      byte[] messageBytes = new byte[8];
+      for (int i = 0; i < samples; i++) {
+        signer.initSign(priv);
+        signer.update(messageBytes);
+        byte[] signature = signer.sign();
+        String hex = TestUtil.bytesToHex(signature);
+        assertTrue("Same signature computed twice", signatures.add(hex));
+      }
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Failed to generat signatures:" + ex);
       return;
-    }
-    Set<String> signatures = new HashSet<String>();
-    byte[] messageBytes = new byte[8];
-    for (int i = 0; i < samples; i++) {
-      signer.initSign(priv);
-      signer.update(messageBytes);
-      byte[] signature = signer.sign();
-      String hex = TestUtil.bytesToHex(signature);
-      assertTrue("Same signature computed twice", signatures.add(hex));
     }
   }
 
@@ -679,7 +737,7 @@ public class RsaPssTest {
    * <p>See also: https://github.com/bcgit/bc-java/pull/632
    */
   @Test
-  public void testNullRandom() throws Exception {
+  public void testNullRandom() {
     String sha = "SHA-256";
     String mgf = "MGF1";
     int saltLen = 32;
@@ -696,16 +754,22 @@ public class RsaPssTest {
       signer = Signature.getInstance(algorithm);
       PSSParameterSpec params = getPssParameterSpec(sha, mgf, sha, saltLen, 1);
       signer.setParameter(params);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest("RSA key generation is not supported.");
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("RSA key generation is not supported." + ex);
       return;
     }
     Set<String> signatures = new HashSet<String>();
     byte[] messageBytes = new byte[8];
     for (int i = 0; i < samples; i++) {
-      signer.initSign(priv, null);
-      signer.update(messageBytes);
-      byte[] signature = signer.sign();
+      byte[] signature;
+      try {
+        signer.initSign(priv, null);
+        signer.update(messageBytes);
+        signature = signer.sign();
+      } catch (GeneralSecurityException ex) {
+        fail("Failed to sign. " + ex);
+        return;
+      }
       String hex = TestUtil.bytesToHex(signature);
       assertTrue("Same signature computed twice", signatures.add(hex));
     }
