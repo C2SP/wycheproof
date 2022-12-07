@@ -28,8 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.security.wycheproof.WycheproofRunner.ProviderType;
-import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
@@ -43,6 +41,7 @@ import java.security.Signature;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.security.spec.DSAParameterSpec;
 import java.security.spec.DSAPrivateKeySpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
@@ -51,21 +50,70 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests DSA against invalid signatures. The motivation for this test is the DSA implementation in
- * gpg4browsers. This implementation accepts signatures with r=1 and s=0 as valid.
+ * Tests DSA implementations.
+ *
+ * DSA was specified by NIST in the Digital Signature Standard (DSS).
+ * However, the draft of FIPS 186-5 no longer approves DSA.
+ *
+ * The tests here mainly test key, parameter and signature generation.
+ * Signature verification is mainly done with test vectors in JsonSignatureTest.java.
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
 @RunWith(JUnit4.class)
 public class DsaTest {
+  // Defines some DSA parameters to speed up the tests.
+  // Some providers (e.g., BouncyCastle) generate new random DSA parameters
+  // for each new key unless specified. Generating such parameters can take
+  // a lot of time.
+  private static final DSAParameterSpec DSA_PARAMS_1024 = new DSAParameterSpec(
+        new BigInteger(
+            "1106803511314772711673172950296693567629309594518393175860816428"
+                + "6658764043763662129010863568011543182924292444458455864283745070"
+                + "9908516713302345161980412667892373845670780253725557376379049862"
+                + "4062950082444499320797079243439689601679418602390654466821968220"
+                + "32212146727497041502702331623782703855119908989712161"),
+        new BigInteger("974317976835659416858874959372334979171063697271"),
+        new BigInteger(
+            "1057342118316953575810387190942009018497979302261477972033090351"
+                + "7561815639397594841480480197745063606756857212792356354588585967"
+                + "3837265237205154744016475608524531648654928648461175919672511710"
+                + "4878976887505840764543501512668232945506391524642105449699321960"
+                + "32410302985148400531470153936516167243072120845392903"));
+
+  private static final DSAParameterSpec DSA_PARAMS_2048 = new
+      DSAParameterSpec(
+          new BigInteger("3164061777193421244945967689185130966883791527930581656543940136"
+             + "9851564103057893770550122576420376933644344013305735603610942719"
+             + "0293352994823217443809706583073604061570104365238910634862640398"
+             + "1679210161833377863606275689118136475272813790454847601448227296"
+             + "1343536419929610738993809045350019003864284827404321049159705788"
+             + "9549545448366098569990308459383369877789053024383489750444816799"
+             + "7655021762159487052492596584201043454441595097537258007948592233"
+             + "9750333178270807875426129993868319748210561432141824552116718686"
+             + "0976690334031413657227645931573832903180613929329282084779414766"
+             + "06239373677116746259950456018096483609849"),
+         new BigInteger("1153325196737607230690138460423355902719413005219740664797410759"
+             + "18190885248303"),
+         new BigInteger("7143867109100500724655889012222798175962488212042071017782036283"
+             + "2160817495693770539655258112318947749347515155155134204134719860"
+             + "8823601342715098633684772359506724876037827905133950825065353901"
+             + "6405352814524900241330050570097484028566246867839194943420499621"
+             + "1140731561135100139686370478680923000451515444292933075274771723"
+             + "2158242525416346441387350251926607224043098576684471584941118008"
+             + "0093586361720527555676600988059377305427568792372489422765662230"
+             + "0215335648878955714422647428480609353107064891801250653532699120"
+             + "7943263490377529076378752274796636215661586231670013411198731440"
+             + "2786085224329787545828730362102716455591"));
+
   // Extract the integer r from a DSA signature.
   // This method implicitely assumes that the DSA signature is DER encoded.
-  BigInteger extractR(byte[] signature) throws Exception {
+  BigInteger extractR(byte[] signature) {
     int lengthR = signature[3];
     return new BigInteger(Arrays.copyOfRange(signature, 4, 4 + lengthR));
   }
 
-  BigInteger extractS(byte[] signature) throws Exception {
+  BigInteger extractS(byte[] signature) {
     int lengthR = signature[3];
     int startS = 4 + lengthR;
     int lengthS = signature[startS + 1];
@@ -73,8 +121,7 @@ public class DsaTest {
   }
 
   /** Extract the k that was used to sign the signature. Validates the k if check == true. */
-  BigInteger extractK(byte[] signature, BigInteger h, DSAPrivateKey priv, boolean check)
-      throws Exception {
+  BigInteger extractK(byte[] signature, BigInteger h, DSAPrivateKey priv, boolean check) {
     BigInteger x = priv.getX();
     BigInteger q = priv.getParams().getQ();
     BigInteger r = extractR(signature);
@@ -90,48 +137,34 @@ public class DsaTest {
   }
 
   /**
-   * Providers that implement SHA1WithDSA but not at least SHA256WithDSA are outdated and should be
-   * avoided even if DSA is currently not used in a project. Such providers promote using a weak
-   * signature scheme. It can also "inspire" developers to use invalid schemes such as SHA1WithDSA
-   * together with 2048-bit key. Such invalid use cases are often untested and can have serious
-   * flaws. For example the SUN provider leaked the private keys with 3 to 5 signatures in such
-   * instances.
-   */
-  @Test
-  public void testOutdatedProvider() throws Exception {
-    try {
-      Signature sig = Signature.getInstance("SHA1WithDSA");
-      try {
-        Signature.getInstance("SHA256WithDSA");
-      } catch (NoSuchAlgorithmException ex) {
-        fail("Provider " + sig.getProvider().getName() + " is outdated and should not be used.");
-      }
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("SHA1WithDSA is not supported");
-    }
-  }
-
-  /**
    * This is just a test for basic functionality of DSA. The test generates a public and private
    * key, generates a signature and verifies it. This test is slow with some providers, since
    * some providers generate new DSA parameters (p and q) for each new key.
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testBasic() throws Exception {
-    int keySize = 2048;
     String algorithm = "SHA256WithDSA";
     String message = "Hello";
-
     byte[] messageBytes = message.getBytes("UTF-8");
-    KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("DSA");
-    generator.initialize(keySize);
-    KeyPair keyPair = generator.generateKeyPair();
+    KeyPair keyPair;
+    Signature signer;
+    Signature verifier;
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+      generator.initialize(DSA_PARAMS_2048);
+      keyPair = generator.generateKeyPair();
+      signer = Signature.getInstance(algorithm);
+      verifier = Signature.getInstance(algorithm);
+    } catch (GeneralSecurityException ex) {
+      // Skips the test if DSA key generation, "SHA256WithDSA" or the key size are not supported.
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
+    // If keygeneration, "SHA256WithDSA" and the key size are supported, then the test
+    // expects that messages can be signed an verified.
     DSAPublicKey pub = (DSAPublicKey) keyPair.getPublic();
     DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
-    Signature signer = Signature.getInstance(algorithm);
-    Signature verifier = Signature.getInstance(algorithm);
     signer.initSign(priv);
     signer.update(messageBytes);
     byte[] signature = signer.sign();
@@ -141,13 +174,20 @@ public class DsaTest {
   }
 
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testKeyGeneration(int keysize) throws Exception {
-    KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
-    generator.initialize(keysize);
-    KeyPair keyPair = generator.generateKeyPair();
+  public void testKeyGeneration(int keySize) throws Exception {
+    KeyPair keyPair;
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+      generator.initialize(keySize);
+      keyPair = generator.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      // Skips the test if DSA or the key size is not supported.
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
     DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
     DSAParams params = priv.getParams();
-    assertEquals(keysize, params.getP().bitLength());
+    assertEquals(keySize, params.getP().bitLength());
     // The NIST standard does not fully specify the size of q that
     // must be used for a given key size. Hence there are differences.
     // For example if keysize = 2048, then OpenSSL uses 256 bit q's by default,
@@ -155,7 +195,7 @@ public class DsaTest {
     // The tests below simply asserts that the size of q does not decrease the
     // overall security of the DSA.
     int qsize = params.getQ().bitLength();
-    switch (keysize) {
+    switch (keySize) {
       case 1024:
         assertTrue("Invalid qsize for 1024 bit key:" + qsize, qsize >= 160);
         break;
@@ -165,8 +205,15 @@ public class DsaTest {
       case 3072:
         assertTrue("Invalid qsize for 3072 bit key:" + qsize, qsize >= 256);
         break;
+      case 4096:
+        // FIPS 186-4 does not specify 4096 bit DSA keys.
+        // But some libraries implement 4096 bit keys anyway. Hence the minimal
+        // size for q is unclear. (Maybe 320 bits would be appropriate.)
+        // Certainly a value q smaller than 256 bits should not be accepted.
+        assertTrue("Invalid qsize for 4096 bit key:" + qsize, qsize >= 256);
+        break;
       default:
-        fail("Invalid key size:" + keysize);
+        fail("Invalid key size:" + keySize);
     }
     // Check the length of the private key.
     // For example GPG4Browsers or the KJUR library derived from it use
@@ -184,10 +231,13 @@ public class DsaTest {
    *   <li>CVE-2016-1000343 BouncyCastle before v.1.56 always generated DSA keys with a 160-bit q.
    * </ul>
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
-  public void testKeyGenerationAll() throws Exception {
+  public void testKeyGeneration1024() throws Exception {
     testKeyGeneration(1024);
+  }
+
+  @Test
+  public void testKeyGeneration2048() throws Exception {
     testKeyGeneration(2048);
   }
 
@@ -206,12 +256,12 @@ public class DsaTest {
    * from 1024 bits to 2048 bits with https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8184341 .
    */
   @Test
-  public void testDefaultKeySize() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+  public void testDefaultKeySize() {
     KeyPair keypair;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
       keypair = keyGen.genKeyPair();
-    } catch (Exception ex) {
+    } catch (GeneralSecurityException ex) {
       // Changing the default key size from 1024 bits to 2048 bits might be problematic for a
       // provider, since SHA1WithDSA is the default algorithm.
       // Hence, if a provider decides not to implement a default key size and requires that a user
@@ -221,8 +271,6 @@ public class DsaTest {
     }
     DSAPublicKey pub = (DSAPublicKey) keypair.getPublic();
     int keySizeInBits = pub.getParams().getP().bitLength();
-    System.out.println("testDefaultSize: keysize=" + keySizeInBits);
-    // checkKeyPair(keypair, keySizeInBits);
     if (keySizeInBits < 2048) {
       fail("DSA default key size too small:" + keySizeInBits);
     }
@@ -236,25 +284,21 @@ public class DsaTest {
   @Test
   public void testDsaBias() throws Exception {
     // q is close to 2/3 * 2^160.
-    BigInteger q = new BigInteger("974317976835659416858874959372334979171063697271");
-    BigInteger p =
-        new BigInteger(
-            "1106803511314772711673172950296693567629309594518393175860816428"
-                + "6658764043763662129010863568011543182924292444458455864283745070"
-                + "9908516713302345161980412667892373845670780253725557376379049862"
-                + "4062950082444499320797079243439689601679418602390654466821968220"
-                + "32212146727497041502702331623782703855119908989712161");
-    BigInteger g =
-        new BigInteger(
-            "1057342118316953575810387190942009018497979302261477972033090351"
-                + "7561815639397594841480480197745063606756857212792356354588585967"
-                + "3837265237205154744016475608524531648654928648461175919672511710"
-                + "4878976887505840764543501512668232945506391524642105449699321960"
-                + "32410302985148400531470153936516167243072120845392903");
+    BigInteger q = DSA_PARAMS_1024.getQ();
+    BigInteger p = DSA_PARAMS_1024.getP();
+    BigInteger g = DSA_PARAMS_1024.getG();
     BigInteger x = new BigInteger("13706102843888006547723575730792302382646994436");
 
-    KeyFactory kf = KeyFactory.getInstance("DSA");
-    DSAPrivateKey priv = (DSAPrivateKey) kf.generatePrivate(new DSAPrivateKeySpec(x, p, q, g));
+    DSAPrivateKey priv;
+    Signature signer;
+    try {
+      KeyFactory kf = KeyFactory.getInstance("DSA");
+      priv = (DSAPrivateKey) kf.generatePrivate(new DSAPrivateKeySpec(x, p, q, g));
+      signer = Signature.getInstance("SHA1WithDSA");
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
 
     // If we make TESTS tests with a fair coin then the probability that
     // either heads or tails appears less than MINCOUNT times is less than
@@ -272,7 +316,6 @@ public class DsaTest {
     BigInteger h = new BigInteger(1, digest);
 
     final BigInteger qHalf = q.shiftRight(1);
-    Signature signer = Signature.getInstance("SHA1WithDSA");
     signer.initSign(priv);
     int countLsb = 0; // count the number of k's with msb set
     int countMsb = 0; // count the number of k's with lsb set
@@ -309,7 +352,6 @@ public class DsaTest {
    * <p>This bug is the same as US-CERT: VU # 940388: GnuPG generated ElGamal signatures that leaked
    * the private key.
    */
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testBiasSha1WithDSA() throws Exception {
@@ -319,33 +361,40 @@ public class DsaTest {
     byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
     BigInteger h = new BigInteger(1, digest);
 
-    KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("DSA");
-    generator.initialize(2048);
-    KeyPair keyPair = generator.generateKeyPair();
-    DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
-    Signature signer = Signature.getInstance("DSA");
+    Signature signer;
+    DSAPrivateKey priv;
     try {
-      // Private key and selected algorithm by signer do not match.
-      // Hence throwing an exception at this point would be the reasonable.
+      signer = Signature.getInstance("DSA");
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+      generator.initialize(DSA_PARAMS_2048);
+      KeyPair keyPair = generator.generateKeyPair();
+      priv = (DSAPrivateKey) keyPair.getPrivate();
       signer.initSign(priv);
-      signer.update(messageBytes);
-      byte[] signature = signer.sign();
-      BigInteger q = priv.getParams().getQ();
-      BigInteger k = extractK(signature, h, priv, true);
+    } catch (GeneralSecurityException ex) {
+      // This is expected for a number of reasons:
+      // (1) the algorithm name "DSA" is equivalend to "DSAWithSHA1" and hence should 
+      //     not be used.
+      // (2) SHA-1 has lower security than a 2048 bit key and hence should not be used.
+      // (3) The provider simply no longer supports DSA.
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
+    // Private key and selected algorithm by signer do not match.
+    // Hence throwing an exception at this point would be the reasonable.
+    signer.update(messageBytes);
+    byte[] signature = signer.sign();
+    BigInteger q = priv.getParams().getQ();
+    BigInteger k = extractK(signature, h, priv, true);
 
-      // Now check if k is heavily biased.
-      int lengthDiff = q.bitLength() - k.bitLength();
-      if (lengthDiff > 32) {
-        fail(
+    // Now check if k is heavily biased.
+    int lengthDiff = q.bitLength() - k.bitLength();
+    if (lengthDiff > 32) {
+      fail(
             "Severly biased DSA signature:"
                 + " len(q)="
                 + q.bitLength()
                 + " len(k)="
                 + k.bitLength());
-      }
-    } catch (GeneralSecurityException ex) {
-      // The key is invalid, hence getting here is reasonable.
-      return;
     }
   }
 
@@ -399,15 +448,19 @@ public class DsaTest {
    *   <li>CVE-2016-1000341 BouncyCastle before v 1.56 is vulnernerable to timing attacks.
    * </ul>
    */
-  @SlowTest(
-    providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK, ProviderType.SPONGY_CASTLE}
-  )
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testTiming() throws Exception {
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
-      System.out.println("getCurrentThreadCpuTime is not supported. Skipping");
+      TestUtil.skipTest("getCurrentThreadCpuTime is not supported. Skipping");
+      return;
+    }
+    Signature signer;
+    try {
+      signer = Signature.getInstance("SHA1WITHDSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(ex.toString());
       return;
     }
     String hashAlgorithm = "SHA-1";
@@ -415,11 +468,16 @@ public class DsaTest {
     byte[] messageBytes = message.getBytes("UTF-8");
     byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
     BigInteger h = new BigInteger(1, digest);
-    KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("DSA");
-    generator.initialize(1024);
-    KeyPair keyPair = generator.generateKeyPair();
+    KeyPair keyPair;
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+      generator.initialize(DSA_PARAMS_1024);
+      keyPair = generator.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest(ex.toString());
+      return;
+    }
     DSAPrivateKey priv = (DSAPrivateKey) keyPair.getPrivate();
-    Signature signer = Signature.getInstance("SHA1WITHDSA");
     signer.initSign(priv);
     // The timings below are quite noisy. Thus we need a large number of samples.
     int samples = 50000;
