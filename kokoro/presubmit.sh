@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO(b/261682927): Delete once Kokoro configuration is updated.
+
 # Fail on any error.
 set -e
 
@@ -7,14 +9,7 @@ set -e
 set -x
 
 if [[ -n "${KOKORO_ROOT}" ]] ; then
-  # Change to the repository root.
   cd git*/wycheproof
-
-  use_bazel.sh "$(cat .bazelversion)"
 fi
 
-echo "which java: $(which java)"
-echo "java --version: $(java --version)"
-
-# Verify that all targets build successfully.
-bazel build ...
+./kokoro/run_continuous_tests.sh

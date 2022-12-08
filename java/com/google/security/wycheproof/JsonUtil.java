@@ -39,7 +39,7 @@ public class JsonUtil {
   public static JsonObject getTestVectors(String filename) throws 
       IOException {
     // The directory where the test vectors are.
-    String testVectorsDir = "testvectors/";
+    String testVectorsDir = "third_party/wycheproof/testvectors/";
     FileInputStream is = new FileInputStream(testVectorsDir + filename);
     JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
     JsonElement elem = JsonParser.parseReader(reader);
@@ -48,7 +48,7 @@ public class JsonUtil {
 
   public static JsonObject getTestVectorsV1(String filename) throws IOException {
     // The directory where the test vectors are.
-    String testVectorsDir = "third_party/wycheproof/testvectors_v1/";
+    String testVectorsDir = "testvectors_v1/";
     FileInputStream is = new FileInputStream(testVectorsDir + filename);
     JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
     JsonElement elem = JsonParser.parseReader(reader);
