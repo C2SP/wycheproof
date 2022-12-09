@@ -24,9 +24,7 @@ run_bazel_tests() {
 
 main() {
   if [[ -n "${KOKORO_ROOT}" ]] ; then
-    # TODO(b/261682927): Uncomment once Kokoro configuration is updated.
-    #cd git*/wycheproof
-
+    cd git*/wycheproof
     use_bazel.sh "$(cat ./.bazelversion)"
   fi
 
