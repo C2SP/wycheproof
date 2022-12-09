@@ -1,52 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Javascript
-
-# Release from 2021-06-23.
-http_archive(
-    name = "io_bazel_rules_closure",
-    sha256 = "9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e",
-    strip_prefix = "rules_closure-0.12.0",
-    urls = [
-        "https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz",
-    ],
-)
-
-load(
-    "@io_bazel_rules_closure//closure:repositories.bzl",
-    "rules_closure_dependencies",
-    "rules_closure_toolchains",
-)
-
-rules_closure_dependencies(
-    omit_bazel_skylib = True,
-)
-
-rules_closure_toolchains()
-
-# Release from 2022-03-10.
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-    ],
-)
-
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
-bazel_skylib_workspace()
-
-# Commit from 2020-05-18.
-http_archive(
-    name = "google_e2e",
-    build_file = "//:third_party/e2e.BUILD.bazel",
-    sha256 = "1c0d3678a649c75254e035985a209b9e292befdec733af0a4ad3842acef271eb",
-    strip_prefix = "end-to-end-a77a8cbd13157139437219a8c87a7e133457c2e7",
-    url = "https://github.com/google/end-to-end/archive/a77a8cbd13157139437219a8c87a7e133457c2e7.zip",
-)
-
 # Java
 
 load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
