@@ -56,11 +56,14 @@ of information leaked after decrypting corrupt ciphertexts. Implementations
 frequently leak information about the decrypted plaintext in form of error
 messages. The content of the error messages are extremely helpful to potential
 attackers. Bardou et al. [[BFKLSST12]](bib.md#bfklsst12) analyze the difficult
-of attacks based on different types of information leakage. Smart even describes
-an attack that only needs about 40 chosen ciphertexts
-[[Smart10]](bib.md#smart10), though in this case the encryption did not use
-PKCS #1 padding. NIST disallows the use of RSA PKCS #1 v1.5 for key-agreement
-and key-transport after 2023 [[NIST-SP800-131A]](bib.md#nist-sp800-131a).
+of attacks based on different types of information leakage. The paper shows that
+even small information leakages can have a big impact on the required number of
+chosen messages. Smart even describes an attack that only needs about 40 chosen
+ciphertexts [[Smart10]](bib.md#smart10), though in this case the encryption did
+not use PKCS #1 padding. NIST disallows the use of RSA PKCS #1 v1.5 for
+key-agreement and key-transport after 2023
+[[NIST-SP800-131A]](bib.md#nist-sp800-131a). The use of PKCS #1 v1.5 is by
+itself considered to be a vulnerability (e.g., CVE-2021-41096)
 
 **Bugs**
 
@@ -125,7 +128,7 @@ are based on RFC 8017.
     example omitting (or incorrectly implementing) the checks in step 10 might
     allow signature forgeries with small public exponents. RSA-PSS
     implementations tend to contain less padding errors than RSA-PKCS #1 v.1.5
-    signatures. Possibly this happends because of the detailed description of
+    signatures. Possibly this happens because of the detailed description of
     the verification in RFC 8017 and related standards.
 *   A significant problem with RSASSA-PSS in java is that various provider
     differ in the way RSASSA-PSS is implemented.
@@ -284,6 +287,13 @@ function only supports a single set of parameter choices.
 Manger describes an chosen ciphertext attack against RSA in
 [[Manger01]](bib.md#manger01). There are implementations that were susceptible
 to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
+
+There is a big difference between chosen ciphertext attacks against RSA-OAEP
+and RSA-PKCS #1 v.1.5: a chosen ciphertext attack against RSA-OAEP implies that
+the implementation of RSA-OAEP is broken, while attacks against RSA-PKCS #1
+can also happen if the caller leaks information about the decrypted ciphertext.
+Hence a correct implementation of RSA-OAEP prevents chosen ciphertext attacks,
+but implementations of RSA-PKCS #1 cannot achieve the same property.
 
 **Algorithm parameters**
 
