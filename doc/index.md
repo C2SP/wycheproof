@@ -19,8 +19,9 @@ https://github.com/google/wycheproof
 
 *   [RSA](rsa.md)
 *   [DSA](dsa.md)
-*   [ECDH](ecdh.md)
 *   [Diffie-Hellman](dh.md)
+*   [ECDSA](ecdsa.md)
+*   [ECDH](ecdh.md)
 *   [AES-GCM](aesgcm.md)
 *   [AEGIS](aegis.md)
 *   [FF1](ff1.md)

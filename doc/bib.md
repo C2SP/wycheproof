@@ -63,6 +63,13 @@ Bellare, Rogaway,
 "Encode-Then-Encipher Encryption: How to exploit nonces or redundancy in plaintexts for efficient cryptography",
 Asiacrypt 2000, pp.317--330.
 
+### BreHen19
+
+J. Breitner and N. Heninger, "Biased Nonce Sense: Lattice Attacks against Weak
+ECDSA Signatures in Cryptocurrencies",
+
+https://eprint.iacr.org/2019/023
+
 ### Brown07
 
 D. R. L. Brown "What Hashes Make RSA-OAEP Secure?", IACR e-print, 2007,
@@ -74,7 +81,8 @@ R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
 "Efficient padding oracle attacks on cryptographic hardware", Crypto 2012
 
 ### Ferguson05
-N. Ferguson, "Authentication weaknesses in GCM",
+N. Ferguson,
+"Authentication weaknesses in GCM",
 https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
 
 ### FGHT16
@@ -121,11 +129,22 @@ H. Krawczyk,
 "Cryptographic extraction and key derivation: the HKDF scheme",
 https://eprint.iacr.org/2010/264.pdf
 
+### Madden22
+
+N. Maddenm CVE-2022-21449: Psychic Signatures in Java
+https://neilmadden.blog/2022/04/19/psychic-signatures-in-java/
+
 ### Nguyen04
 P. Nguyen,
 “Can we trust cryptographic software? Cryptographic flaws in Gnu privacy guard 1.2.3”,
 Eurocrypt 2004,
 https://www.iacr.org/archive/eurocrypt2004/30270550/ProcEC04.pdf
+
+### NguSpa03
+
+P.Q. Nguyen and I.E. Sparlinski, "The Insecurity of the Elliptic Curve Digital
+Signature Algorithm with Partially Known Nonces" Designs, Codes and
+Cryptography, 30, 201–217, 2003
 
 ### Odlyzko90
 A. M. Odlyzko,
@@ -175,6 +194,12 @@ their Guarantees" https://eprint.iacr.org/2017/1147.pdf
 ### WuPre14
 H. Wu, B. Preneel, "AEGIS: A fast authenticated encryption algorithm" CAESAR
 submission http://competitions.cr.yp.to/round1/aegisv1.pdf
+
+<!-- libraries -->
+
+### ParanoidCrypto
+
+Project Paranoid https://github.com/google/paranoid_crypto
 
 <!-- organizations -->
 
