@@ -315,12 +315,41 @@ public class EcdsaTest {
     if (bias3 > threshold) {
       fail("Bias for k detected. bias3 = " + bias3);
     }
+
     // Checks whether most significant bytes, words, dwords or qwords are strongly correlated.
     for (int bits : new int[] {8, 16, 32, 64}) {
       BigInteger multiplier = BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
       double bias4 = bias(kList, q, multiplier);
       if (bias4 > threshold) {
         fail("Bias for k detected. bits = " + bits + " bias4 = " + bias4);
+      }
+    }
+
+    // A large number of weak random number generators can be detected by finding
+    // a multiplier m, such that the values k[i]*m mod q are biased.
+    // Such multipliers can be found using the LLL algorithm.
+    //
+    // Since we don't have an efficient implementation of LLL, only
+    // some known LCGs are being tested here using precomputed constants
+    // from project paranoid_crypto.
+    // Multiplying k by one of these constants gives a biased result if
+    // the corresponding weak random number generator was being used.
+    if (curve.equals("secp256r1")) {
+      for (String lcgConstant :
+          new String[] {
+            "300020001fff9fffd00090005fff8fffe36b469d49b2b1b86b409",
+            "b0000bff4faff3f3b04f6c0cffb0a0a2d1db2882d6b85954f5ac2e9",
+            "23afffffd7e00000277fffffc27000003da57311c6b4d9f1005e6d47f57",
+            "4b088666fcf77998f4a6b827d661ce3f24af75fa42ec07381c0e34f360",
+            "9beac7904fb495c58ca26a3af3cb3c4e0ca65224fb9a88b4073ddece0dbf",
+            "1fdaf45d2f75fb5db16f94a2648fcdf6f9c93aa8785530b393470aab86f0",
+            "1000000010001fffefffe0003010400ffbbe4faae22e90cb0364457"
+          }) {
+        BigInteger multiplier = new BigInteger(lcgConstant, 16);
+        double bias5 = bias(kList, q, multiplier);
+        if (bias5 > threshold) {
+          fail("Bias for k detected. multiplier = " + lcgConstant + " bias5 = " + bias5);
+        }
       }
     }
   }
