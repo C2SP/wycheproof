@@ -65,7 +65,14 @@ key-agreement and key-transport after 2023
 [[NIST-SP800-131A]](bib.md#nist-sp800-131a). The use of PKCS #1 v1.5 is by
 itself considered to be a vulnerability (e.g., CVE-2021-41096)
 
+The tests in Wycheproof can only check if the cryptographic primitive is
+implemented correctly or if it leaks unnecessary information. The tests do not
+check if the caller mishandles the decryption and thus provides a PKCS-1 oracle.
+
 **Bugs**
+
+Here are a few typical bugs that were contained in old versions of crypto
+libraries:
 
 *   Libraries should not throw distinguishable exceptions when the padding is
     incorrect. E.g. Bouncycastle before version 1.56 did throw either
@@ -73,7 +80,21 @@ itself considered to be a vulnerability (e.g., CVE-2021-41096)
     InvalidCipherTextException("block padding incorrect") depending on the
     location of the first error in the padding.
 
-<!-- the SUN provider used to include that block type -->
+*   CVE-2012-5081: Java JSSE provider leaked information through exceptions and
+    timing. Both the PKCS #1 padding and the OAEP padding were broken:
+    http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf
+
+There a few bugs that are not covered by the tests:
+
+*   Klima et al. used that OpenSSL would randomize the result of an RSA
+    decryption if the ciphertext was invalid and were able to distinguish the
+    randomized results from invalid paddings from non-randomized results of
+    valid paddings. [[KlPoRo03]](bib.md#klporo03). This attack requires precise
+    timing and a large number of measurements.
+
+*   Timing leakages because of differences in parsing the padding are sometimes
+    reported (e.g. CVE-2015-7827). Such differences are too small to be reliably
+    detectable in unit tests.
 
 **Tests**
 
@@ -163,11 +184,13 @@ function in cases where the salt length is not specified.
 
 **Support**
 
-A number of libraries restrict the supported parameter sets. To
-ensure that algorithm parameters have wide support it is generally a good idea
-to use the same hash function for hashing the message and for the mask
-generation function. The saltLength should be the same as the digest size of the
-hash function.
+A number of libraries restrict the supported parameter sets. For example some
+libraries do not support distinct hash functions for hashing the message and
+for the mask generation function. A typical value for the saltLength is to
+use the digest size of the hash function. Hence to increase the chance that
+algorithm parameters have wide support it is generally a good idea to use the
+same hash function for hashing the message and for the mask generation function
+and a saltLength equal the digest size of the hash function.
 
 **JCA algorithm names**
 
@@ -191,31 +214,36 @@ the default values. I.e. both hashes for hashing the message and the hash for
 MGF1 are the same and the salt length is equal to the output size of the hash
 function.
 
-Algorithm name            | jdk19                     | BouncyCastle 1.64               | Conscrypt 1.0
-------------------------- | ------------------------- | ------------------------------- | -------------
-RSASSA-PSS                | requires PSSParameterSpec | SHA1, MGF1-SHA1, 20             | no support
-SHA1withRSAandMGF1        | no support                | SHA1, MGF1-SHA1, 20             | SHA1, MGF1-SHA1, 20
-SHA224withRSAandMGF1      | no support                | SHA224, MGF1-SHA224, 28         | SHA224, MGF1-SHA224, 28
-SHA256withRSAandMGF1      | no support                | SHA256, MGF1-SHA256, 32         | SHA256, MGF1-SHA256, 32
-SHA384withRSAandMGF1      | no support                | SHA384, MGF1-SHA384, 48         | SHA384, MGF1-SHA384, 48
-SHA512withRSAandMGF1      | no support                | SHA384, MGF1-SHA512, 64         | SHA512, MGF1-SHA512, 64
-SHA512/224withRSAandMGF1  | no support                | SHA512/224, MGF1-SHA512/224, 28 | no support
-SHA512/256withRSAandMGF1  | no support                | SHA512/256, MGF1-SHA512/256, 32 | no support
-SHA3-224withRSAandMGF1    | no support                | SHA3-224, MGF1-SHA224, 28       | no support
-SHA3-256withRSAandMGF1    | no support                | SHA3-256, MGF1-SHA256, 32       | no support
-SHA3-384withRSAandMGF1    | no support                | SHA3-384, MGF1-SHA384, 48       | no support
-SHA3-512withRSAandMGF1    | no support                | SHA3-512, MGF1-SHA512, 64       | no support
-SHA1withRSA/PSS           | no support                | SHA1, MGF1-SHA1, 20             | SHA1, MGF1-SHA1, 20
-SHA224withRSA/PSS         | no support                | SHA224, MGF1-SHA224, 28         | SHA224, MGF1-SHA224, 28
-SHA256withRSA/PSS         | no support                | SHA256, MGF1-SHA256, 32         | SHA256, MGF1-SHA256, 32
-SHA384withRSA/PSS         | no support                | SHA384, MGF1-SHA384, 48         | SHA384, MGF1-SHA384, 48
-SHA512withRSA/PSS         | no support                | SHA384, MGF1-SHA512, 64         | SHA512, MGF1-SHA512, 64
-SHA3-224withRSA/PSS       | no support                | SHA3-224, MGF1-SHA224, 28       | no support
-SHA3-256withRSA/PSS       | no support                | SHA3-256, MGF1-SHA256, 32       | no support
-SHA3-384withRSA/PSS       | no support                | SHA3-384, MGF1-SHA384, 48       | no support
-SHA3-512withRSA/PSS       | no support                | SHA3-512, MGF1-SHA512, 64       | no support
-SHA512(224)withRSAandMGF1 | no support                | SHA512/224, MGF1-SHA512/224, 28 | no support
-SHA512(256)withRSAandMGF1 | no support                | SHA512/256, MGF1-SHA512/256, 32 | no support
+Algorithm name       | jdk19                     | BouncyCastle 1.71       | Conscrypt 1.0
+-------------------- | ------------------------- | ----------------------- | -------------
+RSASSA-PSS           | requires PSSParameterSpec | SHA1, MGF1-SHA1, 20     | no support
+SHA1withRSAandMGF1   | no support                | SHA1, MGF1-SHA1, 20     | SHA1, MGF1-SHA1, 20
+SHA224withRSAandMGF1 | no support                | SHA224, MGF1-SHA224, 28 | SHA224, MGF1-SHA224, 28
+SHA256withRSAandMGF1 | no support                | SHA256, MGF1-SHA256, 32 | SHA256, MGF1-SHA256, 32
+SHA384withRSAandMGF1 | no support                | SHA384, MGF1-SHA384, 48 | SHA384, MGF1-SHA384, 48
+SHA512withRSAandMGF1 | no support                | SHA384, MGF1-SHA512, 64 | SHA512, MGF1-SHA512, 64
+
+A few provider specific algorithm names are:
+
+Algorithm name            | jdk19      | BouncyCastle 1.71               | Conscrypt 1.0
+------------------------- | ---------- | ------------------------------- | -------------
+SHA512/224withRSAandMGF1  | no support | SHA512/224, MGF1-SHA512/224, 28 | no support
+SHA512/256withRSAandMGF1  | no support | SHA512/256, MGF1-SHA512/256, 32 | no support
+SHA3-224withRSAandMGF1    | no support | SHA3-224, MGF1-SHA224, 28       | no support
+SHA3-256withRSAandMGF1    | no support | SHA3-256, MGF1-SHA256, 32       | no support
+SHA3-384withRSAandMGF1    | no support | SHA3-384, MGF1-SHA384, 48       | no support
+SHA3-512withRSAandMGF1    | no support | SHA3-512, MGF1-SHA512, 64       | no support
+SHA1withRSA/PSS           | no support | SHA1, MGF1-SHA1, 20             | SHA1, MGF1-SHA1, 20
+SHA224withRSA/PSS         | no support | SHA224, MGF1-SHA224, 28         | SHA224, MGF1-SHA224, 28
+SHA256withRSA/PSS         | no support | SHA256, MGF1-SHA256, 32         | SHA256, MGF1-SHA256, 32
+SHA384withRSA/PSS         | no support | SHA384, MGF1-SHA384, 48         | SHA384, MGF1-SHA384, 48
+SHA512withRSA/PSS         | no support | SHA384, MGF1-SHA512, 64         | SHA512, MGF1-SHA512, 64
+SHA3-224withRSA/PSS       | no support | SHA3-224, MGF1-SHA224, 28       | no support
+SHA3-256withRSA/PSS       | no support | SHA3-256, MGF1-SHA256, 32       | no support
+SHA3-384withRSA/PSS       | no support | SHA3-384, MGF1-SHA384, 48       | no support
+SHA3-512withRSA/PSS       | no support | SHA3-512, MGF1-SHA512, 64       | no support
+SHA512(224)withRSAandMGF1 | no support | SHA512/224, MGF1-SHA512/224, 28 | no support
+SHA512(256)withRSAandMGF1 | no support | SHA512/256, MGF1-SHA512/256, 32 | no support
 
 Having a large number of algorithm name with implicit parameter choices is quite
 unsatisfactory. Hence the proposed change by Oracle is cleaner. I.e., OpenJDK
@@ -228,6 +256,11 @@ algorithm parameters with an instance of PSSParameterSpec, e.g.,
   verifier.setParameter(pssParams);
   verifier.init(publicKey);`
 ```
+
+BouncyCastle supports additional algorithm names such as
+`SHA256WithRSAAndSHAKE256`. Such a combination is uncommon since RFC 8702
+specifies just two parameter sets: one using SHAK128 for both hash and MGF and
+one using SHA256 for both functions.
 
 **Encoding keys**
 
@@ -274,6 +307,23 @@ the file:
     schema have RSA keys where the DER and PEM encoding use the OID
     id-RSASSA-PSS.
 
+Unfortunately there appears to be no clear documentation how RSASSA-PSS keys
+with parameters should be used in java. Java 8 added the method getParams() to
+the RSAKey interface. OpenJDK subsequently added RSASSA-PSS parameters to the
+key factory and the key generation. However, it seems necessary to explicitly
+copy the parameters when signing or verifying. I.e., the following pattern
+appears to be necessary.
+
+```java
+  RSAPrivateKey priv = ...;
+  byte[] msg = ...;
+  signer = Signature.getInstance("RSASSA-PSS");
+  signer.initSign(priv);
+  signer.setParameter(priv.getParams());
+  signer.update(msg);
+  byte[] signature = signer.sign();
+```
+
 **SHAKE128 and SHAKE256**
 
 RFC 8702 adds SHAKE128 and SHAKE256 to RSASSA-PSS. Support for these functions
@@ -294,6 +344,7 @@ the implementation of RSA-OAEP is broken, while attacks against RSA-PKCS #1
 can also happen if the caller leaks information about the decrypted ciphertext.
 Hence a correct implementation of RSA-OAEP prevents chosen ciphertext attacks,
 but implementations of RSA-PKCS #1 cannot achieve the same property.
+
 
 **Algorithm parameters**
 
@@ -329,48 +380,60 @@ algorithm name. This leads to a number of incompatibilities. The following table
 shows a number of algorithm names for OAEP, their support among some providers
 and the default values used for the algorithm parameters:
 
-Algorithm name                            | jdk19                  | BouncyCastle 1.64       | Conscrypt 1.0
------------------------------------------ | ---------------------- | ----------------------- | -------------
-RSA/ECB/OAEPPadding                       | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
-RSA/ECB/OAEPwithSHA-1andMGF1Padding       | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
-RSA/ECB/OAEPwithSHA-224andMGF1Padding     | SHA-224, MGF1-SHA1     | SHA-224, MGF1-SHA224    | SHA-224, MGF1-SHA224
-RSA/ECB/OAEPwithSHA-256andMGF1Padding     | SHA-256, MGF1-SHA1     | SHA-256, MGF1-SHA256    | SHA-256, MGF1-SHA256
-RSA/ECB/OAEPwithSHA-384andMGF1Padding     | SHA-384, MGF1-SHA1     | SHA-384, MGF1-SHA384    | SHA-384, MGF1-SHA384
-RSA/ECB/OAEPwithSHA-512andMGF1Padding     | SHA-512, MGF1-SHA1     | SHA-512, MGF1-SHA512    | SHA-512, MGF1-SHA512
-RSA/None/OAEPPadding                      | not supported          | SHA-1, MGF1-SHA1        | SHA-1, MGF1-SHA1
-RSA/None/OAEPwithSHA-1andMGF1Padding      | not supported          | SHA-1, MGF1-SHA1        | not supported
-RSA/None/OAEPwithSHA-224andMGF1Padding    | not supported          | SHA-224, MGF1-SHA224    | not supported
-RSA/None/OAEPwithSHA-256andMGF1Padding    | not supported          | SHA-256, MGF1-SHA256    | not supported
-RSA/None/OAEPwithSHA-384andMGF1Padding    | not supported          | SHA-384, MGF1-SHA384    | not supported
-RSA/None/OAEPwithSHA-512andMGF1Padding    | not supported          | SHA-512, MGF1-SHA512    | not supported
-RSA/ECB/OAEPwithSHA1andMGF1Padding        | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1        | not supported
-RSA/ECB/OAEPwithSHA224andMGF1Padding      | not supported          | SHA-224, MGF1-SHA224    | not supported
-RSA/ECB/OAEPwithSHA256andMGF1Padding      | not supported          | SHA-256, MGF1-SHA256    | not supported
-RSA/ECB/OAEPwithSHA384andMGF1Padding      | not supported          | SHA-384, MGF1-SHA384    | not supported
-RSA/ECB/OAEPwithSHA512andMGF1Padding      | not supported          | SHA-512, MGF1-SHA512    | not supported
-RSA/ECB/OAEPwithSHA-512/224andMGF1Padding | SHA-512/224, MGF1-SHA1 | not supported           | not supported
-RSA/ECB/OAEPwithSHA-512/256andMGF1Padding | SHA-512/256, MGF1-SHA1 | not supported           | not supported
-RSA/ECB/OAEPwithSHA3-224andMGF1Padding    | not supported          | SHA3-224, MGF1-SHA3-224 | not supported
-RSA/ECB/OAEPwithSHA3-256andMGF1Padding    | not supported          | SHA3-256, MGF1-SHA3-256 | not supported
-RSA/ECB/OAEPwithSHA3-384andMGF1Padding    | not supported          | SHA3-384, MGF1-SHA3-384 | not supported
-RSA/ECB/OAEPwithSHA3-512andMGF1Padding    | not supported          | SHA3-512, MGF1-SHA3-512 | not supported
+Algorithm name                        | jdk19              | BouncyCastle 1.71    | Conscrypt 1.0
+------------------------------------- | ------------------ | -------------------- | -------------
+RSA/ECB/OAEPPadding                   | SHA-1, MGF1-SHA1   | SHA-1, MGF1-SHA1     | SHA-1, MGF1-SHA1
+RSA/ECB/OAEPwithSHA-1andMGF1Padding   | SHA-1, MGF1-SHA1   | SHA-1, MGF1-SHA1     | SHA-1, MGF1-SHA1
+RSA/ECB/OAEPwithSHA-224andMGF1Padding | SHA-224, MGF1-SHA1 | SHA-224, MGF1-SHA224 | SHA-224, MGF1-SHA224
+RSA/ECB/OAEPwithSHA-256andMGF1Padding | SHA-256, MGF1-SHA1 | SHA-256, MGF1-SHA256 | SHA-256, MGF1-SHA256
+RSA/ECB/OAEPwithSHA-384andMGF1Padding | SHA-384, MGF1-SHA1 | SHA-384, MGF1-SHA384 | SHA-384, MGF1-SHA384
+RSA/ECB/OAEPwithSHA-512andMGF1Padding | SHA-512, MGF1-SHA1 | SHA-512, MGF1-SHA512 | SHA-512, MGF1-SHA512
 
-Because of these incompatibilities it may be a good idea to use the following
-pattern, when implementing RSA OAEP:
+Some provider support additional algorithm names that do not follow the convention for standard names.
+Some examples are:
+
+Algorithm name                            | jdk19                  | BouncyCastle 1.71    | Conscrypt 1.0
+----------------------------------------- | ---------------------- | -------------------- | -------------
+RSA/None/OAEPPadding                      | not supported          | SHA-1, MGF1-SHA1     | SHA-1, MGF1-SHA1
+RSA/None/OAEPwithSHA-1andMGF1Padding      | not supported          | SHA-1, MGF1-SHA1     | not supported
+RSA/None/OAEPwithSHA-224andMGF1Padding    | not supported          | SHA-224, MGF1-SHA224 | not supported
+RSA/None/OAEPwithSHA-256andMGF1Padding    | not supported          | SHA-256, MGF1-SHA256 | not supported
+RSA/None/OAEPwithSHA-384andMGF1Padding    | not supported          | SHA-384, MGF1-SHA384 | not supported
+RSA/None/OAEPwithSHA-512andMGF1Padding    | not supported          | SHA-512, MGF1-SHA512 | not supported
+RSA/ECB/OAEPwithSHA1andMGF1Padding        | SHA-1, MGF1-SHA1       | SHA-1, MGF1-SHA1     | not supported
+RSA/ECB/OAEPwithSHA224andMGF1Padding      | not supported          | SHA-224, MGF1-SHA224 | not supported
+RSA/ECB/OAEPwithSHA256andMGF1Padding      | not supported          | SHA-256, MGF1-SHA256 | not supported
+RSA/ECB/OAEPwithSHA384andMGF1Padding      | not supported          | SHA-384, MGF1-SHA384 | not supported
+RSA/ECB/OAEPwithSHA512andMGF1Padding      | not supported          | SHA-512, MGF1-SHA512 | not supported
+RSA/ECB/OAEPwithSHA-512/224andMGF1Padding | SHA-512/224, MGF1-SHA1 | not supported        | not supported
+RSA/ECB/OAEPwithSHA-512/256andMGF1Padding | SHA-512/256, MGF1-SHA1 | not supported        | not supported
+
+The main concern here is that hash function for MGF1 is not specified in the
+algorithm name. While using SHA-1 currently is not a weakness, since collision
+resistance is not required, it may still become an issue when NIST transitions
+away from SHA-1, because these hidden defaults can lead to incompatilities.
+Because of this it may be a good idea to specify the algorithm parameters
+explitily. For example the following pattern should lead to compatible
+implementations:
 
 ```java
   Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
-  OAEPParameterSpec params = ...
+  PSource p = PSource.PSpecified.DEFAULT;
+  MGF1ParameterSpec mgf1Params = new MGF1ParameterSpec("SHA-256");
+  OAEPParameterSpec params = new OAEPParameterSpec("SHA-256", "MGF1", mgf1Params, p);
   cipher.init(mode, key, params);
 ```
 
 **SHA-3 / SHAKE**
 
-It would in principle be possible to use SHAKE128 and SHAKE256 as an alternative
-to MGF1 (similar to RFC 8702). Since we are not aware of any standards or RFC
-makeing such a proposal, there are no test vectors using SHA-3.
+BouncyCastle supports additional algorithm names with SHA-3 such as
+`RSA/ECB/OAEPwithSHA3-256andMGF1Padding`. It is in principle possible to
+use SHAKE128 and SHAKE256 as an alternative to MGF1 (similar to RFC 8702). Since
+we are not aware of any standards or RFCs makeing such a proposal, there are no
+test vectors using SHA-3.
 
 **Encoding keys** It is possible to include RSAES-OAEP parameters in DER and PEM
 encoded RSA keys. To our knowledge this option is rarely used and supported.
 Because of this situation all the RSA keys in our test vectors contain the
 object identifier rsaEncryption and no parameters and not id-RSAES-OAEP.
+
