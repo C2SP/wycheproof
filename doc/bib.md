@@ -34,7 +34,7 @@ Additional information is added as a separate paragraph.
 ### AES-GCM
 D. A. McGrew and J. Viega,
 "The Galois/Counter Mode of operation (GCM).",
-http://csrc.nist.gov/CryptoToolkit/modes/proposedmodes/gcm/gcm-spec.pdf.
+https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
 
 ### AbVaLo19
 R. Abarzúa, C. Valencia and J. López,
@@ -51,7 +51,7 @@ https://www.iacr.org/archive/pkc2003/25670211/25670211.pdf
 T. Akishita, T. Takagi,
 "Zero-Value Point Attacks on Elliptic Curve Cryptosystem",
 ISC 2003, pp. 218-233.
-https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf
+https://download.hrz.tu-darmstadt.de/pub/FB20/Dekanat/Publikationen/CDC/TI-03-01.zvp.pdf
 
 ### BeMeMu00
 I. Biehl, B. Meyer, V. Müller,
@@ -108,8 +108,8 @@ http://cs.tau.ac.il/~tromer/papers/ecdh.pdf
 
 ### HowSma99
 
-N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature
-Schemes", http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
+N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature Schemes",
+https://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
 
 ### Joux-Gcm
 A. Joux,
@@ -217,12 +217,11 @@ http://www.ecrypt.eu.org/ecrypt2/documents/D.SPA.20.pdf
 http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
 
 ### NIST-SP800-56A
-NIST SP 800-56A, revision 2, May 2013.
-http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar2.pdf
+NIST SP 800-56A, revision 3, April 2018.
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
 
 ### NIST-SP800-57
-http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
-
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
 ### NIST SP800-131A
 Transitioning the Use of Cryptographic Algorithms and Key Lengths
 https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
@@ -244,7 +243,8 @@ http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
 
 ### PKCS-3
 "PKCS #3, Diffie–Hellman Key Agreement".
-http://uk.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-3-diffie-hellman-key-agreement-standar.htm
+An RSA Laboratories Technical Note Version 1.4
+Revised November 1, 1993
 
 <!-- CVEs -->
 ### CVE-1999-1444
@@ -253,7 +253,9 @@ Alibaba 2.0 generated RSA key pairs with an exponent 1
 ### CVE-2012-5081
 Java JSSE provider leaked information through exceptions and
 timing. Both the PKCS #1 padding and the OAEP padding were broken:
-http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf
+https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-meyer.pdf
+<!-- Another reference is Meyers dissertation, which previously could be found on:
+http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf -->
 
 ### CVE-2015-6924
 Utimaco HSMs vulnerable to invalid curve attacks.
