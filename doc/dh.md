@@ -25,7 +25,26 @@ secret $$z = y_a^{x_b} \mod p$$ each party should check that $$z \neq 1.$$ RFC
 NIST requires that the order q of the generator g is known to the verifier.
 Unfortunately, the order q is missing in [[PKCS #3]](bib.md#pkcs-3).
 [[PKCS #3]](bib.md#pkcs-3) describes the Diffie-Hellman parameters only by the
-values p, g and optionally the key size in bits.
+values p, g and optionally the key size in bits:
+
+```
+DHParameter ::= SEQUENCE {
+ prime INTEGER, -- p
+ base INTEGER, -- g
+ privateValueLength INTEGER OPTIONAL }
+```
+
+In comparison RFC 2459 uses the following structure to describe the domain
+parameters for Diffie-Hellman keys.
+
+```
+DomainParameters ::= SEQUENCE {
+     p       INTEGER, -- odd prime, p=jq +1
+     g       INTEGER, -- generator, g
+     q       INTEGER, -- factor of p-1
+     j       INTEGER OPTIONAL, -- subgroup factor, j>= 2
+     validationParms  ValidationParms OPTIONAL }
+```
 
 The class DHParameterSpec that defines the Diffie-Hellman parameters in JCE
 contains the same values as [[PKCS #3]](bib.md#pkcs-3). In particular, it does
@@ -44,8 +63,6 @@ To avoid big disasters the tests below require that key sizes are not minimal.
 I.e., currently the tests require at least 512 bit keys for 1024 bit fields. We
 use this lower limit because that is what the SUN provider is currently doing.
 
-TODO(bleichen): Find a reference supporting or disproving that decision.
-
 ## Weak parameters
 
 The DH parameters must be carefully chosen to avoid security issues. A panel at
@@ -60,11 +77,12 @@ special number field sieve are feasible [[FGHT16]](bib.md#fght16). Moreover some
 libraries use primes that are susceptible to this attack
 [[FGHT16]](bib.md#fght16).
 
-TODO(bleichen): So far no test for weak DH parameters has been implemented.
-Possibly we should at least implement a test that detects special cases, so that
-weak primes (such as the one used in libtomcrypt) are detected.
+There are only a small number of tests for weak DH parameters such as primes
+close to a power of two or smooth group orders. These tests are far from
+exhaustive. Using predefined DH groups (e.g., RFC 3526) avoids many of the
+problems with weak DH parameters.
 
-DH implementations are sometimes misconfigured. Adrian et al. The authors of
+DH implementations are sometimes misconfigured. The authors of
 [[WeakDh]](bib.md#weakdh) analyzed various implementations and found for example
 the following problems in the parameters: p is sometimes composite, p-1 contains
 no large prime factor, q is used instead of the generator g.
@@ -109,4 +127,9 @@ unspecified vectors, aka "Schannel Information Disclosure Vulnerability.
 
 CVE-2015-2419: Random generation of the prime p allows Pohlig-Hellman and probably other
 stuff.
+
+CVE-2022-40735: Complains that DH keys are sometimes unnecessarily long and hence
+can be used for DOS attacks. Some discussions are here:
+https://github.com/mozilla/ssl-config-generator/issues/162
+https://github.com/openssl/openssl/issues/17374
 -->
