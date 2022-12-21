@@ -26,29 +26,19 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateCrtKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests PKCS #1 v 1.5 signatures */
-// TODO(bleichen):
-// - document stuff
-// - Join other RSA tests
+/**
+ * Tests PKCS #1 v 1.5 signatures
+ *
+ * <p>Most of the tests that were previously in this class have been replaced by test vectors and
+ * are now tested in JsonSignatureTest.java.
+ */
 @RunWith(JUnit4.class)
 public class RsaSignatureTest {
-  static final RSAPublicKeySpec RSA_KEY1 =
-      new RSAPublicKeySpec(
-          new BigInteger(
-              "ab9014dc47d44b6d260fc1fef9ab022042fd9566e9d7b60c54100cb6e1d4edc9"
-                  + "8590467d0502c17fce69d00ac5efb40b2cb167d8a44ab93d73c4d0f109fb5a26"
-                  + "c2f8823236ff517cf84412e173679cfae42e043b6fec81f9d984b562517e6feb"
-                  + "e1f72295dbc3fdfc19d3240aa75515563f31dad83563f3a315acf9a0b351a23f",
-              16),
-          new BigInteger("65537"));
-  static final String ALGORITHM_KEY1 = "SHA256WithRSA";
 
   @Test
   public void testBasic() throws Exception {
@@ -100,7 +90,7 @@ public class RsaSignatureTest {
    *
    * <p>The test here does not induce a fault. Instead it tries to sign with a faulty private key.
    * The expected outcome of the test is that underlying provider either detects that the fault or
-   * generates a valid signature by ignoring the faulty CRT parameter.
+   * generates a valid signature by ignoring the faulty parameter.
    *
    * <p>Since the test only simulates a fault, but does not actually induce a fault it is somewhat
    * incomplete. It does not detect all vulnerable implementations. The test should nonetheless
@@ -138,13 +128,10 @@ public class RsaSignatureTest {
     BigInteger dq = d.mod(q.subtract(BigInteger.ONE));
     BigInteger crt = q.modInverse(p);
     RSAPrivateCrtKeySpec validKey = new RSAPrivateCrtKeySpec(n, e, d, p, q, dp, dq, crt);
-    RSAPrivateCrtKeySpec invalidKey =
-        new RSAPrivateCrtKeySpec(n, e, d, p, q, dp.add(BigInteger.valueOf(2)), dq, crt);
     byte[] message = "Test".getBytes(UTF_8);
     Signature signer;
     byte[] signature;
     KeyFactory kf;
-    // Skips the test if the provider can't sign with a valid key.
     try {
       kf = KeyFactory.getInstance("RSA");
       PrivateKey validPrivKey = kf.generatePrivate(validKey);
@@ -157,38 +144,54 @@ public class RsaSignatureTest {
       return;
     }
     PrivateKey invalidPrivKey;
-    try {
-      invalidPrivKey = kf.generatePrivate(invalidKey);
-    } catch (InvalidKeySpecException ex) {
-      // The provider checks the private key and notices a mismatch.
-      // This is a good sign, though of course in this case it means that we can't
-      // check for faults.
-      TestUtil.skipTest("Provider catches invalid RSA key:" + ex);
-      return;
+    BigInteger two = BigInteger.valueOf(2);
+    RSAPrivateCrtKeySpec[] invalidKeySpec =
+        new RSAPrivateCrtKeySpec[] {
+          new RSAPrivateCrtKeySpec(BigInteger.ONE, e, d, p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, BigInteger.ONE, d, p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, BigInteger.ONE, p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, BigInteger.ONE, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, BigInteger.ONE, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, BigInteger.ONE, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, dp, BigInteger.ONE, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, dp, dq, BigInteger.ONE),
+          new RSAPrivateCrtKeySpec(n.add(two), e, d, p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e.add(two), d, p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d.add(two), p, q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p.add(two), q, dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q.add(two), dp, dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, dp.add(two), dq, crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, dp, dq.add(two), crt),
+          new RSAPrivateCrtKeySpec(n, e, d, p, q, dp, dq, crt.add(two)),
+        };
+    for (RSAPrivateCrtKeySpec spec : invalidKeySpec) {
+      byte[] invalidSignature;
+      try {
+        invalidPrivKey = kf.generatePrivate(spec);
+        signer.initSign(invalidPrivKey);
+        signer.update(message);
+        invalidSignature = signer.sign();
+      } catch (GeneralSecurityException | RuntimeException ex) {
+        // We do not necessarily expect a checked exception here, since generating
+        // an invalid signature typically indicates a programming error or even a hardware fault.
+        // Thus RuntimeExceptions are fine here.
+        System.out.println("Faulty RSA parameters correctly detected: " + ex);
+        continue;
+      }
+      String signatureHex = TestUtil.bytesToHex(signature);
+      String invalidSignatureHex = TestUtil.bytesToHex(invalidSignature);
+      if (signatureHex.equals(invalidSignatureHex)) {
+        // The provider generated a correct signature. This can happen if the provider does not use
+        // the CRT parameters. This behavior is OK.
+        System.out.println("Faulty parameter not used for signature generation");
+        continue;
+      }
+      fail(
+          "Generated faulty PKCS #1 signature with faulty parameters"
+              + " valid signature:"
+              + signatureHex
+              + " invalid signature:"
+              + invalidSignatureHex);
     }
-    byte[] invalidSignature;
-    try {
-      signer.initSign(invalidPrivKey);
-      signer.update(message);
-      invalidSignature = signer.sign();
-    } catch (GeneralSecurityException | RuntimeException ex) {
-      // We do not necessarily expect a checked exception here, since generating
-      // an invalid signature typically indicates a programming error or even a hardware fault.
-      // Thus RuntimeExceptions are fine here.
-      return;
-    }
-    String signatureHex = TestUtil.bytesToHex(signature);
-    String invalidSignatureHex = TestUtil.bytesToHex(invalidSignature);
-    if (signatureHex.equals(invalidSignatureHex)) {
-      // The provider generated a correct signature. This can for example happen if the provider
-      // does not use the CRT parameters.
-      System.out.println("Signature generation did not use faulty parameter");
-      return;
-    }
-    fail("Generated faulty PKCS #1 signature with faulty parameters"
-         + " valid signature:"
-         + signatureHex
-         + " invalid signature:"
-         + invalidSignatureHex);
   }
 }
