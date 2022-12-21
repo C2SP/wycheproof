@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -240,7 +241,9 @@ public class JsonFpeTest {
   }
 
   /**
-   * Example:
+   * Tests format preserving encryption against test vectors.
+   *
+   * <p>Example:
    *
    * <pre>
    * "algorithm" : "AES-FF1",
@@ -273,8 +276,14 @@ public class JsonFpeTest {
    *   ]
    * },
    * </pre>
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens when the primitive
+   *     or the radix is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
    */
-  public void testFpe(String filename) throws Exception {
+  public void testFpe(String filename) throws IOException {
     // Testing with old test vectors may a reason for a test failure.
     // Version number have the format major.minor[status].
     // Versions before 1.0 are experimental and  use formats that are expected to change.

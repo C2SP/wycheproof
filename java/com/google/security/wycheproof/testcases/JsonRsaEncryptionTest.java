@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -181,6 +182,9 @@ public class JsonRsaEncryptionTest {
    *
    * @param testVectors the test vectors
    * @return a test result
+   * @throws RuntimeException when something unexpected happened. Generally the tests are written
+   *     such that exceptions thrown by a provider are caught and reported in testResult.
+   *     RuntimeException often indicate incomplete test setups.
    */
   public static TestResult allTests(TestVectors testVectors) {
     var testResult = new TestResult(testVectors);
@@ -263,8 +267,12 @@ public class JsonRsaEncryptionTest {
    * @param allowSkippingKeys if true then keys that cannot be constructed will not fail the test.
    *     This is for example used for files with test vectors with keys that use OIDs other
    *     rsaEncryption and hence are keys formats that are not commonly supported.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
    */
-  public void testDecryption(String filename, boolean allowSkippingKeys) throws Exception {
+  public void testDecryption(String filename, boolean allowSkippingKeys) throws IOException {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);
     TestResult testResult = allTests(testVectors);

@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.ExcludedTest;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -262,7 +263,19 @@ public class JsonCipherTest {
     return testResult;
   }
 
-  public void testCipher(String filename) throws Exception {
+  /**
+   * Tests a ciphers against test vectors.
+   *
+   * <p>Note, that authenticated ciphers are not tested here, but tested in JsonAeadTest.java.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying cipher or padding method is not supported. It is also possible that a test
+   *     is skipped if the provider uses non-standard algorithm names.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
+   */
+  public void testCipher(String filename) throws IOException {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);
     TestResult testResult = allTests(testVectors);

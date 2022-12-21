@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -386,6 +387,14 @@ public class JsonXdhTest {
     return testResult;
   }
 
+  /**
+   * Tests XDH exchanges against test vectors.
+   *
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the XDH curve or the XDH key format is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read
+   */
   public void testXdhComp(String filename) throws Exception {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestResult testResult = allTests(new TestVectors(test, filename));

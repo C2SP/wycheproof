@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -146,7 +147,16 @@ public class JsonEcdhTest {
     return testResult;
   }
 
-  public void testEcdhComp(String filename) throws Exception {
+  /**
+   * Tests ECDH exchanges against test vectors.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive or the curve is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOExceptions when the test vectors could not be read
+   */
+  public void testEcdhComp(String filename) throws IOException {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestResult testResult = allTests(new TestVectors(test, filename));
     if (testResult.skipTest()) {

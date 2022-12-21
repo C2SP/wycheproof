@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -293,6 +294,18 @@ public class JsonKeyWrapTest {
     return testResult;
   }
 
+  /**
+   * Tests a key wrapping algorithm against test vectors.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive is not supported. The test may also be skipped if the provider
+   *     uses an unsual algorithm name. Unfortunately, key wrapping algorithms use a rather large
+   *     number of algorithm names. Such mismatches can be fixed by adding additional names to
+   *     getCipher or registering an alias name for the provider.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
+   */
   public void testKeywrap(String filename) throws Exception {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);

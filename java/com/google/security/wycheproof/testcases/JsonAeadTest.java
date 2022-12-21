@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -342,6 +343,15 @@ public class JsonAeadTest {
     return testResult;
   }
 
+  /**
+   * Tests AEAD ciphers against test vectors.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying cipher is not supported (or when the provider uses unusual algorithm names).
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
+   */
   public void testAead(String filename) throws Exception {
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);

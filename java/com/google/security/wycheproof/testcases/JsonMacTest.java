@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -247,12 +248,15 @@ public class JsonMacTest {
   }
 
   /**
-   * Tests a randomized MAC (i.e. a message authetication that takes an additional IV as parameter)
-   * against test vectors.
+   * Tests MACs against test vectors.
    *
    * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
    */
-  public void testMac(String filename) throws Exception {
+  public void testMac(String filename) throws IOException {
     // Checking preconditions.
     JsonObject test = JsonUtil.getTestVectorsV1(filename);
     TestVectors testVectors = new TestVectors(test, filename);
