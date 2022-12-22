@@ -13,6 +13,7 @@
  */
 package com.google.security.wycheproof;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -191,13 +192,36 @@ public class EciesTest {
   }
 
   /**
+   * Returns a EC key pair on the given curve for testing.
+   *
+   * @throws AssumptionViolatedException if the key could not be constructed. This skips the test.
+   */
+  KeyPair getEcKeyPair(String curve) {
+    try {
+      ECGenParameterSpec ecSpec = new ECGenParameterSpec("curve");
+      KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
+      kf.initialize(ecSpec);
+      return kf.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate key for curve: " + curve);
+      return null;
+    }
+  }
+
+  /**
    * BouncyCastle has a key generation algorithm "ECIES". This algorithm generates EC keys like
    * KeyPairGenerator.getInstance("EC");
    */
   @Test
   public void testKeyGeneration() throws Exception {
     ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("ECIES");
+    KeyPairGenerator kf;
+    try {
+      kf = KeyPairGenerator.getInstance("ECIES");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("Could generate a key pair");
+      return;
+    }
     kf.initialize(ecSpec);
     KeyPair keyPair = kf.generateKeyPair();
     ECPrivateKey unusedPriv = (ECPrivateKey) keyPair.getPrivate();
@@ -215,24 +239,22 @@ public class EciesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testExceptions() throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
     final int kemSize = 65;
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
 
     int testsPerformed = 0;
     for (String algorithmName : ALGORITHM_NAMES) {
       Cipher ecies;
+      AlgorithmParameters params;
       try {
         ecies = Cipher.getInstance(algorithmName);
-      } catch (NoSuchAlgorithmException ex) {
+        params = getAlgorithmParameters(algorithmName);
+      } catch (GeneralSecurityException ex) {
         continue;
       }
       testsPerformed++;
-      AlgorithmParameters params = getAlgorithmParameters(algorithmName);
       byte[] message = new byte[40];
       ecies.init(Cipher.ENCRYPT_MODE, pub, params);
       byte[] ciphertext = ecies.doFinal(message);
@@ -285,13 +307,10 @@ public class EciesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testModifyPoint() throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
-    byte[] message = "This is a long text since we need 32 bytes.".getBytes("UTF-8");
+    byte[] message = "This is a long text since we need 32 bytes.".getBytes(UTF_8);
     final String algorithmName = "ECIESwithAES-CBC";
     Cipher ecies = Cipher.getInstance(algorithmName);
     AlgorithmParameters params = getAlgorithmParameters(algorithmName);
@@ -323,10 +342,7 @@ public class EciesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testNotEcb() throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PublicKey pub = keyPair.getPublic();
 
     for (String algorithmName : ALGORITHM_NAMES) {
@@ -356,10 +372,7 @@ public class EciesTest {
    */
   @SuppressWarnings("InsecureCryptoUsage")
   public void testEncryptDecryptFixedParams(String algorithmName) throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PublicKey pub = keyPair.getPublic();
     PrivateKey priv = keyPair.getPrivate();
 
@@ -423,13 +436,17 @@ public class EciesTest {
    */
   @SuppressWarnings("InsecureCryptoUsage")
   public void testEncryptDecryptWithParams(String algorithmName) throws Exception {
-    AlgorithmParameters params = getAlgorithmParameters(algorithmName);
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PublicKey pub = keyPair.getPublic();
     PrivateKey priv = keyPair.getPrivate();
+
+    AlgorithmParameters params;
+    try {
+      params = getAlgorithmParameters(algorithmName);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Unknown algorithm name:" + algorithmName);
+      return;
+    }
 
     Cipher eciesA;
     Cipher eciesB;
@@ -496,10 +513,7 @@ public class EciesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testMalleability() throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PublicKey pub = keyPair.getPublic();
     PrivateKey priv = keyPair.getPrivate();
 
@@ -553,13 +567,10 @@ public class EciesTest {
    */
   @Test
   public void testByteBuffer() throws Exception {
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair("secp256r1");
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
-    byte[] message = "Hello".getBytes("UTF-8");
+    byte[] message = "Hello".getBytes(UTF_8);
     final String algorithmName = "ECIESwithAES-CBC";
     AlgorithmParameters params = getAlgorithmParameters(algorithmName);
 
@@ -597,12 +608,9 @@ public class EciesTest {
    * <p>This test tries to verify this.
    */
   public void testByteBufferAlias(String algorithm) throws Exception {
-    byte[] message = "Hello".getBytes("UTF-8");
+    byte[] message = "Hello".getBytes(UTF_8);
     String curveName = "secp256r1";
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec(curveName);
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("EC");
-    kf.initialize(ecSpec);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getEcKeyPair(curveName);
     Cipher ecies = Cipher.getInstance(algorithm);
     AlgorithmParameters params = getAlgorithmParameters(algorithm);
 

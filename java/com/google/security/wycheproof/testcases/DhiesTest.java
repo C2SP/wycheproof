@@ -13,6 +13,7 @@
  */
 package com.google.security.wycheproof;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -111,6 +112,23 @@ public class DhiesTest {
   }
 
   /**
+   * Returns a Diffie-Hellman key pair for testing.
+   *
+   * @throws AssumptionViolatedException if no DH key test could be generated. This skips the test.
+   */
+  KeyPair getDhKeyPair() {
+    DHParameterSpec dhParams = ike2048();
+    try {
+      KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
+      kf.initialize(dhParams);
+      return kf.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate DH key");
+      return null;
+    }
+  }
+
+  /**
    * Old versions of BouncyCastle used to implement DHIES with symmetric ciphers using ECB. Quite
    * problematic was that the algorithm names did not indicate the encryption mode and hence users
    * might have chosen these DHIES variants without suspecting any weaknesses. BouncyCastle has
@@ -137,13 +155,10 @@ public class DhiesTest {
   /** Checks DHIES variants with no (rsp. fixed) parameters */
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDhiesNoParameters(String algorithmName) throws Exception {
-    DHParameterSpec params = ike2048();
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
-    kf.initialize(params);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getDhKeyPair();
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
-    byte[] message = "Hello".getBytes("UTF-8");
+    byte[] message = "Hello".getBytes(UTF_8);
     Cipher dhies;
     try {
       dhies = Cipher.getInstance(algorithmName);
@@ -163,13 +178,10 @@ public class DhiesTest {
 
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDhiesWithParameters(String algorithmName) throws Exception {
-    DHParameterSpec dhParams = ike2048();
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
-    kf.initialize(dhParams);
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getDhKeyPair();
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
-    byte[] message = "Hello".getBytes("UTF-8");
+    byte[] message = "Hello".getBytes(UTF_8);
     Cipher dhies;
     try {
       dhies = Cipher.getInstance(algorithmName);
@@ -205,9 +217,7 @@ public class DhiesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testDhiesCorrupt() throws Exception {
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
-    kf.initialize(ike2048());
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getDhKeyPair();
     PrivateKey priv = keyPair.getPrivate();
     PublicKey pub = keyPair.getPublic();
     byte[] message = new byte[32];
@@ -248,9 +258,7 @@ public class DhiesTest {
   @Test
   @SuppressWarnings("InsecureCryptoUsage")
   public void testNotEcb() throws Exception {
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
-    kf.initialize(ike2048());
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getDhKeyPair();
     PublicKey pub = keyPair.getPublic();
     int testsPerformed = 0;
     for (String algorithmName : ALGORITHM_NAMES) {
@@ -297,9 +305,7 @@ public class DhiesTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testMalleability() throws Exception {
-    KeyPairGenerator kf = KeyPairGenerator.getInstance("DH");
-    kf.initialize(ike2048());
-    KeyPair keyPair = kf.generateKeyPair();
+    KeyPair keyPair = getDhKeyPair();
     PublicKey pub = keyPair.getPublic();
     PrivateKey priv = keyPair.getPrivate();
 
