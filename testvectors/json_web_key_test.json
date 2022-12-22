@@ -1,0 +1,85 @@
+{
+  "generatorVersion" : "0.2",
+  "numberOfTests" : 3,
+  "header" : [
+    "Test vectors of type JwCrypto are intended for tests that verify the ",
+    "operations of a JSON Web Encryption/Signature library."
+  ],
+  "notes" : {
+    "JsonWebKeyset" : "The provided keys are actually JSON Web Keysets instead of single JSON Web Keys."
+  },
+  "schema" : "json_web_crypto_schema.json",
+  "testGroups" : [
+    {
+      "type" : "JsonWebCrypto",
+      "comment": "jws_mixedSymmetryKeyset",
+      "private" : {
+        "keys" : [
+          {
+            "alg" : "HS256",
+            "use" : "sig",
+            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid" : "kid-aes-sign",
+            "kty" : "oct"
+          },
+          {
+            "alg" : "ES256",
+            "use" : "sig",
+            "x" : "04N0xi21hshyvBp7I167sbE_bXqyqkAPfefdklMO7wY",
+            "y" : "UI8exy-C06a7DUnjIdENkxeFtHM4-l_41LqEw9nVgmw",
+            "crv" : "P-256",
+            "kid" : "kid-ec-sign",
+            "kty" : "EC"
+          }
+        ]
+      },
+      "tests" : [
+        {
+          "tcId" : 47,
+          "comment" : "rejectsValid",
+          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result" : "invalid",
+          "flags" : ["JsonWebKeyset"]
+        }
+      ]
+    },
+    {
+      "type" : "JsonWebCrypto",
+      "comment": "jws_keyset",
+      "private" : {
+        "keys" : [
+          {
+            "alg" : "HS256",
+            "use" : "sig",
+            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid" : "kid-aes-sign",
+            "kty" : "oct"
+          },
+          {
+            "alg" : "HS256",
+            "use" : "sig",
+            "k" : "-xbuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid" : "kid-aes-sign-2",
+            "kty" : "oct"
+          }
+        ]
+      },
+      "tests" : [
+        {
+          "tcId" : 48,
+          "comment" : "acceptsValid",
+          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result" : "valid",
+          "flags" : ["JsonWebKeyset"]
+        },
+        {
+          "tcId" : 49,
+          "comment" : "rejectsModifiedSignature",
+          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.XD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result" : "invalid",
+          "flags" : ["JsonWebKeyset"]
+        }
+      ]
+    }
+  ]
+}
