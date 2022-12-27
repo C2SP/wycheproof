@@ -256,15 +256,24 @@ class TestResult {
     Set<Type> results = new TreeSet<Type>();
     Set<String> comments = new TreeSet<String>();
     for (int tcId : testVectors.withFlag(flag)) {
-      results.add(result.get(tcId));
-      comments.add(comment.get(tcId));
+      // Test vectors with no result are test vectors where the
+      // primitive was not performed. This happens for example
+      // when already the algorithm parameters were rejected.
+      if (result.containsKey(tcId)) {
+        results.add(result.get(tcId));
+      }
+      if (comment.containsKey(tcId)) {
+        comments.add(comment.get(tcId));
+      }
     }
     if (results.size() > 1 || comments.size() > 1) {
       for (int tcId : testVectors.withFlag(flag)) {
         // This line overrides previous test results.
         // This is done because distinguishable paddings are likely more
         // important that other errors.
-        addResult(tcId, Type.DISTINGUISHABLE, comment.get(tcId));
+        if (comment.containsKey(tcId)) {
+          addResult(tcId, Type.DISTINGUISHABLE, comment.get(tcId));
+        }
       }
     }
   }

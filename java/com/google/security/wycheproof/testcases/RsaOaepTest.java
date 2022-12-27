@@ -17,7 +17,6 @@ package com.google.security.wycheproof;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
@@ -34,7 +33,6 @@ import org.junit.runners.JUnit4;
 //   RSASSA-PSS allows key with such parameters by using KeyFactory.getInstance("RSASSA-PSS").
 //   Is there an equivalent algorithm name for RSA-OAEP?
 // TODO(bleichen): Maybe add timing tests with long labels
-// TODO(bleichen): add documentation.
 
 @RunWith(JUnit4.class)
 public class RsaOaepTest {
@@ -102,9 +100,13 @@ public class RsaOaepTest {
   }
 
   /**
-   * This is not a real test. The JCE algorithm names only specify one hash algorithm. But OAEP uses
-   * two hases. One hash algorithm is used to hash the labels. The other hash algorithm is used for
-   * the mask generation function.
+   * This is not a real test. It simply prints a list of algorithm names together with defaults.
+   *
+   * <p>Generally, it is a bad idea to rely on default values. Rather implementations should always
+   * specify all the algorithm parameters explicitly. OAEP is an example where the reliance on
+   * default values is especially risky. One issue is that the JCE algorithm names only specify one
+   * hash algorithm. But OAEP uses two hases. One hash algorithm is used to hash the labels. The
+   * other hash algorithm is used for the mask generation function.
    *
    * <p>Different provider use different default values for the hash function that is not specified
    * in the algorithm name. Jdk uses mgfsha1 as default. BouncyCastle and Conscrypt use the same
@@ -122,14 +124,14 @@ public class RsaOaepTest {
    * explicitly.
    *
    * <p>The default parameters for "RSA/ECB/OAEPPadding" are typically SHA-1 and MGF1-SHA1. These
-   * values are acceptable since RSA-OAEP does not require a collision resistant hash function for
-   * its security.
+   * values are still acceptable since RSA-OAEP does not require a collision resistant hash
+   * function. Nevertheless NIST plans deprecate all uses of SHA-1 by 2030.
    *
    * <p>https://jdk.java.net/19/release-notes claims that OAEPParameterSpec.DEFAULT static constant
-   * is deprecated. Hence callers should not rely on such default behaviour.
+   * is deprecated. Hence callers should not rely on such default behaviour. (JDK-8284553)
    */
   @Test
-  public void testDefaults() throws Exception {
+  public void testDefaults() {
     String pubKey =
         "30820122300d06092a864886f70d01010105000382010f003082010a02820101"
             + "00bdf90898577911c71c4d9520c5f75108548e8dfd389afdbf9c997769b8594e"
@@ -141,15 +143,20 @@ public class RsaOaepTest {
             + "fb3aef9fe58d9e4ef6e4922711a3bbcd8adcfe868481fd1aa9c13e5c658f5172"
             + "617204314665092b4d8dca1b05dc7f4ecd7578b61edeb949275be8751a5a1fab"
             + "c30203010001";
-    KeyFactory kf;
-    kf = KeyFactory.getInstance("RSA");
-    X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
-    PublicKey key = kf.generatePublic(x509keySpec);
+    PublicKey key;
+    try {
+      KeyFactory kf = KeyFactory.getInstance("RSA");
+      X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(TestUtil.hexToBytes(pubKey));
+      key = kf.generatePublic(x509keySpec);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not initialize RSA key");
+      return;
+    }
     for (String oaepName : OaepAlgorithmNames) {
       Cipher c;
       try {
         c = Cipher.getInstance(oaepName);
-      } catch (NoSuchAlgorithmException ex) {
+      } catch (GeneralSecurityException ex) {
         System.out.println("Algorithm " + oaepName + " not supported");
         continue;
       }

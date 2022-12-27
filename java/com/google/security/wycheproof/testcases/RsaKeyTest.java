@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -1463,7 +1464,13 @@ public class RsaKeyTest {
    */
   @Test
   public void testModifiedPublicKeyDecoding() throws Exception {
-    KeyFactory kf = KeyFactory.getInstance("RSA");
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA not supported");
+      return;
+    }
     int cnt = 0;
     for (String encoded : MODIFIED_PUBLIC_KEY) {
       X509EncodedKeySpec spec = new X509EncodedKeySpec(TestUtil.hexToBytes(encoded));
@@ -1611,7 +1618,13 @@ public class RsaKeyTest {
    */
   @Test
   public void testDefaultKeySize() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    KeyPairGenerator keyGen;
+    try {
+      keyGen = KeyPairGenerator.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA not supported");
+      return;
+    }
     KeyPair keypair = keyGen.genKeyPair();
     RSAPublicKey pub = (RSAPublicKey) keypair.getPublic();
     int keySizeInBits = pub.getModulus().bitLength();
@@ -1623,7 +1636,13 @@ public class RsaKeyTest {
   }
 
   private void testKeyGenerationSize(int keySizeInBits) throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    KeyPairGenerator keyGen;
+    try {
+      keyGen = KeyPairGenerator.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA not supported");
+      return;
+    }
     keyGen.initialize(keySizeInBits);
     KeyPair keypair = keyGen.genKeyPair();
     checkKeyPair(keypair, keySizeInBits);
@@ -1653,7 +1672,13 @@ public class RsaKeyTest {
    */
   @Test
   public void testEncodeDecodePublic() throws Exception {
-    KeyFactory kf = KeyFactory.getInstance("RSA");
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA not supported");
+      return;
+    }
     byte[] encoded = TestUtil.hexToBytes(ENCODED_PUBLIC_KEY);
     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
     RSAPublicKey pub = (RSAPublicKey) kf.generatePublic(spec);
@@ -1669,8 +1694,16 @@ public class RsaKeyTest {
   @Test
   public void testEncodeDecodePrivate() throws Exception {
     int keySizeInBits = 2048;
-    KeyFactory kf = KeyFactory.getInstance("RSA");
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    KeyPairGenerator keyGen;
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("RSA");
+      keyGen = KeyPairGenerator.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("RSA not supported");
+      return;
+    }
+
     keyGen.initialize(keySizeInBits);
     KeyPair keypair = keyGen.genKeyPair();
     RSAPrivateKey priv = (RSAPrivateKey) keypair.getPrivate();
