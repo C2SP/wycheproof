@@ -24,6 +24,7 @@
 //       signature multiple times, since this allows to get more accurate timings.
 package com.google.security.wycheproof;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -137,6 +138,26 @@ public class DsaTest {
   }
 
   /**
+   * Returns a DSA key pair.
+   *
+   * @param the parameters p,q,g for DSA. Some provider generate new DSA parameters for each new
+   *     key if these parameters are not provided. Hence, the tests are faster if they use a
+   *     predefined parameter set.
+   * @return a DSA key pair
+   * @throws AssumptionViolatedException if no key pair could be generated. This skips the test.
+   */
+  KeyPair getDsaKeyPair(DSAParameterSpec params) {
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+      generator.initialize(params);
+      return generator.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate a DSA key pair");
+      return null;
+    }
+  }
+
+  /**
    * This is just a test for basic functionality of DSA. The test generates a public and private
    * key, generates a signature and verifies it. This test is slow with some providers, since
    * some providers generate new DSA parameters (p and q) for each new key.
@@ -146,14 +167,11 @@ public class DsaTest {
   public void testBasic() throws Exception {
     String algorithm = "SHA256WithDSA";
     String message = "Hello";
-    byte[] messageBytes = message.getBytes("UTF-8");
-    KeyPair keyPair;
+    byte[] messageBytes = message.getBytes(UTF_8);
+    KeyPair keyPair = getDsaKeyPair(DSA_PARAMS_2048);
     Signature signer;
     Signature verifier;
     try {
-      KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
-      generator.initialize(DSA_PARAMS_2048);
-      keyPair = generator.generateKeyPair();
       signer = Signature.getInstance(algorithm);
       verifier = Signature.getInstance(algorithm);
     } catch (GeneralSecurityException ex) {
@@ -310,9 +328,16 @@ public class DsaTest {
     final int mincount = 410;
 
     String hashAlgorithm = "SHA";
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance(hashAlgorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("SHA is not supported");
+      return;
+    }
     String message = "Hello";
-    byte[] messageBytes = message.getBytes("UTF-8");
-    byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
+    byte[] messageBytes = message.getBytes(UTF_8);
+    byte[] digest = md.digest(messageBytes);
     BigInteger h = new BigInteger(1, digest);
 
     final BigInteger qHalf = q.shiftRight(1);
@@ -357,8 +382,15 @@ public class DsaTest {
   public void testBiasSha1WithDSA() throws Exception {
     String hashAlgorithm = "SHA";
     String message = "Hello";
-    byte[] messageBytes = message.getBytes("UTF-8");
-    byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
+    byte[] messageBytes = message.getBytes(UTF_8);
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance(hashAlgorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("SHA is not supported");
+      return;
+    }
+    byte[] digest = md.digest(messageBytes);
     BigInteger h = new BigInteger(1, digest);
 
     Signature signer;
@@ -420,7 +452,9 @@ public class DsaTest {
    * sufficient with a 1 bit leakage. Estimate for biased generation in the NIST standard: e.g. 2^22
    * signatures, 2^40 memory, 2^64 time
    *
-   * <p><b>Sample output for the SUN provider:</b> <code>
+   * <p><b>Sample output for an old DSA version in OpenJDK8:</b>
+   *
+   * <pre>
    * count:50000 cutoff:4629300 relative average:0.9992225872624547 sigmas:0.3010906585642381
    * count:25000 cutoff:733961 relative average:0.976146066585879 sigmas:6.532668708070148
    * count:12500 cutoff:688305 relative average:0.9070352192339134 sigmas:18.00255238454385
@@ -434,7 +468,7 @@ public class DsaTest {
    * count:49 cutoff:641582 relative average:0.018255560447883384 sigmas:11.903018745467488
    * count:25 cutoff:638235 relative average:0.009082660721102722 sigmas:8.581595888660086
    * count:13 cutoff:633975 relative average:0.0067892346039088326 sigmas:6.20259924188633
-   * </code>
+   * </pre>
    *
    * <p><b>What this shows:</b> The first line uses all 50'000 signatures. The average k of these
    * signatures is close to the expected value q/2. Being more selective gives us signatures with a
@@ -465,7 +499,7 @@ public class DsaTest {
     }
     String hashAlgorithm = "SHA-1";
     String message = "Hello";
-    byte[] messageBytes = message.getBytes("UTF-8");
+    byte[] messageBytes = message.getBytes(UTF_8);
     byte[] digest = MessageDigest.getInstance(hashAlgorithm).digest(messageBytes);
     BigInteger h = new BigInteger(1, digest);
     KeyPair keyPair;

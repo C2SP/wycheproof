@@ -13,6 +13,7 @@
  */
 package com.google.security.wycheproof;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -22,6 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -46,6 +48,9 @@ import org.junit.runners.JUnit4;
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
+// TODO(bleichen): Extend test to prime239v1.
+//   BouncyCastle uses prime239v1 as default
+//   org/bouncycastle/jcajce/provider/asymmetric/ec/KeyPairGeneratorSpi.java
 @RunWith(JUnit4.class)
 public class EcdsaTest {
 
@@ -71,8 +76,14 @@ public class EcdsaTest {
    * Returns true if the signature scheme is deterministic. Even though a non-deterministic
    * signature scheme can in principle return the same signature twice this should never happen in
    * practice.
+   *
+   * @param signer an ECDSA instance
+   * @param priv an ECDSA private key
+   * @return true if the signer generates deterministic signatures @ @throws
+   *     GeneralSecurityException if the signer failed to sign a message.
    */
-  private boolean isDeterministic(Signature signer, ECPrivateKey priv) throws Exception {
+  private boolean isDeterministic(Signature signer, ECPrivateKey priv)
+      throws GeneralSecurityException {
     byte[][] signature = new byte[2][];
     byte[] message = new byte[1];
     for (int i = 0; i < 2; i++) {
@@ -88,10 +99,9 @@ public class EcdsaTest {
    * all different. If the signature scheme is randomized then the messages are all the same. If the
    * messages signed are all the same then it may be easier to detect a bias.
    */
-  private byte[][] getMessagesToSign(int count, Signature signer, ECPrivateKey priv)
-      throws Exception {
+  private byte[][] getMessagesToSign(int count, boolean isDeterministic) {
     byte[][] messages = new byte[count][];
-    if (isDeterministic(signer, priv)) {
+    if (isDeterministic) {
       for (int i = 0; i < count; i++) {
         messages[i] = ByteBuffer.allocate(4).putInt(i).array();
       }
@@ -174,23 +184,20 @@ public class EcdsaTest {
    *
    * @param algorithm the algorithm to test (e.g. "SHA256WithECDSA")
    * @param curve the curve to test (e.g. "secp256r1")
-   * @return whether the algorithm and curve are supported.
-   * @throws Exception if an unexpected error occurred.
    */
-  boolean testParameters(String algorithm, String curve) throws Exception {
-    String message = "123400";
-
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+  void testParameters(String algorithm, String curve) {
     KeyPair keyPair;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
       keyGen.initialize(new ECGenParameterSpec(curve));
       keyPair = keyGen.generateKeyPair();
-    } catch (InvalidAlgorithmParameterException ex) {
+    } catch (GeneralSecurityException ex) {
       // The curve is not supported.
       // The documentation does not specify whether the method initialize
       // has to reject unsupported curves or if only generateKeyPair checks
       // whether the curve is supported.
-      return false;
+      TestUtil.skipTest("Could not generate an EC key pair");
+      return;
     }
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
@@ -205,19 +212,25 @@ public class EcdsaTest {
       signer = Signature.getInstance(algorithm);
       verifier = Signature.getInstance(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      // The algorithm is not supported.
-      return false;
+      TestUtil.skipTest("Algorithm not supported: " + algorithm);
+      return;
     }
-    // Both algorithm and curve are supported.
-    // Hence, we expect that signing and verifying properly works.
-    byte[] messageBytes = message.getBytes("UTF-8");
-    signer.initSign(priv);
-    signer.update(messageBytes);
-    byte[] signature = signer.sign();
-    verifier.initVerify(pub);
-    verifier.update(messageBytes);
-    assertTrue(verifier.verify(signature));
-    return true;
+    // Both the ECDSA algorithm and key generation for the curve are supported.
+    // Hence, we now expect that signing and verifyig works. Exceptions below
+    // are test failures.
+    String message = "123400";
+    byte[] messageBytes = message.getBytes(UTF_8);
+    byte[] signature;
+    try {
+      signer.initSign(priv);
+      signer.update(messageBytes);
+      signature = signer.sign();
+      verifier.initVerify(pub);
+      verifier.update(messageBytes);
+      assertTrue(verifier.verify(signature));
+    } catch (GeneralSecurityException ex) {
+      throw new AssertionError("Provider can not sign and verify with its own keys: ", ex);
+    }
   }
 
   /**
@@ -225,14 +238,24 @@ public class EcdsaTest {
    * the JCA interface.
    */
   @Test
-  public void testBasic() throws Exception {
+  public void testBasic() {
     String algorithm = "SHA256WithECDSA";
     String curve = "secp256r1";
-    assertTrue(testParameters(algorithm, curve));
+    testParameters(algorithm, curve);
   }
 
-  /** Checks whether the one time key k in ECDSA is biased. */
-  public void testBias(String algorithm, String curve) throws Exception {
+  /**
+   * Checks whether the one time key k in ECDSA is biased.
+   *
+   * @param algorithm the ECDSA algorithm (e.g. "SHA256WithECDSA")
+   * @param curve the curve (e.g. "secp256r1")
+   * @throws AssumptionViolatedException if the test was skipped (e.g., because the curve is not
+   *     supported)
+   * @throws AssertionError if the test failed (i.e. there is a detectable bias)
+   * @throws GeneralSecurityException if the signature generation failed. This may indicate a bug in
+   *     the test or an unusual provider configuration.
+   */
+  public void testBias(String algorithm, String curve) throws GeneralSecurityException {
     String hashAlgorithm = getHashAlgorithm(algorithm);
     MessageDigest md;
     Signature signer;
@@ -260,7 +283,8 @@ public class EcdsaTest {
     final int tests = 1024;
     final int mincount = 410;
     BigInteger[] kList = new BigInteger[tests];
-    byte[][] message = getMessagesToSign(tests, signer, priv);
+    boolean deterministic = isDeterministic(signer, priv);
+    byte[][] message = getMessagesToSign(tests, deterministic);
     signer.initSign(priv);
     for (int i = 0; i < tests; i++) {
       signer.update(message[i]);
@@ -355,27 +379,27 @@ public class EcdsaTest {
   }
 
   @Test
-  public void testBiasSecp224r1() throws Exception {
+  public void testBiasSecp224r1() throws GeneralSecurityException {
     testBias("SHA224WithECDSA", "secp224r1");
   }
 
   @Test
-  public void testBiasSecp256r1() throws Exception {
+  public void testBiasSecp256r1() throws GeneralSecurityException {
     testBias("SHA256WithECDSA", "secp256r1");
   }
 
   @Test
-  public void testBiasSecp384r1() throws Exception {
+  public void testBiasSecp384r1() throws GeneralSecurityException {
     testBias("SHA384WithECDSA", "secp384r1");
   }
 
   @Test
-  public void testBiasSecp521r1() throws Exception {
+  public void testBiasSecp521r1() throws GeneralSecurityException {
     testBias("SHA512WithECDSA", "secp521r1");
   }
 
   @Test
-  public void testBiasBrainpoolP256r1() throws Exception {
+  public void testBiasBrainpoolP256r1() throws GeneralSecurityException {
     testBias("SHA512WithECDSA", "brainpoolP256r1");
   }
 
@@ -384,7 +408,7 @@ public class EcdsaTest {
    * being tested.)
    */
   @Test
-  public void testBiasSecp256r1ECDDSA() throws Exception {
+  public void testBiasSecp256r1ECDDSA() throws GeneralSecurityException {
     testBias("SHA256WithECDDSA", "secp256r1");
   }
 
@@ -399,7 +423,7 @@ public class EcdsaTest {
    * <p>In principle, the correct behaviour is not really defined. However, if a provider would
    * throw a null pointer exception then this can lead to unnecessary breakages.
    */
-  public void testNullRandom(String algorithm, String curve) throws Exception {
+  public void testNullRandom(String algorithm, String curve) throws GeneralSecurityException {
     int samples = 8;
     Signature signer;
     try {
@@ -418,11 +442,16 @@ public class EcdsaTest {
       return;
     }
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
-    byte[][] message = getMessagesToSign(samples, signer, priv);
+    boolean deterministic = isDeterministic(signer, priv);
+    byte[][] message = getMessagesToSign(samples, deterministic);
     HashSet<BigInteger> rSet = new HashSet<>();
     for (int i = 0; i < samples; i++) {
       // This is the function call that is tested by this test.
-      signer.initSign(priv, null);
+      try {
+        signer.initSign(priv, null);
+      } catch (NullPointerException ex) {
+        throw new AssertionError("Expecting same behavior as signer.initSign(priv).", ex);
+      }
       signer.update(message[i]);
       byte[] signature = signer.sign();
       BigInteger r = extractR(signature);
@@ -431,22 +460,22 @@ public class EcdsaTest {
   }
 
   @Test
-  public void testNullRandomSecp224r1() throws Exception {
+  public void testNullRandomSecp224r1() throws GeneralSecurityException {
     testNullRandom("SHA224WithECDSA", "secp224r1");
   }
 
   @Test
-  public void testNullRandomSecp256r1() throws Exception {
+  public void testNullRandomSecp256r1() throws GeneralSecurityException {
     testNullRandom("SHA256WithECDSA", "secp256r1");
   }
 
   @Test
-  public void testNullRandomSecp384r1() throws Exception {
+  public void testNullRandomSecp384r1() throws GeneralSecurityException {
     testNullRandom("SHA384WithECDSA", "secp384r1");
   }
 
   @Test
-  public void testNullRandomSecp521r1() throws Exception {
+  public void testNullRandomSecp521r1() throws GeneralSecurityException {
     testNullRandom("SHA512WithECDSA", "secp521r1");
   }
 
@@ -455,7 +484,7 @@ public class EcdsaTest {
    * being tested.)
    */
   @Test
-  public void testNullRandomSecp256r1ECDDSA() throws Exception {
+  public void testNullRandomSecp256r1ECDDSA() throws GeneralSecurityException {
     testNullRandom("SHA256WithECdDSA", "secp256r1");
   }
 
@@ -465,24 +494,43 @@ public class EcdsaTest {
    * if a double and add method is used for the point multiplication. The test fails if such a
    * correlation can be shown with high confidence. Further analysis will be necessary to determine
    * how easy it is to exploit the bias in a timing attack.
+   *
+   * <p>Here is a sample output of the test with 50000 samples:
+   *
+   * <pre>
+   * count:50000 cutoff:5744550 relative average:0.9999801257112492 sigmas:0.007697278934955135
+   * count:25065 cutoff:32830 relative average:1.0029020006432898 sigmas:0.7957781057129883
+   * count:12519 cutoff:30720 relative average:1.0084868898996626 sigmas:1.6447277320112836
+   * count:6256 cutoff:25560 relative average:1.0062130456106806 sigmas:0.8511645730122522
+   * count:3152 cutoff:24000 relative average:1.0024398764372342 sigmas:0.23725838216162265
+   * count:1580 cutoff:23610 relative average:0.9810427775608972 sigmas:1.305160365453478
+   * count:794 cutoff:23420 relative average:0.9621892273223172 sigmas:1.8453826409748946
+   * count:393 cutoff:23270 relative average:0.9648083036843184 sigmas:1.2083621237895195
+   * count:206 cutoff:23140 relative average:0.924059403692487 sigmas:1.8878532876100647
+   * count:102 cutoff:23010 relative average:0.8187632251385242 sigmas:3.1703487473825205
+   * count:51 cutoff:22910 relative average:0.9015290921565392 sigmas:1.2180178622671547
+   * count:25 cutoff:22770 relative average:0.9542895106949734 sigmas:0.3958644495756995
+   * count:13 cutoff:22650 relative average:1.0086254921887976 sigmas:0.053866181454242705
+   * </pre>
+   *
+   * count indicates the number of fastest signatures that were used for each computation cutoff is
+   * the maximal time of the set of fastest signatures. relative average is the average of the
+   * values k compared to the expected average n/2. sigmas: is the number of standard deviation that
+   * the relative average is away from n/2. The output above has a value 3.2 for the 102 fastest
+   * signatures. This is an event that happens with probability 0.2% if the k's are unbiased. Since
+   * the tests are designed to be run as unit tests (i.e. frequently) this probability is not small
+   * enough to fail the test. Rather the test requires a value deviating by 7 standard deviations
+   * before it fails.
+   *
+   * @param algorithm the algorithm to test (e.g. "SHA256WithECDSA")
+   * @param curve the curve to test (e.g. "secp256r1")
+   * @throws AssumptionViolatedException if the algorithm or curve is not supported and the test was
+   *     skipped.
+   * @throws AssertionError if a significant timing different has been detected
+   * @throws GeneralSecurityException if signing failed. This is either an error in the test itself
+   *     or a unusual provider.
    */
-  // TODO(bleichen): Determine if there are exploitable providers.
-  //
-  // SunEC currently fails this test. Since ECDSA typically is used with EC groups whose order
-  // is 224 bits or larger, it is unclear whether the same attacks that apply to DSA are practical.
-  //
-  // The ECDSA implementation in BouncyCastle leaks information about k through timing too.
-  // The test has not been optimized to detect this bias. It would require about 5'000'000 samples,
-  // which is too much for a simple unit test.
-  //
-  // BouncyCastle uses FixedPointCombMultiplier for ECDSA. This is a method using
-  // precomputation. The implementation is not constant time, since the precomputation table
-  // contains the point at infinity and adding this point is faster than ordinary point additions.
-  // The timing leak only has a small correlation to the size of k and at the moment it is is very
-  // unclear if the can be exploited. (Randomizing the precomputation table by adding the same
-  // random point to each element in the table and precomputing the necessary offset to undo the
-  // precomputation seems much easier than analyzing this.)
-  public void testTiming(String algorithm, String curve) throws Exception {
+  public void testTiming(String algorithm, String curve) throws GeneralSecurityException {
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
       TestUtil.skipTest("getCurrentThreadCpuTime is not supported. Skipping");
@@ -509,10 +557,18 @@ public class EcdsaTest {
       return;
     }
     // The number of samples used for the test. This number is a bit low.
-    // I.e. it just barely detects that SunEC leaks information about the size of k.
+    // In a typical somewhat noisy test environment it usually just barely detects
+    // if the timing depends on the bit length of k.
     int samples = 50000;
     long[] timing = new long[samples];
-    byte[][] message = getMessagesToSign(samples, signer, priv);
+    // The test depends on whether the implementation is deterministic or not,
+    // since it tries to find a correlation between the timing and k.
+    // If a deterministic signature generation such as RFC 6979 is used then
+    // distinct messages need to be signed, to get distinct values for k.
+    // If the signature generation is randomized then the same message is
+    // signed multiple times.
+    boolean deterministic = isDeterministic(signer, priv);
+    byte[][] message = getMessagesToSign(samples, deterministic);
     BigInteger[] k = new BigInteger[samples];
     signer.initSign(priv);
     for (int i = 0; i < samples; i++) {
@@ -529,6 +585,9 @@ public class EcdsaTest {
     double expectedAverage = n / 2;
     double maxSigma = 0;
     System.out.println("testTiming algorithm:" + algorithm);
+    if (deterministic) {
+      System.out.println("signer is deterministic");
+    }
     for (int idx = samples - 1; idx > 10; idx /= 2) {
       long cutoff = sorted[idx];
       int count = 0;
@@ -567,14 +626,21 @@ public class EcdsaTest {
 
   @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testTimingAll() throws Exception {
+  public void testTimingSecp256r1() throws GeneralSecurityException {
     testTiming("SHA256WithECDSA", "secp256r1");
-    // TODO(bleichen): crypto libraries sometimes use optimized code for curves that are frequently
-    //   used. Hence it would make sense to test distinct curves. But at the moment testing many
-    //   curves is not practical since one test alone is already quite time consuming.
-    // testTiming("SHA224WithECDSA", "secp224r1");
-    // testTiming("SHA384WithECDSA", "secp384r1");
-    // testTiming("SHA512WithECDSA", "secp521r1");
-    // testTiming("SHA256WithECDSA", "brainpoolP256r1");
+  }
+
+  /**
+   * Timing test for brainpoolP256r1.
+   *
+   * <p>Crypto libraries sometimes use optimized code for curves that are frequently used such as
+   * secp256r1. Infrequently used curves such as brainpool256r1 on the other hand might use general
+   * purpose code. Hence, it is feasible that a library has no measurable timing differences for one
+   * curve, but is less careful about other curves.
+   */
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testTimingBrainpoolP256r1() throws GeneralSecurityException {
+    testTiming("SHA256WithECDSA", "brainpoolP256r1");
   }
 }
