@@ -14,6 +14,7 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
@@ -29,37 +30,46 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** 
+/**
  * CipherInputStream tests
  *
- * <p>CipherInputStream is a class that is basically unsuitable for authenticated encryption
- * and hence should be avoided whenever possible. The class is unsuitable, because the interface
- * does not provide a method to tell the caller when decryption failed. I.e. the specification
- * now explicitly claims that it catches exceptions thrown by the Cipher class such as
+ * <p>CipherInputStream is a class that is basically unsuitable for authenticated encryption and
+ * hence should be avoided whenever possible. The class is unsuitable, because the interface does
+ * not provide a method to tell the caller when decryption failed. I.e. the specification now
+ * explicitly claims that it catches exceptions thrown by the Cipher class such as
  * BadPaddingException and that it does not rethrow them.
  * http://www.oracle.com/technetwork/java/javase/8u171-relnotes-4308888.html
  *
  * <p>The Jdk implementation still has the property that no unauthenticated plaintext is released.
  * In the case of an authentication failure the implementation simply returns an empty plaintext.
- * This allows a trivial attack where the attacker substitutes any message with an empty message. 
+ * This allows a trivial attack where the attacker substitutes any message with an empty message.
  *
- * <p>The tests in this class have been adapted to this unfortunate situation. testEmptyPlaintext 
- * checks whether corrupting the tag of an empty message is detected. This test currently fails.
- * All other tests run under the assumption that returning an empty plaintext is acceptable
- * behaviour, so that the tests are able to catch additional problems.
+ * <p>The tests in this class have been adapted to this unfortunate situation. testEmptyPlaintext
+ * checks whether corrupting the tag of an empty message is detected. This test currently fails. All
+ * other tests run under the assumption that returning an empty plaintext is acceptable behaviour,
+ * so that the tests are able to catch additional problems.
  */
 @RunWith(JUnit4.class)
 public class CipherInputStreamTest {
-  static final SecureRandom rand = new SecureRandom();
 
   static byte[] randomBytes(int size) {
     byte[] bytes = new byte[size];
-    rand.nextBytes(bytes);
+    try {
+      SecureRandom rand = new SecureRandom();
+      rand.nextBytes(bytes);
+    } catch (InternalError ex) {
+      // This happens when SecureRandom is misconfigured.
+      // E.g., when SHA1PRNG is default, but no provider supports SHA-1.
+      // Such configurations can happen when providers are being tested
+      // in isolation.
+      TestUtil.skipTest("Could generate random bytes");
+    }
     return bytes;
   }
 
@@ -68,11 +78,17 @@ public class CipherInputStreamTest {
   }
 
   static AlgorithmParameterSpec randomParameters(
-      String algorithm, int ivSizeInBytes, int tagSizeInBytes) {
-    if ("AES/GCM/NoPadding".equals(algorithm) || "AES/EAX/NoPadding".equals(algorithm)) {
-      return new GCMParameterSpec(8 * tagSizeInBytes, randomBytes(ivSizeInBytes));
+      String algorithm, int ivSizeInBytes, int tagSizeInBytes) throws NoSuchAlgorithmException {
+    switch (algorithm) {
+      case "AES/GCM/NoPadding":
+      case "AES/EAX/NoPadding":
+      case "AES/CCM/NoPadding":
+        return new GCMParameterSpec(8 * tagSizeInBytes, randomBytes(ivSizeInBytes));
+      case "AES/GCM-SIV/NoPadding":
+        return new IvParameterSpec(randomBytes(ivSizeInBytes));
+      default:
+        throw new NoSuchAlgorithmException("Unsupported algorithm: " + algorithm);
     }
-    return null;
   }
 
   /** Test vectors */
@@ -86,7 +102,7 @@ public class CipherInputStreamTest {
 
     @SuppressWarnings("InsecureCryptoUsage")
     public TestVector(
-        String algorithm, int keySize, int ivSize, int tagSize, int ptSize, int aadSize)
+        String algorithm, int keySize, int ivSize, int aadSize, int ptSize, int tagSize)
         throws Exception {
       this.algorithm = algorithm;
       this.key = randomKey(algorithm, keySize);
@@ -104,17 +120,23 @@ public class CipherInputStreamTest {
       String algorithm,
       int[] keySizes,
       int[] ivSizes,
-      int[] tagSizes,
+      int[] aadSizes,
       int[] ptSizes,
-      int[] aadSizes)
+      int[] tagSizes)
       throws Exception {
+    try {
+      Cipher.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest(algorithm + " is not implemented");
+      return null;
+    }
     ArrayList<TestVector> result = new ArrayList<TestVector>();
     for (int keySize : keySizes) {
       for (int ivSize : ivSizes) {
-        for (int tagSize : tagSizes) {
+        for (int aadSize : aadSizes) {
           for (int ptSize : ptSizes) {
-            for (int aadSize : aadSizes) {
-              result.add(new TestVector(algorithm, keySize, ivSize, tagSize, ptSize, aadSize));
+            for (int tagSize : tagSizes) {
+              result.add(new TestVector(algorithm, keySize, ivSize, aadSize, ptSize, tagSize));
             }
           }
         }
@@ -123,8 +145,45 @@ public class CipherInputStreamTest {
     return result;
   }
 
+  Iterable<TestVector> getAesGcmTestVectors() throws Exception {
+    final int[] keySizes = {16, 32};
+    final int[] ivSizes = {12};
+    final int[] aadSizes = {0, 8, 24};
+    final int[] ptSizes = {0, 8, 16, 65, 8100};
+    final int[] tagSizes = {12, 16};
+    return getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, aadSizes, ptSizes, tagSizes);
+  }
+
+  Iterable<TestVector> getAesEaxTestVectors() throws Exception {
+    final int[] keySizes = {16, 32};
+    final int[] ivSizes = {12, 16};
+    final int[] aadSizes = {0, 8, 24};
+    final int[] ptSizes = {0, 8, 16, 65, 8100};
+    final int[] tagSizes = {12, 16};
+    return getTestVectors("AES/EAX/NoPadding", keySizes, ivSizes, aadSizes, ptSizes, tagSizes);
+  }
+
+  Iterable<TestVector> getAesCcmTestVectors() throws Exception {
+    final int[] keySizes = {16, 32};
+    final int[] ivSizes = {12};
+    final int[] aadSizes = {0, 8, 24};
+    final int[] ptSizes = {0, 8, 16, 65, 8100};
+    final int[] tagSizes = {12};
+    return getTestVectors("AES/CCM/NoPadding", keySizes, ivSizes, aadSizes, ptSizes, tagSizes);
+  }
+
+  Iterable<TestVector> getAesGcmSivTestVectors() throws Exception {
+    final int[] keySizes = {16, 32};
+    final int[] ivSizes = {12};
+    final int[] aadSizes = {0, 8, 24};
+    final int[] ptSizes = {0, 8, 16, 65, 8100};
+    final int[] tagSizes = {16};
+    return getTestVectors("AES/GCM-SIV/NoPadding", keySizes, ivSizes, aadSizes, ptSizes, tagSizes);
+  }
+
   @SuppressWarnings("InsecureCryptoUsage")
   public void testEncrypt(Iterable<TestVector> tests) throws Exception {
+    assertNotNull(tests);
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
       cipher.init(Cipher.ENCRYPT_MODE, t.key, t.params);
@@ -149,6 +208,7 @@ public class CipherInputStreamTest {
   /** JDK-8016249: CipherInputStream in decrypt mode fails on close with AEAD ciphers */
   @SuppressWarnings("InsecureCryptoUsage")
   public void testDecrypt(Iterable<TestVector> tests) throws Exception {
+    assertNotNull(tests);
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
       cipher.init(Cipher.DECRYPT_MODE, t.key, t.params);
@@ -185,6 +245,7 @@ public class CipherInputStreamTest {
   @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecrypt(Iterable<TestVector> tests, boolean acceptEmptyPlaintext)
       throws Exception {
+    boolean emptyPlaintext = false;
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
       cipher.init(Cipher.DECRYPT_MODE, t.key, t.params);
@@ -204,48 +265,44 @@ public class CipherInputStreamTest {
           }
         } while (length >= 0 && totalLength != result.length);
         cis.close();
+        // The test fails if decryption returns partial plaintext.
         if (result.length > 0) {
           fail(
               "this should fail; decrypted:"
                   + TestUtil.bytesToHex(result)
                   + " pt: "
                   + TestUtil.bytesToHex(t.pt));
-        } else if (result.length == 0 && !acceptEmptyPlaintext) {
-          fail("Corrupted ciphertext returns empty plaintext");
+        } else {
+          // If decryption returns empty plaintext and acceptEmptyPlaintext == true then the test
+          // will be skipped.
+          emptyPlaintext = true;
         }
       } catch (IOException ex) {
         // expected
+      }
+    }
+    if (emptyPlaintext) {
+      if (acceptEmptyPlaintext) {
+        TestUtil.skipTest("Decrypting corrupt ciphertext returns empty plaintext");
+      } else {
+        fail("Decrypting corrupt ciphertext returns empty plaintext");
       }
     }
   }
 
   @Test
   public void testAesGcm() throws Exception {
-    final int[] keySizes = {16, 32};
-    final int[] ivSizes = {12};
-    final int[] tagSizes = {12, 16};
-    final int[] ptSizes = {0, 8, 16, 65, 8100};
-    final int[] aadSizes = {0, 8, 24};
-    Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+    Iterable<TestVector> v = getAesGcmTestVectors();
     testEncrypt(v);
     testDecrypt(v);
   }
 
   @Test
   @NoPresubmitTest(
-      providers = {ProviderType.BOUNCY_CASTLE},
+      providers = {ProviderType.ALL},
       bugs = {"b/261217218"})
   public void testCorruptAesGcm() throws Exception {
-    final int[] keySizes = {16, 32};
-    final int[] ivSizes = {12};
-    final int[] tagSizes = {12, 16};
-    final int[] ptSizes = {8, 16, 65, 8100};
-    final int[] aadSizes = {0, 8, 24};
-    Iterable<TestVector> v =
-        getTestVectors("AES/GCM/NoPadding", keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
-    boolean acceptEmptyPlaintext = true;
-    testCorruptDecrypt(v, acceptEmptyPlaintext);
+    testCorruptDecrypt(getAesGcmTestVectors(), /* acceptEmptyPlaintext= */ true);
   }
 
   /**
@@ -257,42 +314,15 @@ public class CipherInputStreamTest {
   @NoPresubmitTest(
       providers = {ProviderType.ALL},
       bugs = {"b/261217218"})
-  public void testEmptyPlaintextAesGcm() throws Exception {
-    final String algorithm = "AES/GCM/NoPadding";
-    final int[] keySizes = {16, 32};
-    final int[] ivSizes = {12};
-    final int[] tagSizes = {12, 16};
-    final int[] ptSizes = {0};
-    final int[] aadSizes = {0, 8, 24};
-    try {
-      Cipher.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest(ex.toString());
-      return;
-    }
-    Iterable<TestVector> v =
-        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
-    boolean acceptEmptyPlaintext = false;
-    testCorruptDecrypt(v, acceptEmptyPlaintext);
+  public void testCorruptAesGcmStrict() throws Exception {
+    testCorruptDecrypt(getAesGcmTestVectors(), /* acceptEmptyPlaintext= */ false);
   }
+
 
   /** Tests CipherOutputStream with AES-EAX if this algorithm is supported by the provider. */
   @Test
   public void testAesEax() throws Exception {
-    final String algorithm = "AES/EAX/NoPadding";
-    final int[] keySizes = {16, 32};
-    final int[] ivSizes = {12, 16};
-    final int[] tagSizes = {12, 16};
-    final int[] ptSizes = {0, 8, 16, 65, 8100};
-    final int[] aadSizes = {0, 8, 24};
-    try {
-      Cipher.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest(ex.toString());
-      return;
-    }
-    Iterable<TestVector> v =
-        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
+    Iterable<TestVector> v = getAesEaxTestVectors();
     testEncrypt(v);
     testDecrypt(v);
   }
@@ -303,21 +333,32 @@ public class CipherInputStreamTest {
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/261217218"})
   public void testCorruptAesEax() throws Exception {
-    final String algorithm = "AES/EAX/NoPadding";
-    final int[] keySizes = {16, 32};
-    final int[] ivSizes = {12, 16};
-    final int[] tagSizes = {12, 16};
-    final int[] ptSizes = {0, 8, 16, 65, 8100};
-    final int[] aadSizes = {0, 8, 24};
-    try {
-      Cipher.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      TestUtil.skipTest(ex.toString());
-      return;
-    }
-    Iterable<TestVector> v =
-        getTestVectors(algorithm, keySizes, ivSizes, tagSizes, ptSizes, aadSizes);
-    boolean acceptEmptyPlaintext = true;
-    testCorruptDecrypt(v, acceptEmptyPlaintext);
+    testCorruptDecrypt(getAesEaxTestVectors(), /* acceptEmptyPlaintext= */ true);
+  }
+
+  /**
+   * Tests CipherOutputStream with AES-CCM if this algorithm is supported by the provider.
+   *
+   * <p>One difficulty with AES-CCM is that CCM is not online.
+   */
+  @Test
+  public void testAesCcm() throws Exception {
+    Iterable<TestVector> v = getAesCcmTestVectors();
+    testEncrypt(v);
+    testDecrypt(v);
+    testCorruptDecrypt(v, /* acceptEmptyPlaintext= */ true);
+  }
+
+  /**
+   * Tests CipherOutputStream with AES-GCM-SIV if this algorithm is supported by the provider.
+   *
+   * <p>AES-GCM-SIV uses the tag as the IV. Hence the algorithm is not online.
+   */
+  @Test
+  public void testAesGcmSiv() throws Exception {
+    Iterable<TestVector> v = getAesGcmSivTestVectors();
+    testEncrypt(v);
+    testDecrypt(v);
+    testCorruptDecrypt(v, /* acceptEmptyPlaintext= */ true);
   }
 }

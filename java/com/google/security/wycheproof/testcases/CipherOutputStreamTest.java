@@ -60,11 +60,17 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class CipherOutputStreamTest {
-  static final SecureRandom rand = new SecureRandom();
 
   static byte[] randomBytes(int size) {
     byte[] bytes = new byte[size];
-    rand.nextBytes(bytes);
+    try {
+      SecureRandom rand = new SecureRandom();
+      rand.nextBytes(bytes);
+    } catch (java.lang.InternalError ex) {
+      // This happens when SecureRandom is misconfigured.
+      // E.g., when SHA1PRNG is default, but no provider supports SHA-1.
+      TestUtil.skipTest("Could generate random bytes");
+    }
     return bytes;
   }
 
@@ -247,7 +253,15 @@ public class CipherOutputStreamTest {
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/261217218"})
   public void testAesGcmCorruptDecrypt() throws Exception {
-    testCorruptDecrypt(getAesGcmTestVectors(), true);
+    testCorruptDecrypt(getAesGcmTestVectors(), /* acceptEmptyPlaintext= */ true);
+  }
+
+  @Test
+  @NoPresubmitTest(
+      providers = {ProviderType.ALL},
+      bugs = {"b/261217218"})
+  public void testAesGcmCorruptDecryptStrict() throws Exception {
+    testCorruptDecrypt(getAesGcmTestVectors(), /* acceptEmptyPlaintext= */ false);
   }
 
   @Test
@@ -265,6 +279,6 @@ public class CipherOutputStreamTest {
       providers = {ProviderType.BOUNCY_CASTLE},
       bugs = {"b/261217218"})
   public void testAesEaxCorruptDecrypt() throws Exception {
-    testCorruptDecrypt(getAesEaxTestVectors(), true);
+    testCorruptDecrypt(getAesEaxTestVectors(), /* acceptEmptyPlaintext= */ true);
   }
 }
