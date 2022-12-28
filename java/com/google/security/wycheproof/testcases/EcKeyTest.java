@@ -233,6 +233,11 @@ public class EcKeyTest {
     testKeyGeneration(EcUtil.getNistP521Params());
   }
 
+  @Test
+  public void testKeyGenerationPrime239v1() throws Exception {
+    testKeyGeneration(EcUtil.getPrime239v1Params());
+  }
+
   /**
    * Checks key generation for the 256-bit brainpool curve. This curve has been removed from OpenJDK
    * https://bugs.openjdk.org/browse/JDK-8235710 Some provider (e.g. BouncyCastle) support this
@@ -245,14 +250,14 @@ public class EcKeyTest {
   }
 
   /**
-   * Checks that the default key size for ECDSA is up to date.
+   * Checks that the default behavior of an uninitialized EC key pair generator.
    *
-   * <p>This test expects that a provider generates an EC key for at least a 224-bit curve.
-   * Generally, it is a good idea to avoid such defaults at all, since they are difficult to change
-   * and easily become outdated. Additionally, there is no guarantee that providers use curves
-   * that are well supported. For example, jdk20 uses secp384r1 as default 
-   * (https://bugs.java.com/view_bug.do?bug_id=8283475), BouncyCastle v. 1.71 uses prime239v1
-   * and Conscrypt uses secp256r1.
+   * <p>The requirements for passing this test are rather low. The test only expects that an
+   * uninitialized key pair generator uses a at least a 224-bit curve. Generally, it is a good idea
+   * to avoid such defaults at all, since they are difficult to change and easily become outdated.
+   * Additionally, there is no guarantee that providers use curves that are well supported. For
+   * example, jdk20 uses secp384r1 as default (https://bugs.java.com/view_bug.do?bug_id=8283475),
+   * BouncyCastle v. 1.71 uses prime239v1 and Conscrypt uses secp256r1.
    *
    * <p>NIST SP 800-57 part1 revision 4, Table 2, page 53
    * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf for the minimal
@@ -261,19 +266,22 @@ public class EcKeyTest {
    * minimal security strength of 128 and hence 256-bit curves is required.
    *
    * <p>https://bugs.openjdk.org/browse/JDK-8235710 removes all elliptic curves with security
-   * strength significantly smaller than 128 bits. Hence, the default curve used by BouncyCastle
-   * is not supported by jdk.
+   * strength significantly smaller than 128 bits. Hence, the default curve used by BouncyCastle is
+   * not supported by jdk.
    */
   @Test
   public void testDefaultKeyGeneration() {
-    KeyPair keyPair;
+    KeyPairGenerator keyGen;
     try {
-      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-      keyPair = keyGen.generateKeyPair();
+      keyGen = KeyPairGenerator.getInstance("EC");
     } catch (GeneralSecurityException ex) {
       TestUtil.skipTest("Could not generate EC key");
       return;
     }
+    // Generates a key pair without initializing keyGen.
+    // Unfortunately, the interface of generateKeyPair does not declare a checked exception.
+    // Hence providers are forced to define and use some default parameters.
+    KeyPair keyPair = keyGen.generateKeyPair();
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
     System.out.println("Default parameters for EC key generation:");
     EcUtil.printParameters(pub.getParams());

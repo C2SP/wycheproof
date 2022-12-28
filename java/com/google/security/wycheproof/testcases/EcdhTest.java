@@ -618,6 +618,11 @@ public class EcdhTest {
   }
 
   @Test
+  public void testSupportPrime239v1() {
+    testSupport("X9.62 prime239v1");
+  }
+
+  @Test
   public void testSupportSecp256k1() {
     testSupport("secp256k1");
   }
@@ -683,6 +688,11 @@ public class EcdhTest {
   @Test
   public void testSupportParamsBrainpoolP256r1() {
     testSupportParameterSpec("brainpoolP256r1");
+  }
+
+  @Test
+  public void testSupportParamsPrime239v1() {
+    testSupportParameterSpec("X9.62 prime239v1");
   }
 
   @Test
@@ -927,6 +937,11 @@ public class EcdhTest {
   }
 
   @Test
+  public void testInvalidPublicParamsPrime239v1() {
+    testInvalidPublicParams("X9.62 prime239v1");
+  }
+
+  @Test
   public void testInvalidPublicParamsFRP256v1() {
     testInvalidPublicParams("FRP256v1");
   }
@@ -1094,8 +1109,13 @@ public class EcdhTest {
   }
 
   @Test
-  public void testLargePrivateKeyBrainpoolP224r1() {
+  public void testLargePrivateKeyBrainpoolP256r1() {
     testLargePrivateKey(EcUtil.getBrainpoolP256r1Params());
+  }
+
+  @Test
+  public void testLargePrivateKeyPrime239v1() {
+    testLargePrivateKey(EcUtil.getPrime239v1Params());
   }
 
   /**

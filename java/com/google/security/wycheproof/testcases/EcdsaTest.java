@@ -33,6 +33,7 @@ import java.security.Signature;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
@@ -48,9 +49,6 @@ import org.junit.runners.JUnit4;
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
-// TODO(bleichen): Extend test to prime239v1.
-//   BouncyCastle uses prime239v1 as default
-//   org/bouncycastle/jcajce/provider/asymmetric/ec/KeyPairGeneratorSpi.java
 @RunWith(JUnit4.class)
 public class EcdsaTest {
 
@@ -245,6 +243,109 @@ public class EcdsaTest {
   }
 
   /**
+   * This test check ECDSA with constructed parameters.
+   *
+   * <p>Typically, implementations specify the ECParameters using a curve name such as <code>
+   * new ECGenParameterSpec("secp256r1")</code>. Hence the name of the the curve must be known to
+   * the provider. It is also possible to specify the parameters explicitly. Using explicitly
+   * constructed parameters should be regarded as a fall back for uncommon curves. Some providers
+   * (e.g., BouncyCastle or Conscrypt) allow such operations.
+   *
+   * @param algorithm the algorithm to test (e.g. "SHA256WithECDSA")
+   * @param curve the curve to test (e.g. "secp256r1")
+   */
+  void testEcdsaConstructed(String algorithm, String curve) {
+    KeyPair keyPair;
+    ECParameterSpec spec;
+    try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+      spec = EcUtil.getCurveSpecConstructed(curve);
+      keyGen.initialize(spec);
+      keyPair = keyGen.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      // The curve is not supported.
+      // The documentation does not specify whether the method initialize
+      // has to reject unsupported curves or if only generateKeyPair checks
+      // whether the curve is supported.
+      TestUtil.skipTest("Could not generate an EC key pair");
+      return;
+    }
+    ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
+    ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
+    Signature signer;
+    Signature verifier;
+    try {
+      signer = Signature.getInstance(algorithm);
+      verifier = Signature.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("Algorithm not supported: " + algorithm);
+      return;
+    }
+    try {
+      signer.initSign(priv);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Parameters are not supported:" + ex);
+    }
+    // Both the ECDSA algorithm and key generation for the curve are supported.
+    // Hence, we now expect that signing and verifyig works. Exceptions below
+    // are test failures.
+    String message = "123400";
+    byte[] messageBytes = message.getBytes(UTF_8);
+    byte[] signature;
+    try {
+      signer.update(messageBytes);
+      signature = signer.sign();
+      verifier.initVerify(pub);
+      verifier.update(messageBytes);
+      assertTrue(verifier.verify(signature));
+    } catch (GeneralSecurityException ex) {
+      throw new AssertionError("Provider can not sign and verify with its own keys: ", ex);
+    }
+  }
+
+  @Test
+  public void testEcdsaConstructedSecp256r1() {
+    testEcdsaConstructed("SHA256WithECDSA", "secp256r1");
+  }
+
+  @Test
+  public void testEcdsaConstructedSecp256k1() {
+    testEcdsaConstructed("SHA56WithECDSA", "secp256k1");
+  }
+
+  /**
+   * secp224r1 is a rather popular curve that was removed in jdk
+   * https://bugs.openjdk.org/browse/JDK-8235710
+   */
+  @Test
+  public void testEcdsaConstructedSecp224r1() {
+    testEcdsaConstructed("SHA224WithECDSA", "secp224r1");
+  }
+
+  /**
+   * prime239v1 is the default curve for EC key generation in BouncyCastle (at least up to version
+   * 1.71)
+   */
+  @Test
+  public void testEcdsaConstructedPrime239v1() {
+    testEcdsaConstructed("SHA256WithECDSA", "X9.62 prime239v1");
+  }
+
+  /**
+   * BrainpoolP256r1 is one of the curves allowed in NIST SP 800-186 (draft) for interoperability.
+   */
+  @Test
+  public void testEcdsaConstructedBrainpoolP256r1() {
+    testEcdsaConstructed("SHA256WithECDSA", "brainpoolP256r1");
+  }
+
+  /** FRP256v1 is a curve that is rarely implemented. */
+  @Test
+  public void testEcdsaConstructedFRP256v1() {
+    testEcdsaConstructed("SHA256WithECDSA", "FRP256v1");
+  }
+
+  /**
    * Checks whether the one time key k in ECDSA is biased.
    *
    * @param algorithm the ECDSA algorithm (e.g. "SHA256WithECDSA")
@@ -403,6 +504,11 @@ public class EcdsaTest {
     testBias("SHA512WithECDSA", "brainpoolP256r1");
   }
 
+  @Test
+  public void testBiasPrime239v1() throws GeneralSecurityException {
+    testBias("SHA256WithECDSA", "X9.62 prime239v1");
+  }
+
   /**
    * This test uses the deterministic ECDSA implementation from BouncyCastle (if BouncyCastle is
    * being tested.)
@@ -411,6 +517,7 @@ public class EcdsaTest {
   public void testBiasSecp256r1ECDDSA() throws GeneralSecurityException {
     testBias("SHA256WithECDDSA", "secp256r1");
   }
+
 
   /**
    * Tests initSign with a null value for SecureRandom. The expected behaviour is that a default
