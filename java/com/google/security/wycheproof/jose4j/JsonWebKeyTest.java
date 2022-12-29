@@ -1,17 +1,15 @@
 /**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.security.wycheproof;
+package com.google.security.wycheproof.jose4j;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -21,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.flogger.GoogleLogger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.security.wycheproof.JsonUtil;
 import com.google.testing.testsize.MediumTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-/** Tests for <a href="https://tools.ietf.org/html/rfc7515">JSON Web Signature RFC</a> */
+/** Tests for <a href="https://tools.ietf.org/html/rfc7517">JSON Web Key RFC</a> */
 @MediumTest
 @RunWith(Parameterized.class)
-public class JsonWebSignatureTest {
+public class JsonWebKeyTest {
 
   private static ImmutableSet<String> allTestNames;
 
@@ -46,8 +45,8 @@ public class JsonWebSignatureTest {
 
   private ImmutableSet<String> getSuppressedTests() {
     return ImmutableSet.of(
-        // Nothing checks for weak keys during the verification process.
-        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId46");
+        // jose.4.j doesn't care if you mix inappropriate keys.
+        "jws_mixedSymmetryKeyset_rejectsValid_tcId47");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
@@ -63,7 +62,7 @@ public class JsonWebSignatureTest {
 
   @Parameters(name = "{2}")
   public static Iterable<Object[]> produceTestCases() throws Exception {
-    JsonObject test = JsonUtil.getTestVectors("json_web_signature_test.json");
+    JsonObject test = JsonUtil.getTestVectors("json_web_key_test.json");
 
     // Generate test cases.
     List<Object[]> testParams = new ArrayList<>();
@@ -89,7 +88,7 @@ public class JsonWebSignatureTest {
   }
 
   @Test
-  public void jsonWebSignatureTestVector() {
+  public void jsonWebKeyTestVector() {
     // Housekeeping to make sure the implementation class wires things correctly.
     assertThat(allTestNames).containsAtLeastElementsIn(getSuppressedTests());
 
@@ -99,9 +98,8 @@ public class JsonWebSignatureTest {
     String jws = getFlattenedString(testCase, "jws");
     boolean expectedResult = testCase.get("result").getAsString().equals("valid");
 
-    // Verification is done with the public key if it exists (or the secret key if not).
     String verificationJwk = publicJwk == null ? privateJwk : publicJwk.toString();
-    boolean result = performVerification(jws, verificationJwk);
+    boolean result = performKeysetVerification(jws, verificationJwk);
 
     if (getSuppressedTests().contains(testName)) {
       // Inverting the assertion helps uncover tests that are needlessly suppressed.
@@ -122,12 +120,6 @@ public class JsonWebSignatureTest {
     }
     // This is a JSON representation of the JWE/JWS.
     return element.toString();
-  }
-
-  /** Adds keys to a JSON Web Keyset. */
-  private static String addToKeyset(String keys) {
-    String keysetTemplate = "{\"keys\": [%s]}";
-    return String.format(keysetTemplate, keys);
   }
 
   /**
@@ -163,17 +155,5 @@ public class JsonWebSignatureTest {
           "Verification was unsuccessful.\njws: %s\njwk: %s", compactJws, verificationKeyset);
       return false;
     }
-  }
-
-  /**
-   * Returns whether or not the payload verifies with the given key.
-   *
-   * @implNote this method shouldn't allow any exceptions that indicate unverifiable payloads to
-   *     escape. Instead, the implementation should catch any such exceptions and return false
-   * @implNote this method is implemented by deferring to {@link #performKeysetVerification} (with a
-   *     1-element keyset)
-   */
-  public boolean performVerification(String compactJws, String verificationJwk) {
-    return performKeysetVerification(compactJws, addToKeyset(verificationJwk));
   }
 }
