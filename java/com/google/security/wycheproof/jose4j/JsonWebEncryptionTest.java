@@ -19,12 +19,15 @@ import com.google.common.flogger.GoogleLogger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.JsonUtil;
+import com.google.security.wycheproof.TestUtil;
 import com.google.testing.testsize.MediumTest;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.lang.JoseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -41,13 +44,9 @@ public class JsonWebEncryptionTest {
   private static final GoogleLogger logger = GoogleLogger.forEnclosingClass();
 
   private ImmutableSet<String> getSuppressedTests() {
-    return ImmutableSet.of(
-        // TODO(bleichen): b/261217218: the following test vectors fail under
-        //   --config=java_runtime_head
-        // "jwe_aes_acceptsValid_tcId50",
-        // "jwe_ec_acceptsValid_tcId67",
-        );
+    return ImmutableSet.of();
   }
+
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
   @Parameter(value = 0)
   public JsonObject testGroup;
@@ -94,15 +93,14 @@ public class JsonWebEncryptionTest {
     String privateJwk = testGroup.getAsJsonObject("private").toString();
     String jwe = getFlattenedString(testCase, "jwe");
     boolean expectedResult = testCase.get("result").getAsString().equals("valid");
-    boolean result = performDecryption(jwe, privateJwk);
 
+    String expectedPlaintextHex = expectedResult ? testCase.get("pt").getAsString() : "";
+    boolean result = performDecryption(jwe, privateJwk, expectedResult, expectedPlaintextHex);
     if (getSuppressedTests().contains(testName)) {
       // Inverting the assertion helps uncover tests that are needlessly suppressed.
-      assertWithMessage("This test appears to be needlessly suppressed")
-          .that(result)
-          .isEqualTo(!expectedResult);
+      assertWithMessage("This test appears to be needlessly suppressed").that(result).isFalse();
     } else {
-      assertThat(result).isEqualTo(expectedResult);
+      assertThat(result).isTrue();
     }
   }
 
@@ -117,21 +115,55 @@ public class JsonWebEncryptionTest {
     return element.toString();
   }
 
-  public boolean performDecryption(String compactJwe, String decryptionJwk) {
+  /**
+   * Tries to decrypt a ciphertext
+   *
+   * @param compactJwe the ciphertext
+   * @param decryptionJwk the decrypting key
+   * @param expectedResult true if encryption should pass, false otherwise
+   * @param expectedPlaintext the expected plaintext in hexadecimal format if decryption succeeds.
+   * @return true if the test passed, false if it failed.
+   */
+  public boolean performDecryption(
+      String compactJwe, String decryptionJwk, boolean expectedResult, String expectedPlaintext) {
     JsonWebEncryption decrypter = new JsonWebEncryption();
 
     try {
       decrypter.setCompactSerialization(compactJwe);
       JsonWebKey parsedKey = JsonWebKey.Factory.newJwk(decryptionJwk);
-      decrypter.setKey(
-          parsedKey instanceof PublicJsonWebKey
-              ? ((PublicJsonWebKey) parsedKey).getPrivateKey()
-              : parsedKey.getKey());
-      decrypter.getPlaintextBytes();
-      return true;
+      Key key;
+      if (parsedKey instanceof PublicJsonWebKey) {
+        key = ((PublicJsonWebKey) parsedKey).getPrivateKey();
+      } else {
+        key = parsedKey.getKey();
+      }
+      decrypter.setKey(key);
+      String ptHex = TestUtil.bytesToHex(decrypter.getPlaintextBytes());
+      if (ptHex.equals(expectedPlaintext)) {
+        return true;
+      }
+      logger.atInfo().log(
+          "Decryption returned wrong plaintext.\njwe: %s\njwk: %s\nexpected:%s\ngot:%s",
+          compactJwe, decryptionJwk, expectedPlaintext, ptHex);
+      return false;
+    } catch (JoseException e) {
+      // Malformed ciphertexts should result in a JoseException.
+      if (!expectedResult) {
+        logger.atInfo().withCause(e).log(
+            "Decryption was unsuccessful.\njwe: %s\njwk: %s", compactJwe, decryptionJwk);
+        return true;
+      } else {
+        logger.atInfo().log(
+            "Decryption was unsuccessful.\njwe: %s\njwk: %s\n%s",
+            compactJwe, decryptionJwk, e);
+        return false;
+      }
     } catch (Exception e) {
-      logger.atInfo().withCause(e).log(
-          "Decryption was unsuccessful.\njwe: %s\njwk: %s", compactJwe, decryptionJwk);
+      // Exceptions other than JoseExceptions are unexpected.
+      // They can either be a misconfiguration of the test or a bug in Jose4j.
+      logger.atInfo().log(
+          "Unexpected exception.\njwe: %s\njwk: %s\n%s", compactJwe, decryptionJwk, e);
+      // This is always a test failure.
       return false;
     }
   }
