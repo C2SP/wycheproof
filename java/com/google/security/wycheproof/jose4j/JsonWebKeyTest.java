@@ -46,7 +46,10 @@ public class JsonWebKeyTest {
   private ImmutableSet<String> getSuppressedTests() {
     return ImmutableSet.of(
         // jose.4.j doesn't care if you mix inappropriate keys.
-        "jws_mixedSymmetryKeyset_rejectsValid_tcId47");
+        // TODO(bleichen): Typically the things to test should be in the test and not
+        //   in the test group. This test vector contains an strange key set. Hence,
+        //   this test would be better in a test for key set validations.
+        "jws_mixedSymmetryKeyset_rejectsValid_tcId1");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
