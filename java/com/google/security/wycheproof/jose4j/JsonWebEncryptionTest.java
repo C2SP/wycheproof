@@ -44,7 +44,20 @@ public class JsonWebEncryptionTest {
   private static final GoogleLogger logger = GoogleLogger.forEnclosingClass();
 
   private ImmutableSet<String> getSuppressedTests() {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        // An AES key for one encryption mode is used with another encryption mode.
+        // Using a key with an incorrect encryption mode is a mistake, but jose4j
+        // nonetheless accepts such ciphertexts.
+        "jwe_aes_GcmKeyUsedWithKw_tcId96",
+        "jwe_aes_KwKeyUsedWithGcm_tcId97",
+        "jwe_aes_GcmKeyUsedWithKw_tcId98",
+        "jwe_aes_KwKeyUsedWithGcm_tcId99",
+        // An RSA-OAEP key is used with PKCS #1 v1.5 padding. Such ciphertexts
+        // should be rejected. jose4j accepts them. The problem with allowing
+        // PKCS #1 v1.5 padding is that weaknesses in the implementation can
+        // be exploited for an attack even if the key is an RSA-OAEP key.
+        "jwe_rsa_oaep_OaepKeyUsedWithPkcs1_5_tcId100",
+        "jwe_rsa_oaep_256_OaepKeyUsedWithPkcs1_5_tcId101");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
@@ -143,26 +156,32 @@ public class JsonWebEncryptionTest {
         return true;
       }
       logger.atInfo().log(
-          "Decryption returned wrong plaintext.\njwe: %s\njwk: %s\nexpected:%s\ngot:%s",
-          compactJwe, decryptionJwk, expectedPlaintext, ptHex);
+          "Decryption returned wrong plaintext.\n"
+              + "testName:%s\n"
+              + "jwe: %s\n"
+              + "jwk: %s\n"
+              + "expected:%s\n"
+              + "got:%s",
+          testName, compactJwe, decryptionJwk, expectedPlaintext, ptHex);
       return false;
     } catch (JoseException e) {
-      // Malformed ciphertexts should result in a JoseException.
-      if (!expectedResult) {
+      // Prints stack trace if decryption is expected to succeed, doesn't print the stack trace if
+      // decryption is expected to fail.
+      if (expectedResult) {
         logger.atInfo().withCause(e).log(
-            "Decryption was unsuccessful.\njwe: %s\njwk: %s", compactJwe, decryptionJwk);
-        return true;
-      } else {
-        logger.atInfo().log(
-            "Decryption was unsuccessful.\njwe: %s\njwk: %s\n%s",
-            compactJwe, decryptionJwk, e);
+            "Decryption was unsuccessful.\ntestName:%s\njwe: %s\njwk: %s",
+            testName, compactJwe, decryptionJwk);
         return false;
+      } else {
+        logger.atInfo().log("Decryption failed as expected. testName: %s with %s", testName, e);
+        return true;
       }
     } catch (Exception e) {
       // Exceptions other than JoseExceptions are unexpected.
       // They can either be a misconfiguration of the test or a bug in Jose4j.
-      logger.atInfo().log(
-          "Unexpected exception.\njwe: %s\njwk: %s\n%s", compactJwe, decryptionJwk, e);
+      logger.atInfo().withCause(e).log(
+          "Unexpected exception.\ntestName:%s\njwe: %s\njwk: %s",
+          testName, compactJwe, decryptionJwk);
       // This is always a test failure.
       return false;
     }
