@@ -70,36 +70,28 @@ public class JsonWebEncryptionTest {
         "jwe_rsa1_5_wrongMessageSize_tcId104",
         // This is a test vector with an RSA-OAEP key. The algorithm in the header of the
         // ciphertext has been modified from "alg":"RSA_OAEP_256" to "alg":"RSA1_5".
-        // jose4j generates a random key. It throws
-        // org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
-        "jwe_rsa_oaep_modified_InvalidPadding_tcId112",
-        // This is a test vector like ...tcId112 above. The algorithm in the header of the
-        // ciphertext has been changed to "alg":"RSA1_5". Contrary to the test vector
-        // ..tcid112 the ciphertext has a valid PKCS #1 v1.5 padding after decryption.
-        // The padded message is 176 bytes long, and hence not a valid AES key.
+        // Because of the modification in the header jose4j decrypts using PKCS #1.
+        // Since the ciphertext has a valid PKCS #1 v1.5 and the padded message is 176
+        // bytes long an invalid AES key is returned
         // The exception thrown for this message is
-        // org.jose4j.lang.JoseException: Invalid key for AES/GCM/NoPadding
-        // ...
-        // Caused by: java.security.InvalidKeyException: Invalid AES key length: 176 bytes
+        // org.jose4j.lang.InvalidKeyException: 136 bit content encryption key is not the
+        // correct size for the A128GCM content encryption algorithm (128).
+        //
+        // This message is distinguishable from ciphertext with modified header and
+        // invalid padding.
         // Hence it is possible to gain information about the decrypted ciphertexts.
         "jwe_rsa_oaep_modified_InvalidPkcs15Padding_tcId113",
-        // This test vector is similar to the test vectors above, but this
-        // time the PKCS #1 v1.5 padded message is 16 bytes long and hence a valid AES key.
-        // The exception thrown is
-        // org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
-        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith16byteMessage_tcId114",
         // This test vector is similar to the test vectors above, but this
         // time the PKCS #1 v1.5 padded message is 32 bytes long. This is a valid AES
         // key size, but not for the algorithm AES128GCM in the header.
         // The exception thrown is
-        // org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
+        // org.jose4j.lang.InvalidKeyException: 256 bit content encryption key is not the correct
+        // size for the A128GCM content encryption algorithm (128).
         "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith32byteMessage_tcId115",
         // Same as above, but with 24 byte AES key. The exception is
-        // org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
-        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith24byteMessage_tcId116",
-        // Same as above, but with an empty message. The exception is
-        // org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
-        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWithEmptyMessage_tcId117");
+        // org.jose4j.lang.InvalidKeyException: 192 bit content encryption key is not the correct
+        // size for the A128GCM content encryption algorithm (128).
+        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith24byteMessage_tcId116");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
@@ -154,6 +146,8 @@ public class JsonWebEncryptionTest {
     if (getSuppressedTests().contains(testName)) {
       // Inverting the assertion helps uncover tests that are needlessly suppressed.
       assertWithMessage("This test appears to be needlessly suppressed").that(result).isFalse();
+      // The test fails but is suppressed.
+      TestUtil.skipTest("Suppressed test still fails");
     } else {
       assertThat(result).isTrue();
     }
@@ -224,15 +218,38 @@ public class JsonWebEncryptionTest {
             testName, compactJwe, decryptionJwk);
         return false;
       }
+      // Tests for PKCS #1 oracles.
       if (containsFlag(testCase, "ModifiedPkcs15Padding")) {
-        // If the padding has been modified then jose4j typically throws the following exception.
-        // If trying to decrypt a modified ciphertext throws another exception then this may
-        // allow a PKCS #1 oracle.
-        String expectedException =
-            "org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!";
-        if (!expectedException.equals(e.toString())) {
+        // If the padding has been modified then jose4j typically throws one of the following
+        // exceptions. If trying to decrypt a modified ciphertext throws another exception then
+        // this may allow a PKCS #1 oracle.
+        String[] expectedExceptionsPkcs15 =
+            new String[] {
+              // Exception thrown when using jdk11
+              "org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!",
+              // Exception thrown when unsing jdk20
+              "org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch"
+            };
+        boolean expected = false;
+        String actual = e.toString();
+        for (String exception : expectedExceptionsPkcs15) {
+          if (exception.equals(actual)) {
+            expected = true;
+            break;
+          }
+        }
+        // The test above is in some sense too strict because it checks for actual error messages.
+        // If the underlying provider changes the text in the exception then the test starts
+        // failing.
+        //
+        // The reason for adding a strict test is that some versions of jose4j contain padding
+        // oracles. An attacker, who can send modified ciphertexts to a receiver and observe the
+        // resulting error message can distinguish between ciphertexts with a valid PKCS #1 padding
+        // and ciphertexts with an invalid PKCS #1 padding. Being able to distinguish between
+        // valid and invalid PKCS #1 paddings allows the attacker to decrypt and/or sign messages.
+        if (!expected) {
           logger.atInfo().withCause(e).log(
-              "Decryption contains a padding oracle.\ntestName:%s\njwe: %s\njwk: %s",
+              "Decryption may contain a padding oracle.\ntestName:%s\njwe: %s\njwk: %s",
               testName, compactJwe, decryptionJwk);
           return false;
         }
@@ -244,10 +261,33 @@ public class JsonWebEncryptionTest {
         // The current implementation tries to decrypt using PKCS #1.5 padding.
         // Since the PKCS #1.5 decryption is broken, it is therefore also possible to break
         // ciphertexts when the receiver uses RSA-OAEP keys.
-        // TODO(bleichen): expectedException needs to be adjusted once the underlying bug has
-        //   been fixed.
-        String expectedException = "org.jose4j.lang.JoseException: ???";
-        if (!expectedException.equals(e.toString())) {
+        //
+        // TODO(bleichen): expectedExceptionsOaep needs to be adjusted once the underlying bug has
+        //   been fixed. Currently the following exceptions are being thrown:
+        //   * org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!
+        //     thrown when the ciphertext contains an invalid PKCS #1 padding
+        //     or thrown when the ciphertext contains valid PKCS #1 padding and valid key size.
+        //   * org.jose4j.lang.JoseException: Invalid key for AES/GCM/NoPadding
+        //     thrown wehn the ciphertext contains a valid PKCS #1 v1.5 padding but an invalid key.
+        //   The test currently expects that a random key is being generated when the padding is
+        //   incorrect. Better would be to compare the algorithms in the key with the algorithm in
+        //   the header and throw an exception before trying to decrypt.
+        String[] expectedExceptionsOaep =
+            new String[] {
+              // Exception thrown when using jdk11
+              "org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch!",
+              // Exception thrown when unsing jdk20
+              "org.jose4j.lang.JoseException: javax.crypto.AEADBadTagException: Tag mismatch"
+            };
+        boolean expected = false;
+        String actual = e.toString();
+        for (String exception : expectedExceptionsOaep) {
+          if (exception.equals(actual)) {
+            expected = true;
+            break;
+          }
+        }
+        if (!expected) {
           logger.atInfo().withCause(e).log(
               "Decryption contains a padding oracle.\ntestName:%s\njwe: %s\njwk: %s",
               testName, compactJwe, decryptionJwk);
@@ -259,7 +299,7 @@ public class JsonWebEncryptionTest {
       //   problems. Logging the full stack trace would add too much clutter to the logs.
       logger.atInfo().log("Decryption failed as expected. testName: %s with %s", testName, e);
       return true;
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       // Exceptions other than JoseExceptions are unexpected.
       // They can either be a misconfiguration of the test or a bug in Jose4j.
       logger.atInfo().withCause(e).log(
