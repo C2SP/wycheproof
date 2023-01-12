@@ -46,7 +46,7 @@ public class JsonWebSignatureTest {
   private ImmutableSet<String> getSuppressedTests() {
     return ImmutableSet.of(
         // Nothing checks for weak keys during the verification process.
-        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId46");
+        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId259");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
