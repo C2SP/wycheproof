@@ -20,6 +20,7 @@ import com.google.common.flogger.GoogleLogger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.JsonUtil;
+import com.google.security.wycheproof.TestUtil;
 import com.google.testing.testsize.MediumTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,13 @@ public class JsonWebSignatureTest {
 
   private ImmutableSet<String> getSuppressedTests() {
     return ImmutableSet.of(
-        // Nothing checks for weak keys during the verification process.
-        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId259");
+        // jose4j verifies signatures using the algorithm specified in the jws header.
+        // The algorithm specified in the key is ignored.
+        "ps512_UsingRS256_tcId332",
+        "ps512_UsingRS384_tcId334",
+        "ps512_UsingRS512_tcId336",
+        "ps512_UsingPS256_tcId338",
+        "ps512_UsingPS384_tcId340");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
@@ -107,6 +113,8 @@ public class JsonWebSignatureTest {
       assertWithMessage("This test appears to be needlessly suppressed")
           .that(result)
           .isEqualTo(!expectedResult);
+      // The test fails but is suppressed.
+      TestUtil.skipTest("Suppressed test still fails");
     } else {
       assertThat(result).isEqualTo(expectedResult);
     }
