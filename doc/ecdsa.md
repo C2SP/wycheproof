@@ -111,16 +111,34 @@ still a valid signature for the message $$m$$. One property of ECDSA is that if
 a pair $$(r,s)$$ is a valid signature for a message $$m$$ then $$(r, n-s)$$ is
 also a valid signature. Typically signature malleability is not a security
 issue. However, when the design of a protocol is flawed then it can be possible
-to exploit such properties
+to exploit such properties. An example of such a protocol flaw is described in
 (https://en.bitcoin.it/wiki/Transaction_malleability).
 
 A question that poses itself is whether ASN.1 encoded signatures should require
 DER encoding or if alternative BER encoding are incorrect. The encoding of ECDSA
 signatures is not addressed in the DSS standard
-[[FIPS-186-4]](bib.md#fips-186-4). Hence one has to refer to common practice.
-Since many cryptographic libraries do indeed expect that ECDSA signatures are
-DER encoded, hence generating a signature that is not DER encoded clearly be a
-bug. It also appears that libraries should not accept alternative encodings,
-since there are some CVEs where such problems are reported: e.g.,
-CVE-2020-13822, CVE-2019-14859, CVE-2016-1000342. (It is a bit surprising that
-some of the CVEs for signature malleability have high vulnerability scores.)
+[[FIPS-186-4]](bib.md#fips-186-4).Other references such as RFC 6979 specify that
+ASN.1 encoded ECDSA signatures should use DER to generate a signature, but don't
+mention verification.
+
+Hence one has to refer to common practice. Many cryptographic libraries do
+indeed expect that ECDSA signatures are DER encoded, hence generating a
+signature that is not DER encoded clearly should be a bug. Common mistakes in
+the DER encoding are:
+
+*   not including a leading zero in the encoding of an integer. An additional
+    leading zero byte is required for a positive integer when the most
+    significant byte would otherwise have a value in the range 128 .. 255, since
+    a leading byte in the range 128 .. 255 represents a negative integer.
+*   including unnecessary leading zero bytes in the encoding of an integer. DER
+    requires that the shortest possible representation of an integer is used.
+
+There are some CVEs where libraries were reported that accepted other than DER
+encodings: e.g., CVE-2020-14966, CVE-2020-13822, CVE-2019-14859,
+CVE-2016-1000342. (Some of these CVEs whave have high vulnerability scores,
+which appears to be a bit surprising).
+
+Wycheproof test vectors for ECDSA signature verifiction with alternative BER
+encoding have a "BER" flag to indicate the nature of the modification. The
+motivation of such flags is to make it simpler to determine if a library suffers
+from additional problems.
