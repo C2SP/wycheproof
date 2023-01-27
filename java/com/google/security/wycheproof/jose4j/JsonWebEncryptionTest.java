@@ -45,12 +45,6 @@ public class JsonWebEncryptionTest {
 
   private ImmutableSet<String> getSuppressedTests() {
     return ImmutableSet.of(
-        // Test vectors that use A256GCM for the content encryption algorithm and
-        // RSA PKCS #1 v 1.5. padding despite a RSA-OAEP key. All ciphertexts are
-        // invalid, but throw distinguishable exceptions.
-        "jwe_rsa_oaep_256_invalidAlgorithm_tcId95",
-        "jwe_rsa_oaep_256_invalidAlgorithm_tcId97",
-        "jwe_rsa_oaep_256_invalidAlgorithm_tcId99",
         // An AES key for one encryption mode is used with another encryption mode.
         // Using a key with an incorrect encryption mode is a mistake, but jose4j
         // nonetheless accepts such ciphertexts.
@@ -63,41 +57,7 @@ public class JsonWebEncryptionTest {
         // PKCS #1 v1.5 padding is that weaknesses in the implementation can
         // be exploited for an attack even if the key is an RSA-OAEP key.
         "jwe_rsa_oaep_OaepKeyUsedWithPkcs1_5_tcId110",
-        "jwe_rsa_oaep_256_OaepKeyUsedWithPkcs1_5_tcId111",
-        // RSA PKCS #1 v1.5 encrypted messages should not return information
-        // whether the padding was correct or not. Jose4j appears to generates a random
-        // AES key when the padding was incorrect. In this case the exception thrown is
-        // javax.crypto.AEADBadTagException: Tag mismatch!
-        // If modified ciphertext contains a correct padding then typically the key size
-        // is wrong leading to exceptions such as
-        // org.jose4j.lang.JoseException: Invalid key for AES/GCM/NoPadding
-        // ...
-        // Caused by: java.security.InvalidKeyException: Invalid AES key length: 17 bytes
-        "jwe_rsa1_5_wrongMessageSize_tcId114",
-        // This is a test vector with an RSA-OAEP key. The algorithm in the header of the
-        // ciphertext has been modified from "alg":"RSA_OAEP_256" to "alg":"RSA1_5".
-        // Because of the modification in the header jose4j decrypts using PKCS #1.
-        // Since the ciphertext has a valid PKCS #1 v1.5 and the padded message is 176
-        // bytes long an invalid AES key is returned
-        // The exception thrown for this message is
-        // org.jose4j.lang.InvalidKeyException: 136 bit content encryption key is not the
-        // correct size for the A128GCM content encryption algorithm (128).
-        //
-        // This message is distinguishable from ciphertext with modified header and
-        // invalid padding.
-        // Hence it is possible to gain information about the decrypted ciphertexts.
-        "jwe_rsa_oaep_modified_InvalidPkcs15Padding_tcId123",
-        // This test vector is similar to the test vectors above, but this
-        // time the PKCS #1 v1.5 padded message is 32 bytes long. This is a valid AES
-        // key size, but not for the algorithm AES128GCM in the header.
-        // The exception thrown is
-        // org.jose4j.lang.InvalidKeyException: 256 bit content encryption key is not the correct
-        // size for the A128GCM content encryption algorithm (128).
-        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith32byteMessage_tcId125",
-        // Same as above, but with 24 byte AES key. The exception is
-        // org.jose4j.lang.InvalidKeyException: 192 bit content encryption key is not the correct
-        // size for the A128GCM content encryption algorithm (128).
-        "jwe_rsa_oaep_modified_InvalidPkcs15PaddingWith24byteMessage_tcId126");
+        "jwe_rsa_oaep_256_OaepKeyUsedWithPkcs1_5_tcId111");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
