@@ -20,7 +20,23 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-class TestResult {
+/**
+ * A data structure to keep the results of performing a test with test vectors.
+ *
+ * <p>The motivation for this data structure is that it allows the caller to perform additional
+ * tests and functionality:
+ *
+ * <ul>
+ *   <li>It is possible to generate a file with all the test vectors that failed. Such files can be
+ *       used to rerun tests after updates or compare multiple versions.
+ *   <li>When all valid test vectors fail then a possible conclusion is that the underlying
+ *       primitive is not supported. In such cases it is typically correct to mark the whole test as
+ *       skipped rather than failing all valid test vectors.
+ *   <li>Additional analysis of the result is possible. For example there are sets of test vectors
+ *       with flags that all must result in indistinguishable behavior.
+ * </ul>
+ */
+public class TestResult {
   /**
    * A type describing the result of a single test.
    *
@@ -252,6 +268,24 @@ class TestResult {
     return (getCount(Type.PASSED_VALID) == 0 && errors() == 0);
   }
 
+  /**
+   * Checks if the reaction to all test vectors with a given flag are indistinguishable. Test
+   * vectors resulting in distinguishable behavior are marked as test failures.
+   *
+   * <p>This method can for example be used for testing RSA PKCS #1 decryption. All test vectors
+   * where the padding is invalid and where leaking information about the padding can lead to a
+   * chosen ciphertext attack have the flag "InvalidPkcs1Padding". All the test vectors with invalid
+   * paddings should be rejected, but this is not enough. All the test vectors should be rejected
+   * without leaking information about the cause for rejection. Calling
+   * checkIndistinguishableResult("InvalidPkcs1Padding") after running a test against an RSA PKCS #1
+   * decryption ensures that all exceptions thrown are equal.
+   *
+   * <p>The check is limited. At least at the moment it does not detect timing differences or other
+   * side channels such as the microarchitectural attacks described in the paper
+   * https://ieeexplore.ieee.org/document/8835216
+   *
+   * @param flag all test vectors with this flag are compared against each other.
+   */
   public void checkIndistinguishableResult(String flag) {
     Set<Type> results = new TreeSet<Type>();
     Set<String> comments = new TreeSet<String>();
@@ -366,20 +400,18 @@ class TestResult {
       out.append(countLabels(failed));
       out.append("--- Failing tests ---\n");
       for (int tcId : failed) {
-        out.append(" ").append(tcId);
-        out.append(" ").append(result.get(tcId).name());
+        out.append(tcId).append(" ").append(result.get(tcId).name());
         JsonObject testCase = testVectors.get(tcId);
-        out.append(": ").append(comment.get(tcId)).append("; ");
-        out.append(testCase.get("comment").getAsString()).append(";");
+        out.append("\n  ").append(comment.get(tcId));
+        out.append("\n  ").append(testCase.get("comment").getAsString()).append(";");
         for (String flag : testVectors.getFlags(tcId)) {
           out.append(" ").append(flag);
         }
         out.append("\n");
       }
 
-      // Print test test failing test vectors, but only when there are not
-      // too many.
-      if (failed.size() <= 10) {
+      // Print test test failing test vectors, but only when there are not too many.
+      if (failed.size() <= 5) {
         out.append("--- Failing test vectors ---\n");
         Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         out.append(gson.toJson(failingTests().getTest()));

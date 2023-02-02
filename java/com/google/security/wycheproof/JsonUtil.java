@@ -28,6 +28,13 @@ import java.math.BigInteger;
 /** Utilities for reading test vectors in JSON format */
 public class JsonUtil {
 
+  public static JsonObject getTestVectorsAbsolutePath(String path) throws IOException {
+    FileInputStream is = new FileInputStream(path);
+    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
+    JsonElement elem = JsonParser.parseReader(reader);
+    return elem.getAsJsonObject();
+  }
+
   /**
    * Reads a set of test vectors from a file.
    * @param filename the name of the file, local to the directory with the
@@ -40,19 +47,13 @@ public class JsonUtil {
       IOException {
     // The directory where the test vectors are.
     String testVectorsDir = "third_party/wycheproof/testvectors/";
-    FileInputStream is = new FileInputStream(testVectorsDir + filename);
-    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
-    JsonElement elem = JsonParser.parseReader(reader);
-    return elem.getAsJsonObject();
+    return getTestVectorsAbsolutePath(testVectorsDir + filename);
   }
 
   public static JsonObject getTestVectorsV1(String filename) throws IOException {
     // The directory where the test vectors are.
     String testVectorsDir = "testvectors_v1/";
-    FileInputStream is = new FileInputStream(testVectorsDir + filename);
-    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
-    JsonElement elem = JsonParser.parseReader(reader);
-    return elem.getAsJsonObject();
+    return getTestVectorsAbsolutePath(testVectorsDir + filename);
   }
 
   /** 

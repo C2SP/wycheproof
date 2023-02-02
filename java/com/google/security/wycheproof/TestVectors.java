@@ -29,14 +29,14 @@ import java.util.TreeSet;
  * list of bug descriptions.
  *
  * <p>A main goal of this class is to allow easy access to all information for a given test vector
- * identified by a tcId. The class allows to manipulate sets of test vectors. For example it
- * is possible to generate a subset of test vectors that fail a test, so that this subset can
- * be rerun against new versions of a library. If additional operations on test vectors sets
- * are necessary (e.g. union, intersection, inclusion test etc.) then these operations should
- * be added here. This class would also be a good place to define a lenient hash function for
- * test vectors (i.e. a hash function that ignores non-essential fields such as comments).
+ * identified by a tcId. The class allows to manipulate sets of test vectors. For example it is
+ * possible to generate a subset of test vectors that fail a test, so that this subset can be rerun
+ * against new versions of a library. If additional operations on test vectors sets are necessary
+ * (e.g. union, intersection, inclusion test etc.) then these operations should be added here. This
+ * class would also be a good place to define a lenient hash function for test vectors (i.e. a hash
+ * function that ignores non-essential fields such as comments).
  */
-class TestVectors {
+public class TestVectors {
   // The JSON object that is wrapped.
   private final JsonObject test;
   // The name of the test vectors. The name is typically the name of the file
@@ -108,52 +108,52 @@ class TestVectors {
    * Returns the name of the test vectors. This is normally the name of the file containing the test
    * vectors.
    */
-  String getName() {
+  public String getName() {
     return name;
   }
 
   /** Returns the JSON Schema of the test vectors. */
-  String getSchema() {
+  public String getSchema() {
     return test.get("schema").getAsString();
   }
 
   /** Returns the number of tests in the file. */
-  int numTests() {
+  public int numTests() {
     return test.get("numberOfTests").getAsInt();
   }
 
   /** Returns the number of valid test vectors in the file. */
-  int numValid() {
+  public int numValid() {
     return cntValid;
   }
 
   /** Returns the number of acceptable test vectors in the file. */
-  int numAcceptable() {
+  public int numAcceptable() {
     return cntAcceptable;
   }
 
   /** Returns the number of invalid test vectors in the file. */
-  int numInvalid() {
+  public int numInvalid() {
     return cntInvalid;
   }
 
   /** Returns the whole test */
-  JsonObject getTest() {
+  public JsonObject getTest() {
     return test;
   }
 
   /** Returns the test vector with given tcId */
-  JsonObject get(int tcId) {
+  public JsonObject get(int tcId) {
     return testcases.get(tcId);
   }
 
   /** Returns the group containing the test vector with the given tcId. */
-  JsonObject getGroup(int tcId) {
+  public JsonObject getGroup(int tcId) {
     return groups.get(tcId);
   }
 
   /** Returns a set of flags belonging to the test vector with given tcId. */
-  Set<String> getFlags(int tcId) {
+  public Set<String> getFlags(int tcId) {
     Set<String> flags = new HashSet<>();
     for (var flag : get(tcId).getAsJsonArray("flags")) {
       flags.add(flag.getAsString());
@@ -162,7 +162,7 @@ class TestVectors {
   }
 
   /** Returns the tcIds of the test vectors that have a given flag. */
-  Set<Integer> withFlag(String flag) {
+  public Set<Integer> withFlag(String flag) {
     Set<Integer> tcIds = new TreeSet<Integer>();
     for (var testcase : testcases.entrySet()) {
       for (var flagTestCase : testcase.getValue().getAsJsonArray("flags")) {
@@ -190,12 +190,12 @@ class TestVectors {
    * @param flag the flag
    * @return the JsonObject
    */
-  JsonObject getNote(String flag) {
+  public JsonObject getNote(String flag) {
     return notes.get(flag);
   }
 
   /** Returns a set of bugType associated with a given tcId. */
-  Set<String> getBugTypes(int tcId) {
+  public Set<String> getBugTypes(int tcId) {
     Set<String> bugTypes = new HashSet<>();
     for (String flag : getFlags(tcId)) {
       JsonObject note = notes.get(flag);
@@ -218,7 +218,7 @@ class TestVectors {
    *
    * @return True if one of the flags of the bug is marked as a legacy test case.
    */
-  boolean isLegacy(int tcId) {
+  public boolean isLegacy(int tcId) {
     if (get(tcId).get("result").getAsString().equals("acceptable")) {
       return true;
     }
@@ -239,7 +239,7 @@ class TestVectors {
    * @param subSet a set of test vectors to select. tcIds in subSet must exist.
    * @return the selected subset.
    */
-  TestVectors subSet(Set<Integer> subSet) {
+  public TestVectors subSet(Set<Integer> subSet) {
     JsonObject newTest = new JsonObject();
     newTest.add("algorithm", test.get("algorithm"));
     newTest.add("schema", test.get("schema"));
@@ -287,7 +287,7 @@ class TestVectors {
   }
 
   /** Returns a subset of this containing just one test vector. */
-  TestVectors singleTest(int tcId) {
+  public TestVectors singleTest(int tcId) {
     Set<Integer> test = new HashSet<>();
     test.add(tcId);
     // NOTE(bleichen): subset loops through all test groups of this.
