@@ -1,9 +1,8 @@
-# Bouncy Castle tests
 load("//tools:build_defs.bzl", "accp_all_tests", "accp_tests", "bouncycastle_all_tests", "bouncycastle_tests", "conscrypt_all_tests", "conscrypt_tests", "spongycastle_all_tests", "spongycastle_tests")
 
 testvectors = ["//testvectors_v1:all"]
 
-# java
+# Java
 
 java_library(
     name = "utils",
@@ -32,17 +31,6 @@ test_srcs = glob([
     "java/**/testcases/*Test.java",
 ])
 
-# Generates BouncyCastleAllTests_1_xx target for all available versions,
-# plus a BouncyCastleAllTests alias for latest stable.
-#
-# To test latest stable:
-#   $ bazel test BouncyCastleAllTests
-#
-# To test other versions, e.g., v1.52:
-#   $ bazel test BouncyCastleAllTests_1_52
-#
-# To test all known versions (warning, will take a long time):
-#   $ bazel test $(bazel query 'attr(name, "BouncyCastleAllTests_.*", //...)')
 bouncycastle_all_tests(
     # This test takes a long time, because key generation for DSA and DH generate new parameters.
     size = "enormous",
@@ -64,17 +52,6 @@ java_test(
     deps = common_deps + ["@local//:bouncycastle_jar"],
 )
 
-# Generates BouncyCastleTest_1_xx target for all available versions,
-# plus a BouncyCastleTest alias for latest stable.
-#
-# To test latest stable:
-#   $ bazel test BouncyCastleTest
-#
-# To test other versions, e.g., v1.52:
-#   $ bazel test BouncyCastleTest_1_52
-#
-# To test all known versions:
-#   $ bazel test $(bazel query 'attr(name, "BouncyCastleTest_.*", //...)')
 bouncycastle_tests(
     size = "large",
     srcs = ["java/com/google/security/wycheproof/BouncyCastleTest.java"] + test_srcs,
@@ -95,17 +72,6 @@ java_test(
     deps = common_deps + ["@local//:bouncycastle_jar"],
 )
 
-# Generates SpongyCastleAllTests_1_xx target for all available versions,
-# plus a SpongyCastleAllTests alias for latest stable.
-#
-# To test latest stable:
-#   $ bazel test SpongyCastleAllTests
-#
-# To test other versions, e.g., v1.52.0.0:
-#   $ bazel test SpongyCastleAllTests_1_52
-#
-# To test all known versions (warning, will take a long time):
-#   $ bazel test $(bazel query 'attr(name, "SpongyCastleAllTests_.*", //...)')
 spongycastle_all_tests(
     # This test takes a long time, because key generation for DSA and DH generate new parameters.
     size = "enormous",
@@ -115,17 +81,6 @@ spongycastle_all_tests(
     deps = common_deps,
 )
 
-# Generates SpongyCastleTest_1_xx target for all available versions,
-# plus a SpongyCastleTest alias for latest stable.
-#
-# To test latest stable:
-#   $ bazel test SpongyCastleTest
-#
-# To test other versions, e.g., v1.52.0.0:
-#   $ bazel test SpongyCastleTest_1_52
-#
-# To test all known versions:
-#   $ bazel test $(bazel query 'attr(name, 'SpongyCastleTest_.*", //...)')
 spongycastle_tests(
     size = "large",
     srcs = ["java/com/google/security/wycheproof/SpongyCastleTest.java"] + test_srcs,
