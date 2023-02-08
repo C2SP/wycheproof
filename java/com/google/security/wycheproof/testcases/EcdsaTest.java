@@ -380,9 +380,16 @@ public class EcdsaTest {
     // If we throw a fair coin tests times then the probability that
     // either heads or tails appears less than mincount is less than 2^{-32}.
     // Therefore the test below is not expected to fail unless the generation
-    // of the one time keys is indeed biased.
-    final int tests = 1024;
-    final int mincount = 410;
+    // of the one time keys is indeed biased. E.g., the following values might
+    // be used:
+    // tests | mincount
+    // ------+---------
+    //  1024 |  410     catches brainpoolP256r1 using a 256 bit random number mod n
+    //  2048 |  880     catches brainpoolP320r1 using a 320 bit random number mod n
+    // 10000 | 4682
+    // 20000 | 9551
+    final int tests = 2048;
+    final int mincount = 880;
     BigInteger[] kList = new BigInteger[tests];
     boolean deterministic = isDeterministic(signer, priv);
     byte[][] message = getMessagesToSign(tests, deterministic);
@@ -490,6 +497,11 @@ public class EcdsaTest {
   }
 
   @Test
+  public void testBiasSecp256k1() throws GeneralSecurityException {
+    testBias("SHA256WithECDSA", "secp256k1");
+  }
+
+  @Test
   public void testBiasSecp384r1() throws GeneralSecurityException {
     testBias("SHA384WithECDSA", "secp384r1");
   }
@@ -501,7 +513,12 @@ public class EcdsaTest {
 
   @Test
   public void testBiasBrainpoolP256r1() throws GeneralSecurityException {
-    testBias("SHA512WithECDSA", "brainpoolP256r1");
+    testBias("SHA256WithECDSA", "brainpoolP256r1");
+  }
+
+  @Test
+  public void testBiasBrainpoolP320r1() throws GeneralSecurityException {
+    testBias("SHA384WithECDSA", "brainpoolP320r1");
   }
 
   @Test
