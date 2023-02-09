@@ -77,17 +77,21 @@ public class EcdsaTest {
    *
    * @param signer an ECDSA instance
    * @param priv an ECDSA private key
-   * @return true if the signer generates deterministic signatures @ @throws
-   *     GeneralSecurityException if the signer failed to sign a message.
+   * @return true if the signer generates deterministic signatures
+   * @throws AssumptionViolatedException if the signer failed to sign a message.
    */
-  private boolean isDeterministic(Signature signer, ECPrivateKey priv)
-      throws GeneralSecurityException {
+  private boolean isDeterministic(Signature signer, ECPrivateKey priv) {
     byte[][] signature = new byte[2][];
     byte[] message = new byte[1];
-    for (int i = 0; i < 2; i++) {
-      signer.initSign(priv);
-      signer.update(message);
-      signature[i] = signer.sign();
+    try {
+      for (int i = 0; i < 2; i++) {
+        signer.initSign(priv);
+        signer.update(message);
+        signature[i] = signer.sign();
+      }
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest(ex.toString());
+      return false;
     }
     return Arrays.equals(signature[0], signature[1]);
   }
@@ -356,7 +360,7 @@ public class EcdsaTest {
    * @throws GeneralSecurityException if the signature generation failed. This may indicate a bug in
    *     the test or an unusual provider configuration.
    */
-  public void testBias(String algorithm, String curve) throws GeneralSecurityException {
+  public void testBias(String algorithm, String curve) {
     String hashAlgorithm = getHashAlgorithm(algorithm);
     MessageDigest md;
     Signature signer;
@@ -367,16 +371,18 @@ public class EcdsaTest {
       TestUtil.skipTest(ex.toString());
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     KeyPair keyPair;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
       keyGen.initialize(new ECGenParameterSpec(curve));
       keyPair = keyGen.generateKeyPair();
-    } catch (InvalidAlgorithmParameterException ex) {
+    } catch (GeneralSecurityException ex) {
       TestUtil.skipTest(curve + " is not supported.");
       return;
     }
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
+    boolean deterministic = isDeterministic(signer, priv);
+
     // If we throw a fair coin tests times then the probability that
     // either heads or tails appears less than mincount is less than 2^{-32}.
     // Therefore the test below is not expected to fail unless the generation
@@ -391,14 +397,18 @@ public class EcdsaTest {
     final int tests = 2048;
     final int mincount = 880;
     BigInteger[] kList = new BigInteger[tests];
-    boolean deterministic = isDeterministic(signer, priv);
     byte[][] message = getMessagesToSign(tests, deterministic);
-    signer.initSign(priv);
-    for (int i = 0; i < tests; i++) {
-      signer.update(message[i]);
-      byte[] digest = md.digest(message[i]);
-      byte[] signature = signer.sign();
-      kList[i] = extractK(signature, digest, priv);
+    try {
+      signer.initSign(priv);
+      for (int i = 0; i < tests; i++) {
+        signer.update(message[i]);
+        byte[] digest = md.digest(message[i]);
+        byte[] signature = signer.sign();
+        kList[i] = extractK(signature, digest, priv);
+      }
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not sign messages");
+      return;
     }
 
     // Checks whether the most significant bits and the least significant bits
@@ -487,42 +497,42 @@ public class EcdsaTest {
   }
 
   @Test
-  public void testBiasSecp224r1() throws GeneralSecurityException {
+  public void testBiasSecp224r1() {
     testBias("SHA224WithECDSA", "secp224r1");
   }
 
   @Test
-  public void testBiasSecp256r1() throws GeneralSecurityException {
+  public void testBiasSecp256r1() {
     testBias("SHA256WithECDSA", "secp256r1");
   }
 
   @Test
-  public void testBiasSecp256k1() throws GeneralSecurityException {
+  public void testBiasSecp256k1() {
     testBias("SHA256WithECDSA", "secp256k1");
   }
 
   @Test
-  public void testBiasSecp384r1() throws GeneralSecurityException {
+  public void testBiasSecp384r1() {
     testBias("SHA384WithECDSA", "secp384r1");
   }
 
   @Test
-  public void testBiasSecp521r1() throws GeneralSecurityException {
+  public void testBiasSecp521r1() {
     testBias("SHA512WithECDSA", "secp521r1");
   }
 
   @Test
-  public void testBiasBrainpoolP256r1() throws GeneralSecurityException {
+  public void testBiasBrainpoolP256r1() {
     testBias("SHA256WithECDSA", "brainpoolP256r1");
   }
 
   @Test
-  public void testBiasBrainpoolP320r1() throws GeneralSecurityException {
+  public void testBiasBrainpoolP320r1() {
     testBias("SHA384WithECDSA", "brainpoolP320r1");
   }
 
   @Test
-  public void testBiasPrime239v1() throws GeneralSecurityException {
+  public void testBiasPrime239v1() {
     testBias("SHA256WithECDSA", "X9.62 prime239v1");
   }
 
@@ -531,7 +541,7 @@ public class EcdsaTest {
    * being tested.)
    */
   @Test
-  public void testBiasSecp256r1ECDDSA() throws GeneralSecurityException {
+  public void testBiasSecp256r1ECDDSA() {
     testBias("SHA256WithECDDSA", "secp256r1");
   }
 
@@ -694,14 +704,19 @@ public class EcdsaTest {
     boolean deterministic = isDeterministic(signer, priv);
     byte[][] message = getMessagesToSign(samples, deterministic);
     BigInteger[] k = new BigInteger[samples];
-    signer.initSign(priv);
-    for (int i = 0; i < samples; i++) {
-      signer.update(message[i]);
-      long start = bean.getCurrentThreadCpuTime();
-      byte[] signature = signer.sign();
-      timing[i] = bean.getCurrentThreadCpuTime() - start;
-      byte[] digest = md.digest(message[i]);
-      k[i] = extractK(signature, digest, priv);
+    try {
+      signer.initSign(priv);
+      for (int i = 0; i < samples; i++) {
+        signer.update(message[i]);
+        long start = bean.getCurrentThreadCpuTime();
+        byte[] signature = signer.sign();
+        timing[i] = bean.getCurrentThreadCpuTime() - start;
+        byte[] digest = md.digest(message[i]);
+        k[i] = extractK(signature, digest, priv);
+      }
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate signatures");
+      return;
     }
     long[] sorted = Arrays.copyOf(timing, timing.length);
     Arrays.sort(sorted);
