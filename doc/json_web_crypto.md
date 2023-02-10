@@ -8,6 +8,7 @@ messages as JSON.
 -   JSON Web Key: RFC 7517
 -   JSON Web Algorithms: RFC 7518
 -   JSON Web Token: RFC 7519
+-   Examples: RFC 7520
 
 ## Untrusted `none` alg Header
 
@@ -194,3 +195,95 @@ JWS JSON serialization supports multiple signatures, each with their own
 protected headers. The API library authors that have chosen to support this
 don't always make it clear that when 2 of 3 signatures verified, the headers
 from the 1 that failed verification shouldn't be trusted.
+
+
+## Chosen ciphertext attacks
+
+JWE made a number of design choices that greatly facilitate chosen ciphertext
+attacks attacks against ciphertexts encrypted with RSA.
+Probably the single most devastating mistake was to include RSA encryption with
+PKCS #1 padding into the standard. At the time the RFC was written, chosen
+ciphertext attacks with PKCS #1 padding were well known. The large number of CVEs
+document that correct implementations of RSA PKCS #1 are difficult.
+RSA-OAEP had excellent support in underlying libraries. A library that only
+supported RSA PKCS #1 but not RSA-OAEP could reasonable be called outdated.
+
+Some implementations of JWE have been analyzed in the paper
+[DSMMS16](bib.md#dsmms16).
+The authors found a number of libraries that were succeptible to chosen
+ciphertext attacks.
+
+
+### Chosen ciphertext attack in jose4j
+
+An example of a library that was recently susceptible to chosen ciphertext
+attacks was jose4j. If a padding error happened during decryption then the
+library would generate a random symmetric key of the expected size.
+If a modified ciphertext had correct PKCS #1 padding then the encoded message
+would be returned. With high probability this message had a size that is not
+a valid key size. Hence valid and invalid paddings resulted in distinguishable
+behavior: the exceptions thrown in the two cases were distinct. The library
+would attempt to decrypt the symmetric part of the ciphertext in one case and
+skip it in the other case, leading to a timing difference.
+
+One observation here is that it is very difficult to fully remove all artefacts
+in Java by using the JCE interface. Wrong PKCS #1 paddings throw an exception,
+while valid paddings don't. Hence attacks using side channels such as the
+ones described in [RGGSWY18](bib.md#rggswy18) may still be possible.
+
+Test vectors in wycheproof/testvectors/json_web_encryption_test.json can be
+used to test for this vulnerability. One drawback is that they are currently
+provider dependent.
+
+## Ignoring "alg" field in key
+
+Unfortunately there are more unlucky design choices in JWE. One is to put an
+"alg" field into the header of a ciphertext. The alg field defines which
+encryption algorithm has been used for the encryption. A well known
+cryptographic principle states that each key should be used for one purpose
+(rsp. algorithm) only. 
+
+Some key types allow multiple algorithms. The algorithm associated with
+a key can be specified using the "alg" field. For example if an RSA key has
+the format
+
+```
+{
+        "alg": "RSA-OAEP",
+        "use": "enc",
+        "n": "...",
+        "e": "...",
+        "d": "...",
+        "p": "...",
+        "q": "...",
+        "dp": "...",
+        "dq": "...",
+        "qi": "...",
+        "kid": "...",
+        "kty": "RSA"
+}
+```
+
+and the ciphertext has a header such as
+
+```
+{"alg":"RSA1_5","enc":"..."}
+```
+
+then we expect that the ciphertext is rejected without trying any decryption.
+Otherwise bugs in the RSA1_5 implementation can be exploited even if even
+the receiver only intents to use RSA-OAEP.
+
+RFC 7517 Section 4.4 declares the "alg" field in the key as optional.
+This appears to be a shortcoming of the RFC. At least some applications
+using JWE mitigate the danger that come with such a definition by adding
+additional restrictions on valid keys. Rejecting ambiguous keys is very
+reasonable. As a result Wycheproof does not include test vectors with
+ambiguous keys.
+
+For example RFC 7520 gives test vectors for JWE and JWS. Some of the
+test vectors are included in the Wycheproof tests.
+Some test vectors in RFC 7520 do not include an algorithm in the key.
+Since we consider it very reasonable if an implementations would reject
+such keys, the test vectors were modified in Wycheproof to always
+include the "alg" field. Keys without an "alg" field may or may not be rejected.
