@@ -80,6 +80,12 @@ https://eprint.iacr.org/2006/223.pdf
 R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
 "Efficient padding oracle attacks on cryptographic hardware", Crypto 2012
 
+### DSMMS16
+
+D. Detering, J. Somorovsky, C. Mainka, V. Mladenov, J. Schwenk
+"On The (In-)Security Of JavaScript Object Signing And Encryption"
+https://www.nds.rub.de/media/ei/veroeffentlichungen/2017/10/17/main.pdf
+
 ### Ferguson05
 N. Ferguson,
 "Authentication weaknesses in GCM",
@@ -130,9 +136,14 @@ H. Krawczyk,
 https://eprint.iacr.org/2010/264.pdf
 
 ### Madden22
-
-N. Maddenm CVE-2022-21449: Psychic Signatures in Java
+Neil Madden,
+"CVE-2022-21449: Psychic Signatures in Java",
 https://neilmadden.blog/2022/04/19/psychic-signatures-in-java/
+
+### Nicolic14
+I. Nicolic,
+"Tiaoxin -- 346",
+https://competitions.cr.yp.to/round3/tiaoxinv21.pdf
 
 ### Nguyen04
 P. Nguyen,
@@ -145,6 +156,11 @@ https://www.iacr.org/archive/eurocrypt2004/30270550/ProcEC04.pdf
 P.Q. Nguyen and I.E. Sparlinski, "The Insecurity of the Elliptic Curve Digital
 Signature Algorithm with Partially Known Nonces" Designs, Codes and
 Cryptography, 30, 201–217, 2003
+
+### RGGSWY18
+E. Ronen, R. Gillham, D. Genkin, A. Shamir D. Wong, Y. Yarom
+"The 9 Lives of Bleichenbacher’s CAT: New Cache ATtacks on TLS Implementations",
+https://eprint.iacr.org/2018/1173.pdf
 
 ### Odlyzko90
 A. M. Odlyzko,
@@ -222,6 +238,7 @@ https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
 
 ### NIST-SP800-57
 https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
+
 ### NIST SP800-131A
 Transitioning the Use of Cryptographic Algorithms and Key Lengths
 https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf
