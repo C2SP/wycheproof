@@ -1,4 +1,5 @@
 # Project Wycheproof
+
 https://github.com/google/wycheproof
 
 *Project Wycheproof is named after
@@ -43,28 +44,28 @@ check their libraries against a large number of known attacks, without having
 to spend years reading academic papers or become cryptographers themselves.
 
 For more information on the goals and strategies of Project Wycheproof, please
-check out our [doc](doc/).
+check out our [documentation](doc/).
 
 ### Coverage
 
 Project Wycheproof has tests for the most popular crypto algorithms, including
 
-- AES-EAX
-- AES-GCM
-- [DH](doc/dh.md)
-- DHIES
-- [DSA](doc/dsa.md)
-- [ECDH](doc/ecdh.md)
-- ECDSA
-- ECIES
-- [RSA](doc/rsa.md)
+*   AES-EAX
+*   AES-GCM
+*   [DH](doc/dh.md)
+*   DHIES
+*   [DSA](doc/dsa.md)
+*   [ECDH](doc/ecdh.md)
+*   ECDSA
+*   ECIES
+*   [RSA](doc/rsa.md)
 
 The tests detect whether a library is vulnerable to many attacks, including
 
-- Invalid curve attacks
-- Biased nonces in digital signature schemes
-- Of course, all Bleichenbacher’s attacks
-- And many more -- we have over 80 test cases
+*   Invalid curve attacks
+*   Biased nonces in digital signature schemes
+*   Of course, all Bleichenbacher’s attacks
+*   And many more -- we have over 80 test cases
 
 Our first set of tests are written in Java, because Java has a common
 cryptographic interface. This allowed us to test multiple providers with a
@@ -82,39 +83,43 @@ providers in [OpenJDK](http://openjdk.java.net/).
 
 ### Usage
 
--   Install [Bazel](https://bazel.build/).
+#### Setup
 
--   Install [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction
-    Policy
-    Files](http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters):
-    this enables tests with large key sizes. Otherwise you'll see a lot of
-    "illegal key size" exceptions.
+*   Install [Bazel](https://bazel.build/).
 
--   Check out the tests
+*   Install [Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction
+    Policy Files][jce-policy-instructions].  This enables tests with large key
+    sizes. Otherwise you'll see a lot of "illegal key size" exceptions.
+
+*   Clone the repository:
 
 ```
 git clone https://github.com/google/wycheproof.git
 ```
 
-- To test latest stable version of Bouncy Castle:
+[jce-policy-instructions]: http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters
+
+#### Execute tests
+
+*   To test latest stable version of Bouncy Castle:
 
 ```
 bazel test BouncyCastleAllTests
 ```
 
-- To test other versions, e.g., v1.52:
+*   To test other versions, e.g., v1.52:
 
 ```
 bazel test BouncyCastleAllTests_1_52
 ```
 
-- To test all known versions (warning, will take a long time):
+*   To test all known versions (warning, will take a long time):
 
 ```
 bazel test BouncyCastleAllTests_*
 ```
 
--   To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment
+*   To test a local jar, set the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment
     variable:
 
 ```shell
@@ -123,7 +128,7 @@ $ bazel test BouncyCastleTestLocal
 $ bazel test BouncyCastleAllTestsLocal
 ```
 
-Note: bazel does not currently invalidate the build on environment changes. If
+Note: Bazel does not currently invalidate the build on environment changes. If
 you change the `WYCHEPROOF_BOUNCYCASTLE_JAR` environment variable, run `bazel
 clean` to force a rebuild:
 
@@ -135,22 +140,22 @@ $ bazel clean
 $ bazel test BouncyCastleTestLocal
 ```
 
-- To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
-BouncyCastle with SpongyCastle in your commands, for example
+*   To test [Spongy Castle](https://rtyley.github.io/spongycastle/), replace
+    `BouncyCastle` with `SpongyCastle` in your commands, for example:
 
 ```
 bazel test SpongyCastleAllTests
 ```
 
-- To test the
-[Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider), replace
-BouncyCastle with Accp in your commands, for example
+*   To test the [Amazon Corretto Crypto
+    Provider](https://github.com/corretto/amazon-corretto-crypto-provider),
+    replace `BouncyCastle` with `Accp` in your commands, for example:
 
 ```
 bazel test AccpAllTests
 ```
 
-- To test a local jar for the Amazon Corretto Crypto Provider, set the
+*   To test a local jar for the Amazon Corretto Crypto Provider, set the
 `WYCHEPROOF_ACCP_JAR` environment variable:
 
 ```shell
@@ -171,8 +176,7 @@ $ bazel clean
 $ bazel test AccpTestLocal
 ```
 
-- To test your current installation of
-[OpenJDK](http://openjdk.java.net/):
+*   To test your current installation of [OpenJDK](http://openjdk.java.net/):
 
 ```
 bazel test OpenJDKAllTests
@@ -185,8 +189,8 @@ using Oracle JDK, which should be compatible with OpenJDK, thus the tests should
 run correctly.
 
 Some tests take a very long time to finish. If you want to exclude them, use
-BouncyCastleTest, SpongyCastleTest or OpenJDKTest -- these targets exclude all
-slow tests (which are annotated with @SlowTest).
+`BouncyCastleTest`, `SpongyCastleTest` or `OpenJDKTest` -- these targets exclude
+all slow tests (which are annotated with `@SlowTest`).
 
 Most test targets are failing, and each failure might be a security issue. To
 learn more about what a failed test means, you might want to check out [our
@@ -198,25 +202,28 @@ function and test class.
 Here are some of the notable vulnerabilities that are uncovered by
 Project Wycheproof:
 
-- OpenJDK's SHA1withDSA leaks private keys > 1024 bits
-  - Test: testBiasSha1WithDSA in
-[DsaTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java).
-  - This bug is the same as
-[CVE-2003-0971 - GnuPG generated ElGamal signatures that leaked the private key]
-(https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971).
+*   OpenJDK's SHA1withDSA leaks private keys > 1024 bits
+    *   Test: testBiasSha1WithDSA in [DsaTest][dsa-test].
+    *   This bug is the same as [CVE-2003-0971][cve-2003-0971] ("GnuPG generated
+        ElGamal signatures that leaked the private key").
 
-- Bouncy Castle's ECDHC leaks private keys
-  - Test: testModifiedPublic and testWrongOrderEcdhc in
-[EcdhTest](https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java).
+*   Bouncy Castle's ECDHC leaks private keys
+    *   Test: testModifiedPublic and testWrongOrderEcdhc in
+        [EcdhTest][ecdh-test].
+
+[dsa-test]: https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java
+[cve-2003-0971]: https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971
+[ecdh-test]: https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java
 
 ### Maintainers
 
 Project Wycheproof is maintained by:
 
-- Daniel Bleichenbacher
-- Thai Duong
-- Emilia Kasper
-- Quan Nguyen
+*   Daniel Bleichenbacher
+*   Thai Duong
+*   Emilia Kasper
+*   Quan Nguyen
+*   Charles Lee
 
 ### Contact and mailing list
 
