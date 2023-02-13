@@ -52,7 +52,16 @@ public class JsonWebSignatureTest {
         "ps512_UsingRS384_tcId334",
         "ps512_UsingRS512_tcId336",
         "ps512_UsingPS256_tcId338",
-        "ps512_UsingPS384_tcId340");
+        "ps512_UsingPS384_tcId340",
+        // Signature verification with key that are restricted to "use": "enc"
+        // or "key_ops": "encrypt" should fail.
+        // The latest release of jose4j from Feb. 8 2023 adds more
+        // restrictions. It appears that the following cases should be covered.
+        "rsa_encryption_rejectWrongUse_tcId353",
+        "ec_key_for_encryption_rejectWrongUse_tcId354",
+        "rsa_encryption_rejectWrongKeyOps_tcId355",
+        "ec_key_for_encryption_rejectWrongKeyOps_tcId356"
+);
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
