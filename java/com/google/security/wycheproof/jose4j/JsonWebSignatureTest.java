@@ -60,8 +60,19 @@ public class JsonWebSignatureTest {
         "rsa_encryption_rejectWrongUse_tcId353",
         "ec_key_for_encryption_rejectWrongUse_tcId354",
         "rsa_encryption_rejectWrongKeyOps_tcId355",
-        "ec_key_for_encryption_rejectWrongKeyOps_tcId356"
-);
+        "ec_key_for_encryption_rejectWrongKeyOps_tcId356",
+        // JWS requires that base64 encodings do not include white space and other
+        // extra characters. There are several cases where jose4j accepts malformed
+        // inputs.
+        // The cases below can be classifed as signature malleability bugs:
+        // Given a valid signature, an attacker can generate additional invalid 
+        // signatures for the same payload.
+        "base64_rejectsSpacesInMac_tcId360",
+        "base64_rejectsInvalidCharacterInsertedInMac_tcId361",
+        "base64_rejectsInvalidCharacterInsertedInMac_tcId362",
+        "base64_InvalidCharacterInsertedInHeader_tcId372",
+        "base64_InvalidCharacterInsertedInPayload_tcId373"
+    );
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */

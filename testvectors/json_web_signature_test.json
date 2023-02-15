@@ -1,9 +1,9 @@
 {
   "generatorVersion" : "0.3",
-  "numberOfTests" : 356,
+  "numberOfTests" : 375,
   "header" : [
-    "Test vectors of type JwCrypto are intended for tests that verify the ",
-    "operations of a JSON Web Encryption/Signature library."
+    "Test vectors of type JsonWebSignature are intended for tests that check the ",
+    "verification operation of a JSON Web Signature library."
   ],
   "notes" : {
     "JsonSerialization" : "The JWE/JWS is encoded with JSON serialization instead of compact serialization.",
@@ -3566,6 +3566,152 @@
           "jws": "eyJhbGciOiJFUzI1NiIsImtpZCI6ImtpZC1lYy1zaWduIn0.Zm9v.5cA0OHyMP7ezamUd5c9kV-FrGxdx4hbGXOdplQkutrqWrte5P-pAvsE3Ve6xSyU3YDQwUHjVVOtvcrEbbnZ8yA",
           "result": "invalid",
           "flags": []
+        }
+      ]
+    },
+    {
+      "type": "JsonWebSignature",
+      "comment": "base64",
+      "private" : {
+         "kty": "oct",
+         "kid": "hs256-key",
+         "use": "sig",
+         "alg": "HS256",
+         "k": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "tests": [
+        {
+          "tcId": 357,
+          "comment": "ValidMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8",
+          "result": "valid"
+        },
+        {
+          "tcId": 358,
+          "comment": "ValidEdgeCaseMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VDIxMzI1NjY4.AAAAtBuQqoI9HuBeAsgjL4nx8sCGYJa5-G2OrureLO4",
+          "result": "valid"
+        },
+        {
+          "tcId": 359,
+          "comment": "ValidEdgeCaseMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VDgxMjM0MTM.____ETVRY0lRV9XgQeYX6ixdGT0NLHYb-wZem_ifJ5k",
+          "result": "valid"
+        },
+        {
+          "tcId": 360,
+          "comment": "rejectsSpacesInMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.    c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8",
+          "result": "invalid"
+        },
+        {
+          "tcId":361,
+          "comment": "rejectsInvalidCharacterInsertedInMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.?c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8",
+          "result": "invalid"
+        },
+        {
+          "tcId": 362,
+          "comment": "rejectsInvalidCharacterInsertedInMac",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8?",
+          "result": "invalid"
+        },
+        {
+          "tcId": 363,
+          "comment": "rejects0ReplacedbyInvalidCharacter",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VDIxMzI1NjY4.?AAAtBuQqoI9HuBeAsgjL4nx8sCGYJa5-G2OrureLO4",
+          "result": "invalid"
+        },
+        {
+          "tcId": 364,
+          "comment": "rejectsInvalidCharacters",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VDgxMjM0MTM.????ETVRY0lRV9XgQeYX6ixdGT0NLHYb-wZem_ifJ5k",
+          "result": "invalid"
+        },
+        {
+          "tcId": 365,
+          "comment": "spacesInHeader",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9    .VGVzdA.DR-cdw2cCB53b3mpzMfk2gKTeyN0PhXBrTW1atMfSdM'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 366,
+          "comment": "invalidCharactersInHeader",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9####.VGVzdA.23srvDiEYo7665_26qKv4D-0E2a149WRWH_av2ki2I4'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 367,
+          "comment": "invalidBase64Padding",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 368,
+          "comment": "spacesInPayload",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.    VGVzdA.AbPJgmXfihyNBUYpbdPK8qRpPjNuTE-Z_wYQyrU2lMQ'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 369,
+          "comment": "invalidCharactersInPayload",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.####VGVzdA.Ixs2CdBkk8qjqe2-hq2dobqVvv9iDcDS6gPNgoXJyFY'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 370,
+          "comment": "invalidBase64PaddingInPayload",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 371,
+          "comment": "InvalidCharacterInPayload",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.?VGVzdA.q0zEA3Js33N6HcOFfBK875qJ_nFwSzI9SN9qJnx5sOc'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 372,
+          "comment": "InvalidCharacterInsertedInHeader",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ?9.VGVzdA.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8",
+          "result": "valid"
+        },
+        {
+          "tcId": 373,
+          "comment": "InvalidCharacterInsertedInPayload",
+          "flags": [],
+          "jws": "eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.VGVzdA?.c1LROH7eNQwUT8KMVEO52VC3WZ9e_AnDWbZ7aMmowV8",
+          "result": "valid"
+        },
+        {
+          "tcId": 374,
+          "comment": "ModifiedUnusedBitsInPayload",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.AB.8sL_ycV8G_D-K_2A3I0EW3NoPMeQzv13cAzuHlQ5TAE'",
+          "result": "invalid"
+        },
+        {
+          "tcId": 375,
+          "comment": "MacOfIncorrectlyEncodedMessage",
+          "flags": [],
+          "jws": "b'eyJraWQiOiJoczI1Ni1rZXkiLCJhbGciOiJIUzI1NiJ9.AB.9phoKDvkBMAqTgeVIYeqAi6-lvC0pbKg9ER--3T97w0'",
+          "result": "invalid"
         }
       ]
     }
