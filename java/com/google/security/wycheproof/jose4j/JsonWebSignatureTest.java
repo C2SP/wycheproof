@@ -15,7 +15,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.flogger.GoogleLogger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,10 +24,7 @@ import com.google.testing.testsize.MediumTest;
 import java.util.ArrayList;
 import java.util.List;
 import org.jose4j.jwk.JsonWebKey;
-import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.jwk.VerificationJwkSelector;
 import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.lang.JoseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -151,56 +147,26 @@ public class JsonWebSignatureTest {
     return element.toString();
   }
 
-  /** Adds keys to a JSON Web Keyset. */
-  private static String addToKeyset(String keys) {
-    String keysetTemplate = "{\"keys\": [%s]}";
-    return String.format(keysetTemplate, keys);
-  }
-
   /**
-   * Returns whether or not the payload verifies with any of the given keys.
+   * Returns whether or not the payload verifies with the given key.
    *
-   * @implNote this method shouldn't allow any exceptions that indicate unverifiable payloads to
-   *     escape. Instead, the implementation should catch any such exceptions and return false
+   * @param compactJws the signature or MAC in compact form
+   * @param verificationJwk the verification key. This can either be a public key or a symmetric
+   *     key.
    */
-  public boolean performKeysetVerification(String compactJws, String verificationKeyset) {
+  public boolean performVerification(String compactJws, String verificationJwk) {
     JsonWebSignature verifier = new JsonWebSignature();
 
     try {
       verifier.setCompactSerialization(compactJws);
-      JsonWebKeySet parsedKeyset = new JsonWebKeySet(verificationKeyset);
-
-      VerificationJwkSelector jwkSelector = new VerificationJwkSelector();
-      JsonWebKey usedVerificationKey;
-      try {
-        usedVerificationKey = jwkSelector.select(verifier, parsedKeyset.getJsonWebKeys());
-      } catch (JoseException e) {
-        throw new SecurityException("Verification key selection failed", e);
-      }
-      if (usedVerificationKey == null) {
-        // The key selector would have caused this to fail but let's pretend we weren't using it.
-        // This code isn't set up to work with keysets that don't select a key (so throw).
-        usedVerificationKey = Iterables.getOnlyElement(parsedKeyset.getJsonWebKeys());
-      }
-
-      verifier.setKey(usedVerificationKey.getKey());
+      JsonWebKey parsedKey = JsonWebKey.Factory.newJwk(verificationJwk);
+      verifier.setKey(parsedKey.getKey());
       return verifier.verifySignature();
     } catch (Exception e) {
       logger.atInfo().withCause(e).log(
-          "Verification was unsuccessful.\njws: %s\njwk: %s", compactJws, verificationKeyset);
+          "Verification was unsuccessful.\njws: %s\njwk: %s", compactJws, verificationJwk);
       return false;
     }
   }
 
-  /**
-   * Returns whether or not the payload verifies with the given key.
-   *
-   * @implNote this method shouldn't allow any exceptions that indicate unverifiable payloads to
-   *     escape. Instead, the implementation should catch any such exceptions and return false
-   * @implNote this method is implemented by deferring to {@link #performKeysetVerification} (with a
-   *     1-element keyset)
-   */
-  public boolean performVerification(String compactJws, String verificationJwk) {
-    return performKeysetVerification(compactJws, addToKeyset(verificationJwk));
-  }
 }
