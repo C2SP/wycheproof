@@ -58,16 +58,25 @@ public class JsonWebSignatureTest {
         "rsa_encryption_rejectWrongKeyOps_tcId355",
         "ec_key_for_encryption_rejectWrongKeyOps_tcId356",
         // JWS requires that base64 encodings do not include white space and other
-        // extra characters. There are several cases where jose4j accepts malformed
-        // inputs.
-        // The cases below can be classifed as signature malleability bugs:
-        // Given a valid signature, an attacker can generate additional invalid 
-        // signatures for the same payload.
+        // extra characters. However, JSON objects can include whitespace (see
+        // Example 3.3 in RFC 7515).
+        // There are several cases where jose4j accepts malformed base64 encodings.
+        // One consequence of the bug is that jose4j suffers from signature
+        // malleability: an attacker who is given a valid signature can generate
+        // additional signatures for the same payload.
         "base64_rejectsSpacesInMac_tcId360",
         "base64_rejectsInvalidCharacterInsertedInMac_tcId361",
         "base64_rejectsInvalidCharacterInsertedInMac_tcId362",
+        "base64_spacesInHeader_tcId365",
+        "base64_invalidCharactersInHeader_tcId366",
+        "base64_invalidBase64Padding_tcId367",
+        "base64_spacesInPayload_tcId368",
+        "base64_invalidCharactersInPayload_tcId369",
+        "base64_invalidBase64PaddingInPayload_tcId370",
+        "base64_InvalidCharacterInPayload_tcId371",
         "base64_InvalidCharacterInsertedInHeader_tcId372",
-        "base64_InvalidCharacterInsertedInPayload_tcId373"
+        "base64_InvalidCharacterInsertedInPayload_tcId373",
+        "base64_MacOfIncorrectlyEncodedMessage_tcId375"
     );
   }
 
