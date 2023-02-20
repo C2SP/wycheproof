@@ -188,7 +188,7 @@ public class JsonWebEncryptionTest {
     assertThat(allTestNames).containsAtLeastElementsIn(getSuppressedTests());
 
     String privateJwk = testGroup.getAsJsonObject("private").toString();
-    String jwe = getFlattenedString(testCase, "jwe");
+    String jwe = testCase.get("jwe").getAsString();
     boolean expectedResult = testCase.get("result").getAsString().equals("valid");
 
     String expectedPlaintextHex = expectedResult ? testCase.get("pt").getAsString() : "";
@@ -201,17 +201,6 @@ public class JsonWebEncryptionTest {
     } else {
       assertThat(result).isTrue();
     }
-  }
-
-  /** Reads the JWS/JWE field either in compact or JSON serialization form. */
-  private static String getFlattenedString(JsonObject jsonObject, String fieldName) {
-    JsonElement element = jsonObject.get(fieldName);
-    if (element.isJsonPrimitive()) {
-      // This is a compact representation of the JWE/JWS.
-      return element.getAsString();
-    }
-    // This is a JSON representation of the JWE/JWS.
-    return element.toString();
   }
 
   private static boolean containsFlag(JsonObject testCase, String flag) {
