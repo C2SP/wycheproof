@@ -121,7 +121,7 @@ public class JsonWebKeyTest {
     JsonObject publicJwk = testGroup.getAsJsonObject("public");
     String verificationJwk = publicJwk == null ? privateJwk : publicJwk.toString();
 
-    String jws = getFlattenedString(testCase, "jws");
+    String jws = testCase.get("jws").getAsString();
     boolean expectedResult = testCase.get("result").getAsString().equals("valid");
     boolean result = performKeysetVerification(jws, verificationJwk);
 
@@ -135,17 +135,6 @@ public class JsonWebKeyTest {
     } else {
       assertThat(result).isEqualTo(expectedResult);
     }
-  }
-
-  /** Reads the JWS/JWE field either in compact or JSON serialization form. */
-  private static String getFlattenedString(JsonObject jsonObject, String fieldName) {
-    JsonElement element = jsonObject.get(fieldName);
-    if (element.isJsonPrimitive()) {
-      // This is a compact representation of the JWE/JWS.
-      return element.getAsString();
-    }
-    // This is a JSON representation of the JWE/JWS.
-    return element.toString();
   }
 
   /**
