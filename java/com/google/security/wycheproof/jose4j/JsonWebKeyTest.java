@@ -71,7 +71,16 @@ public class JsonWebKeyTest {
         // 1024 bit RSA keys and keys with public exponent e = 1.
         // This test vector contains an RSA key with the ROCA vulnerability.
         // Nothing checks for such weak keys during the verification process.
-        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId7");
+        "jws_rsa_roca_key_rejectsKeyWithRocaVulnerability_tcId7",
+        // The test vector contains a key where the algorithm and curve do not
+        // match. jose.4.j ignores the algorithm.
+        "wrong_algorithm_mismatchedAlgAndCurve_tcId19",
+        // The test vector contains a key with an invalid algorithms "ES224".
+        // jose.4.j only looks at the curve.
+        "invalid_algorithm_mismatchedAlgAndCurve_tcId20",
+        // An AES key should not be usable as an HMAC key.
+        "invalid_aes_gcm_key_rejectsAesKey_tcId25",
+        "invalid_aes_kw_key_rejectsAesKey_tcId26");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
