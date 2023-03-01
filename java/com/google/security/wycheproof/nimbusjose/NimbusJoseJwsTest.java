@@ -76,7 +76,14 @@ public class NimbusJoseJwsTest {
         "base64_InvalidCharacterInPayload_tcId371",
         "base64_InvalidCharacterInsertedInHeader_tcId372",
         "base64_InvalidCharacterInsertedInPayload_tcId373",
-        "base64_MacOfIncorrectlyEncodedMessage_tcId375");
+        "base64_MacOfIncorrectlyEncodedMessage_tcId375",
+        // NimbusJose does not check the size of the signature and accepts signatures with
+        // leading zeros. This means that signatures are malleable. (Existing signatures
+        // can be modified but the that was signed does not change.) A comparable
+        // bug is for example CVE 2020-13822.
+        // RFC 7518 specifies in section 3.4 that ES256 signatures must be 64 bytes long.
+        "SpecialCaseEs256_SignatureTooLong_tcId379",
+        "SpecialCaseEs256_BufferOverflow_tcId385");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
