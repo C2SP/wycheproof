@@ -68,6 +68,8 @@ public class JsonTest {
         return JsonKeyWrapTest.allTests(testVectors);
       case "fpe_list_test_schema.json":
         return JsonFpeTest.allTests(testVectors);
+      case "pbkdf_test_schema.json":
+        return JsonPbkdfTest.allTests(testVectors);
       case "primality_test_schema.json":
         return BigIntegerTest.probablePrimeTest(testVectors);
       default:
