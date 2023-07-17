@@ -277,7 +277,14 @@ public class DhTest {
     // should be chosen to prevent attacks.
     int minPrivateKeyBits = keySize / 2;
     BigInteger x = priv.getX();
-    assertTrue(x.bitLength() >= minPrivateKeyBits - 32);
+    assertTrue(
+        "X expected to have bit length at least "
+            + (minPrivateKeyBits - 32)
+            + ", but has value "
+            + x
+            + ", which has bit length "
+            + x.bitLength(),
+        x.bitLength() >= minPrivateKeyBits - 32);
     // TODO(bleichen): add tests for weak random number generators.
 
     // Verify the DH parameters.
