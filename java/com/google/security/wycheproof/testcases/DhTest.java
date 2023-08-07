@@ -270,12 +270,46 @@ public class DhTest {
     int keySize = p.bitLength();
     assertEquals("wrong key size", expectedKeySize, keySize);
 
+    // Expecting p to be prime.
+    // No high certainty is needed, since this is a unit test.
+    assertTrue(p.isProbablePrime(64));
+    // Since p is a prime and has bitLength keySize, it is an odd number, so p.shiftRight(1)
+    // computes (p - 1)/2
+    boolean isSafePrime = p.shiftRight(1).isProbablePrime(64);
+
     // Checks the key size of the private key.
-    // NIST SP 800-56A requires that x is in the range (1, q-1).
+    // NIST SP 800-56A requires that x is in the range (1, q-1), unless p is a safe prime.
     // Such a choice would require a full key validation. Since such a validation
     // requires the value q (which is not present in the DH parameters) larger keys
-    // should be chosen to prevent attacks.
-    int minPrivateKeyBits = keySize / 2;
+    // should be chosen to prevent attacks as long as the prime is not a safe prime.
+    // For safe primes, the key needs to be twice the security level. In addition to the security
+    // levels supported in SP 800-56A we also test 1024 keys being created correctly.
+    int s;
+    switch (keySize) {
+      case 1024:
+        s = 80;
+        break;
+      case 2048:
+        s = 112;
+        break;
+      case 3072:
+        s = 128;
+        break;
+      case 4096:
+        s = 152;
+        break;
+      case 6144:
+        s = 176;
+        break;
+      case 8192:
+        s = 200;
+        break;
+      default:
+        fail("Unexpected key size: " + keySize);
+        s = -1;
+        break;
+    }
+    int minPrivateKeyBits = isSafePrime ? 2 * s : keySize / 2;
     BigInteger x = priv.getX();
     assertTrue(
         "X expected to have bit length at least "
@@ -290,9 +324,6 @@ public class DhTest {
     // Verify the DH parameters.
     assertTrue("Expecting g > 1", g.compareTo(BigInteger.ONE) > 0);
     assertTrue("Expecting g < p - 1", g.compareTo(p.subtract(BigInteger.ONE)) < 0);
-    // Expecting p to be prime.
-    // No high certainty is needed, since this is a unit test.
-    assertTrue(p.isProbablePrime(4));
     // The order of g should be a large prime divisor q of p-1.
     // (see e.g. NIST SP 800-56A, section 5.5.1.1.)
     // If the order of g is composite then the Decision Diffie Hellman assumption is
@@ -306,25 +337,27 @@ public class DhTest {
     // We perform a partial test that performs a partial factorization of p-1 and then
     // test whether one of the small factors found by the partial factorization divides
     // the order of g.
-    boolean isSafePrime = p.shiftRight(1).isProbablePrime(4);
     System.out.println("p is a safe prime:" + isSafePrime);
     BigInteger r; // p-1 divided by small prime factors.
     if (isSafePrime) {
       r = p.shiftRight(1);
+      // Check that generator is in the subgroup with (p - 1)/2 elements.
+      assertEquals(BigInteger.ONE, g.modPow(r, p));
     } else {
       BigInteger p1 = p.subtract(BigInteger.ONE);
       r = p1.divide(smoothDivisor(p1));
+
+      // Checks that there are not too many short prime factors.
+      // I.e., subgroup confinment attacks can find at least keySize - r.bitLength() bits of the
+      // key.
+      // At least 160 unknown bits should remain.
+      // Only very weak parameters are detected here, since the factorization above only finds small
+      // prime factors.
+      assertTrue(minPrivateKeyBits - (keySize - r.bitLength()) > 160);
     }
     System.out.println("r=" + r.toString(16));
     assertEquals(
         "g likely does not generate a prime oder subgroup", BigInteger.ONE, g.modPow(r, p));
-
-    // Checks that there are not too many short prime factors.
-    // I.e., subgroup confinment attacks can find at least keySize - r.bitLength() bits of the key.
-    // At least 160 unknown bits should remain.
-    // Only very weak parameters are detected here, since the factorization above only finds small
-    // prime factors.
-    assertTrue(minPrivateKeyBits - (keySize - r.bitLength()) > 160);
 
     // DH parameters are sometimes misconfigured and g and q are swapped.
     // A large g that divides p-1 is suspicious.
