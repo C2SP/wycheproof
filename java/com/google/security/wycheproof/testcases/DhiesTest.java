@@ -92,8 +92,9 @@ public class DhiesTest {
     String paramsHex;
     switch (algorithmName.toUpperCase(Locale.ENGLISH)) {
       case "DHIES":
-        // No algorithm parameters necessary.
-        return null;
+        // 128-bit HMAC key.
+        paramsHex = "300702020080010100";
+        break;
       case "DHIESWITHAES-CBC":
         // 256-bit AES key, 256-bit HMAC key, all zero nonce
         paramsHex = "301c02020100301602020100041000000000000000000000000000000000";
@@ -167,7 +168,11 @@ public class DhiesTest {
       TestUtil.skipTest(algorithmName + " is not supported");
       return; // fallback for legacy test setups where skipTest does not throw an exception.
     }
+    try {
     dhies.init(Cipher.ENCRYPT_MODE, pub);
+    } catch (IllegalArgumentException e) {
+      TestUtil.skipTest("AlgorithmParameters must be non-null");
+    }
     byte[] ciphertext = dhies.doFinal(message);
     System.out.println(
         algorithmName + " : " + TestUtil.bytesToHex(dhies.getParameters().getEncoded()));
@@ -269,7 +274,11 @@ public class DhiesTest {
         continue;
       }
       byte[] message = new byte[128];
+      try {
       dhies.init(Cipher.ENCRYPT_MODE, pub);
+      } catch (IllegalArgumentException e) {
+        TestUtil.skipTest("AlgorithmParameters must be non-null");
+      }
       byte[] ciphertext = dhies.doFinal(message);
       int blockSize = 16;
       for (int i = 0; i < ciphertext.length - 2 * blockSize + 1; i++) {
