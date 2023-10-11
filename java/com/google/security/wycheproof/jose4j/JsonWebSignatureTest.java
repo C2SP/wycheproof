@@ -76,11 +76,7 @@ public class JsonWebSignatureTest {
         "base64_InvalidCharacterInPayload_tcId371",
         "base64_InvalidCharacterInsertedInHeader_tcId372",
         "base64_InvalidCharacterInsertedInPayload_tcId373",
-        "base64_MacOfIncorrectlyEncodedMessage_tcId375",
-        // jose4j does not check the size of the signature and accepts signatures with
-        // leading Zeros.
-        "SpecialCaseEs256_SignatureTooLong_tcId379",
-        "SpecialCaseEs256_BufferOverflow_tcId385");
+        "base64_MacOfIncorrectlyEncodedMessage_tcId375");
   }
 
   /** A JsonWebCryptoTestGroup that contains key information and tests against those keys. */
