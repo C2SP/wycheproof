@@ -24,6 +24,7 @@ import com.google.testing.testsize.MediumTest;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
+import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -227,6 +228,8 @@ public class JsonWebEncryptionTest {
 
     try {
       decrypter.setCompactSerialization(compactJwe);
+      // jose.4.j blocks RSA1_5 by default.
+      decrypter.setAlgorithmConstraints(AlgorithmConstraints.NO_CONSTRAINTS);
       JsonWebKey parsedKey = JsonWebKey.Factory.newJwk(decryptionJwk);
       Key key;
       if (parsedKey instanceof PublicJsonWebKey) {
