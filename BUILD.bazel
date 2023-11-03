@@ -16,6 +16,7 @@ java_library(
     ],
     deps = [
         "@com_google_code_gson_gson",
+        "@com_google_guava",
         "@junit",
     ],
 )
@@ -25,8 +26,15 @@ java_test(
     size = "small",
     srcs = ["java/com/google/security/wycheproof/TestUtilTest.java"],
     test_class = "com.google.security.wycheproof.TestUtilTest",
+    data = [
+        ":wycheproof.java.security",
+    ],
+    jvm_flags = [
+        "-Djava.security.properties=$(location //:wycheproof.java.security)",
+    ],
     deps = [
         ":utils",
+        "@com_google_guava",
         "@junit",
     ],
 )

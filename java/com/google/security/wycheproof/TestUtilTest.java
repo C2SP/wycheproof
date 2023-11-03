@@ -12,8 +12,8 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.ImmutableSet;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
@@ -35,10 +35,11 @@ public final class TestUtilTest {
   }
 
   @Test
-  public void removeAllProviders_succeeds() throws Exception {
-    TestUtil.removeAllProviders();
+  public void removeProvidersExcept_keepsProvider() throws Exception {
+    TestUtil.removeProvidersExcept(ImmutableSet.of(Security.getProvider("SUN")));
 
-    assertTrue("List of providers is not empty", getProviders().isEmpty());
+    assertArrayEquals(
+        "Expected provider not present", getProviders().toArray(), new String[] {"SUN"});
   }
 
   @Test

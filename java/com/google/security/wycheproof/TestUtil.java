@@ -13,10 +13,11 @@
  */
 package com.google.security.wycheproof;
 
-
+import com.google.common.collect.ImmutableSet;
 import java.nio.ByteBuffer;
 import java.security.Provider;
 import java.security.Security;
+import java.util.Set;
 import org.junit.Assume;
 
 /** Test utilities */
@@ -79,15 +80,19 @@ public class TestUtil {
     return result;
   }
 
-  public static void removeAllProviders() {
+  public static void removeProvidersExcept(Set<Provider> toRetain) {
     for (Provider p : Security.getProviders()) {
+      if (toRetain.contains(p)) {
+        System.out.println("Not removing provider: " + p.getName());
+        continue;
+      }
       System.out.println("Removing provider: " + p.getName());
       Security.removeProvider(p.getName());
     }
   }
 
   public static void installOnlyThisProvider(Provider provider) {
-    removeAllProviders();
+    removeProvidersExcept(ImmutableSet.of(provider));
     Security.insertProviderAt(provider, 1);
   }
 
@@ -125,17 +130,15 @@ public class TestUtil {
    * </ul>
    */
   public static void installOnlyOpenJDKProviders() throws Exception {
-    removeAllProviders();
-    installOpenJDKProvider("sun.security.provider.Sun");
-    installOpenJDKProvider("com.sun.crypto.provider.SunJCE");
-    installOpenJDKProvider("sun.security.rsa.SunRsaSign");
-    installOpenJDKProvider("sun.security.ec.SunEC");
-  }
-
-  private static void installOpenJDKProvider(String className) throws Exception {
-    Provider provider = (Provider) Class.forName(className).getConstructor().newInstance();
-    System.out.println("Adding provider: " + provider.getName() + " (" + className + ")");
-    Security.addProvider(provider);
+    removeProvidersExcept(
+        ImmutableSet.of(
+            Security.getProvider("SUN"),
+            Security.getProvider("SunJCE"),
+            Security.getProvider("SunEC"),
+            Security.getProvider("SunRsaSign")));
+    for (Provider p : Security.getProviders()) {
+      System.out.println("Maintaining provider: " + p.getName());
+    }
   }
 
   public static void printJavaInformation() {

@@ -386,6 +386,15 @@ java_import_external(
     licenses = ["notice"],  # Apache 2.0
 )
 
+java_import_external(
+    name = "com_google_guava",
+    licenses = ["notice"],  # The Apache Software License, Version 2.0
+    jar_sha256 = "6d4e2b5a118aab62e6e5e29d185a0224eed82c85c40ac3d33cf04a270c3b3744",
+    jar_urls = [
+        "https://repo1.maven.org/maven2/com/google/guava/guava/32.1.3-jre/guava-32.1.3-jre.jar",
+    ],
+)
+
 load("//tools:local_repository_defs.bzl", "local_jars")
 
 local_jars(name = "local")
