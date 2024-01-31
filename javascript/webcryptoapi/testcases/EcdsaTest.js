@@ -72,7 +72,7 @@ Ecdsa.sign = function(sk, msg, hashAlg) {
 
 /**
  * Imports a ECDSA public key.
- * @param {!JSONObject} keyData The key data in JWK format
+ * @param {?} keyData The key data in JWK format
  * @param {string} hashAlg The hash algorithm
  * @param {!Array<string>} usages The usages of the key
  *
@@ -148,7 +148,7 @@ Ecdsa.testVerify = function() {
 /**
  * Parameters of a ECDSA signature verification test.
  * @param {!number} id Test case's id
- * @param {!JSONObject} keyData The key data in JWK format
+ * @param {?} keyData The key data in JWK format
  * @param {string} hashAlg The hash algorithm
  * @param {!ArrayBuffer} msg The message that was signed
  * @param {!ArrayBuffer} sig The signature to be verified

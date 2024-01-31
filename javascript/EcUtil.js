@@ -26,6 +26,7 @@ var BigInteger = wycheproof.BigInteger;
 var BigPrimeInteger = wycheproof.BigPrimeInteger;
 
 /**
+ * @constructor
  * Parameters of a NIST-recommended curve.
  * @param {!number} keySize The bit length of the order n
  * @param {!string} hexP The prime modulus p in hex format

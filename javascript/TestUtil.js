@@ -27,7 +27,7 @@ goog.requireType('goog.testing.TestCase.Result');
  * Reads test vectors in JSON format from a file.
  * @param {string} filename
  *
- * @return {!JSONObject}
+ * @return {?}
  */
 wycheproof.TestUtil.readJsonTestVectorsFromFile = function(filename){
   var fileContent = goog.loadFileSync_(filename);
