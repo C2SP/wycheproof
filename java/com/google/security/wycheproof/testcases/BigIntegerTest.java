@@ -30,51 +30,53 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class BigIntegerTest {
 
-  /** Convenience method to get a BigInteger from a JsonObject */
-  protected static BigInteger getBigInteger(JsonObject object, String name) throws Exception {
-    return JsonUtil.asBigInteger(object.get(name));
+  private static void singleTest(JsonObject testcase, TestResult testResult) {
+    int tcid = testcase.get("tcId").getAsInt();
+    BigInteger value = JsonUtil.asBigInteger(testcase.get("value"));
+    // result is "valid" if the tested integer is prime, "invalid" if it is
+    // composite or -1, 0, 1 and it is "acceptable" if it is the negative of
+    // prime. BigInteger.isProbablyPrime() accepts the later as prime (as do
+    // a number of other primality tests). Such a behaviour may be a pitfall
+    // for cryptographic protocols. However, it can not be flagged as error.
+    String result = testcase.get("result").getAsString();
+
+    // The probability that a non-prime passes should be at most 1-2^{-certainty}.
+    int certainty = 80;
+    boolean isProbablePrime;
+    try {
+      isProbablePrime = value.isProbablePrime(certainty);
+    } catch (RuntimeException ex) {
+      testResult.addResult(tcid, TestResult.Type.WRONG_EXCEPTION, ex.toString());
+      return;
+    }
+    if (result.equals("invalid") && isProbablePrime) {
+      testResult.addResult(tcid, TestResult.Type.WRONG_RESULT, "Composite number passed as prime.");
+    } else if (result.equals("valid") && !isProbablePrime) {
+      testResult.addResult(tcid, TestResult.Type.WRONG_RESULT, "Prime failed primality test.");
+    } else {
+      testResult.addResult(tcid, TestResult.Type.PASSED_VALID, "");
+    }
   }
 
-  /** Convenience method to get a byte array from a JsonObject */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
-    return JsonUtil.asByteArray(object.get(name));
+  public static TestResult probablePrimeTest(TestVectors testVectors) {
+    var testResult = new TestResult(testVectors);
+    JsonObject test = testVectors.getTest();
+    for (JsonElement g : test.getAsJsonArray("testGroups")) {
+      JsonObject group = g.getAsJsonObject();
+      for (JsonElement t : group.getAsJsonArray("tests")) {
+        singleTest(t.getAsJsonObject(), testResult);
+      }
+    }
+    return testResult;
   }
 
   @Test
   public void testIsProbablePrimeVectors() throws Exception {
     String filename = "primality_test.json";
-    JsonObject test = JsonUtil.getTestVectors(filename);
-    int errors = 0;
-    int passedTests = 0;
-    for (JsonElement g : test.getAsJsonArray("testGroups")) {
-      JsonObject group = g.getAsJsonObject();
-      for (JsonElement t : group.getAsJsonArray("tests")) {
-        JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String tc = "tcId: " + tcid + " " + testcase.get("comment").getAsString();
-        BigInteger value = getBigInteger(testcase, "value");
-        // result is "valid" if the tested integer is prime, "invalid" if it is
-        // composite or -1, 0, 1 and it is "acceptable" if it is the negative of
-        // prime. BigInteger.isProbablyPrime() accepts the later as prime (as do
-        // a number of other primality tests). Such a behaviour may be a pitfall
-        // for cryptographic protocols. However, it can not be flagged as error. 
-        String result = testcase.get("result").getAsString();
-
-        // The probability that a non-prime passes should be at most 1-2^{-certainty}.
-        int certainty = 80;
-        boolean isProbablePrime = value.isProbablePrime(certainty);
-        if (result.equals("invalid") && isProbablePrime) {
-          System.out.println("Composite number passed as prime:" + tc);
-          errors++;
-        } else if (result.equals("valid") && !isProbablePrime) {
-          System.out.println("Prime failed primality test:" + tc);
-          errors++;
-        } else {
-          passedTests++;
-        }
-      }
-    }
-    assertEquals(0, errors);
-    System.out.println("Passed primality tests:" + passedTests);
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestVectors testVectors = new TestVectors(test, filename);
+    TestResult testResult = probablePrimeTest(testVectors);
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
   }
 }

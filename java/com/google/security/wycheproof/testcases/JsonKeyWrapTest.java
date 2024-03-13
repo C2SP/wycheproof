@@ -14,19 +14,19 @@
 package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.TreeSet;
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,222 +35,332 @@ import org.junit.runners.JUnit4;
 /**
  * This test uses test vectors in JSON format to test key wrapping.
  *
- * <p>This test is mainly for key wrappings such as RFC 3349 and RFC 5469.
- * I.e. these algorithms have the following properties:
+ * <p>This test is mainly for key wrappings such as RFC 3349 and RFC 5469. I.e. these algorithms
+ * have the following properties:
+ *
  * <ul>
- *   <li>The wrapping is deterministic. Hence wrapping can be compared against known
- *   results.
- *   <li>The wrapping has an integrity check. Modified wrapped keys can be detected
- *   with high probability.
+ *   <li>The wrapping is deterministic. Hence wrapping can be compared against known results.
+ *   <li>The wrapping has an integrity check. Modified wrapped keys can be detected with high
+ *       probability.
  * </ul>
- * This test does not cover key wrapping with AEAD algorithms such as AES-GCM.
- * Testing such algorithms would require an additional test vector type. 
- * I.e., the JCE interface requires that the caller himself handles the IV.
- * I.e. each wrapping has to use a new unique IV. This IV has to be stored additionally
- * with the wrapped key and has to be passed as parameter to unwrap.
+ *
+ * <p>References:
+ *
+ * <ul>
+ *   <li>RFC 3394 defines the key wrap algorithm for AES.
+ *   <li>RFC 5649 defines the key wrap algroithm with padding for AES.
+ *   <li>NIST SP 800-38F also define key wrap and key wrap with padding for AES. This document also
+ *       includes similar algorithms for Triple DES. (However, triple DES not tested here.)
+ *   <li>RFC 3657 generalizes RFC 3394 to Camellia. There is no version with padding.
+ *   <li>RFC 4010 generalizes RFC 3394 to SEED.
+ *   <li>RFC 5794 generalizes KW and KWP to ARIA.
+ * </ul>
+ *
+ * <p><b>Algorithm names</b>: Unfortunately, the algorithm names for the various key wrapping
+ * algorithms differ by provider. The code uses the algorithm names proposed by Oracle
+ * https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html . I.e., the
+ * proposed algorithm names are "AESWrap" and "AESWrapPad". Alternative names are:
+ *
+ * <ul>
+ *   <li>OpenJdk also allows names with explicit key size (e.g. "AESWrap_128" or "AESWrapPad_128"
+ *       etc.).
+ *   <li>JDK-8261910 added the algorithm modes "KW" and "KWP". Hence "AES/KW/NoPadding" and
+ *       "AES/KWP/NoPadding" are options. This change also added "AES/KW/Pkcs5Padding". This
+ *       algorithm is not tested here.
+ *   <li>BouncyCastle knows "AESWRAP" and "AESWRAPPAD". Alternatively, the algorithm name
+ *       AESRFC5649WRAP is possible. AESRFC3211WRAP is an unrelated algorithm not tested here.
+ *       BouncyCastle also implements key wrappings using Aria, Camellia and Seed. (There are also
+ *       implementations using RC2 and DesEDE. These are not tested here.)
+ *   <li>IAIK allows algorithm names such as "AESWrap/ECB/RFC5649Padding" and "AESWrapWithPadding".
+ *       https://javadoc.iaik.tugraz.at/iaik_jce/current/iaik/security/cipher/AESKeyWrap.html
+ *   <li>Other names that can be found are "AESWrap/ECB/ZeroPadding" or AESWrap/ECB/PKCS5Padding.
+ * </ul>
+ *
+ * The algorithm names used in the test vectors Are <cipher>-WRAP and <cipher>-KWP.
  */
 @RunWith(JUnit4.class)
 public class JsonKeyWrapTest {
 
   /** Convenience method to get a byte array from a JsonObject. */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
+  protected static byte[] getBytes(JsonObject object, String name) {
     return JsonUtil.asByteArray(object.get(name));
   }
 
-  /**
-   * Initialize a Cipher instance for key wrapping.
-   *
-   * @param cipher an instance of a symmetric cipher that will be initialized.
-   * @param algorithm the name of the algorithm used (e.g. 'KW')
-   * @param opmode either Cipher.WRAP_MODE or Cipher.UNWRAP_MODE
-   * @param key raw key bytes
-   */
-  protected static void initCipher(Cipher cipher, String algorithm, int opmode, byte[] key)
-      throws Exception {
-    if (algorithm.toUpperCase().equals("AESWRAP")
-            || algorithm.toUpperCase().equals("AESRFC5649WRAP")) {
-      cipher.init(opmode, new SecretKeySpec(key, "AES"));
-    } else {
-      fail("Unsupported algorithm:" + algorithm);
+  protected static Cipher getCipher(String algorithm)
+      throws NoSuchAlgorithmException, NoSuchPaddingException {
+    switch (algorithm) {
+      case "AES-WRAP":
+        try {
+          return Cipher.getInstance("AESWRAP");
+        } catch (NoSuchAlgorithmException ex) {
+          // AESWRAP is not known, but the encryption mode KW might be supported.
+        }
+        return Cipher.getInstance("AES/KW/NoPadding");
+      case "AES-KWP":
+        try {
+          return Cipher.getInstance("AESWRAPPAD");
+        } catch (NoSuchAlgorithmException ex) {
+          // AESWRAPPAD is not known, but the encryption mode KWP might be supported.
+        }
+        return Cipher.getInstance("AES/KWP/NoPadding");
+      case "ARIA-WRAP":
+        return Cipher.getInstance("ARIAWRAP");
+      case "ARIA-KWP":
+        return Cipher.getInstance("ARIAWRAPPAD");
+      case "CAMELLIA-WRAP":
+        return Cipher.getInstance("CAMELLIAWRAP");
+      case "SEED-WRAP":
+        return Cipher.getInstance("SEEDWRAP");
+      default:
+        throw new NoSuchAlgorithmException(algorithm);
+    }
+  }
+
+  protected static SecretKeySpec getSecretKeySpec(String algorithm, byte[] key)
+      throws InvalidKeyException, NoSuchAlgorithmException {
+    try {
+      switch (algorithm) {
+        case "AES-WRAP":
+        case "AES-KWP":
+          return new SecretKeySpec(key, "AES");
+        case "ARIA-WRAP":
+        case "ARIA-KWP":
+          return new SecretKeySpec(key, "ARIA");
+        case "CAMELLIA-WRAP":
+          return new SecretKeySpec(key, "CAMELLIA");
+        case "SEED-WRAP":
+          return new SecretKeySpec(key, "SEED");
+        default:
+          throw new NoSuchAlgorithmException(algorithm);
+      }
+    } catch (IllegalArgumentException ex) {
+      // IllegalArgumentException is thrown by SecretKeySpec if the key has size 0.
+      // The code below assumes that it is a GeneralSecurityException.
+      throw new InvalidKeyException(ex);
     }
   }
 
   /**
-   * <p> The test also determines whether different paddings lead to different exceptions.
-   * Generally it is preferable when unwrapping keys with incorrect paddings does not leak
-   * information about invalid paddings through exceptions. Such information could be used
-   * for an attack. Ideally, providers should not include any distinguishing features in the
-   * exception.
+   * Generates a SecretKeySpec for key.
    *
-   * <p>However, such an observation does not necessarily imply a vulnerability.
-   * For example the algorithm KW (NIST SP 800 38f) is designed with the idea that the
-   * underlying algorithm W is a strong pseudorandom permuation. This would imply that the
-   * algorithm is resistant against attacks even if the attacker get access to all the
-   * byte of W^-1 in the case of a failure. For such primitives the exceptions thrown during
-   * the test are printed, but distinct execeptions do not fail the test.
+   * <p>This function returns a SecretKeySpec for a given raw key.
    *
-   * @param filename the local filename with the test vectors
-   * @param algorithm the algorithm name for the key wrapping (e.g. "AESWrap")
-   * @param wrappedAlgorithm the algorithm name for the secret key that is wrapped 
-   *    (e.g. "HMACSHA256"). The key wrap primitives wrap and unwrap byte arrays.
-   *    However, the JCE interface requires an instance of java.security.Key with
-   *    key material. The key wrap primitive does not depend on wrappedAlgorithm and hence
-   *    neither does the test. "HMACSHA256" is used for this parameter in the tests below, 
-   *    simply because HMAC allows arbitrary key sizes.
-   * @param paddingAttacks determines whether the test fails if exceptions leak information
-   *    about the padding.
+   * @param wrappedAlgorithm the algorithm of the key to wrap.
+   * @param key the bytes to wrap
+   * @return a secret key whose encoding is equal to key.
+   * @throws InvalidKeyException if a no SecretkeySpec could be generated. This should only happend
+   *     when key is empty.
    */
-  // This is a false positive, since errorprone cannot track values passed into a method.
-  @SuppressWarnings("InsecureCryptoUsage")
-  public void testKeywrap(String filename, String algorithm, String wrappedAlgorithm,
-      boolean paddingAttacks) throws Exception {
-    // Testing with old test vectors may a reason for a test failure.
-    // Version number have the format major.minor[status].
-    // Versions before 1.0 are experimental and  use formats that are expected to change.
-    // Versions after 1.0 change the major number if the format changes and change
-    // the minor number if only the test vectors (but not the format) changes.
-    // Versions meant for distribution have no status.
-    final String expectedVersion = "0.4.1";
-    JsonObject test = JsonUtil.getTestVectors(filename);
-    Set<String> exceptions = new TreeSet<String>();
-    String generatorVersion = test.get("generatorVersion").getAsString();
-    if (!generatorVersion.equals(expectedVersion)) {
-      System.out.printf("%s expects test vectors with version %s found version %s.",
-                        algorithm, expectedVersion, generatorVersion);
+  protected static SecretKeySpec getKeyToWrap(String wrappedAlgorithm, byte[] key)
+      throws InvalidKeyException {
+    try {
+      return new SecretKeySpec(key, wrappedAlgorithm);
+    } catch (IllegalArgumentException ex) {
+      throw new InvalidKeyException(ex);
     }
-    int errors = 0;
+  }
+
+  private static void singleTest(String algorithm, JsonObject testcase, TestResult testResult) {
+    int tcId = testcase.get("tcId").getAsInt();
+    byte[] key = getBytes(testcase, "key");
+    byte[] data = getBytes(testcase, "msg");
+    byte[] expected = getBytes(testcase, "ct");
+    // Result is one of "valid", "invalid", "acceptable".
+    // "valid" are test vectors with matching plaintext, ciphertext and tag.
+    // "invalid" are test vectors with invalid parameters or invalid ciphertext and tag.
+    // "acceptable" are test vectors with weak parameters or legacy formats.
+    String result = testcase.get("result").getAsString();
+    boolean tryUnwrap = true;
+    TestResult.Type resultType;
+    String comment = "";
+    // The algorithm of the wrapped key. This algorithm is not very important since it is not
+    // included in the encoding. HMACSHA256 is used here, because HMAC allows arbitrary key
+    // sizes and is a widely implemented algorithm.
+    final String wrappedAlgorithm = "HMACSHA256";
+
     Cipher cipher;
     try {
-      cipher = Cipher.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm is not supported. Skipping test for " + algorithm);
+      cipher = getCipher(algorithm);
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+      testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
       return;
     }
+    SecretKeySpec keySpec;
+    try {
+      keySpec = getSecretKeySpec(algorithm, key);
+    } catch (InvalidKeyException | NoSuchAlgorithmException ex) {
+      testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+      return;
+    }
+    try {
+      cipher.init(Cipher.WRAP_MODE, keySpec);
+      SecretKeySpec keyToWrap = getKeyToWrap(wrappedAlgorithm, data);
+      byte[] wrapped = cipher.wrap(keyToWrap);
+      boolean eq = Arrays.equals(expected, wrapped);
+      if (result.equals("invalid")) {
+        if (eq) {
+          // Some test vectors use invalid inputs that should be rejected.
+          // E.g., AES-KW only allows to wrap inputs with a size that is a multiple of 8 bytes.
+          resultType = TestResult.Type.NOT_REJECTED_INVALID;
+          tryUnwrap = false;
+        } else {
+          // Invalid test vectors frequently have invalid paddings.
+          // Hence encryption just gives a different result.
+          resultType = TestResult.Type.REJECTED_INVALID;
+        }
+      } else {
+        if (!eq) {
+          // If wrapping returns the wrong result then something is broken.
+          // Hence we can stop here.
+          resultType = TestResult.Type.WRONG_RESULT;
+          comment = "wrapped: " + TestUtil.bytesToHex(wrapped);
+          tryUnwrap = false;
+        } else {
+          resultType = TestResult.Type.PASSED_VALID;
+        }
+      }
+    } catch (GeneralSecurityException ex) {
+      if (result.equals("valid")) {
+        resultType = TestResult.Type.REJECTED_VALID;
+      } else {
+        resultType = TestResult.Type.REJECTED_INVALID;
+      }
+    } catch (RuntimeException ex) {
+      resultType = TestResult.Type.WRONG_EXCEPTION;
+      comment = ex.toString();
+      tryUnwrap = false;
+    }
+
+    if (tryUnwrap) {
+      try {
+        cipher.init(Cipher.UNWRAP_MODE, keySpec);
+        Key wrappedKey = cipher.unwrap(expected, wrappedAlgorithm, Cipher.SECRET_KEY);
+        byte[] unwrapped = wrappedKey.getEncoded();
+        boolean eq = Arrays.equals(data, unwrapped);
+
+        if (result.equals("invalid")) {
+          resultType = TestResult.Type.NOT_REJECTED_INVALID;
+        } else if (!eq) {
+          resultType = TestResult.Type.WRONG_RESULT;
+          comment = "unwrapped:" + TestUtil.bytesToHex(unwrapped);
+        } else {
+          resultType = TestResult.Type.PASSED_VALID;
+        }
+      } catch (GeneralSecurityException | IllegalArgumentException ex) {
+        // The test currently accepts an IllegalArgumentException.
+        // This is done, because
+        comment = ex.toString();
+        if (result.equals("valid")) {
+          resultType = TestResult.Type.REJECTED_VALID;
+        } else {
+          resultType = TestResult.Type.REJECTED_INVALID;
+        }
+      } catch (RuntimeException ex) {
+        resultType = TestResult.Type.WRONG_EXCEPTION;
+        comment = ex.toString();
+      }
+    }
+    testResult.addResult(tcId, resultType, comment);
+  }
+
+  /**
+   * Checks each test vector in a file of test vectors.
+   *
+   * <p>This method is the part of testVerification that does not log any result. The main idea
+   * behind splitting off this part from testVerification is that it may be easier to call from a
+   * third party.
+   *
+   * @param testVectors the test vectors
+   * @return a test result
+   */
+  public static TestResult allTests(TestVectors testVectors) {
+    var testResult = new TestResult(testVectors);
+    JsonObject test = testVectors.getTest();
+    String algorithm = test.get("algorithm").getAsString();
+    try {
+      Cipher unused = getCipher(algorithm);
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, algorithm);
+      return testResult;
+    }
+
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String tc = "tcId: " + tcid + " " + testcase.get("comment").getAsString();
-        byte[] key = getBytes(testcase, "key");
-        byte[] data = getBytes(testcase, "msg");
-        byte[] expected = getBytes(testcase, "ct");
-        // Result is one of "valid", "invalid", "acceptable".
-        // "valid" are test vectors with matching plaintext, ciphertext and tag.
-        // "invalid" are test vectors with invalid parameters or invalid ciphertext and tag.
-        // "acceptable" are test vectors with weak parameters or legacy formats.
-        String result = testcase.get("result").getAsString();
-
-        // Test wrapping
-        try {
-          initCipher(cipher, algorithm, Cipher.WRAP_MODE, key);
-        } catch (GeneralSecurityException ex) {
-          // Some libraries may restrict key size.
-          // Because of this the initialization of the cipher might fail.
-          System.out.println(ex.toString());
-          continue;
-        }
-        try {
-          SecretKeySpec keyspec = new SecretKeySpec(data, wrappedAlgorithm);
-          byte[] wrapped = cipher.wrap(keyspec);
-          boolean eq = Arrays.equals(expected, wrapped);
-          if (result.equals("invalid")) {
-            if (eq) {
-              // Some test vectors use invalid parameters that should be rejected.
-              System.out.printf("Wrapped test case:%s", tc);
-              errors++;
-            }
-          } else {
-            if (!eq) {
-              System.out.printf("Incorrect wrapping for test case:%s wrapped butes:%s",
-                                tc, TestUtil.bytesToHex(wrapped));
-              errors++;
-            }
-          }
-        } catch (GeneralSecurityException | IllegalArgumentException ex) {
-          // IllegalArgumentException can be thrown by new SecretKeySpec
-          if (result.equals("valid")) {
-            System.out.printf("Failed to wrap test case:%s", tc);
-            errors++;
-          }
-        } catch (Exception ex) {
-          // Other exceptions are violating the interface.
-          System.out.printf("Test case %s throws %s.", tc, ex);
-          errors++;
-        }
-
-        // Test unwrapping
-        // The algorithms tested in this class are typically malleable. Hence, it is in possible
-        // that modifying ciphertext randomly results in some other valid ciphertext.
-        // However, all the test vectors in Wycheproof are constructed such that they have
-        // invalid padding. If this changes then the test below is too strict.
-        try {
-          initCipher(cipher, algorithm, Cipher.UNWRAP_MODE, key);
-        } catch (GeneralSecurityException ex) {
-          System.out.printf("Parameters accepted for wrapping but not unwrapping:%s", tc);
-          errors++;
-          continue;
-        }
-        try {
-          Key keyspec = cipher.unwrap(expected, wrappedAlgorithm, Cipher.SECRET_KEY);
-          byte[] unwrapped = keyspec.getEncoded();
-          boolean eq = Arrays.equals(data, unwrapped);
-          if (result.equals("invalid")) {
-            System.out.printf("Unwrapped invalid test case:%s unwrapped:%s", tc,
-                              TestUtil.bytesToHex(unwrapped));
-            errors++;
-          } else {
-            if (!eq) {
-              System.out.printf("Incorrect unwrap. Excepted:%s actual:%s",
-                                unwrapped, TestUtil.bytesToHex(unwrapped));
-              errors++;
-            }
-          }
-        } catch (GeneralSecurityException | IllegalArgumentException ex) {
-          // The JCE interface specifies that an incorrect wrapping should throw an
-          // InvalidKeyException. IllegalArgumentException is thrown by the SecretKeySpec
-          // constructor if the unwrapped key is empty. It is unclear whether this is a bug
-          // in the code or just should be documented.
-          exceptions.add(ex.toString());
-          if (result.equals("valid")) {
-            System.out.printf("Failed to unwrap:%s", tc);
-            errors++;
-          }
-        } catch (Exception ex) {
-          // Other exceptions may indicate a programming error.
-          System.out.printf("Test case:%s throws %s", tc, ex);
-          exceptions.add(ex.toString());
-          errors++;
-        }
+        singleTest(algorithm, testcase, testResult);
       }
     }
-    System.out.printf("Number of distinct exceptions of %s:%d", algorithm, exceptions.size());
-    for (String ex : exceptions) {
-      System.out.println(ex);
-    }
-    assertEquals(0, errors);
-    if (paddingAttacks) {
-      assertEquals(1, exceptions.size());
-    }
+    return testResult;
   }
 
+  /**
+   * Tests a key wrapping algorithm against test vectors.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive is not supported. The test may also be skipped if the provider
+   *     uses an unsual algorithm name. Unfortunately, key wrapping algorithms use a rather large
+   *     number of algorithm names. Such mismatches can be fixed by adding additional names to
+   *     getCipher or registering an alias name for the provider.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read.
+   */
+  public void testKeywrap(String filename) throws Exception {
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestVectors testVectors = new TestVectors(test, filename);
+    TestResult testResult = allTests(testVectors);
+
+    if (testResult.skipTest()) {
+      TestUtil.skipTest("No valid test passed");
+      return;
+    }
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
+  }
+
+  // BouncyCastle 1.71 incorrectly wraps keys of size 8.
+  // Such keys should either not be wrapped (NIST) or they should be wrapped using
+  // a single encryption with AES.
   @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/77572633"}
-  )
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
   @Test
   public void testAesWrap() throws Exception {
-    testKeywrap("kw_test.json", "AESWRAP", "HMACSHA256", false);
+    testKeywrap("aes_wrap_test.json");
+  }
+
+  @Test
+  public void testAesKwp() throws Exception {
+    testKeywrap("aes_kwp_test.json");
   }
 
   @NoPresubmitTest(
-    providers = {ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/77572633"}
-  )
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
   @Test
-  public void testAesRFC5649Wrap() throws Exception {
-    testKeywrap("kwp_test.json", "AESRFC5649WRAP", "HMACSHA256", false);
+  public void testAriaWrap() throws Exception {
+    testKeywrap("aria_wrap_test.json");
   }
-  
-  
+
+  @Test
+  public void testAriaKwp() throws Exception {
+    testKeywrap("aria_kwp_test.json");
+  }
+
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testCamelliaWrap() throws Exception {
+    testKeywrap("camellia_wrap_test.json");
+  }
+
+  @NoPresubmitTest(
+      providers = {ProviderType.BOUNCY_CASTLE},
+      bugs = {"b/77572633"})
+  @Test
+  public void testSeedWrap() throws Exception {
+    testKeywrap("seed_wrap_test.json");
+  }
 }

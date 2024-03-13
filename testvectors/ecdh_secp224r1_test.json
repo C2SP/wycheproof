@@ -1,7 +1,7 @@
 {
   "algorithm" : "ECDH",
-  "generatorVersion" : "0.8r12",
-  "numberOfTests" : 340,
+  "generatorVersion" : "0.8rc34",
+  "numberOfTests" : 352,
   "header" : [
     "Test vectors of type EcdhTest are intended for",
     "testing an ECDH implementations using X509 encoded",
@@ -14,7 +14,9 @@
     "CompressedPoint" : "The point in the public key is compressed. Not every library supports points in compressed format.",
     "InvalidAsn" : "The public key in this test uses an invalid ASN encoding. Some cases where the ASN parser is not strictly checking the ASN format are benign as long as the ECDH computation still returns the correct shared value.",
     "InvalidPublic" : "The public key has been modified and is invalid. An implementation should always check whether the public key is valid and on the same curve as the private key. The test vector includes the shared secret computed with the original public key if the public point is on the curve of the private key. Generating a shared secret other than the one with the original key likely indicates that the bug is exploitable.",
+    "LargeCofactor" : "The cofactor is larger than the limits specified in FIPS-PUB 186-4 table 1, p.36.",
     "ModifiedPrime" : "The modulus of the public key has been modified. The public point of the public key has been chosen so that it is both a point on both the curve of the modified public key and the private key.",
+    "NegativeCofactor" : "The cofactor is negative.",
     "UnnamedCurve" : "The public key does not use a named curve. RFC 3279 allows to encode such curves by explicitly encoding, the parameters of the curve equation, modulus, generator, order and cofactor. However, many crypto libraries only support named curves. Modifying some of the EC parameters and encoding the corresponding public key as an unnamed curve is a potential attack vector.",
     "UnusedParam" : "A parameter that is typically not used for ECDH has been modified. Sometimes libraries ignore small differences between public and private key. For example, a library might ignore an incorrect cofactor in the public key. We consider ignoring such changes as acceptable as long as these differences do not change the outcome of the ECDH computation, i.e. as long as the computation is done on the curve from the private key.",
     "WeakPublicKey" : "The vector contains a weak public key. The curve is not a named curve, the public key point has order 3 and has been chosen to be on the same curve as the private key. This test vector is used to check ECC implementations for missing steps in the verification of the public key.",
@@ -996,6 +998,7 @@
           "shared" : "9b992dad1c2b5dadd3b5aeb84b7a91fb6fe5f46e02ab2c7fa32696a7",
           "result" : "invalid",
           "flags" : [
+            "NegativeCofactor",
             "InvalidPublic",
             "UnnamedCurve"
           ]
@@ -1008,6 +1011,7 @@
           "shared" : "9b992dad1c2b5dadd3b5aeb84b7a91fb6fe5f46e02ab2c7fa32696a7",
           "result" : "invalid",
           "flags" : [
+            "NegativeCofactor",
             "InvalidPublic",
             "UnnamedCurve"
           ]
@@ -1030,9 +1034,10 @@
           "public" : "3082012f3081f006072a8648ce3d02013081e4020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041cfffffffffffffffffffffffffffffffefffffffffffffffffffffffe041cb4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4043904b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d033a0004a10fb7bf22d299fc5bc43bd2d0e8da28af28ace8430bee28f9e5b57554275c0615d8d9a3011d7bc4c1c4cf4a834c8dc46f25b98854401a5b",
           "private" : "00d07629eb653a169ae3231ea1030faaf3e7f8ffe388030ee315d0a1d2",
           "shared" : "9b992dad1c2b5dadd3b5aeb84b7a91fb6fe5f46e02ab2c7fa32696a7",
-          "result" : "invalid",
+          "result" : "acceptable",
           "flags" : [
-            "InvalidPublic",
+            "LargeCofactor",
+            "UnusedParam",
             "UnnamedCurve"
           ]
         },
@@ -1086,7 +1091,7 @@
         {
           "tcId" : 112,
           "comment" : "a = 0",
-          "public" : "3081f83081b906072a8648ce3d02013081ad020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff0000000000000000000000013021040100041cd0d5e347a38ce5b6e1f47edddd8a223bca45d2015de76ec835a4df57043904a10fb7bf22d299fc5bc43bd2d0e8da28af28ace8430bee28f9e5b57554275c0615d8d9a3011d7bc4c1c4cf4a834c8dc46f25b98854401a5b021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a0004a10fb7bf22d299fc5bc43bd2d0e8da28af28ace8430bee28f9e5b57554275c0615d8d9a3011d7bc4c1c4cf4a834c8dc46f25b98854401a5b",
+          "public" : "308201133081d406072a8648ce3d02013081c8020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041c00000000000000000000000000000000000000000000000000000000041cd0d5e347a38ce5b6e1f47edddd8a223bca45d2015de76ec835a4df57043904a10fb7bf22d299fc5bc43bd2d0e8da28af28ace8430bee28f9e5b57554275c0615d8d9a3011d7bc4c1c4cf4a834c8dc46f25b98854401a5b021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a0004a10fb7bf22d299fc5bc43bd2d0e8da28af28ace8430bee28f9e5b57554275c0615d8d9a3011d7bc4c1c4cf4a834c8dc46f25b98854401a5b",
           "private" : "00d07629eb653a169ae3231ea1030faaf3e7f8ffe388030ee315d0a1d2",
           "shared" : "9b992dad1c2b5dadd3b5aeb84b7a91fb6fe5f46e02ab2c7fa32696a7",
           "result" : "acceptable",
@@ -1098,7 +1103,7 @@
         {
           "tcId" : 113,
           "comment" : "public key of order 3",
-          "public" : "308201133081d406072a8648ce3d02013081c8020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041cacb441c744c5af60905e78cd53b10f4aec9f30a302bb4ab0aeb53182041c2356bdcb3ae3e1c1e31741c951add1b2b0f87305d01021232aa22e0c043904bafbb7559c7335192c6f0cc5970e9c92a12e9af1a0cb5403d9bcc4eb7a545a1d9302be01456f17846a445ef45ff7c31710b08a6881dc11d1021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a0004bafbb7559c7335192c6f0cc5970e9c92a12e9af1a0cb5403d9bcc4eb85aba5e26cfd41feba90e87b95bba10aa0083ce8ef4f75977e23ee30",
+          "public" : "308201133081d406072a8648ce3d02013081c8020101302806072a8648ce3d0101021d00ffffffffffffffffffffffffffffffff000000000000000000000001303c041c3c1c7a49d6b038b14d5cc0cbc6b2688e0b099fe36370d8c61d9413e5041cbd698e6d685e738340e1fe2ef80bdf94746bef6be0adb21b6243406a0439045f43225211f14ccaaa7eb9969b4b4e2ea613548a6dd8845fd93c25c22e7605b6c88b05e8384a55315604c001554502dcc92698cd64697bfd021d00ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d020101033a00045f43225211f14ccaaa7eb9969b4b4e2ea613548a6dd8845fd93c25c2d189fa493774fa17c7b5aacea9fb3ffdaabafd2336d967329b968404",
           "private" : "00d07629eb653a169ae3231ea1030faaf3e7f8ffe388030ee315d0a1d2",
           "shared" : "",
           "result" : "invalid",
@@ -1245,6 +1250,15 @@
         },
         {
           "tcId" : 129,
+          "comment" : "Public key uses wrong curve: FRP256v1",
+          "public" : "305b301506072a8648ce3d0201060a2a817a01815f6582000103420004ee91eb91c5cbc38a16a35690312d2b894b060a05072f2575e663e7f8cfefeb68cad679d5c50378ffa92c32c30d8f015cde8f5365bfd205f780fb82f53a40a9c5",
+          "private" : "2ddd06cb77ca2eae5266a34a107b49e56ffb4c2d3952112da2df90fc",
+          "shared" : "",
+          "result" : "invalid",
+          "flags" : []
+        },
+        {
+          "tcId" : 130,
           "comment" : "invalid public key",
           "public" : "3032301006072a8648ce3d020106052b81040021031e00020ca753db5ddeca474241f8d2dafc0844343fd0e37eded2f0192d51b2",
           "private" : "00fc28a0ca0f8e36b0d4f71421845135a22aef543b9fddf8c775b2d18f",
@@ -1255,7 +1269,7 @@
           ]
         },
         {
-          "tcId" : 130,
+          "tcId" : 131,
           "comment" : "long form encoding of length of sequence",
           "public" : "30814e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1266,7 +1280,7 @@
           ]
         },
         {
-          "tcId" : 131,
+          "tcId" : 132,
           "comment" : "long form encoding of length of sequence",
           "public" : "304f30811006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1277,7 +1291,7 @@
           ]
         },
         {
-          "tcId" : 132,
+          "tcId" : 133,
           "comment" : "length of sequence contains leading 0",
           "public" : "3082004e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1288,7 +1302,7 @@
           ]
         },
         {
-          "tcId" : 133,
+          "tcId" : 134,
           "comment" : "length of sequence contains leading 0",
           "public" : "30503082001006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1299,7 +1313,7 @@
           ]
         },
         {
-          "tcId" : 134,
+          "tcId" : 135,
           "comment" : "wrong length of sequence",
           "public" : "304f301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1310,7 +1324,7 @@
           ]
         },
         {
-          "tcId" : 135,
+          "tcId" : 136,
           "comment" : "wrong length of sequence",
           "public" : "304d301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1321,7 +1335,7 @@
           ]
         },
         {
-          "tcId" : 136,
+          "tcId" : 137,
           "comment" : "wrong length of sequence",
           "public" : "304e301106072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1332,7 +1346,7 @@
           ]
         },
         {
-          "tcId" : 137,
+          "tcId" : 138,
           "comment" : "wrong length of sequence",
           "public" : "304e300f06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1343,7 +1357,7 @@
           ]
         },
         {
-          "tcId" : 138,
+          "tcId" : 139,
           "comment" : "uint32 overflow in length of sequence",
           "public" : "3085010000004e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1354,7 +1368,7 @@
           ]
         },
         {
-          "tcId" : 139,
+          "tcId" : 140,
           "comment" : "uint32 overflow in length of sequence",
           "public" : "30533085010000001006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1365,7 +1379,7 @@
           ]
         },
         {
-          "tcId" : 140,
+          "tcId" : 141,
           "comment" : "uint64 overflow in length of sequence",
           "public" : "308901000000000000004e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1376,7 +1390,7 @@
           ]
         },
         {
-          "tcId" : 141,
+          "tcId" : 142,
           "comment" : "uint64 overflow in length of sequence",
           "public" : "3057308901000000000000001006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1387,7 +1401,7 @@
           ]
         },
         {
-          "tcId" : 142,
+          "tcId" : 143,
           "comment" : "length of sequence = 2**31 - 1",
           "public" : "30847fffffff301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1398,7 +1412,7 @@
           ]
         },
         {
-          "tcId" : 143,
+          "tcId" : 144,
           "comment" : "length of sequence = 2**31 - 1",
           "public" : "305230847fffffff06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1409,7 +1423,7 @@
           ]
         },
         {
-          "tcId" : 144,
+          "tcId" : 145,
           "comment" : "length of sequence = 2**32 - 1",
           "public" : "3084ffffffff301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1420,7 +1434,7 @@
           ]
         },
         {
-          "tcId" : 145,
+          "tcId" : 146,
           "comment" : "length of sequence = 2**32 - 1",
           "public" : "30523084ffffffff06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1431,7 +1445,7 @@
           ]
         },
         {
-          "tcId" : 146,
+          "tcId" : 147,
           "comment" : "length of sequence = 2**40 - 1",
           "public" : "3085ffffffffff301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1442,7 +1456,7 @@
           ]
         },
         {
-          "tcId" : 147,
+          "tcId" : 148,
           "comment" : "length of sequence = 2**40 - 1",
           "public" : "30533085ffffffffff06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1453,7 +1467,7 @@
           ]
         },
         {
-          "tcId" : 148,
+          "tcId" : 149,
           "comment" : "length of sequence = 2**64 - 1",
           "public" : "3088ffffffffffffffff301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1464,7 +1478,7 @@
           ]
         },
         {
-          "tcId" : 149,
+          "tcId" : 150,
           "comment" : "length of sequence = 2**64 - 1",
           "public" : "30563088ffffffffffffffff06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1475,7 +1489,7 @@
           ]
         },
         {
-          "tcId" : 150,
+          "tcId" : 151,
           "comment" : "incorrect length of sequence",
           "public" : "30ff301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1486,7 +1500,7 @@
           ]
         },
         {
-          "tcId" : 151,
+          "tcId" : 152,
           "comment" : "incorrect length of sequence",
           "public" : "304e30ff06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1497,7 +1511,7 @@
           ]
         },
         {
-          "tcId" : 152,
+          "tcId" : 153,
           "comment" : "indefinite length without termination",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1508,7 +1522,7 @@
           ]
         },
         {
-          "tcId" : 153,
+          "tcId" : 154,
           "comment" : "indefinite length without termination",
           "public" : "304e308006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1519,7 +1533,7 @@
           ]
         },
         {
-          "tcId" : 154,
+          "tcId" : 155,
           "comment" : "indefinite length without termination",
           "public" : "304e301006802a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1530,7 +1544,7 @@
           ]
         },
         {
-          "tcId" : 155,
+          "tcId" : 156,
           "comment" : "indefinite length without termination",
           "public" : "304e301006072a8648ce3d020106802b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1541,7 +1555,7 @@
           ]
         },
         {
-          "tcId" : 156,
+          "tcId" : 157,
           "comment" : "indefinite length without termination",
           "public" : "304e301006072a8648ce3d020106052b810400210380000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1552,7 +1566,7 @@
           ]
         },
         {
-          "tcId" : 157,
+          "tcId" : 158,
           "comment" : "removing sequence",
           "public" : "",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1563,7 +1577,7 @@
           ]
         },
         {
-          "tcId" : 158,
+          "tcId" : 159,
           "comment" : "removing sequence",
           "public" : "303c033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1574,7 +1588,7 @@
           ]
         },
         {
-          "tcId" : 159,
+          "tcId" : 160,
           "comment" : "lonely sequence tag",
           "public" : "30",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1585,7 +1599,7 @@
           ]
         },
         {
-          "tcId" : 160,
+          "tcId" : 161,
           "comment" : "lonely sequence tag",
           "public" : "303d30033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1596,7 +1610,7 @@
           ]
         },
         {
-          "tcId" : 161,
+          "tcId" : 162,
           "comment" : "appending 0's to sequence",
           "public" : "3050301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1607,7 +1621,7 @@
           ]
         },
         {
-          "tcId" : 162,
+          "tcId" : 163,
           "comment" : "appending 0's to sequence",
           "public" : "3050301206072a8648ce3d020106052b810400210000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1618,7 +1632,7 @@
           ]
         },
         {
-          "tcId" : 163,
+          "tcId" : 164,
           "comment" : "prepending 0's to sequence",
           "public" : "30500000301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1629,7 +1643,7 @@
           ]
         },
         {
-          "tcId" : 164,
+          "tcId" : 165,
           "comment" : "prepending 0's to sequence",
           "public" : "30503012000006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1640,7 +1654,7 @@
           ]
         },
         {
-          "tcId" : 165,
+          "tcId" : 166,
           "comment" : "appending unused 0's to sequence",
           "public" : "304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1651,7 +1665,7 @@
           ]
         },
         {
-          "tcId" : 166,
+          "tcId" : 167,
           "comment" : "appending unused 0's to sequence",
           "public" : "3050301006072a8648ce3d020106052b810400210000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1662,7 +1676,7 @@
           ]
         },
         {
-          "tcId" : 167,
+          "tcId" : 168,
           "comment" : "appending null value to sequence",
           "public" : "3050301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620500",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1673,7 +1687,7 @@
           ]
         },
         {
-          "tcId" : 168,
+          "tcId" : 169,
           "comment" : "appending null value to sequence",
           "public" : "3050301206072a8648ce3d020106052b810400210500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1684,7 +1698,7 @@
           ]
         },
         {
-          "tcId" : 169,
+          "tcId" : 170,
           "comment" : "including garbage",
           "public" : "3053498177304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1695,7 +1709,7 @@
           ]
         },
         {
-          "tcId" : 170,
+          "tcId" : 171,
           "comment" : "including garbage",
           "public" : "30522500304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1706,7 +1720,7 @@
           ]
         },
         {
-          "tcId" : 171,
+          "tcId" : 172,
           "comment" : "including garbage",
           "public" : "3050304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620004deadbeef",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1717,7 +1731,7 @@
           ]
         },
         {
-          "tcId" : 172,
+          "tcId" : 173,
           "comment" : "including garbage",
           "public" : "30533015498177301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1728,7 +1742,7 @@
           ]
         },
         {
-          "tcId" : 173,
+          "tcId" : 174,
           "comment" : "including garbage",
           "public" : "305230142500301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1739,7 +1753,7 @@
           ]
         },
         {
-          "tcId" : 174,
+          "tcId" : 175,
           "comment" : "including garbage",
           "public" : "30563012301006072a8648ce3d020106052b810400210004deadbeef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1750,7 +1764,7 @@
           ]
         },
         {
-          "tcId" : 175,
+          "tcId" : 176,
           "comment" : "including garbage",
           "public" : "30533015260c49817706072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1761,7 +1775,7 @@
           ]
         },
         {
-          "tcId" : 176,
+          "tcId" : 177,
           "comment" : "including garbage",
           "public" : "30523014260b250006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1772,7 +1786,7 @@
           ]
         },
         {
-          "tcId" : 177,
+          "tcId" : 178,
           "comment" : "including garbage",
           "public" : "30563018260906072a8648ce3d02010004deadbeef06052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1783,7 +1797,7 @@
           ]
         },
         {
-          "tcId" : 178,
+          "tcId" : 179,
           "comment" : "including garbage",
           "public" : "3053301506072a8648ce3d0201260a49817706052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1794,7 +1808,7 @@
           ]
         },
         {
-          "tcId" : 179,
+          "tcId" : 180,
           "comment" : "including garbage",
           "public" : "3052301406072a8648ce3d02012609250006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1805,7 +1819,7 @@
           ]
         },
         {
-          "tcId" : 180,
+          "tcId" : 181,
           "comment" : "including garbage",
           "public" : "3056301806072a8648ce3d0201260706052b810400210004deadbeef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1816,7 +1830,7 @@
           ]
         },
         {
-          "tcId" : 181,
+          "tcId" : 182,
           "comment" : "including garbage",
           "public" : "3053301006072a8648ce3d020106052b81040021233f498177033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1827,7 +1841,7 @@
           ]
         },
         {
-          "tcId" : 182,
+          "tcId" : 183,
           "comment" : "including garbage",
           "public" : "3052301006072a8648ce3d020106052b81040021233e2500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1838,7 +1852,7 @@
           ]
         },
         {
-          "tcId" : 183,
+          "tcId" : 184,
           "comment" : "including garbage",
           "public" : "3056301006072a8648ce3d020106052b81040021233c033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620004deadbeef",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1849,7 +1863,7 @@
           ]
         },
         {
-          "tcId" : 184,
+          "tcId" : 185,
           "comment" : "including undefined tags",
           "public" : "3056aa00bb00cd00304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1860,7 +1874,7 @@
           ]
         },
         {
-          "tcId" : 185,
+          "tcId" : 186,
           "comment" : "including undefined tags",
           "public" : "3054aa02aabb304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1871,7 +1885,7 @@
           ]
         },
         {
-          "tcId" : 186,
+          "tcId" : 187,
           "comment" : "including undefined tags",
           "public" : "30563018aa00bb00cd00301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1882,7 +1896,7 @@
           ]
         },
         {
-          "tcId" : 187,
+          "tcId" : 188,
           "comment" : "including undefined tags",
           "public" : "30543016aa02aabb301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1893,7 +1907,7 @@
           ]
         },
         {
-          "tcId" : 188,
+          "tcId" : 189,
           "comment" : "including undefined tags",
           "public" : "30563018260faa00bb00cd0006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1904,7 +1918,7 @@
           ]
         },
         {
-          "tcId" : 189,
+          "tcId" : 190,
           "comment" : "including undefined tags",
           "public" : "30543016260daa02aabb06072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1915,7 +1929,7 @@
           ]
         },
         {
-          "tcId" : 190,
+          "tcId" : 191,
           "comment" : "including undefined tags",
           "public" : "3056301806072a8648ce3d0201260daa00bb00cd0006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1926,7 +1940,7 @@
           ]
         },
         {
-          "tcId" : 191,
+          "tcId" : 192,
           "comment" : "including undefined tags",
           "public" : "3054301606072a8648ce3d0201260baa02aabb06052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1937,7 +1951,7 @@
           ]
         },
         {
-          "tcId" : 192,
+          "tcId" : 193,
           "comment" : "including undefined tags",
           "public" : "3056301006072a8648ce3d020106052b810400212342aa00bb00cd00033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1948,7 +1962,7 @@
           ]
         },
         {
-          "tcId" : 193,
+          "tcId" : 194,
           "comment" : "including undefined tags",
           "public" : "3054301006072a8648ce3d020106052b810400212340aa02aabb033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1959,7 +1973,7 @@
           ]
         },
         {
-          "tcId" : 194,
+          "tcId" : 195,
           "comment" : "truncated length of sequence",
           "public" : "3081",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1970,7 +1984,7 @@
           ]
         },
         {
-          "tcId" : 195,
+          "tcId" : 196,
           "comment" : "truncated length of sequence",
           "public" : "303e3081033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1981,7 +1995,7 @@
           ]
         },
         {
-          "tcId" : 196,
+          "tcId" : 197,
           "comment" : "Replacing sequence with NULL",
           "public" : "0500",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -1992,7 +2006,7 @@
           ]
         },
         {
-          "tcId" : 197,
+          "tcId" : 198,
           "comment" : "Replacing sequence with NULL",
           "public" : "303e0500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2003,7 +2017,7 @@
           ]
         },
         {
-          "tcId" : 198,
+          "tcId" : 199,
           "comment" : "changing tag value of sequence",
           "public" : "2e4e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2014,7 +2028,7 @@
           ]
         },
         {
-          "tcId" : 199,
+          "tcId" : 200,
           "comment" : "changing tag value of sequence",
           "public" : "2f4e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2025,7 +2039,7 @@
           ]
         },
         {
-          "tcId" : 200,
+          "tcId" : 201,
           "comment" : "changing tag value of sequence",
           "public" : "314e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2036,7 +2050,7 @@
           ]
         },
         {
-          "tcId" : 201,
+          "tcId" : 202,
           "comment" : "changing tag value of sequence",
           "public" : "324e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2047,7 +2061,7 @@
           ]
         },
         {
-          "tcId" : 202,
+          "tcId" : 203,
           "comment" : "changing tag value of sequence",
           "public" : "ff4e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2058,7 +2072,7 @@
           ]
         },
         {
-          "tcId" : 203,
+          "tcId" : 204,
           "comment" : "changing tag value of sequence",
           "public" : "304e2e1006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2069,7 +2083,7 @@
           ]
         },
         {
-          "tcId" : 204,
+          "tcId" : 205,
           "comment" : "changing tag value of sequence",
           "public" : "304e2f1006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2080,7 +2094,7 @@
           ]
         },
         {
-          "tcId" : 205,
+          "tcId" : 206,
           "comment" : "changing tag value of sequence",
           "public" : "304e311006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2091,7 +2105,7 @@
           ]
         },
         {
-          "tcId" : 206,
+          "tcId" : 207,
           "comment" : "changing tag value of sequence",
           "public" : "304e321006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2102,7 +2116,7 @@
           ]
         },
         {
-          "tcId" : 207,
+          "tcId" : 208,
           "comment" : "changing tag value of sequence",
           "public" : "304eff1006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2113,7 +2127,7 @@
           ]
         },
         {
-          "tcId" : 208,
+          "tcId" : 209,
           "comment" : "dropping value of sequence",
           "public" : "3000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2124,7 +2138,7 @@
           ]
         },
         {
-          "tcId" : 209,
+          "tcId" : 210,
           "comment" : "dropping value of sequence",
           "public" : "303e3000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2135,7 +2149,7 @@
           ]
         },
         {
-          "tcId" : 210,
+          "tcId" : 211,
           "comment" : "truncated sequence",
           "public" : "304d301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2146,7 +2160,7 @@
           ]
         },
         {
-          "tcId" : 211,
+          "tcId" : 212,
           "comment" : "truncated sequence",
           "public" : "304d1006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2157,7 +2171,7 @@
           ]
         },
         {
-          "tcId" : 212,
+          "tcId" : 213,
           "comment" : "truncated sequence",
           "public" : "304d300f06072a8648ce3d020106052b810400033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2168,7 +2182,7 @@
           ]
         },
         {
-          "tcId" : 213,
+          "tcId" : 214,
           "comment" : "truncated sequence",
           "public" : "304d300f072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2179,7 +2193,18 @@
           ]
         },
         {
-          "tcId" : 214,
+          "tcId" : 215,
+          "comment" : "sequence of size 4175 to check for overflows",
+          "public" : "3082104f301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 216,
           "comment" : "indefinite length",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2190,7 +2215,7 @@
           ]
         },
         {
-          "tcId" : 215,
+          "tcId" : 217,
           "comment" : "indefinite length",
           "public" : "3050308006072a8648ce3d020106052b810400210000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2201,7 +2226,7 @@
           ]
         },
         {
-          "tcId" : 216,
+          "tcId" : 218,
           "comment" : "indefinite length with truncated delimiter",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6200",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2212,7 +2237,7 @@
           ]
         },
         {
-          "tcId" : 217,
+          "tcId" : 219,
           "comment" : "indefinite length with truncated delimiter",
           "public" : "304f308006072a8648ce3d020106052b8104002100033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2223,7 +2248,7 @@
           ]
         },
         {
-          "tcId" : 218,
+          "tcId" : 220,
           "comment" : "indefinite length with additional element",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6205000000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2234,7 +2259,7 @@
           ]
         },
         {
-          "tcId" : 219,
+          "tcId" : 221,
           "comment" : "indefinite length with additional element",
           "public" : "3052308006072a8648ce3d020106052b8104002105000000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2245,7 +2270,7 @@
           ]
         },
         {
-          "tcId" : 220,
+          "tcId" : 222,
           "comment" : "indefinite length with truncated element",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62060811220000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2256,7 +2281,7 @@
           ]
         },
         {
-          "tcId" : 221,
+          "tcId" : 223,
           "comment" : "indefinite length with truncated element",
           "public" : "3054308006072a8648ce3d020106052b81040021060811220000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2267,7 +2292,7 @@
           ]
         },
         {
-          "tcId" : 222,
+          "tcId" : 224,
           "comment" : "indefinite length with garbage",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000fe02beef",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2278,7 +2303,7 @@
           ]
         },
         {
-          "tcId" : 223,
+          "tcId" : 225,
           "comment" : "indefinite length with garbage",
           "public" : "3054308006072a8648ce3d020106052b810400210000fe02beef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2289,7 +2314,7 @@
           ]
         },
         {
-          "tcId" : 224,
+          "tcId" : 226,
           "comment" : "indefinite length with nonempty EOC",
           "public" : "3080301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620002beef",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2300,7 +2325,7 @@
           ]
         },
         {
-          "tcId" : 225,
+          "tcId" : 227,
           "comment" : "indefinite length with nonempty EOC",
           "public" : "3052308006072a8648ce3d020106052b810400210002beef033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2311,7 +2336,7 @@
           ]
         },
         {
-          "tcId" : 226,
+          "tcId" : 228,
           "comment" : "prepend empty sequence",
           "public" : "30503000301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2322,7 +2347,7 @@
           ]
         },
         {
-          "tcId" : 227,
+          "tcId" : 229,
           "comment" : "prepend empty sequence",
           "public" : "30503012300006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2333,7 +2358,7 @@
           ]
         },
         {
-          "tcId" : 228,
+          "tcId" : 230,
           "comment" : "append empty sequence",
           "public" : "3050301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da623000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2344,7 +2369,7 @@
           ]
         },
         {
-          "tcId" : 229,
+          "tcId" : 231,
           "comment" : "append empty sequence",
           "public" : "3050301206072a8648ce3d020106052b810400213000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2355,7 +2380,7 @@
           ]
         },
         {
-          "tcId" : 230,
+          "tcId" : 232,
           "comment" : "append garbage with high tag number",
           "public" : "3051301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62bf7f00",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2366,7 +2391,7 @@
           ]
         },
         {
-          "tcId" : 231,
+          "tcId" : 233,
           "comment" : "append garbage with high tag number",
           "public" : "3051301306072a8648ce3d020106052b81040021bf7f00033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2377,7 +2402,51 @@
           ]
         },
         {
-          "tcId" : 232,
+          "tcId" : 234,
+          "comment" : "append null with explicit tag",
+          "public" : "3052301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62a0020500",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 235,
+          "comment" : "append null with explicit tag",
+          "public" : "3052301406072a8648ce3d020106052b81040021a0020500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 236,
+          "comment" : "append null with implicit tag",
+          "public" : "3050301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62a000",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 237,
+          "comment" : "append null with implicit tag",
+          "public" : "3050301206072a8648ce3d020106052b81040021a000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 238,
           "comment" : "sequence of sequence",
           "public" : "3050304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2388,7 +2457,7 @@
           ]
         },
         {
-          "tcId" : 233,
+          "tcId" : 239,
           "comment" : "sequence of sequence",
           "public" : "30503012301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2399,7 +2468,7 @@
           ]
         },
         {
-          "tcId" : 234,
+          "tcId" : 240,
           "comment" : "truncated sequence: removed last 1 elements",
           "public" : "3012301006072a8648ce3d020106052b81040021",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2410,7 +2479,7 @@
           ]
         },
         {
-          "tcId" : 235,
+          "tcId" : 241,
           "comment" : "truncated sequence: removed last 1 elements",
           "public" : "3047300906072a8648ce3d0201033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2421,7 +2490,7 @@
           ]
         },
         {
-          "tcId" : 236,
+          "tcId" : 242,
           "comment" : "repeating element in sequence",
           "public" : "30818a301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2432,7 +2501,7 @@
           ]
         },
         {
-          "tcId" : 237,
+          "tcId" : 243,
           "comment" : "repeating element in sequence",
           "public" : "3055301706072a8648ce3d020106052b8104002106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2443,7 +2512,18 @@
           ]
         },
         {
-          "tcId" : 238,
+          "tcId" : 244,
+          "comment" : "sequence of size 4113 to check for overflows",
+          "public" : "308210513082101106072a8648ce3d020106052b810400210000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 245,
           "comment" : "long form encoding of length of oid",
           "public" : "304f30110681072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2454,7 +2534,7 @@
           ]
         },
         {
-          "tcId" : 239,
+          "tcId" : 246,
           "comment" : "long form encoding of length of oid",
           "public" : "304f301106072a8648ce3d02010681052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2465,7 +2545,7 @@
           ]
         },
         {
-          "tcId" : 240,
+          "tcId" : 247,
           "comment" : "length of oid contains leading 0",
           "public" : "30503012068200072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2476,7 +2556,7 @@
           ]
         },
         {
-          "tcId" : 241,
+          "tcId" : 248,
           "comment" : "length of oid contains leading 0",
           "public" : "3050301206072a8648ce3d0201068200052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2487,7 +2567,7 @@
           ]
         },
         {
-          "tcId" : 242,
+          "tcId" : 249,
           "comment" : "wrong length of oid",
           "public" : "304e301006082a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2498,7 +2578,7 @@
           ]
         },
         {
-          "tcId" : 243,
+          "tcId" : 250,
           "comment" : "wrong length of oid",
           "public" : "304e301006062a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2509,7 +2589,7 @@
           ]
         },
         {
-          "tcId" : 244,
+          "tcId" : 251,
           "comment" : "wrong length of oid",
           "public" : "304e301006072a8648ce3d020106062b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2520,7 +2600,7 @@
           ]
         },
         {
-          "tcId" : 245,
+          "tcId" : 252,
           "comment" : "wrong length of oid",
           "public" : "304e301006072a8648ce3d020106042b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2531,7 +2611,7 @@
           ]
         },
         {
-          "tcId" : 246,
+          "tcId" : 253,
           "comment" : "uint32 overflow in length of oid",
           "public" : "30533015068501000000072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2542,7 +2622,7 @@
           ]
         },
         {
-          "tcId" : 247,
+          "tcId" : 254,
           "comment" : "uint32 overflow in length of oid",
           "public" : "3053301506072a8648ce3d0201068501000000052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2553,7 +2633,7 @@
           ]
         },
         {
-          "tcId" : 248,
+          "tcId" : 255,
           "comment" : "uint64 overflow in length of oid",
           "public" : "3057301906890100000000000000072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2564,7 +2644,7 @@
           ]
         },
         {
-          "tcId" : 249,
+          "tcId" : 256,
           "comment" : "uint64 overflow in length of oid",
           "public" : "3057301906072a8648ce3d020106890100000000000000052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2575,7 +2655,7 @@
           ]
         },
         {
-          "tcId" : 250,
+          "tcId" : 257,
           "comment" : "length of oid = 2**31 - 1",
           "public" : "3052301406847fffffff2a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2586,7 +2666,7 @@
           ]
         },
         {
-          "tcId" : 251,
+          "tcId" : 258,
           "comment" : "length of oid = 2**31 - 1",
           "public" : "3052301406072a8648ce3d020106847fffffff2b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2597,7 +2677,7 @@
           ]
         },
         {
-          "tcId" : 252,
+          "tcId" : 259,
           "comment" : "length of oid = 2**32 - 1",
           "public" : "305230140684ffffffff2a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2608,7 +2688,7 @@
           ]
         },
         {
-          "tcId" : 253,
+          "tcId" : 260,
           "comment" : "length of oid = 2**32 - 1",
           "public" : "3052301406072a8648ce3d02010684ffffffff2b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2619,7 +2699,7 @@
           ]
         },
         {
-          "tcId" : 254,
+          "tcId" : 261,
           "comment" : "length of oid = 2**40 - 1",
           "public" : "305330150685ffffffffff2a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2630,7 +2710,7 @@
           ]
         },
         {
-          "tcId" : 255,
+          "tcId" : 262,
           "comment" : "length of oid = 2**40 - 1",
           "public" : "3053301506072a8648ce3d02010685ffffffffff2b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2641,7 +2721,7 @@
           ]
         },
         {
-          "tcId" : 256,
+          "tcId" : 263,
           "comment" : "length of oid = 2**64 - 1",
           "public" : "305630180688ffffffffffffffff2a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2652,7 +2732,7 @@
           ]
         },
         {
-          "tcId" : 257,
+          "tcId" : 264,
           "comment" : "length of oid = 2**64 - 1",
           "public" : "3056301806072a8648ce3d02010688ffffffffffffffff2b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2663,7 +2743,7 @@
           ]
         },
         {
-          "tcId" : 258,
+          "tcId" : 265,
           "comment" : "incorrect length of oid",
           "public" : "304e301006ff2a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2674,7 +2754,7 @@
           ]
         },
         {
-          "tcId" : 259,
+          "tcId" : 266,
           "comment" : "incorrect length of oid",
           "public" : "304e301006072a8648ce3d020106ff2b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2685,7 +2765,7 @@
           ]
         },
         {
-          "tcId" : 260,
+          "tcId" : 267,
           "comment" : "removing oid",
           "public" : "3045300706052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2696,7 +2776,7 @@
           ]
         },
         {
-          "tcId" : 261,
+          "tcId" : 268,
           "comment" : "lonely oid tag",
           "public" : "304630080606052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2707,7 +2787,7 @@
           ]
         },
         {
-          "tcId" : 262,
+          "tcId" : 269,
           "comment" : "lonely oid tag",
           "public" : "3048300a06072a8648ce3d020106033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2718,7 +2798,7 @@
           ]
         },
         {
-          "tcId" : 263,
+          "tcId" : 270,
           "comment" : "appending 0's to oid",
           "public" : "3050301206092a8648ce3d0201000006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2729,7 +2809,7 @@
           ]
         },
         {
-          "tcId" : 264,
+          "tcId" : 271,
           "comment" : "appending 0's to oid",
           "public" : "3050301206072a8648ce3d020106072b810400210000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2740,7 +2820,7 @@
           ]
         },
         {
-          "tcId" : 265,
+          "tcId" : 272,
           "comment" : "prepending 0's to oid",
           "public" : "30503012060900002a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2751,7 +2831,7 @@
           ]
         },
         {
-          "tcId" : 266,
+          "tcId" : 273,
           "comment" : "prepending 0's to oid",
           "public" : "3050301206072a8648ce3d0201060700002b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2762,7 +2842,7 @@
           ]
         },
         {
-          "tcId" : 267,
+          "tcId" : 274,
           "comment" : "appending unused 0's to oid",
           "public" : "3050301206072a8648ce3d0201000006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2773,7 +2853,7 @@
           ]
         },
         {
-          "tcId" : 268,
+          "tcId" : 275,
           "comment" : "appending null value to oid",
           "public" : "3050301206092a8648ce3d0201050006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2784,7 +2864,7 @@
           ]
         },
         {
-          "tcId" : 269,
+          "tcId" : 276,
           "comment" : "appending null value to oid",
           "public" : "3050301206072a8648ce3d020106072b810400210500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2795,7 +2875,7 @@
           ]
         },
         {
-          "tcId" : 270,
+          "tcId" : 277,
           "comment" : "truncated length of oid",
           "public" : "30473009068106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2806,7 +2886,7 @@
           ]
         },
         {
-          "tcId" : 271,
+          "tcId" : 278,
           "comment" : "truncated length of oid",
           "public" : "3049300b06072a8648ce3d02010681033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2817,7 +2897,7 @@
           ]
         },
         {
-          "tcId" : 272,
+          "tcId" : 279,
           "comment" : "Replacing oid with NULL",
           "public" : "30473009050006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2828,7 +2908,7 @@
           ]
         },
         {
-          "tcId" : 273,
+          "tcId" : 280,
           "comment" : "Replacing oid with NULL",
           "public" : "3049300b06072a8648ce3d02010500033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2839,7 +2919,7 @@
           ]
         },
         {
-          "tcId" : 274,
+          "tcId" : 281,
           "comment" : "changing tag value of oid",
           "public" : "304e301004072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2850,7 +2930,7 @@
           ]
         },
         {
-          "tcId" : 275,
+          "tcId" : 282,
           "comment" : "changing tag value of oid",
           "public" : "304e301005072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2861,7 +2941,7 @@
           ]
         },
         {
-          "tcId" : 276,
+          "tcId" : 283,
           "comment" : "changing tag value of oid",
           "public" : "304e301007072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2872,7 +2952,7 @@
           ]
         },
         {
-          "tcId" : 277,
+          "tcId" : 284,
           "comment" : "changing tag value of oid",
           "public" : "304e301008072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2883,7 +2963,7 @@
           ]
         },
         {
-          "tcId" : 278,
+          "tcId" : 285,
           "comment" : "changing tag value of oid",
           "public" : "304e3010ff072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2894,7 +2974,7 @@
           ]
         },
         {
-          "tcId" : 279,
+          "tcId" : 286,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020104052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2905,7 +2985,7 @@
           ]
         },
         {
-          "tcId" : 280,
+          "tcId" : 287,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020105052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2916,7 +2996,7 @@
           ]
         },
         {
-          "tcId" : 281,
+          "tcId" : 288,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020107052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2927,7 +3007,7 @@
           ]
         },
         {
-          "tcId" : 282,
+          "tcId" : 289,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d020108052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2938,7 +3018,7 @@
           ]
         },
         {
-          "tcId" : 283,
+          "tcId" : 290,
           "comment" : "changing tag value of oid",
           "public" : "304e301006072a8648ce3d0201ff052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2949,7 +3029,7 @@
           ]
         },
         {
-          "tcId" : 284,
+          "tcId" : 291,
           "comment" : "dropping value of oid",
           "public" : "30473009060006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2960,7 +3040,7 @@
           ]
         },
         {
-          "tcId" : 285,
+          "tcId" : 292,
           "comment" : "dropping value of oid",
           "public" : "3049300b06072a8648ce3d02010600033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -2971,8 +3051,8 @@
           ]
         },
         {
-          "tcId" : 286,
-          "comment" : "modify first byte of oid",
+          "tcId" : 293,
+          "comment" : "modifying first byte of oid",
           "public" : "304e30100607288648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -2982,8 +3062,8 @@
           ]
         },
         {
-          "tcId" : 287,
-          "comment" : "modify first byte of oid",
+          "tcId" : 294,
+          "comment" : "modifying first byte of oid",
           "public" : "304e301006072a8648ce3d020106052981040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -2993,8 +3073,8 @@
           ]
         },
         {
-          "tcId" : 288,
-          "comment" : "modify last byte of oid",
+          "tcId" : 295,
+          "comment" : "modifying last byte of oid",
           "public" : "304e301006072a8648ce3d028106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -3004,8 +3084,8 @@
           ]
         },
         {
-          "tcId" : 289,
-          "comment" : "modify last byte of oid",
+          "tcId" : 296,
+          "comment" : "modifying last byte of oid",
           "public" : "304e301006072a8648ce3d020106052b810400a1033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -3015,7 +3095,7 @@
           ]
         },
         {
-          "tcId" : 290,
+          "tcId" : 297,
           "comment" : "truncated oid",
           "public" : "304d300f06062a8648ce3d0206052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3026,7 +3106,7 @@
           ]
         },
         {
-          "tcId" : 291,
+          "tcId" : 298,
           "comment" : "truncated oid",
           "public" : "304d300f06068648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3037,7 +3117,7 @@
           ]
         },
         {
-          "tcId" : 292,
+          "tcId" : 299,
           "comment" : "truncated oid",
           "public" : "304d300f06072a8648ce3d020106042b810400033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3048,7 +3128,7 @@
           ]
         },
         {
-          "tcId" : 293,
+          "tcId" : 300,
           "comment" : "truncated oid",
           "public" : "304d300f06072a8648ce3d0201060481040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3059,7 +3139,18 @@
           ]
         },
         {
-          "tcId" : 294,
+          "tcId" : 301,
+          "comment" : "oid of size 4104 to check for overflows",
+          "public" : "3082105330821013068210082a8648ce3d0201000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 302,
           "comment" : "wrong oid",
           "public" : "304c300e06052b0e03021a06052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3070,7 +3161,7 @@
           ]
         },
         {
-          "tcId" : 295,
+          "tcId" : 303,
           "comment" : "wrong oid",
           "public" : "30503012060960864801650304020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3081,7 +3172,7 @@
           ]
         },
         {
-          "tcId" : 296,
+          "tcId" : 304,
           "comment" : "wrong oid",
           "public" : "304e301006072a8648ce3d020106052b0e03021a033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3092,7 +3183,7 @@
           ]
         },
         {
-          "tcId" : 297,
+          "tcId" : 305,
           "comment" : "wrong oid",
           "public" : "3052301406072a8648ce3d02010609608648016503040201033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3103,7 +3194,7 @@
           ]
         },
         {
-          "tcId" : 298,
+          "tcId" : 306,
           "comment" : "longer oid",
           "public" : "304f301106082a8648ce3d02010106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3114,7 +3205,7 @@
           ]
         },
         {
-          "tcId" : 299,
+          "tcId" : 307,
           "comment" : "longer oid",
           "public" : "304f301106072a8648ce3d020106062b8104002101033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3125,7 +3216,7 @@
           ]
         },
         {
-          "tcId" : 300,
+          "tcId" : 308,
           "comment" : "oid with modified node",
           "public" : "304e301006072a8648ce3d021106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3136,7 +3227,7 @@
           ]
         },
         {
-          "tcId" : 301,
+          "tcId" : 309,
           "comment" : "oid with modified node",
           "public" : "30523014060b2a8648ce3d02888080800106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3147,7 +3238,7 @@
           ]
         },
         {
-          "tcId" : 302,
+          "tcId" : 310,
           "comment" : "oid with modified node",
           "public" : "304e301006072a8648ce3d020106052b81040031033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3158,7 +3249,7 @@
           ]
         },
         {
-          "tcId" : 303,
+          "tcId" : 311,
           "comment" : "oid with modified node",
           "public" : "3052301406072a8648ce3d020106092b8104008880808021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3169,7 +3260,7 @@
           ]
         },
         {
-          "tcId" : 304,
+          "tcId" : 312,
           "comment" : "large integer in oid",
           "public" : "3057301906102a8648ce3d028280808080808080800106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3180,7 +3271,7 @@
           ]
         },
         {
-          "tcId" : 305,
+          "tcId" : 313,
           "comment" : "large integer in oid",
           "public" : "3057301906072a8648ce3d0201060e2b81040082808080808080808021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3191,7 +3282,7 @@
           ]
         },
         {
-          "tcId" : 306,
+          "tcId" : 314,
           "comment" : "oid with invalid node",
           "public" : "304f301106082a8648ce3d0201e006052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3202,7 +3293,7 @@
           ]
         },
         {
-          "tcId" : 307,
+          "tcId" : 315,
           "comment" : "oid with invalid node",
           "public" : "304f301106082a808648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3213,7 +3304,7 @@
           ]
         },
         {
-          "tcId" : 308,
+          "tcId" : 316,
           "comment" : "oid with invalid node",
           "public" : "304f301106072a8648ce3d020106062b81040021e0033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3224,7 +3315,7 @@
           ]
         },
         {
-          "tcId" : 309,
+          "tcId" : 317,
           "comment" : "oid with invalid node",
           "public" : "304f301106072a8648ce3d020106062b8081040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3235,7 +3326,40 @@
           ]
         },
         {
-          "tcId" : 310,
+          "tcId" : 318,
+          "comment" : "oid with 263 nodes",
+          "public" : "3082015330820113068201082a8648ce3d0201010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 319,
+          "comment" : "oid of size 4102 to check for overflows",
+          "public" : "308210533082101306072a8648ce3d0201068210062b810400210000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 320,
+          "comment" : "oid with 262 nodes",
+          "public" : "308201533082011306072a8648ce3d0201068201062b810400210101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 321,
           "comment" : "long form encoding of length of bit string",
           "public" : "304f301006072a8648ce3d020106052b8104002103813a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3246,7 +3370,7 @@
           ]
         },
         {
-          "tcId" : 311,
+          "tcId" : 322,
           "comment" : "length of bit string contains leading 0",
           "public" : "3050301006072a8648ce3d020106052b810400210382003a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3257,7 +3381,7 @@
           ]
         },
         {
-          "tcId" : 312,
+          "tcId" : 323,
           "comment" : "wrong length of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033b000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3268,7 +3392,7 @@
           ]
         },
         {
-          "tcId" : 313,
+          "tcId" : 324,
           "comment" : "wrong length of bit string",
           "public" : "304e301006072a8648ce3d020106052b810400210339000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3279,7 +3403,7 @@
           ]
         },
         {
-          "tcId" : 314,
+          "tcId" : 325,
           "comment" : "uint32 overflow in length of bit string",
           "public" : "3053301006072a8648ce3d020106052b810400210385010000003a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3290,7 +3414,7 @@
           ]
         },
         {
-          "tcId" : 315,
+          "tcId" : 326,
           "comment" : "uint64 overflow in length of bit string",
           "public" : "3057301006072a8648ce3d020106052b81040021038901000000000000003a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3301,7 +3425,7 @@
           ]
         },
         {
-          "tcId" : 316,
+          "tcId" : 327,
           "comment" : "length of bit string = 2**31 - 1",
           "public" : "3052301006072a8648ce3d020106052b8104002103847fffffff000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3312,7 +3436,7 @@
           ]
         },
         {
-          "tcId" : 317,
+          "tcId" : 328,
           "comment" : "length of bit string = 2**32 - 1",
           "public" : "3052301006072a8648ce3d020106052b810400210384ffffffff000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3323,7 +3447,7 @@
           ]
         },
         {
-          "tcId" : 318,
+          "tcId" : 329,
           "comment" : "length of bit string = 2**40 - 1",
           "public" : "3053301006072a8648ce3d020106052b810400210385ffffffffff000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3334,7 +3458,7 @@
           ]
         },
         {
-          "tcId" : 319,
+          "tcId" : 330,
           "comment" : "length of bit string = 2**64 - 1",
           "public" : "3056301006072a8648ce3d020106052b810400210388ffffffffffffffff000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3345,7 +3469,7 @@
           ]
         },
         {
-          "tcId" : 320,
+          "tcId" : 331,
           "comment" : "incorrect length of bit string",
           "public" : "304e301006072a8648ce3d020106052b8104002103ff000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3356,7 +3480,7 @@
           ]
         },
         {
-          "tcId" : 321,
+          "tcId" : 332,
           "comment" : "lonely bit string tag",
           "public" : "3013301006072a8648ce3d020106052b8104002103",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3367,7 +3491,7 @@
           ]
         },
         {
-          "tcId" : 322,
+          "tcId" : 333,
           "comment" : "appending 0's to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3378,7 +3502,7 @@
           ]
         },
         {
-          "tcId" : 323,
+          "tcId" : 334,
           "comment" : "prepending 0's to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c0000000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3389,7 +3513,7 @@
           ]
         },
         {
-          "tcId" : 324,
+          "tcId" : 335,
           "comment" : "appending null value to bit string",
           "public" : "3050301006072a8648ce3d020106052b81040021033c000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620500",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3400,7 +3524,7 @@
           ]
         },
         {
-          "tcId" : 325,
+          "tcId" : 336,
           "comment" : "truncated length of bit string",
           "public" : "3014301006072a8648ce3d020106052b810400210381",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3411,7 +3535,7 @@
           ]
         },
         {
-          "tcId" : 326,
+          "tcId" : 337,
           "comment" : "Replacing bit string with NULL",
           "public" : "3014301006072a8648ce3d020106052b810400210500",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3422,7 +3546,7 @@
           ]
         },
         {
-          "tcId" : 327,
+          "tcId" : 338,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021013a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3433,7 +3557,7 @@
           ]
         },
         {
-          "tcId" : 328,
+          "tcId" : 339,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021023a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3444,7 +3568,7 @@
           ]
         },
         {
-          "tcId" : 329,
+          "tcId" : 340,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021043a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3455,7 +3579,7 @@
           ]
         },
         {
-          "tcId" : 330,
+          "tcId" : 341,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021053a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3466,7 +3590,7 @@
           ]
         },
         {
-          "tcId" : 331,
+          "tcId" : 342,
           "comment" : "changing tag value of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021ff3a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3477,7 +3601,7 @@
           ]
         },
         {
-          "tcId" : 332,
+          "tcId" : 343,
           "comment" : "dropping value of bit string",
           "public" : "3014301006072a8648ce3d020106052b810400210300",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3488,8 +3612,8 @@
           ]
         },
         {
-          "tcId" : 333,
-          "comment" : "modify first byte of bit string",
+          "tcId" : 344,
+          "comment" : "modifying first byte of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a020486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -3499,8 +3623,8 @@
           ]
         },
         {
-          "tcId" : 334,
-          "comment" : "modify last byte of bit string",
+          "tcId" : 345,
+          "comment" : "modifying last byte of bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3dae2",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
           "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
@@ -3510,7 +3634,7 @@
           ]
         },
         {
-          "tcId" : 335,
+          "tcId" : 346,
           "comment" : "truncated bit string",
           "public" : "304d301006072a8648ce3d020106052b810400210339000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3521,7 +3645,7 @@
           ]
         },
         {
-          "tcId" : 336,
+          "tcId" : 347,
           "comment" : "truncated bit string",
           "public" : "304d301006072a8648ce3d020106052b8104002103390486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3532,7 +3656,18 @@
           ]
         },
         {
-          "tcId" : 337,
+          "tcId" : 348,
+          "comment" : "bit string of size 4155 to check for overflows",
+          "public" : "30821051301006072a8648ce3d020106052b810400210382103b000486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da620000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
+          "shared" : "85a70fc4dfc8509fb9ba1cfcf1879443e2ce176d794228029b10da63",
+          "result" : "acceptable",
+          "flags" : [
+            "InvalidAsn"
+          ]
+        },
+        {
+          "tcId" : 349,
           "comment" : "declaring bits as unused in bit string",
           "public" : "304e301006072a8648ce3d020106052b81040021033a010486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3543,7 +3678,7 @@
           ]
         },
         {
-          "tcId" : 338,
+          "tcId" : 350,
           "comment" : "unused bits in bit string",
           "public" : "3052301006072a8648ce3d020106052b81040021033e200486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da6201020304",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3554,7 +3689,7 @@
           ]
         },
         {
-          "tcId" : 339,
+          "tcId" : 351,
           "comment" : "unused bits in empty bit-string",
           "public" : "3015301006072a8648ce3d020106052b81040021030103",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",
@@ -3565,7 +3700,7 @@
           ]
         },
         {
-          "tcId" : 340,
+          "tcId" : 352,
           "comment" : "128 unused bits",
           "public" : "304e301006072a8648ce3d020106052b81040021033a800486e2f72bccd974a3f1a4fc2cdcf22043eaf8be047de6be726b62001fda6f50f6df0b51bee99195d8a1a1c97e59e72fa4fcf8c1d21cb3da62",
           "private" : "00a1b9444f59642d428e2f299055004165a34c3b8796c5057ae8a1a572",

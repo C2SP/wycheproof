@@ -19,6 +19,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -27,8 +29,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.XECPrivateKeySpec;
+import java.security.spec.XECPublicKeySpec;
 import javax.crypto.KeyAgreement;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,22 +44,22 @@ import org.junit.runners.JUnit4;
  * Tests for XDH.
  *
  * <p>XDH is a Diffie-Hellman key agreement scheme over curve25519 or curve448. It has been added to
- * jdk11 (http://openjdk.java.net/jeps/324) jdk11 also adds new interfaces for XDH. The tests in
- * this class avoid the new interfaces, so that compiling with older versions is still possible.
+ * jdk11 (http://openjdk.java.net/jeps/324) jdk11 also adds new interfaces for XDH. Using the XDH
+ * interfaces has some disadvantages: (1) the XDH interfaces are low level, they require that the
+ * caller performs some bit fiddling specified in RFC 7748. (2) Third party providers do not support
+ * these interfaces well. (3) Code becomes algorithm dependent. Because of these disadvantages it is
+ * preferable to work with ASN encoded keys.
  */
 @RunWith(JUnit4.class)
 public class JsonXdhTest {
 
-  @NoPresubmitTest(
-      providers = {ProviderType.BOUNCY_CASTLE},
-      bugs = {"b/138722408"})
   @Test
   public void testKeyGeneration() throws Exception {
     KeyPairGenerator kpg;
     try {
       kpg = KeyPairGenerator.getInstance("XDH");
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("XDH not supported");
+      TestUtil.skipTest("XDH not supported");
       return;
     }
     // An alternative is
@@ -94,7 +100,7 @@ public class JsonXdhTest {
     try {
       kpg = KeyPairGenerator.getInstance(algorithmName);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println(algorithmName + " is not supported");
+      TestUtil.skipTest(algorithmName + " is not supported");
       return;
     }
     KeyPair kp = kpg.generateKeyPair();
@@ -136,14 +142,187 @@ public class JsonXdhTest {
     testKeyGenerationWithName("X448");
   }
 
-  /** Convenience mehtod to get a String from a JsonObject */
-  protected static String getString(JsonObject object, String name) throws Exception {
-    return object.get(name).getAsString();
+  /** Convenience method to get a byte array from a JsonObject */
+  private static byte[] getBytes(JsonObject object, String name) {
+    return JsonUtil.asByteArray(object.get(name));
   }
 
-  /** Convenience method to get a byte array from a JsonObject */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
-    return JsonUtil.asByteArray(object.get(name));
+  /**
+   * Returns the bit size of the underlying curve.
+   *
+   * @param paramSpec the XDH parameters
+   * @return the size of the underlying curve in bits.
+   */
+  public static int getBits(NamedParameterSpec paramSpec) throws NoSuchAlgorithmException {
+    switch (paramSpec.getName()) {
+      case "X25519":
+        return 255;
+      case "X448":
+        return 448;
+      default:
+        throw new NoSuchAlgorithmException("Unsupported algorithm: " + paramSpec.getName());
+    }
+  }
+
+  /**
+   * Decodes a raw public key.
+   *
+   * <p>This function is defined in Section 5 of RFC 7748. Support for this representation is a bit
+   * weak. While raw key can be converted into an XECPublickeySpec it is necessary that the user is
+   * aware of a number of subtleties to ensure a correct conversion. I.e., there are a number of
+   * ways an encoding can be malformed or non-canonical:
+   *
+   * <ul>
+   *   <li>The size of the encoded coordinate is wrong. RFC 7748 implicitely assumes a fixed size.
+   *       Hence such encoding should be rejected. The size of the encoded coordinate is lost after
+   *       converting to an integer. Hence this method checks the size and throws an exception when
+   *       the size is incorrect.
+   *   <li>The most significant bit of an X25519 coordinate is set. RFC 7748 states that this bit
+   *       must be ignored. XECPublicKeySpec allows to specify public keys where this bit has not
+   *       been cleared. Computing XDH with such keys has non-conforming behavior. Hence it is left
+   *       to the caller to clear the most significant bit.
+   *   <li>The coordinate is larger than the size of the XDH field but has the same bit length. In
+   *       this case the value should be reduced modulo the order of the XDH field. This functions
+   *       does not do this reduction and expects the provider to perform this function.
+   * </ul>
+   *
+   * @param encoded the encoded public key
+   * @param paramSpec the parameter defining the algorithm
+   * @return the decoded public key
+   * @throws InvalidKeySpecException if the encoded coordinate has an incorrect size.
+   * @throws NoSuchAlgorithmException if paramSpec is not supported.
+   */
+  public static KeySpec decodeRawPublic(byte[] encoded, NamedParameterSpec paramSpec)
+      throws InvalidKeySpecException, NoSuchAlgorithmException {
+    int bits = getBits(paramSpec);
+    int size = (bits + 7) / 8;
+    if (encoded.length != size) {
+      throw new InvalidKeySpecException("Invalid size of the encoded coordinate.");
+    }
+    BigInteger u = BigInteger.ZERO;
+    for (int i = 0; i < size; i++) {
+      u = u.add(BigInteger.valueOf(encoded[i] & 0xff).shiftLeft(8 * i));
+    }
+    // Discard additional bits as specified in Section 5 of RFC 7748.
+    if (u.bitLength() >= bits) {
+      u = u.mod(BigInteger.ONE.shiftLeft(bits));
+    }
+    return new XECPublicKeySpec(paramSpec, u);
+  }
+
+  /* Returns a KeySpec for the public key in an XDH exchange.
+   *
+   * @param paramSpec The parameterSpec that defines the XDH parameters.
+   * @param schema The JSON schema of the test vectors. The schema defines the
+   *      format of the public key.
+   * @param testcase The testcase containing the public key.
+   * @return the public key
+   */
+  private static KeySpec getPublicKeySpec(
+      NamedParameterSpec paramSpec, String schema, JsonObject testcase)
+      throws InvalidKeySpecException, NoSuchAlgorithmException {
+    byte[] pub = getBytes(testcase, "public");
+    switch (schema) {
+      case "xdh_asn_comp_schema.json":
+        return new X509EncodedKeySpec(pub);
+      case "xdh_comp_schema.json":
+        return decodeRawPublic(pub, paramSpec);
+      default:
+        throw new NoSuchAlgorithmException("Unsupported schema: " + schema);
+    }
+  }
+
+  /**
+   * Returns a KeySpec for the private key in an XDH exchange.
+   *
+   * @param paramSpec The parameterSpec that defines the XDH parameters.
+   * @param schema The JSON schema of the test vectors. The schema defines the format of the private
+   *     key.
+   * @param testcase The testcase containing the private key.
+   * @return the private key
+   */
+  private static KeySpec getPrivateKeySpec(
+      NamedParameterSpec paramSpec, String schema, JsonObject testcase)
+      throws NoSuchAlgorithmException {
+    byte[] priv = getBytes(testcase, "private");
+    switch (schema) {
+      case "xdh_asn_comp_schema.json":
+        return new PKCS8EncodedKeySpec(priv);
+      case "xdh_comp_schema.json":
+        return new XECPrivateKeySpec(paramSpec, priv);
+      default:
+        throw new NoSuchAlgorithmException("Unsupported schema: " + schema);
+    }
+  }
+
+  private static NamedParameterSpec getParameterSpec(String curve) throws NoSuchAlgorithmException {
+    switch (curve) {
+      case "curve25519":
+        return NamedParameterSpec.X25519;
+      case "curve448":
+        return NamedParameterSpec.X448;
+      default:
+        throw new NoSuchAlgorithmException("Unsupported curve: " + curve);
+    }
+  }
+
+  private static void singleTest(
+      TestVectors testvectors,
+      NamedParameterSpec paramSpec,
+      String schema,
+      JsonObject testcase,
+      TestResult testResult) {
+    int tcId = testcase.get("tcId").getAsInt();
+    String result = testcase.get("result").getAsString();
+    String expectedHex = testcase.get("shared").getAsString();
+    try {
+      KeyFactory kf = KeyFactory.getInstance("XDH");
+      KeySpec privKeySpec = getPrivateKeySpec(paramSpec, schema, testcase);
+      PrivateKey privKey = kf.generatePrivate(privKeySpec);
+      KeySpec pubKeySpec = getPublicKeySpec(paramSpec, schema, testcase);
+      PublicKey pubKey = kf.generatePublic(pubKeySpec);
+      KeyAgreement ka = KeyAgreement.getInstance("XDH");
+      ka.init(privKey);
+      ka.doPhase(pubKey, true);
+      String sharedHex = TestUtil.bytesToHex(ka.generateSecret());
+      TestResult.Type res;
+      String comment = "";
+      if (expectedHex.equals(sharedHex)) {
+        if (result.equals("valid") || testvectors.isLegacy(tcId)) {
+          res = TestResult.Type.PASSED_VALID;
+        } else {
+          // A shared secret was computed with an invalid input.
+          // This indicates an incomplete input validation.
+          res = TestResult.Type.PASSED_MALFORMED;
+        }
+      } else {
+        if (result.equals("valid") || testvectors.isLegacy(tcId)) {
+          res = TestResult.Type.WRONG_RESULT;
+        } else {
+          // An invalid shared secret was computed with an invalid input.
+          // Bugs like this can indicate that an invalid curve attack
+          // might be possible. Hence this error is typically much more critical
+          // than PASSED_MALFORMED.
+          res = TestResult.Type.NOT_REJECTED_INVALID;
+        }
+        comment = "Incorrect result: " + sharedHex;
+      }
+      testResult.addResult(tcId, res, comment);
+    } catch (NoSuchAlgorithmException ex) {
+      testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+    } catch (InvalidKeySpecException | InvalidKeyException | IllegalStateException ex) {
+      // IllegalStateException is a RuntimeException. Normally a provider should not throw
+      // any RuntimeException, when the input is malformed. Unfortunately, the interface
+      // KeyAgreement.generateSecret only allows ShortBufferException and IllegalStateException.
+      // Hence some provider throw, IllegalStateExceptions when the shared secret is invalid.
+      if (result.equals("valid")) {
+        testResult.addResult(tcId, TestResult.Type.REJECTED_VALID, ex.toString());
+      } else {
+        testResult.addResult(tcId, TestResult.Type.REJECTED_INVALID, ex.toString());
+      }
+    } catch (RuntimeException ex) {
+      testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
+    }
   }
 
   /**
@@ -180,131 +359,58 @@ public class JsonXdhTest {
    *         ...
    * </pre>
    */
-  public void testXdhComp(String filename) throws Exception {
-    // Checks the precondition for this test.
-    // XDH has been added in jdk11.
+  public static TestResult allTests(TestVectors testVectors) {
+    var testResult = new TestResult(testVectors);
     try {
-      KeyAgreement.getInstance("XDH");
+      KeyAgreement unused = KeyAgreement.getInstance("XDH");
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("XDH is not supported: skipping test");
-      return;
+      testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, "XDH is not known");
+      return testResult;
     }
-
-    final String expectedSchema = "xdh_asn_comp_schema.json";
-    JsonObject test = JsonUtil.getTestVectors(filename);
-    String generatorVersion = test.get("generatorVersion").getAsString();
+    JsonObject test = testVectors.getTest();
     String schema = test.get("schema").getAsString();
-    if (!schema.equals(expectedSchema)) {
-      System.out.println(
-          "XDH: expecting JSON schema "
-              + expectedSchema
-              + " found "
-              + schema
-              + " generatorVersion:"
-              + generatorVersion);
-    }
-    int numTests = test.get("numberOfTests").getAsInt();
-    int passedTests = 0;
-    int rejectedTests = 0;  // invalid test vectors leading to exceptions
-    int skippedTests = 0;  // valid test vectors leading to exceptions
-    int errors = 0;
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
+      String curve = group.get("curve").getAsString();
+      NamedParameterSpec paramSpec;
+      try {
+        paramSpec = getParameterSpec(curve);
+      } catch (NoSuchAlgorithmException ex) {
+        testResult.addFailure(TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+        continue;
+      }
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String comment = getString(testcase, "comment");
-        byte[] priv = getBytes(testcase, "private");
-        byte[] publicEncoded = getBytes(testcase, "public");
-        String result = getString(testcase, "result");
-        String expectedHex = getString(testcase, "shared");
-        KeyFactory kf = KeyFactory.getInstance("XDH");
-        try {
-          PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(priv);
-          PrivateKey privKey = kf.generatePrivate(privKeySpec);
-          X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(publicEncoded);
-          PublicKey pubKey = kf.generatePublic(pubKeySpec);
-          KeyAgreement ka = KeyAgreement.getInstance("XDH");
-          ka.init(privKey);
-          ka.doPhase(pubKey, true);
-          String sharedHex = TestUtil.bytesToHex(ka.generateSecret());
-          if (result.equals("invalid")) {
-            System.out.println(
-                "Computed XDH with invalid parameters"
-                    + " tcId:"
-                    + tcid
-                    + " comment:"
-                    + comment
-                    + " shared:"
-                    + sharedHex);
-            errors++;
-          } else if (!expectedHex.equals(sharedHex)) {
-            System.out.println(
-                "Incorrect XDH computation"
-                    + " tcId:"
-                    + tcid
-                    + " comment:"
-                    + comment
-                    + "\nshared:"
-                    + sharedHex
-                    + "\nexpected:"
-                    + expectedHex
-                    + "\npublic:"
-                    + TestUtil.bytesToHex(publicEncoded)
-                    + "\nprivate:"
-                    + TestUtil.bytesToHex(priv));
-            errors++;
-          } else {
-            passedTests++;
-          }
-        } catch (InvalidKeySpecException | InvalidKeyException | NoSuchAlgorithmException ex) {
-          // These are the exception that we expect to see when a curve is not implemented
-          // or when a key is not valid.
-          if (result.equals("valid")) {
-            skippedTests++;
-          } else {
-            rejectedTests++;
-          }
-        } catch (IllegalStateException | ClassCastException ex) {
-          // TODO(bleichen): Eventually the cases here should be counted as errors.
-          // BouncyCastle throws IllegalStateException when the shared secret is all 0.
-          // The library throws a ClassCastException in some case where the public key uses
-          // a different curve. Instead of these exception I'd rather expect checked exception.
-          // However, testing for incorrect results is more important at this point.
-          System.out.println(
-              "Test vector with tcId:" + tcid + " comment:" + comment + " throws:" + ex);
-          if (result.equals("valid")) {
-            skippedTests++;
-          } else {
-            rejectedTests++;
-          }
-        } catch (Exception ex) {
-          // Other exceptions typically indicate that something is wrong with the implementation.
-          System.out.println(
-              "Test vector with tcId:" + tcid + " comment:" + comment + " throws:" + ex.toString());
-          errors++;
-        }
+        singleTest(testVectors, paramSpec, schema, testcase, testResult);
       }
     }
-    System.out.println(
-        filename
-            + " passed:"
-            + passedTests
-            + " skipped:"
-            + skippedTests
-            + " errors:"
-            + errors
-            + " rejected:"
-            + rejectedTests);
-    assertEquals(0, errors);
-    assertEquals(numTests, passedTests + rejectedTests + skippedTests);
+    return testResult;
+  }
+
+  /**
+   * Tests XDH exchanges against test vectors.
+   *
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the XDH curve or the XDH key format is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOException when the test vectors could not be read
+   */
+  public void testXdhComp(String filename) throws Exception {
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestResult testResult = allTests(new TestVectors(test, filename));
+    if (testResult.skipTest()) {
+      TestUtil.skipTest("No valid test vectors passed");
+      return;
+    }
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
   }
 
   @NoPresubmitTest(
       providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK},
       bugs = {"b/138722408"})
   @Test
-  public void testX25519() throws Exception {
+  public void testX25519Asn() throws Exception {
     testXdhComp("x25519_asn_test.json");
   }
 
@@ -312,7 +418,17 @@ public class JsonXdhTest {
       providers = {ProviderType.BOUNCY_CASTLE, ProviderType.OPENJDK},
       bugs = {"b/138722408"})
   @Test
-  public void testX448() throws Exception {
+  public void testX448Asn() throws Exception {
     testXdhComp("x448_asn_test.json");
+  }
+
+  @Test
+  public void testX25519() throws Exception {
+    testXdhComp("x25519_test.json");
+  }
+
+  @Test
+  public void testX448() throws Exception {
+    testXdhComp("x448_test.json");
   }
 }

@@ -17,6 +17,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
+import com.google.security.wycheproof.WycheproofRunner.ProviderType;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -25,6 +28,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.KeyAgreement;
 import org.junit.Test;
@@ -35,23 +39,67 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class JsonEcdhTest {
 
-  /** Convenience mehtod to get a String from a JsonObject */
-  protected static String getString(JsonObject object, String name) throws Exception {
-    return object.get(name).getAsString();
-  }
-
   /** Convenience method to get a BigInteger from a JsonObject */
-  protected static BigInteger getBigInteger(JsonObject object, String name) throws Exception {
+  protected static BigInteger getBigInteger(JsonObject object, String name) {
     return JsonUtil.asBigInteger(object.get(name));
   }
 
   /** Convenience method to get a byte array from a JsonObject */
-  protected static byte[] getBytes(JsonObject object, String name) throws Exception {
+  protected static byte[] getBytes(JsonObject object, String name) {
     return JsonUtil.asByteArray(object.get(name));
+  }
+
+  private static void singleTest(JsonObject testcase, String curve, TestResult testResult) {
+    BigInteger priv = getBigInteger(testcase, "private");
+    byte[] publicEncoded = getBytes(testcase, "public");
+    String result = testcase.get("result").getAsString();
+    String expectedHex = testcase.get("shared").getAsString();
+    int tcId = testcase.get("tcId").getAsInt();
+
+    try {
+      KeyFactory kf = KeyFactory.getInstance("EC");
+      ECPrivateKeySpec spec = new ECPrivateKeySpec(priv, EcUtil.getCurveSpec(curve));
+      PrivateKey privKey = kf.generatePrivate(spec);
+      X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(publicEncoded);
+      PublicKey pubKey = kf.generatePublic(x509keySpec);
+      KeyAgreement ka = KeyAgreement.getInstance("ECDH");
+      ka.init(privKey);
+      ka.doPhase(pubKey, true);
+      String sharedHex = TestUtil.bytesToHex(ka.generateSecret());
+      TestResult.Type res;
+      String comment = "";
+      if (expectedHex.equals(sharedHex)) {
+        if (result.equals("valid") || result.equals("acceptable")) {
+          res = TestResult.Type.PASSED_VALID;
+        } else {
+          res = TestResult.Type.PASSED_MALFORMED;
+        }
+      } else {
+        if (result.equals("valid") || result.equals("acceptable")) {
+          res = TestResult.Type.WRONG_RESULT;
+        } else {
+          res = TestResult.Type.NOT_REJECTED_INVALID;
+        }
+        comment = "Incorrect result: " + sharedHex;
+      }
+      testResult.addResult(tcId, res, comment);
+    } catch (NoSuchAlgorithmException ex) {
+      testResult.addResult(tcId, TestResult.Type.REJECTED_ALGORITHM, ex.toString());
+    } catch (InvalidKeySpecException | InvalidKeyException | InvalidParameterSpecException ex) {
+      if (result.equals("valid")) {
+        testResult.addResult(tcId, TestResult.Type.REJECTED_VALID, ex.toString());
+      } else {
+        testResult.addResult(tcId, TestResult.Type.REJECTED_INVALID, ex.toString());
+      }
+    } catch (RuntimeException ex) {
+      testResult.addResult(tcId, TestResult.Type.WRONG_EXCEPTION, ex.toString());
+    }
   }
 
   /**
    * Example for test vector
+   *
+   * <pre>
    * {
    * "algorithm" : "ECDH",
    * "header" : [],
@@ -74,88 +122,56 @@ public class JsonEcdhTest {
    *         "tcId" : 1
    *        },
    *     ...
-   **/
-  public void testEcdhComp(String filename) throws Exception {
-    JsonObject test = JsonUtil.getTestVectors(filename);
-
-    // This test expects test vectors as defined in wycheproof/schemas/ecdh_test_schema.json.
-    // In particular, this means that the public keys use X509 encoding.
-    // Test vectors with different encodings of the keys have a different schema.
+   * </pre>
+   */
+  public static TestResult allTests(TestVectors testVectors) {
+    var testResult = new TestResult(testVectors);
+    String name = testVectors.getName();
+    JsonObject test = testVectors.getTest();
     final String expectedSchema = "ecdh_test_schema.json";
     String schema = test.get("schema").getAsString();
-    assertEquals("Unexpected schema in file:" + filename, expectedSchema, schema);
-
-    int numTests = test.get("numberOfTests").getAsInt();
-    int passedTests = 0;
-    int rejectedTests = 0;  // invalid test vectors leading to exceptions
-    int skippedTests = 0;  // valid test vectors leading to exceptions
-    int errors = 0;
+    if (!schema.equals(expectedSchema)) {
+      testResult.addFailure(
+          TestResult.Type.WRONG_SETUP,
+          "Unexpected schema in " + name + ": " + schema + " instead of " + expectedSchema);
+      return testResult;
+    }
     for (JsonElement g : test.getAsJsonArray("testGroups")) {
       JsonObject group = g.getAsJsonObject();
-      String curve = getString(group, "curve");
+      String curve = group.get("curve").getAsString();
       for (JsonElement t : group.getAsJsonArray("tests")) {
         JsonObject testcase = t.getAsJsonObject();
-        int tcid = testcase.get("tcId").getAsInt();
-        String comment = getString(testcase, "comment");
-        BigInteger priv = getBigInteger(testcase, "private");
-        byte[] publicEncoded = getBytes(testcase, "public");
-        String result = getString(testcase, "result");
-        String expectedHex = getString(testcase, "shared");
-        KeyFactory kf = KeyFactory.getInstance("EC");
-        try {
-          ECPrivateKeySpec spec = new ECPrivateKeySpec(priv, EcUtil.getCurveSpecRef(curve));
-          PrivateKey privKey = kf.generatePrivate(spec);
-          X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(publicEncoded);
-          PublicKey pubKey = kf.generatePublic(x509keySpec);
-          KeyAgreement ka = KeyAgreement.getInstance("ECDH");
-          ka.init(privKey);
-          ka.doPhase(pubKey, true);
-          String sharedHex = TestUtil.bytesToHex(ka.generateSecret());
-          if (result.equals("invalid")) {
-            System.out.println(
-                "Computed ECDH with invalid parameters"
-                    + " tcId:"
-                    + tcid
-                    + " comment:"
-                    + comment
-                    + " shared:"
-                    + sharedHex);
-            errors++;
-          } else if (!expectedHex.equals(sharedHex)) {
-            System.out.println(
-                "Incorrect ECDH computation"
-                    + " tcId:"
-                    + tcid
-                    + " comment:"
-                    + comment
-                    + "\nshared:"
-                    + sharedHex
-                    + "\nexpected:"
-                    + expectedHex);
-            errors++;
-          } else {
-            passedTests++;
-          }
-        } catch (InvalidKeySpecException | InvalidKeyException | NoSuchAlgorithmException ex) {
-          // These are the exception that we expect to see when a curve is not implemented
-          // or when a key is not valid.
-          if (result.equals("valid")) {
-            skippedTests++;
-          } else {
-            rejectedTests++;
-          }
-        } catch (Exception ex) {
-          // Other exceptions typically indicate that something is wrong with the implementation.
-          System.out.println(
-              "Test vector with tcId:" + tcid + " comment:" + comment + " throws:" + ex.toString());
-          errors++;
-        }
+        singleTest(testcase, curve, testResult);
       }
     }
-    assertEquals(0, errors);
-    assertEquals(numTests, passedTests + rejectedTests + skippedTests);
+    return testResult;
   }
 
+  /**
+   * Tests ECDH exchanges against test vectors.
+   *
+   * @param filename the JSON file with the test vectors.
+   * @throws AssumptionViolatedException when the test was skipped. This happens for example when
+   *     the underlying primitive or the curve is not supported.
+   * @throws AssertionError when the test failed.
+   * @throws IOExceptions when the test vectors could not be read
+   */
+  public void testEcdhComp(String filename) throws IOException {
+    JsonObject test = JsonUtil.getTestVectorsV1(filename);
+    TestResult testResult = allTests(new TestVectors(test, filename));
+    if (testResult.skipTest()) {
+      System.out.println("Skipping " + filename + " no valid test vectors passed.");
+      TestUtil.skipTest("No valid test vectors passed");
+      return;
+    }
+    System.out.print(testResult.asString());
+    assertEquals(0, testResult.errors());
+  }
+
+  // This bug vanishes in jdk19, because secp224r1 is no longer supported.
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/237634445"})
   @Test
   public void testSecp224r1() throws Exception {
     testEcdhComp("ecdh_secp224r1_test.json");
@@ -176,6 +192,10 @@ public class JsonEcdhTest {
     testEcdhComp("ecdh_secp521r1_test.json");
   }
 
+  // This bug vanishes in jdk19, because secp256k1 is no longer supported.
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK},
+      bugs = {"b/237635484"})
   @Test
   public void testSecp256k1() throws Exception {
     testEcdhComp("ecdh_secp256k1_test.json");
@@ -206,4 +226,34 @@ public class JsonEcdhTest {
     testEcdhComp("ecdh_brainpoolP512r1_test.json");
   }
 
+  /* TODO(bleichen): needs test vectors with the new format.
+  @Test
+  public void testSect283k1() throws Exception {
+    testEcdhComp("ecdh_sect283k1_test.json");
+  }
+
+  @Test
+  public void testSect283r1() throws Exception {
+    testEcdhComp("ecdh_sect283r1_test.json");
+  }
+
+  @Test
+  public void testSect409k1() throws Exception {
+    testEcdhComp("ecdh_sect409k1_test.json");
+  }
+
+  @Test
+  public void testSect409r1() throws Exception {
+    testEcdhComp("ecdh_sect409r1_test.json");
+  }
+
+  @Test
+  public void testSect571k1() throws Exception {
+    testEcdhComp("ecdh_sect571k1_test.json");
+  }
+
+  @Test
+  public void testSect571r1() throws Exception {
+    testEcdhComp("ecdh_sect571r1_test.json");
+  } */
 }

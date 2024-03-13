@@ -17,7 +17,7 @@
 /**
  * Tests for RSA-OAEP encryption implementations of Web Crypto API.
  */
-goog.provide('wycheproof.webcryptoapi.RSA-OAED');
+goog.provide('wycheproof.webcryptoapi.RSA_OAED');
 goog.require('e2e.random');
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');

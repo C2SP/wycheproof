@@ -34,7 +34,7 @@ Additional information is added as a separate paragraph.
 ### AES-GCM
 D. A. McGrew and J. Viega,
 "The Galois/Counter Mode of operation (GCM).",
-http://csrc.nist.gov/CryptoToolkit/modes/proposedmodes/gcm/gcm-spec.pdf.
+https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
 
 ### AbVaLo19
 R. Abarzúa, C. Valencia and J. López,
@@ -51,7 +51,7 @@ https://www.iacr.org/archive/pkc2003/25670211/25670211.pdf
 T. Akishita, T. Takagi,
 "Zero-Value Point Attacks on Elliptic Curve Cryptosystem",
 ISC 2003, pp. 218-233.
-https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf
+https://download.hrz.tu-darmstadt.de/pub/FB20/Dekanat/Publikationen/CDC/TI-03-01.zvp.pdf
 
 ### BeMeMu00
 I. Biehl, B. Meyer, V. Müller,
@@ -62,6 +62,34 @@ Crypto '00, pp. 131-164
 Bellare, Rogaway,
 "Encode-Then-Encipher Encryption: How to exploit nonces or redundancy in plaintexts for efficient cryptography",
 Asiacrypt 2000, pp.317--330.
+
+### BreHen19
+
+J. Breitner and N. Heninger, "Biased Nonce Sense: Lattice Attacks against Weak
+ECDSA Signatures in Cryptocurrencies",
+
+https://eprint.iacr.org/2019/023
+
+### Brown07
+
+D. R. L. Brown "What Hashes Make RSA-OAEP Secure?", IACR e-print, 2007,
+https://eprint.iacr.org/2006/223.pdf
+
+### BFKLSST12
+
+R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
+"Efficient padding oracle attacks on cryptographic hardware", Crypto 2012
+
+### DSMMS16
+
+D. Detering, J. Somorovsky, C. Mainka, V. Mladenov, J. Schwenk
+"On The (In-)Security Of JavaScript Object Signing And Encryption"
+https://www.nds.rub.de/media/ei/veroeffentlichungen/2017/10/17/main.pdf
+
+### Ferguson05
+N. Ferguson,
+"Authentication weaknesses in GCM",
+https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
 
 ### FGHT16
 J. Fried, P. Gaudry, N. Heininger, E. Thome,
@@ -84,36 +112,55 @@ D. Genkin, L. Pachmanov, I. Pipman, E. Tromer,
 "ECDH Key-Extraction via Low-Bandwidth Electromagnetic Attacks on PCs",
 http://cs.tau.ac.il/~tromer/papers/ecdh.pdf
 
-### LimLee98
-C.H. Lim and P.J. Lee,
-"A key recovery attack on discrete log-based schemes using a prime order subgroup",
-CRYPTO' 98, pp 249--263.
+### HowSma99
+
+N.A. Howgrave-Graham, N.P. Smart, "Lattice Attacks on Digital Signature Schemes",
+https://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
 
 ### Joux-Gcm
 A. Joux,
 "Authentication failures in NIST version of GCM",
 http://csrc.nist.gov/groups/ST/toolkit/BCM/documents/comments/800-38_Series-Drafts/GCM/Joux_comments.pdf.
 
-### Ferguson05
-N. Ferguson,
-"Authentication weaknesses in GCM",
-https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
+### LimLee98
+C.H. Lim and P.J. Lee, "A key recovery attack on discrete log-based schemes
+using a prime order subgroup", CRYPTO' 98, pp 249--263.
 
-### HowSma99
-N.A. Howgrave-Graham, N.P. Smart,
-"Lattice Attacks on Digital Signature Schemes"
-http://www.hpl.hp.com/techreports/1999/HPL-1999-90.pdf
+### KlPoRo03
+V. Klima, O. Pokorny, and T. Rosa, "Attacking RSA-based Sessions in SSL/TLS",
+https://eprint.iacr.org/2003/052/
 
 ### Krawczyk10
 H. Krawczyk,
 "Cryptographic extraction and key derivation: the HKDF scheme",
 https://eprint.iacr.org/2010/264.pdf
 
+### Madden22
+Neil Madden,
+"CVE-2022-21449: Psychic Signatures in Java",
+https://neilmadden.blog/2022/04/19/psychic-signatures-in-java/
+
+### Nicolic14
+I. Nicolic,
+"Tiaoxin -- 346",
+https://competitions.cr.yp.to/round3/tiaoxinv21.pdf
+
 ### Nguyen04
 P. Nguyen,
 “Can we trust cryptographic software? Cryptographic flaws in Gnu privacy guard 1.2.3”,
 Eurocrypt 2004,
 https://www.iacr.org/archive/eurocrypt2004/30270550/ProcEC04.pdf
+
+### NguSpa03
+
+P.Q. Nguyen and I.E. Sparlinski, "The Insecurity of the Elliptic Curve Digital
+Signature Algorithm with Partially Known Nonces" Designs, Codes and
+Cryptography, 30, 201–217, 2003
+
+### RGGSWY18
+E. Ronen, R. Gillham, D. Genkin, A. Shamir D. Wong, Y. Yarom
+"The 9 Lives of Bleichenbacher’s CAT: New Cache ATtacks on TLS Implementations",
+https://eprint.iacr.org/2018/1173.pdf
 
 ### Odlyzko90
 A. M. Odlyzko,
@@ -134,10 +181,6 @@ https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf
 A good analysis of various DH implementations. Some misconfigurations pointed
 out in the paper are: p is composite, p-1 contains no large prime factor, q is
 used instead of the generator g.
-
-### Eurocrypt92 panel
-"The Eurocrypt'92 Controversial Issue Trapdoor Primes and Moduli",
-EUROCRYPT '92, LNCS 658, pp. 194-199.
 
 ### Bleich98
 D. Bleichenbacher,
@@ -160,15 +203,25 @@ RSA conference, 2010.
 This paper shows that padding oracle attacks can be successful with even a small number
 of queries.
 
-### KlPoRo03
-V. Klima, O. Pokorny, and T. Rosa,
-"Attacking RSA-based Sessions in SSL/TLS",
-https://eprint.iacr.org/2003/052/
+### VauViz17
+S. Vaudenay, D. Vizár, "Under Pressure: Security of Caesar Candidates beyond
+their Guarantees" https://eprint.iacr.org/2017/1147.pdf
 
-### BFKLSST12
-R. Bardou, R. Focardi, Y. Kawamoto, L. Simionato, G. Steel, J.K. Tsay,
-"Efficient padding oracle attacks on cryptographic hardware"
-Crypto 2012
+### WuPre14
+H. Wu, B. Preneel, "AEGIS: A fast authenticated encryption algorithm" CAESAR
+submission http://competitions.cr.yp.to/round1/aegisv1.pdf
+
+<!-- libraries -->
+
+### ParanoidCrypto
+
+Project Paranoid https://github.com/google/paranoid_crypto
+
+<!-- organizations -->
+
+### Eurocrypt92 panel
+"The Eurocrypt'92 Controversial Issue Trapdoor Primes and Moduli", EUROCRYPT
+'92, LNCS 658, pp. 194-199.
 
 ### ECRYPT-II
 Yearly Report on Algorithms and Keysizes (2011-2012),
@@ -180,11 +233,11 @@ http://www.ecrypt.eu.org/ecrypt2/documents/D.SPA.20.pdf
 http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
 
 ### NIST-SP800-56A
-NIST SP 800-56A, revision 2, May 2013.
-http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar2.pdf
+NIST SP 800-56A, revision 3, April 2018.
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
 
 ### NIST-SP800-57
-http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
 
 ### NIST SP800-131A
 Transitioning the Use of Cryptographic Algorithms and Key Lengths
@@ -207,7 +260,8 @@ http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
 
 ### PKCS-3
 "PKCS #3, Diffie–Hellman Key Agreement".
-http://uk.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-3-diffie-hellman-key-agreement-standar.htm
+An RSA Laboratories Technical Note Version 1.4
+Revised November 1, 1993
 
 <!-- CVEs -->
 ### CVE-1999-1444
@@ -216,7 +270,9 @@ Alibaba 2.0 generated RSA key pairs with an exponent 1
 ### CVE-2012-5081
 Java JSSE provider leaked information through exceptions and
 timing. Both the PKCS #1 padding and the OAEP padding were broken:
-http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf
+https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-meyer.pdf
+<!-- Another reference is Meyers dissertation, which previously could be found on:
+http://www-brs.ub.ruhr-uni-bochum.de/netahtml/HSS/Diss/MeyerChristopher/diss.pdf -->
 
 ### CVE-2015-6924
 Utimaco HSMs vulnerable to invalid curve attacks.

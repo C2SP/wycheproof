@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.math.BigInteger;
@@ -88,13 +87,12 @@ import org.junit.runners.JUnit4;
  * http://uk.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-3-diffie-hellman-key-agreement-standar.htm
  *
  * <p>RFC 2785, "Methods for Avoiding 'Small-Subgroup' Attacks on the Diffie-Hellman Key Agreement
- * Method for S/MIME", March 2000
- * https://www.ietf.org/rfc/rfc2785.txt
+ * Method for S/MIME", March 2000 https://www.ietf.org/rfc/rfc2785.txt
  *
  * <p>D. Adrian et al. "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice"
- * https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf
- * A good analysis of various DH implementations. Some misconfigurations pointed out in the paper
- * are: p is composite, p-1 contains no large prime factor, q is used instead of the generator g.
+ * https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf A good analysis of various DH
+ * implementations. Some misconfigurations pointed out in the paper are: p is composite, p-1
+ * contains no large prime factor, q is used instead of the generator g.
  *
  * <p>Sources that might be used for additional tests:
  *
@@ -136,9 +134,10 @@ import org.junit.runners.JUnit4;
  * <p>CVE-2015-2419: Random generation of the prime p allows Pohlig-Hellman and probably other
  * stuff.
  *
- * <p>J. Fried et al. "A kilobit hidden SNFS discrete logarithm computation".
- * http://eprint.iacr.org/2016/961.pdf
- * Some crypto libraries use fields that can be broken with the SNFS.
+ * <p>CVE-2015-5560: Some information is here:
+ * https://www.linkedin.com/pulse/when-pohlig-diffie-hellman-went-fishing-broke-angler-william-buchanan
+ * It is unclear if the CVE is about the random generation of p, a plain old man-in-the-middle
+ * attack or the broken variant of Diffie-Hellman as described in the article.
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
@@ -200,21 +199,32 @@ public class DhTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
   public void testDh() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
-    DHParameterSpec dhparams = ike2048();
-    keyGen.initialize(dhparams);
-    KeyPair keyPairA = keyGen.generateKeyPair();
-    KeyPair keyPairB = keyGen.generateKeyPair();
+    KeyPair keyPairA;
+    KeyPair keyPairB;
+    try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+      DHParameterSpec dhparams = ike2048();
+      keyGen.initialize(dhparams);
+      keyPairA = keyGen.generateKeyPair();
+      keyPairB = keyGen.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Cannot generate DH keys");
+      return;
+    }
 
-    KeyAgreement kaA = KeyAgreement.getInstance("DH");
-    KeyAgreement kaB = KeyAgreement.getInstance("DH");
-    kaA.init(keyPairA.getPrivate());
-    kaB.init(keyPairB.getPrivate());
-    kaA.doPhase(keyPairB.getPublic(), true);
-    kaB.doPhase(keyPairA.getPublic(), true);
-    byte[] kAB = kaA.generateSecret();
-    byte[] kBA = kaB.generateSecret();
-    assertEquals(TestUtil.bytesToHex(kAB), TestUtil.bytesToHex(kBA));
+    try {
+      KeyAgreement kaA = KeyAgreement.getInstance("DH");
+      KeyAgreement kaB = KeyAgreement.getInstance("DH");
+      kaA.init(keyPairA.getPrivate());
+      kaB.init(keyPairB.getPrivate());
+      kaA.doPhase(keyPairB.getPublic(), true);
+      kaB.doPhase(keyPairA.getPublic(), true);
+      byte[] kAB = kaA.generateSecret();
+      byte[] kBA = kaB.generateSecret();
+      assertEquals(TestUtil.bytesToHex(kAB), TestUtil.bytesToHex(kBA));
+    } catch (GeneralSecurityException ex) {
+      throw new AssertionError("Provider cannot perform a DH agreement with its own keys", ex);
+    }
   }
 
   /**
@@ -253,33 +263,67 @@ public class DhTest {
     }
   }
 
-  private void testKeyPair(KeyPair keyPair, int expectedKeySize) throws Exception {
+  private void testKeyPair(KeyPair keyPair, int expectedKeySize) {
     DHPrivateKey priv = (DHPrivateKey) keyPair.getPrivate();
     BigInteger p = priv.getParams().getP();
     BigInteger g = priv.getParams().getG();
     int keySize = p.bitLength();
     assertEquals("wrong key size", expectedKeySize, keySize);
 
+    // Expecting p to be prime.
+    // No high certainty is needed, since this is a unit test.
+    assertTrue(p.isProbablePrime(64));
+    // Since p is a prime and has bitLength keySize, it is an odd number, so p.shiftRight(1)
+    // computes (p - 1)/2
+    boolean isSafePrime = p.shiftRight(1).isProbablePrime(64);
+
     // Checks the key size of the private key.
-    // NIST SP 800-56A requires that x is in the range (1, q-1).
+    // NIST SP 800-56A requires that x is in the range (1, q-1), unless p is a safe prime.
     // Such a choice would require a full key validation. Since such a validation
     // requires the value q (which is not present in the DH parameters) larger keys
-    // should be chosen to prevent attacks.
-    int minPrivateKeyBits = keySize / 2;
+    // should be chosen to prevent attacks as long as the prime is not a safe prime.
+    // For safe primes, the key needs to be twice the security level. In addition to the security
+    // levels supported in SP 800-56A we also test 1024 keys being created correctly.
+    int s;
+    switch (keySize) {
+      case 1024:
+        s = 80;
+        break;
+      case 2048:
+        s = 112;
+        break;
+      case 3072:
+        s = 128;
+        break;
+      case 4096:
+        s = 152;
+        break;
+      case 6144:
+        s = 176;
+        break;
+      case 8192:
+        s = 200;
+        break;
+      default:
+        fail("Unexpected key size: " + keySize);
+        s = -1;
+        break;
+    }
+    int minPrivateKeyBits = isSafePrime ? 2 * s : keySize / 2;
     BigInteger x = priv.getX();
-    assertTrue(x.bitLength() >= minPrivateKeyBits - 32);
+    assertTrue(
+        "X expected to have bit length at least "
+            + (minPrivateKeyBits - 32)
+            + ", but has value "
+            + x
+            + ", which has bit length "
+            + x.bitLength(),
+        x.bitLength() >= minPrivateKeyBits - 32);
     // TODO(bleichen): add tests for weak random number generators.
 
     // Verify the DH parameters.
-    System.out.println("p=" + p.toString(16));
-    System.out.println("g=" + g.toString(16));
-    System.out.println("testKeyPairGenerator L=" + priv.getParams().getL());
-    // Basic parameter checks
     assertTrue("Expecting g > 1", g.compareTo(BigInteger.ONE) > 0);
     assertTrue("Expecting g < p - 1", g.compareTo(p.subtract(BigInteger.ONE)) < 0);
-    // Expecting p to be prime.
-    // No high certainty is needed, since this is a unit test.
-    assertTrue(p.isProbablePrime(4));
     // The order of g should be a large prime divisor q of p-1.
     // (see e.g. NIST SP 800-56A, section 5.5.1.1.)
     // If the order of g is composite then the Decision Diffie Hellman assumption is
@@ -293,30 +337,46 @@ public class DhTest {
     // We perform a partial test that performs a partial factorization of p-1 and then
     // test whether one of the small factors found by the partial factorization divides
     // the order of g.
-    boolean isSafePrime = p.shiftRight(1).isProbablePrime(4);
     System.out.println("p is a safe prime:" + isSafePrime);
     BigInteger r; // p-1 divided by small prime factors.
     if (isSafePrime) {
       r = p.shiftRight(1);
+      // Check that generator is in the subgroup with (p - 1)/2 elements.
+      assertEquals(BigInteger.ONE, g.modPow(r, p));
     } else {
       BigInteger p1 = p.subtract(BigInteger.ONE);
       r = p1.divide(smoothDivisor(p1));
+
+      // Checks that there are not too many short prime factors.
+      // I.e., subgroup confinment attacks can find at least keySize - r.bitLength() bits of the
+      // key.
+      // At least 160 unknown bits should remain.
+      // Only very weak parameters are detected here, since the factorization above only finds small
+      // prime factors.
+      assertTrue(minPrivateKeyBits - (keySize - r.bitLength()) > 160);
     }
     System.out.println("r=" + r.toString(16));
     assertEquals(
         "g likely does not generate a prime oder subgroup", BigInteger.ONE, g.modPow(r, p));
 
-    // Checks that there are not too many short prime factors.
-    // I.e., subgroup confinment attacks can find at least keySize - r.bitLength() bits of the key.
-    // At least 160 unknown bits should remain.
-    // Only very weak parameters are detected here, since the factorization above only finds small
-    // prime factors.
-    assertTrue(minPrivateKeyBits - (keySize - r.bitLength()) > 160);
-
-    // DH parameters are sometime misconfigures and g and q are swapped.
+    // DH parameters are sometimes misconfigured and g and q are swapped.
     // A large g that divides p-1 is suspicious.
     if (g.bitLength() >= 160) {
       assertTrue(p.mod(g).compareTo(BigInteger.ONE) > 0);
+    }
+
+    // DH parameters should be chosen so that they cannot be broken with the special number field
+    // sieve. Fried et. al. analyzed such weak parameters in https://eprint.iacr.org/2016/961.pdf .
+    // The authors of this paper not only showed that the special number field sieve can be used
+    // to generated trapdoored parameters, but that some keys in the wild used parameters
+    // susceptible to the SNFS. A general test for weak parameters is out of scope of this test.
+    // The following test simply checks if p is close to a power of two. This covers all the weak
+    // parameters found by the paper above. The bound 2^128 for the minimal difference between
+    // p and a power of two covers the weak parameters found in the paper but otherwise was chosen
+    // arbitrary.
+    BigInteger delta = BigInteger.ONE.shiftLeft(128);
+    if (p.add(delta).bitLength() != p.subtract(delta).bitLength()) {
+      fail("p is close to a power of two and hence may be susceptible to SNFS");
     }
   }
 
@@ -329,11 +389,17 @@ public class DhTest {
   @SuppressWarnings("InsecureCryptoUsage")
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
-  public void testKeyPairGenerator() throws Exception {
+  public void testKeyPairGenerator() {
     int keySize = 1024;
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
-    keyGen.initialize(keySize);
-    KeyPair keyPair = keyGen.generateKeyPair();
+    KeyPair keyPair;
+    try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+      keyGen.initialize(keySize);
+      keyPair = keyGen.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate a " + keySize + " bit key:" + ex);
+      return;
+    }
     testKeyPair(keyPair, keySize);
   }
 
@@ -345,25 +411,21 @@ public class DhTest {
    * 53 recommends 2048 bits as the minimal key length for Diffie-Hellman for new keys that expire
    * before the year 2030.
    *
-   * <p>Note that JCE documentation is outdated. According to
-   * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html an implementation
-   * of the Java platform is only required to support 1024 bit keys.
+   * <p>Jdk 7 used a 1024 bit default for Diffie-Hellman. This was probably because
+   * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html only required to
+   * support 1024 bit keys. Oracle has changed the requirements so that every implementation must
+   * support 2048 bit keys.
+   * https://docs.oracle.com/en/java/javase/12/docs/api/java.base/java/security/KeyPairGenerator.html
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK, ProviderType.BOUNCY_CASTLE},
-    bugs = {"b/33190860", "b/33190677"}
-  )
   @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
   @Test
-  public void testDefaultKeyPairGenerator() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+  public void testDefaultKeyPairGenerator() {
     KeyPair keyPair;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
       keyPair = keyGen.generateKeyPair();
-    } catch (Exception ex) {
-      // When a provider decides not to implement a default key size then this is still better than
-      // implementing a default that is out of date. Hence the test should not fail in this case.
-      System.out.println("Cannot generate a DH key without initialize: " + ex.getMessage());
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("No DH key generated: " + ex);
       return;
     }
     DHPrivateKey priv = (DHPrivateKey) keyPair.getPrivate();
@@ -375,21 +437,28 @@ public class DhTest {
   /** This test tries a key agreement with keys using distinct parameters. */
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
-  public void testDHDistinctParameters() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
-    keyGen.initialize(ike1536());
-    KeyPair keyPairA = keyGen.generateKeyPair();
-
-    keyGen.initialize(ike2048());
-    KeyPair keyPairB = keyGen.generateKeyPair();
-
-    KeyAgreement kaA = KeyAgreement.getInstance("DH");
-    kaA.init(keyPairA.getPrivate());
+  public void testDHDistinctParameters() {
+    KeyPair keyPairA;
+    KeyPair keyPairB;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+      keyGen.initialize(ike1536());
+      keyPairA = keyGen.generateKeyPair();
+
+      keyGen.initialize(ike2048());
+      keyPairB = keyGen.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate DH keys");
+      return;
+    }
+
+    try {
+      KeyAgreement kaA = KeyAgreement.getInstance("DH");
+      kaA.init(keyPairA.getPrivate());
       kaA.doPhase(keyPairB.getPublic(), true);
       byte[] kAB = kaA.generateSecret();
       fail("Generated secrets with mixed keys " + TestUtil.bytesToHex(kAB) + ", ");
-    } catch (java.security.GeneralSecurityException ex) {
+    } catch (GeneralSecurityException ex) {
       // This is expected.
     }
   }
@@ -409,14 +478,19 @@ public class DhTest {
    */
   @SuppressWarnings("InsecureCryptoUsage")
   @Test
-  public void testSubgroupConfinement() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+  public void testSubgroupConfinement() {
+    PrivateKey priv;
     DHParameterSpec params = ike2048();
+    try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+      keyGen.initialize(params);
+      priv = keyGen.generateKeyPair().getPrivate();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate DH keys");
+      return;
+    }
     BigInteger p = params.getP();
     BigInteger g = params.getG();
-    keyGen.initialize(params);
-    PrivateKey priv = keyGen.generateKeyPair().getPrivate();
-    KeyAgreement ka = KeyAgreement.getInstance("DH");
     BigInteger[] weakPublicKeys = {
       BigInteger.ZERO,
       BigInteger.ONE,
@@ -426,8 +500,9 @@ public class DhTest {
       BigInteger.ONE.negate()
     };
     for (BigInteger weakKey : weakPublicKeys) {
-      ka.init(priv);
       try {
+        KeyAgreement ka = KeyAgreement.getInstance("DH");
+        ka.init(priv);
         KeyFactory kf = KeyFactory.getInstance("DH");
         DHPublicKeySpec weakSpec = new DHPublicKeySpec(weakKey, p, g);
         PublicKey pub = kf.generatePublic(weakSpec);

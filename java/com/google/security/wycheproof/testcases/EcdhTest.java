@@ -24,7 +24,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -41,7 +40,6 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.KeyAgreement;
 import org.junit.Test;
@@ -117,6 +115,22 @@ public class EcdhTest {
     final Integer h; // cofactor: may be null
     final BigInteger pubx; // x-coordinate of the public point
     final BigInteger puby; // y-coordinate of the public point
+    // Hex encoded value of the expected shared secret under the assumption that it is
+    // computed on the curve of the private key using the point of the public key.
+    //
+    // If a provider computes an ECDH exchange when public and private key have distinct parameters
+    // then it is important that the computation was done on the curve specified by the private key.
+    // If the computation uses a curve different than the one used by the private key then
+    // an invalid curve attack is possible. If the curve of the private key was used then
+    // this often indicates that curve parameters were not carefully checked, but that an
+    // invalid curve attack is rather unlikely.
+    //
+    // The value is "" for cases where the public point is not on the curve. The value
+    // can also be set to "" for test cases with invalid public keys that should be caught
+    // by an implementation.
+    // An example is the test case "new curve with generator of order 3 that is also on secp256r1".
+    // An ECDH secret is computed if SUNEC and Conscrypt are both installed.
+    final String expected;
 
     public EcPublicKeyTestVector(
         String comment,
@@ -129,7 +143,8 @@ public class EcdhTest {
         BigInteger gy,
         Integer h,
         BigInteger pubx,
-        BigInteger puby) {
+        BigInteger puby,
+        String expected) {
       this.comment = comment;
       this.encoded = encoded;
       this.p = p;
@@ -141,11 +156,15 @@ public class EcdhTest {
       this.h = h;
       this.pubx = pubx;
       this.puby = puby;
+      this.expected = expected;
     }
 
     /**
-     * Returns this key as ECPublicKeySpec or null if the key cannot be represented as
-     * ECPublicKeySpec. The later happens for example if the order of cofactor are not positive.
+     * Returns this key as ECPublicKeySpec or null if an exception was thrown.
+     *
+     * <p>The later happens when parameters are rejected. The constructors ECFieldFp, ECPoint,
+     * ECParameterSpec and ECPublicKeySpec only perform a very limited number of parameter checks.
+     * Hence it is easily possible to construct instances of ECPublicKeySpec with invalid values.
      */
     public ECPublicKeySpec getSpec() {
       try {
@@ -160,8 +179,7 @@ public class EcdhTest {
         ECPoint pubPoint = new ECPoint(pubx, puby);
         ECPublicKeySpec pub = new ECPublicKeySpec(pubPoint, params);
         return pub;
-      } catch (Exception ex) {
-        System.out.println(comment + " throws " + ex.toString());
+      } catch (IllegalArgumentException ex) {
         return null;
       }
     }
@@ -171,7 +189,13 @@ public class EcdhTest {
     }
   }
 
-public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
+  // The private key used for the test vectors below.
+  public static final ECPrivateKeySpec EC_VALID_PRIVATE_KEY =
+      new ECPrivateKeySpec(
+          new BigInteger("c82eac4ec0c77fa4bb057b1cff9fa7e01f11d17f878a81b476c10c1a76e03c6f", 16),
+          EcUtil.getNistP256Params());
+
+  public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       new EcPublicKeyTestVector(
           "unmodified",
           "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
@@ -185,345 +209,506 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
           new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
           1,
           new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16));
+          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+          "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547");
 
   public static final EcPublicKeyTestVector[] EC_MODIFIED_PUBLIC_KEYS = {
-      // Modified keys
-      new EcPublicKeyTestVector(
-          "public point not on curve",
-          "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
-              + "3e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b84"
-              + "29598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca", 16)),
-      new EcPublicKeyTestVector(
-          "public point = (0,0)",
-          "3059301306072a8648ce3d020106082a8648ce3d030107034200040000000000"
-              + "0000000000000000000000000000000000000000000000000000000000000000"
-              + "000000000000000000000000000000000000000000000000000000",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("0"),
-          new BigInteger("0")),
-      new EcPublicKeyTestVector(
-          "order = 1",
-          "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f502010102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("01", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "order = 26959946660873538060741835960514744168612397095220107664918121663170",
-          "3082012f3081e806072a8648ce3d02013081dc020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5021d00ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac202010103420004cdeb39edd03e2b1a11a5e134ec"
-              + "99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c"
-              + "3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "generator = (0,0)",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b04410400000000000000000000000000000000000000"
-              + "0000000000000000000000000000000000000000000000000000000000000000"
-              + "00000000000000000000000000022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("0"),
-          new BigInteger("0"),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "generator not on curve",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f7022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f7", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = 2",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010203420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          2,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = None",
-          "308201303081e906072a8648ce3d02013081dd020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255103420004cdeb39edd03e2b1a11a5e134"
-              + "ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb8"
-              + "5c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          null,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "modified prime",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200"
-              + "e8bbc1453044042002f6efa55976c9cb06ff16bb629c0a8d4d5143b40084b1a1"
-              + "cc0e4dff17443eb704205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441040000000000000000000006597fa94b1fd90000"
-              + "000000000000000000000000021b8c7dd77f9a95627922eceefea73f028f1ec9"
-              + "5ba9b8fa95a3ad24bdf9fff414022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004000000000000000000"
-              + "0006597fa94b1fd90000000000000000000000000000021b8c7dd77f9a956279"
-              + "22eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414",
-          new BigInteger("fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200e8bbc145", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
-          new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
-          1,
-          new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
-          new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16)),
-      new EcPublicKeyTestVector(
-          "using secp224r1",
-          "304e301006072a8648ce3d020106052b81040021033a0004074f56dc2ea648ef"
-              + "89c3b72e23bbd2da36f60243e4d2067b70604af1c2165cec2f86603d60c8a611"
-              + "d5b84ba3d91dfe1a480825bcc4af3bcf",
-          new BigInteger("ffffffffffffffffffffffffffffffff000000000000000000000001", 16),
-          new BigInteger("ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d", 16),
-          new BigInteger("fffffffffffffffffffffffffffffffefffffffffffffffffffffffe", 16),
-          new BigInteger("b4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4", 16),
-          new BigInteger("b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", 16),
-          new BigInteger("bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34", 16),
-          1,
-          new BigInteger("074f56dc2ea648ef89c3b72e23bbd2da36f60243e4d2067b70604af1", 16),
-          new BigInteger("c2165cec2f86603d60c8a611d5b84ba3d91dfe1a480825bcc4af3bcf", 16)),
-      new EcPublicKeyTestVector(
-          "a = 0",
-          "308201143081cd06072a8648ce3d02013081c1020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30250401000420f104880c3980129c7efa19b6b0cb04e547b8d0fc0b"
-              + "95f4946496dd4ac4a7c440044104cdeb39edd03e2b1a11a5e134ec99d5f25f21"
-              + "673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c3303ddb155"
-              + "3c3b761c2caacca71606ba9ebac8022100ffffffff00000000ffffffffffffff"
-              + "ffbce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a"
-              + "11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c"
-              + "0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("0"),
-          new BigInteger("f104880c3980129c7efa19b6b0cb04e547b8d0fc0b95f4946496dd4ac4a7c440", 16),
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "new curve with generator of order 3 that is also on secp256r1",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff3044042046dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb251"
-              + "3fb10a737afece170420bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec"
-              + "28b244d4d823d15935e2044104701c05255026aa4630b78fc6b769e388059ab1"
-              + "443cbdd1f8348bedc3be589dc34cfdab998ad27738ae382aa013986ade0f4859"
-              + "2a9a1ae37ca61d25ec5356f1bd022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010103420004701c05255026aa4630"
-              + "b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3b3025465752d88c851"
-              + "c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("46dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb2513fb10a737afece17", 16),
-          new BigInteger("bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec28b244d4d823d15935e2", 16),
-          new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
-          new BigInteger("4cfdab998ad27738ae382aa013986ade0f48592a9a1ae37ca61d25ec5356f1bd", 16),
-          1,
-          new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
-          new BigInteger("b3025465752d88c851c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42", 16)),
-      // Invalid keys
-      new EcPublicKeyTestVector(
-          "order = -1157920892103562487626974469494075735299969552241357603"
-              + "42422259061068512044369",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f50221ff00000000ffffffff0000000000000000"
-              + "4319055258e8617b0c46353d039cdaaf02010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger(
-              "-115792089210356248762697446949407573529996955224135760342422259061068512044369"),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "order = 0",
-          "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f502010002010103420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("0"),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = -1",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc6325510201ff03420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          -1,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
-      new EcPublicKeyTestVector(
-          "cofactor = 0",
-          "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
-              + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
-              + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
-              + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
-              + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
-              + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
-              + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
-              + "bce6faada7179e84f3b9cac2fc63255102010003420004cdeb39edd03e2b1a11"
-              + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
-              + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
-          new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
-          new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
-          new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
-          new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
-          new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
-          new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
-          0,
-          new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
-          new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16)),
+    // Modified keys
+    new EcPublicKeyTestVector(
+        "public point not on curve",
+        "3059301306072a8648ce3d020106082a8648ce3d03010703420004cdeb39edd0"
+            + "3e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b84"
+            + "29598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebaca", 16),
+        ""),
+    new EcPublicKeyTestVector(
+        "public point = (0,0)",
+        "3059301306072a8648ce3d020106082a8648ce3d030107034200040000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000000"
+            + "000000000000000000000000000000000000000000000000000000",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("0"),
+        new BigInteger("0"),
+        ""),
+    new EcPublicKeyTestVector(
+        "order = 1",
+        "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f502010102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("01", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "order = 26959946660873538060741835960514744168612397095220107664918121663170",
+        "3082012f3081e806072a8648ce3d02013081dc020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5021d00ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac202010103420004cdeb39edd03e2b1a11a5e134ec"
+            + "99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c"
+            + "3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "generator = (0,0)",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b04410400000000000000000000000000000000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000000"
+            + "00000000000000000000000000022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("0"),
+        new BigInteger("0"),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "generator not on curve",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f7022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f7", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = 2",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010203420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        2,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = None",
+        "308201303081e906072a8648ce3d02013081dd020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255103420004cdeb39edd03e2b1a11a5e134"
+            + "ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb8"
+            + "5c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        null,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "modified prime",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200"
+            + "e8bbc1453044042002f6efa55976c9cb06ff16bb629c0a8d4d5143b40084b1a1"
+            + "cc0e4dff17443eb704205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441040000000000000000000006597fa94b1fd90000"
+            + "000000000000000000000000021b8c7dd77f9a95627922eceefea73f028f1ec9"
+            + "5ba9b8fa95a3ad24bdf9fff414022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004000000000000000000"
+            + "0006597fa94b1fd90000000000000000000000000000021b8c7dd77f9a956279"
+            + "22eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414",
+        new BigInteger("fd091059a6893635f900e9449d63f572b2aebc4cff7b4e5e33f1b200e8bbc145", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
+        new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
+        1,
+        new BigInteger("06597fa94b1fd9000000000000000000000000000002", 16),
+        new BigInteger("1b8c7dd77f9a95627922eceefea73f028f1ec95ba9b8fa95a3ad24bdf9fff414", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "using secp224r1",
+        "304e301006072a8648ce3d020106052b81040021033a0004074f56dc2ea648ef"
+            + "89c3b72e23bbd2da36f60243e4d2067b70604af1c2165cec2f86603d60c8a611"
+            + "d5b84ba3d91dfe1a480825bcc4af3bcf",
+        new BigInteger("ffffffffffffffffffffffffffffffff000000000000000000000001", 16),
+        new BigInteger("ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d", 16),
+        new BigInteger("fffffffffffffffffffffffffffffffefffffffffffffffffffffffe", 16),
+        new BigInteger("b4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4", 16),
+        new BigInteger("b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", 16),
+        new BigInteger("bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34", 16),
+        1,
+        new BigInteger("074f56dc2ea648ef89c3b72e23bbd2da36f60243e4d2067b70604af1", 16),
+        new BigInteger("c2165cec2f86603d60c8a611d5b84ba3d91dfe1a480825bcc4af3bcf", 16),
+        ""),
+    new EcPublicKeyTestVector(
+        "a = 0",
+        "308201143081cd06072a8648ce3d02013081c1020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30250401000420f104880c3980129c7efa19b6b0cb04e547b8d0fc0b"
+            + "95f4946496dd4ac4a7c440044104cdeb39edd03e2b1a11a5e134ec99d5f25f21"
+            + "673d403f3ecb47bd1fa676638958ea58493b8429598c0b49bbb85c3303ddb155"
+            + "3c3b761c2caacca71606ba9ebac8022100ffffffff00000000ffffffffffffff"
+            + "ffbce6faada7179e84f3b9cac2fc63255102010103420004cdeb39edd03e2b1a"
+            + "11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c"
+            + "0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("0"),
+        new BigInteger("f104880c3980129c7efa19b6b0cb04e547b8d0fc0b95f4946496dd4ac4a7c440", 16),
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "new curve with generator of order 3 that is also on secp256r1",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff3044042046dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb251"
+            + "3fb10a737afece170420bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec"
+            + "28b244d4d823d15935e2044104701c05255026aa4630b78fc6b769e388059ab1"
+            + "443cbdd1f8348bedc3be589dc34cfdab998ad27738ae382aa013986ade0f4859"
+            + "2a9a1ae37ca61d25ec5356f1bd022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010103420004701c05255026aa4630"
+            + "b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3b3025465752d88c851"
+            + "c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("46dc879a5c2995d0e6f682468ea95791b7bbd0225cfdb2513fb10a737afece17", 16),
+        new BigInteger("bea6c109251bfe4acf2eeda7c24c4ab70a1473335dec28b244d4d823d15935e2", 16),
+        new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
+        new BigInteger("4cfdab998ad27738ae382aa013986ade0f48592a9a1ae37ca61d25ec5356f1bd", 16),
+        1,
+        new BigInteger("701c05255026aa4630b78fc6b769e388059ab1443cbdd1f8348bedc3be589dc3", 16),
+        new BigInteger("b3025465752d88c851c7d55fec679521f0b7a6d665e51c8359e2da13aca90e42", 16),
+        "02fcb9d485d720221dab73f2c890aae577bf2f9c40ebeadf4cb3f34dfda825e1"),
+    // Invalid keys
+    new EcPublicKeyTestVector(
+        "order = -1157920892103562487626974469494075735299969552241357603"
+            + "42422259061068512044369",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f50221ff00000000ffffffff0000000000000000"
+            + "4319055258e8617b0c46353d039cdaaf02010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger(
+            "-115792089210356248762697446949407573529996955224135760342422259061068512044369"),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "order = 0",
+        "308201133081cc06072a8648ce3d02013081c0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f502010002010103420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("0"),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = -1",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc6325510201ff03420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        -1,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
+    new EcPublicKeyTestVector(
+        "cofactor = 0",
+        "308201333081ec06072a8648ce3d02013081e0020101302c06072a8648ce3d01"
+            + "01022100ffffffff00000001000000000000000000000000ffffffffffffffff"
+            + "ffffffff30440420ffffffff00000001000000000000000000000000ffffffff"
+            + "fffffffffffffffc04205ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53"
+            + "b0f63bce3c3e27d2604b0441046b17d1f2e12c4247f8bce6e563a440f277037d"
+            + "812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33"
+            + "576b315ececbb6406837bf51f5022100ffffffff00000000ffffffffffffffff"
+            + "bce6faada7179e84f3b9cac2fc63255102010003420004cdeb39edd03e2b1a11"
+            + "a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958ea58493b8429598c0b"
+            + "49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
+        new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16),
+        new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16),
+        new BigInteger("ffffffff00000001000000000000000000000000fffffffffffffffffffffffc", 16),
+        new BigInteger("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16),
+        new BigInteger("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", 16),
+        new BigInteger("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5", 16),
+        0,
+        new BigInteger("cdeb39edd03e2b1a11a5e134ec99d5f25f21673d403f3ecb47bd1fa676638958", 16),
+        new BigInteger("ea58493b8429598c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8", 16),
+        "012afb478f0c9e6b837f61465c8e4c58a2fabdb46c82cd3fbad23adc6fbfe547"),
   };
 
   /** Checks that key agreement using ECDH works. */
-  @Test
-  public void testBasic() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256r1");
-    keyGen.initialize(ecSpec);
-    KeyPair keyPairA = keyGen.generateKeyPair();
-    KeyPair keyPairB = keyGen.generateKeyPair();
+  private void testSupport(String curve) {
+    KeyPairGenerator keyGen;
+    KeyAgreement kaA;
+    KeyAgreement kaB;
+    KeyPair keyPairA;
+    KeyPair keyPairB;
+    try {
+      keyGen = KeyPairGenerator.getInstance("EC");
+      ECGenParameterSpec ecSpec = new ECGenParameterSpec(curve);
+      keyGen.initialize(ecSpec);
+      keyPairA = keyGen.generateKeyPair();
+      keyPairB = keyGen.generateKeyPair();
 
-    KeyAgreement kaA = KeyAgreement.getInstance("ECDH");
-    KeyAgreement kaB = KeyAgreement.getInstance("ECDH");
-    kaA.init(keyPairA.getPrivate());
-    kaB.init(keyPairB.getPrivate());
-    kaA.doPhase(keyPairB.getPublic(), true);
-    kaB.doPhase(keyPairA.getPublic(), true);
-    byte[] kAB = kaA.generateSecret();
-    byte[] kBA = kaB.generateSecret();
-    assertEquals(TestUtil.bytesToHex(kAB), TestUtil.bytesToHex(kBA));
+      kaA = KeyAgreement.getInstance("ECDH");
+      kaB = KeyAgreement.getInstance("ECDH");
+      kaA.init(keyPairA.getPrivate());
+      kaB.init(keyPairB.getPrivate());
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve not supported");
+      return;
+    }
+
+    // Some provider check the validity of the curves and keys
+    // only during the key agreement. If this happens then the
+    // test is skipped.
+    byte[] secretAB;
+    byte[] secretBA;
+    try {
+      kaA.doPhase(keyPairB.getPublic(), true);
+      kaB.doPhase(keyPairA.getPublic(), true);
+      secretAB = kaA.generateSecret();
+      secretBA = kaB.generateSecret();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve rejected during key agreement");
+      return;
+    }
+    assertEquals(TestUtil.bytesToHex(secretAB), TestUtil.bytesToHex(secretBA));
+  }
+
+  @Test
+  public void testSupportSecp224r1() {
+    testSupport("secp224r1");
+  }
+
+  @Test
+  public void testSupportSecp256r1() {
+    testSupport("secp256r1");
+  }
+
+  @Test
+  public void testSupportSecp384r1() {
+    testSupport("secp384r1");
+  }
+
+  @Test
+  public void testSupportSecp521r1() {
+    testSupport("secp521r1");
+  }
+
+  @Test
+  public void testSupportBrainpoolP224r1() {
+    testSupport("brainpoolP224r1");
+  }
+
+  @Test
+  public void testSupportBrainpoolP256r1() {
+    testSupport("brainpoolP256r1");
+  }
+
+  @Test
+  public void testSupportPrime239v1() {
+    testSupport("X9.62 prime239v1");
+  }
+
+  @Test
+  public void testSupportSecp256k1() {
+    testSupport("secp256k1");
+  }
+
+  /**
+   * Checks support using ECParameterSpec.
+   *
+   * <p>This test checks if ECDH is supported when used with explicit curve parameters. E.g., some
+   * provider may not know curves such as brainpoolP256r1 or FRP256v1, but are still able to perform
+   * an ECDH computation if the parameters of these curves are specified.
+   *
+   * @param curve the name of the curve.
+   */
+  private void testSupportParameterSpec(String curve) {
+    byte[] secretAB;
+    byte[] secretBA;
+    try {
+      ECParameterSpec spec = EcUtil.getCurveSpecConstructed(curve);
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+      keyGen.initialize(spec);
+      KeyPair keyPairA = keyGen.generateKeyPair();
+      KeyPair keyPairB = keyGen.generateKeyPair();
+      KeyAgreement kaA = KeyAgreement.getInstance("ECDH");
+      KeyAgreement kaB = KeyAgreement.getInstance("ECDH");
+      kaA.init(keyPairA.getPrivate());
+      kaB.init(keyPairB.getPrivate());
+      kaA.doPhase(keyPairB.getPublic(), true);
+      kaB.doPhase(keyPairA.getPublic(), true);
+      secretAB = kaA.generateSecret();
+      secretBA = kaB.generateSecret();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve not supported: " + curve);
+      return;
+    }
+    assertEquals(TestUtil.bytesToHex(secretAB), TestUtil.bytesToHex(secretBA));
+  }
+
+  @Test
+  public void testSupportParamsSecp224r1() {
+    testSupportParameterSpec("secp224r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp256r1() {
+    testSupportParameterSpec("secp256r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp384r1() {
+    testSupportParameterSpec("secp384r1");
+  }
+
+  @Test
+  public void testSupportParamsSecp521r1() {
+    testSupportParameterSpec("secp521r1");
+  }
+
+  @Test
+  public void testSupportParamsBrainpoolP224r1() {
+    testSupportParameterSpec("brainpoolP224r1");
+  }
+
+  @Test
+  public void testSupportParamsBrainpoolP256r1() {
+    testSupportParameterSpec("brainpoolP256r1");
+  }
+
+  @Test
+  public void testSupportParamsPrime239v1() {
+    testSupportParameterSpec("X9.62 prime239v1");
+  }
+
+  @Test
+  public void testSupportParamsSecp256k1() {
+    testSupportParameterSpec("secp256k1");
+  }
+
+  /**
+   * Supporting FRP256v1 very likely indicates that the library implements generic elliptic curves.
+   *
+   * <p>Adding a lot of curves to a library is not necessarily a good thing, since doing so may lead
+   * to more bugs.
+   */
+  @Test
+  public void testSupportParamsFRP256v1() {
+    testSupportParameterSpec("FRP256v1");
   }
 
   @NoPresubmitTest(
@@ -532,14 +717,26 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   )
   @Test
   public void testEncode() throws Exception {
-    KeyFactory kf = KeyFactory.getInstance("EC");
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("EC");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("No KeyFactory for EC");
+      return;
+    }
     ECPublicKey valid = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
     assertEquals(TestUtil.bytesToHex(valid.getEncoded()), EC_VALID_PUBLIC_KEY.encoded);
   }
 
   @Test
   public void testDecode() throws Exception {
-    KeyFactory kf = KeyFactory.getInstance("EC");
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("EC");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("No KeyFactory for EC");
+      return;
+    }
     ECPublicKey key1 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
     ECPublicKey key2 = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getX509EncodedKeySpec());
     ECParameterSpec params1 = key1.getParams();
@@ -557,23 +754,22 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
    * the public key. Also a severe bug would be to reduce the private key modulo the order given in
    * the public key parameters.
    */
+  @NoPresubmitTest(
+      providers = {ProviderType.OPENJDK_AND_CONSCRYPT},
+      bugs = {"b/259224556: fails when OpenJDK and Conscrypt are installed."})
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testModifiedPublic(String algorithm) throws Exception {
+  public void testModifiedPublic(String algorithm) {
     KeyAgreement ka;
+    KeyFactory kf;
+    ECPrivateKey priv;
     try {
       ka = KeyAgreement.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("testWrongOrder: " + algorithm + " not supported");
+      kf = KeyFactory.getInstance("EC");
+      priv = (ECPrivateKey) kf.generatePrivate(EC_VALID_PRIVATE_KEY);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest(algorithm + " not supported:" + ex);
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    keyGen.initialize(EcUtil.getNistP256Params());
-    ECPrivateKey priv = (ECPrivateKey) keyGen.generateKeyPair().getPrivate();
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPublicKey validKey = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
-    ka.init(priv);
-    ka.doPhase(validKey, true);
-    String expected = TestUtil.bytesToHex(ka.generateSecret());
     for (EcPublicKeyTestVector test : EC_MODIFIED_PUBLIC_KEYS) {
       try {
         X509EncodedKeySpec spec = test.getX509EncodedKeySpec();
@@ -590,10 +786,11 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         // in the public key. An attacker who can modify the order of the public key
         // and who can learn whether such a modification changes the shared secret is
         // able to learn the private key with a simple binary search.
-        assertEquals("algorithm:" + algorithm + " test:" + test.comment, expected, shared);
+        System.out.println(
+            "testModifiedPublic: " + algorithm + " ignored modification in test:" + test.comment);
+        assertEquals("algorithm:" + algorithm + " test:" + test.comment, test.expected, shared);
       } catch (GeneralSecurityException ex) {
         // OK, since the public keys have been modified.
-        System.out.println("testModifiedPublic:" + test.comment + " throws " + ex.toString());
       }
     }
   }
@@ -603,22 +800,18 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
    * ECPublicKeySpec
    */
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testModifiedPublicSpec(String algorithm) throws Exception {
+  public void testModifiedPublicSpec(String algorithm) {
     KeyAgreement ka;
+    KeyFactory kf;
+    ECPrivateKey priv;
     try {
       ka = KeyAgreement.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("testWrongOrder: " + algorithm + " not supported");
+      kf = KeyFactory.getInstance("EC");
+      priv = (ECPrivateKey) kf.generatePrivate(EC_VALID_PRIVATE_KEY);
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest(algorithm + " not supported: " + ex);
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    keyGen.initialize(EcUtil.getNistP256Params());
-    ECPrivateKey priv = (ECPrivateKey) keyGen.generateKeyPair().getPrivate();
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPublicKey validKey = (ECPublicKey) kf.generatePublic(EC_VALID_PUBLIC_KEY.getSpec());
-    ka.init(priv);
-    ka.doPhase(validKey, true);
-    String expected = TestUtil.bytesToHex(ka.generateSecret());
     for (EcPublicKeyTestVector test : EC_MODIFIED_PUBLIC_KEYS) {
       ECPublicKeySpec spec = test.getSpec();
       if (spec == null) {
@@ -640,80 +833,117 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         // in the public key. An attacker who can modify the order of the public key
         // and who can learn whether such a modification changes the shared secret is
         // able to learn the private key with a simple binary search.
-        assertEquals("algorithm:" + algorithm + " test:" + test.comment, expected, shared);
+        System.out.println(
+            "testModifiedPublic: " + algorithm + " ignored modification in test:" + test.comment);
+        assertEquals("algorithm:" + algorithm + " test:" + test.comment, test.expected, shared);
       } catch (GeneralSecurityException ex) {
-        // OK, since the public keys have been modified.
-        System.out.println("testModifiedPublic:" + test.comment + " throws " + ex.toString());
+        // Expected, since the public keys have been modified.
       }
     }
   }
 
   @Test
-  public void testModifiedPublic() throws Exception {
+  public void testModifiedPublicEcdh() {
     testModifiedPublic("ECDH");
+  }
+
+  @Test
+  public void testModifiedPublicEcdhWithCofactor() {
     testModifiedPublic("ECDHC");
   }
 
   @Test
-  public void testModifiedPublicSpec() throws Exception {
+  public void testModifiedPublicEcdhSpec() {
     testModifiedPublicSpec("ECDH");
+  }
+
+  @Test
+  public void testModifiedPublicEcdhWithcofactorSpec() {
     testModifiedPublicSpec("ECDHC");
   }
 
-  @SuppressWarnings("InsecureCryptoUsage")
-  public void testDistinctCurves(String algorithm, ECPrivateKey priv, ECPublicKey pub)
-      throws Exception {
-    KeyAgreement kaA;
+  /**
+   * This test checks ECDH with an invalid public key on an explicitly specified curve.
+   *
+   * <p>Specifying a curve by the curve parameters instead of using its name sometimes uses a
+   * distinct code path. Such distinct behavior can in the worst case allow invalid curve attacks
+   * and at the same time hide them if the tests use a different construction of the
+   * ECParameterSpecs.
+   */
+  private void testInvalidPublicParams(String curve) {
+    KeyPairGenerator keyGen;
+    KeyAgreement ka;
+    KeyPair keyPair;
+    ECParameterSpec spec;
     try {
-      kaA = KeyAgreement.getInstance(algorithm);
-    } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm not supported: " + algorithm);
+      spec = EcUtil.getCurveSpecConstructed(curve);
+      keyGen = KeyPairGenerator.getInstance("EC");
+      keyGen.initialize(spec);
+      keyPair = keyGen.generateKeyPair();
+      ka = KeyAgreement.getInstance("ECDH");
+      ka.init(keyPair.getPrivate());
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("curve not supported");
       return;
     }
-    byte[] shared;
+
     try {
-      kaA.init(priv);
-      kaA.doPhase(pub, true);
-      shared = kaA.generateSecret();
-    } catch (InvalidKeyException ex) {
-      // This is expected.
-      return;
+      ECPoint invalid = new ECPoint(BigInteger.ONE, BigInteger.ONE);
+      ECPublicKeySpec invalidPublicSpec = new ECPublicKeySpec(invalid, spec);
+      KeyFactory kf = KeyFactory.getInstance("EC");
+      ECPublicKey invalidPublic = (ECPublicKey) kf.generatePublic(invalidPublicSpec);
+      ka.doPhase(invalidPublic, true);
+      byte[] secret = ka.generateSecret();
+      String secretHex = TestUtil.bytesToHex(secret);
+      fail("Generated secret with invalid public key on " + curve + " : " + secretHex);
+    } catch (GeneralSecurityException ex) {
+      // This is expected
     }
-    // Printing some information to determine what might have gone wrong:
-    // E.g., if the generated secret is the same as the x-coordinate of the public key
-    // then it is likely that the ECDH computation was using a fake group with small order.
-    // Such a situation is probably exploitable.
-    // This probably is exploitable. If the curve of the private key was used for the ECDH
-    // then the generated secret and the x-coordinate of the public key are likely
-    // distinct.
-    EllipticCurve pubCurve = pub.getParams().getCurve();
-    EllipticCurve privCurve = priv.getParams().getCurve();
-    ECPoint pubW = pub.getW();
-    System.out.println("testDistinctCurves: algorithm=" + algorithm);
-    System.out.println(
-        "Private key: a="
-            + privCurve.getA()
-            + " b="
-            + privCurve.getB()
-            + " p"
-            + EcUtil.getModulus(privCurve));
-    System.out.println("        s =" + priv.getS());
-    System.out.println(
-        "Public key: a="
-            + pubCurve.getA()
-            + " b="
-            + pubCurve.getB()
-            + " p"
-            + EcUtil.getModulus(pubCurve));
-    System.out.println("        w = (" + pubW.getAffineX() + ", " + pubW.getAffineY() + ")");
-    System.out.println(
-        "          = ("
-            + pubW.getAffineX().toString(16)
-            + ", "
-            + pubW.getAffineY().toString(16)
-            + ")");
-    System.out.println("generated shared secret:" + TestUtil.bytesToHex(shared));
-    fail("Generated secret with distinct Curves using " + algorithm);
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp224r1() {
+    testInvalidPublicParams("secp224r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp256r1() {
+    testInvalidPublicParams("secp256r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp384r1() {
+    testInvalidPublicParams("secp384r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp521r1() {
+    testInvalidPublicParams("secp521r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsBrainpoolP224r1() {
+    testInvalidPublicParams("brainpoolP224r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsBrainpoolP256r1() {
+    testInvalidPublicParams("brainpoolP256r1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsSecp256k1() {
+    testInvalidPublicParams("secp256k1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsPrime239v1() {
+    testInvalidPublicParams("X9.62 prime239v1");
+  }
+
+  @Test
+  public void testInvalidPublicParamsFRP256v1() {
+    testInvalidPublicParams("FRP256v1");
   }
 
   /**
@@ -724,43 +954,45 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
    */
   // TODO(bleichen): This can be merged with testModifiedPublic once this is fixed.
   @SuppressWarnings("InsecureCryptoUsage")
-  public void testWrongOrder(String algorithm, ECParameterSpec spec) throws Exception {
+  public void testWrongOrder(String algorithm, ECParameterSpec spec) {
     KeyAgreement ka;
+    KeyPairGenerator keyGen;
+    KeyFactory kf;
     try {
+      keyGen = KeyPairGenerator.getInstance("EC");
       ka = KeyAgreement.getInstance(algorithm);
+      kf = KeyFactory.getInstance("EC");
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("testWrongOrder: " + algorithm + " not supported");
+      TestUtil.skipTest(algorithm + " not supported");
       return;
     }
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     ECPrivateKey priv;
     ECPublicKey pub;
+    byte[] shared;
     try {
       keyGen.initialize(spec);
       priv = (ECPrivateKey) keyGen.generateKeyPair().getPrivate();
       pub = (ECPublicKey) keyGen.generateKeyPair().getPublic();
+      // Get the shared secret for the unmodified keys.
+      ka.init(priv);
+      ka.doPhase(pub, true);
+      shared = ka.generateSecret();
     } catch (GeneralSecurityException ex) {
-      // This is OK, since not all provider support Brainpool curves
-      System.out.println("testWrongOrder: could not generate keys for curve");
+      // Skips the test if ECDH with valid parameters does not work.
+      TestUtil.skipTest("could not compute ECDH");
       return;
     }
-    // Get the shared secret for the unmodified keys.
-    ka.init(priv);
-    ka.doPhase(pub, true);
-    byte[] shared = ka.generateSecret();
     // Generate a modified public key.
-    ECParameterSpec modifiedParams =
-        new ECParameterSpec(
-            spec.getCurve(), spec.getGenerator(), spec.getOrder().shiftRight(16), 1);
-    ECPublicKeySpec modifiedPubSpec = new ECPublicKeySpec(pub.getW(), modifiedParams);
-    KeyFactory kf = KeyFactory.getInstance("EC");
     ECPublicKey modifiedPub;
     try {
+      ECParameterSpec modifiedParams =
+          new ECParameterSpec(
+              spec.getCurve(), spec.getGenerator(), spec.getOrder().shiftRight(16), 1);
+      ECPublicKeySpec modifiedPubSpec = new ECPublicKeySpec(pub.getW(), modifiedParams);
       modifiedPub = (ECPublicKey) kf.generatePublic(modifiedPubSpec);
     } catch (GeneralSecurityException ex) {
       // The provider does not support non-standard curves or did a validity check.
       // Both would be correct.
-      System.out.println("testWrongOrder: can't modify order.");
       return;
     }
     byte[] shared2;
@@ -770,7 +1002,6 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       shared2 = ka.generateSecret();
     } catch (GeneralSecurityException ex) {
       // This is the expected behavior
-      System.out.println("testWrongOrder:" + ex.toString());
       return;
     }
     // TODO(bleichen): Getting here is already a bug and we might flag this later.
@@ -795,99 +1026,151 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
   }
 
   @Test
-  public void testWrongOrderEcdh() throws Exception {
+  public void testWrongOrderEcdhSecp256r1() {
     testWrongOrder("ECDH", EcUtil.getNistP256Params());
+  }
+
+  @Test
+  public void testWrongOrderEcdhcSecp256r1() {
+    testWrongOrder("ECDHC", EcUtil.getNistP256Params());
+  }
+
+  @Test
+  public void testWrongOrderEcdhBrainpoolP256r1() {
     testWrongOrder("ECDH", EcUtil.getBrainpoolP256r1Params());
   }
 
   @Test
-  public void testWrongOrderEcdhc() throws Exception {
-    testWrongOrder("ECDHC", EcUtil.getNistP256Params());
+  public void testWrongOrderEcdhcBrainpoolP256r1() {
     testWrongOrder("ECDHC", EcUtil.getBrainpoolP256r1Params());
   }
 
   /**
-   * Tests for the problem detected by CVE-2017-10176. 
+   * Tests for the problem detected by CVE-2017-10176.
    *
    * <p>Some libraries do not compute P + (-P) correctly and return 2 * P or throw exceptions. When
    * the library uses addition-subtraction chains for the point multiplication then such cases can
    * occur for example when the private key is close to the order of the curve.
    */
-  private void testLargePrivateKey(ECParameterSpec spec) throws Exception {
-    BigInteger order = spec.getOrder();
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+  private void testLargePrivateKey(ECParameterSpec spec) {
+    KeyFactory kf;
+    KeyAgreement ka;
     ECPublicKey pub;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
       keyGen.initialize(spec);
       pub = (ECPublicKey) keyGen.generateKeyPair().getPublic();
+      kf = KeyFactory.getInstance("EC");
+      ka = KeyAgreement.getInstance("ECDH");
     } catch (GeneralSecurityException ex) {
-      // curve is not supported
+      TestUtil.skipTest("Curve is not supported");
       return;
     }
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    KeyAgreement ka = KeyAgreement.getInstance("ECDH");
+    BigInteger order = spec.getOrder();
     for (int i = 1; i <= 64; i++) {
       BigInteger p1 = BigInteger.valueOf(i);
       ECPrivateKeySpec spec1 = new ECPrivateKeySpec(p1, spec);
       ECPrivateKeySpec spec2 = new ECPrivateKeySpec(order.subtract(p1), spec);
-      ka.init(kf.generatePrivate(spec1));
-      ka.doPhase(pub, true);
-      byte[] shared1 = ka.generateSecret();
-      ka.init(kf.generatePrivate(spec2));
-      ka.doPhase(pub, true);
-      byte[] shared2 = ka.generateSecret();
-      // The private keys p1 and p2 are equivalent, since only the x-coordinate of the
-      // shared point is used to generate the shared secret.
-      assertEquals(TestUtil.bytesToHex(shared1), TestUtil.bytesToHex(shared2));
+      try {
+        ka.init(kf.generatePrivate(spec1));
+        ka.doPhase(pub, true);
+        byte[] shared1 = ka.generateSecret();
+        ka.init(kf.generatePrivate(spec2));
+        ka.doPhase(pub, true);
+        byte[] shared2 = ka.generateSecret();
+        // The private keys p1 and p2 are equivalent, since only the x-coordinate of the
+        // shared point is used to generate the shared secret.
+        assertEquals(TestUtil.bytesToHex(shared1), TestUtil.bytesToHex(shared2));
+      } catch (GeneralSecurityException ex) {
+        throw new AssertionError("Could not compute ECDH with private key: n - " + i, ex);
+      }
     }
   }
 
   @Test
-  public void testLargePrivateKey() throws Exception {
+  public void testLargePrivateKeySecp224r1() {
     testLargePrivateKey(EcUtil.getNistP224Params());
+  }
+
+  @Test
+  public void testLargePrivateKeySecp256r1() {
     testLargePrivateKey(EcUtil.getNistP256Params());
+  }
+
+  @Test
+  public void testLargePrivateKeySecp384r1() {
     testLargePrivateKey(EcUtil.getNistP384Params());
-    // This test failed before CVE-2017-10176 was fixed.
+  }
+
+  // This test failed before CVE-2017-10176 was fixed.
+  @Test
+  public void testLargePrivateKeySecp521r1() {
     testLargePrivateKey(EcUtil.getNistP521Params());
+  }
+
+  @Test
+  public void testLargePrivateKeyBrainpoolP256r1() {
     testLargePrivateKey(EcUtil.getBrainpoolP256r1Params());
   }
 
+  @Test
+  public void testLargePrivateKeyPrime239v1() {
+    testLargePrivateKey(EcUtil.getPrime239v1Params());
+  }
+
   /**
-   * This test tries to determine whether point multipliplication using two distinct
-   * points leads to distinguishable timings.
+   * This test tries to determine whether point multipliplication using two distinct points leads to
+   * distinguishable timings.
    *
-   * The main goal here is to determine if the attack by Toru Akishita and Tsuyoshi Takagi
-   * in https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf
-   * might be applicable. I.e. one of the points contains a zero value when multiplied
-   * by mul, the other one does not.
+   * <p>The main goal here is to determine if the attack by Toru Akishita and Tsuyoshi Takagi in
+   * https://www-old.cdc.informatik.tu-darmstadt.de/reports/TR/TI-03-01.zvp.pdf might be applicable.
+   * I.e. one of the points contains a zero value when multiplied by mul, the other one does not.
    *
-   * In its current form the test here is quite weak for a number of reasons:
-   * (1) The timing is often noisy, because the test is run as a unit test.
-   * (2) The test is executed with only a small number of input points.
-   * (3) The number of samples is rather low. Running this test with a larger sample
-   *     size would detect more timing differences. Unfortunately
-   * (4) The test does not determine if a variable run time is exploitable. For example
-   *     if the tested provider uses windowed exponentiation and the special point is
-   *     in the precomputation table then timing differences are easy to spot, but more
-   *     difficult to exploit and hence additional experiments would be necessary.
+   * <p>In its current form the test here is quite weak for a number of reasons:
    *
-   * @param spec the specification of the curve
-   * @param p0 This is a special point. I.e. multiplying this point by mul
-   *           may lead to a zero value that may be observable.
+   * <ol>
+   *   <li>The timing is often noisy, because the test is run as a unit test.
+   *   <li>The test is executed with only a small number of input points.
+   *   <li>The number of samples is rather low. Running this test with a larger sample size would
+   *       detect more timing differences.
+   *   <li>The test does not determine if a variable run time is exploitable. For example if the
+   *       tested provider uses windowed exponentiation and the special point is in the
+   *       precomputation table then timing differences are easy to spot, but more difficult to
+   *       exploit and hence additional experiments would be necessary.
+   * </ol>
+   *
+   * @param curve the curve
+   * @param p0 This is a special point. I.e. multiplying this point by mul may lead to a zero value
+   *     that may be observable.
    * @param p1 a random point on the curve
-   * @param mul an integer, such that multiplying p0 with this value may lead to a timing
-   *        difference
+   * @param mul an integer, such that multiplying p0 with this value may lead to a timing difference
    * @param privKeySize the size of the private key in bits
    * @param comment describes the test case
    */
-  private void testTiming(ECParameterSpec spec, ECPoint p0, ECPoint p1,
-                          BigInteger mul, int privKeySize, String comment) throws Exception {
+  private void testTiming(String curve, ECPoint p0, ECPoint p1, BigInteger mul, int privKeySize)
+      throws GeneralSecurityException {
     ThreadMXBean bean = ManagementFactory.getThreadMXBean();
     if (!bean.isCurrentThreadCpuTimeSupported()) {
-      System.out.println("getCurrentThreadCpuTime is not supported. Skipping");
+      TestUtil.skipTest("getCurrentThreadCpuTime is not supported.");
       return;
     }
-    SecureRandom random = new SecureRandom();
+    // Skips the test if ECDH with the given parameters is not supported.
+    testSupportParameterSpec(curve);
+    // Uses constructed parameters. This allows testing providers that allow general curves.
+    ECParameterSpec spec = EcUtil.getCurveSpecConstructed(curve);
+    KeyFactory kf;
+    KeyAgreement ka;
+    PublicKey[] publicKeys = new PublicKey[2];
+    try {
+      kf = KeyFactory.getInstance("EC");
+      ka = KeyAgreement.getInstance("ECDH");
+      publicKeys[0] = kf.generatePublic(new ECPublicKeySpec(p0, spec));
+      publicKeys[1] = kf.generatePublic(new ECPublicKeySpec(p1, spec));
+    } catch (GeneralSecurityException ex) {
+      // unsupported curve
+      TestUtil.skipTest("unsupported parameters or curve:" + curve);
+      return;
+    }
     int fixedSize = mul.bitLength();
     int missingBits = privKeySize - 2 * fixedSize;
     assertTrue(missingBits > 0);
@@ -915,16 +1198,8 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     // the number of warmup experiments that are ignored
     final int warmup = 8;
     final int sampleSize = warmup + tests;
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    PublicKey[] publicKeys = new PublicKey[2];
-    try {
-      publicKeys[0] = kf.generatePublic(new ECPublicKeySpec(p0, spec));
-      publicKeys[1] = kf.generatePublic(new ECPublicKeySpec(p1, spec));
-    } catch (InvalidKeySpecException ex) {
-      // unsupported curve
-      return;
-    }
     PrivateKey[] privKeys = new PrivateKey[sampleSize];
+    SecureRandom random = new SecureRandom();
     for (int i = 0; i < sampleSize; i++) {
       BigInteger m = new BigInteger(missingBits, random);
       m = mul.shiftLeft(missingBits).add(m);
@@ -932,7 +1207,6 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       ECPrivateKeySpec privSpec = new ECPrivateKeySpec(m, spec);
       privKeys[i] = kf.generatePrivate(privSpec);
     }
-    KeyAgreement ka = KeyAgreement.getInstance("ECDH");
     long[][] timings = new long[2][sampleSize];
     for (int i = 0; i < sampleSize; i++) {
       for (int j = 0; j < 2 * repetitions; j++) {
@@ -951,10 +1225,10 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         timings[j][i] /= repetitions;
       }
     }
- 
+
     // Performs some statistics.
     boolean noisy = false;  // Set to true, if the timings have a large variance.
-    System.out.println("ECDH timing test:" + comment);
+    System.out.println("ECDH timing test:" + curve);
     double[] avg = new double[2];
     double[] var = new double[2];
     for (int i = 0; i < 2; i++) {
@@ -968,11 +1242,11 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       avg[i] = sum / tests;
       var[i] = (sumSqr - avg[i] * sum) / (tests - 1);
       double stdDev = Math.sqrt(var[i]);
-      double cv = stdDev / avg[i]; 
+      double cv = stdDev / avg[i];
       System.out.println("Timing for point " + i + " avg: " + avg[i] + " std dev: " + stdDev
                          + " cv:" + cv);
       // The ratio 0.05 below is a somewhat arbitrary value that tries to determine if the noise
-      // is too big to detect even larger timing differences.
+      // is too big to detect even large timing differences.
       if (cv > 0.05) {
         noisy = true;
       }
@@ -998,7 +1272,9 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
       }
     }
     point0Faster += equal / 2;
-    System.out.println("Point 0 multiplication is faster: " + point0Faster);
+    System.out.println(
+        "Point 0 multiplication is faster than point 1: " + point0Faster + " out of " + sampleSize);
+    System.out.println("Expected range " + minCount + " to " + (sampleSize - minCount));
     if (point0Faster < minCount || point0Faster > sampleSize - minCount) {
       fail("Timing differences in ECDH computation detected");
     } else if (noisy) {
@@ -1006,8 +1282,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     }
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingSecp256r1() throws Exception {
     // edge case for projective coordinates
@@ -1022,11 +1297,10 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     BigInteger y2 =
         new BigInteger("bc2c9ecd44af916ca58d9e3ef1257f698d350ef486eb86137fe69a7375bcc191", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getNistP256Params(), p1, p2, new BigInteger("2"), 256, "secp256r1");
+    testTiming("secp256r1", p1, p2, new BigInteger("2"), 256);
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingSecp384r1() throws Exception {
     // edge case for projective coordinates
@@ -1045,11 +1319,10 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
         new BigInteger("9dcbc4d843af8944eb4ba018d369b351a9ea0f7b9e3561df2ee218d54e198f7c"
                        + "837a3abaa41dffd2d2cb771a7599ed9e", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getNistP384Params(), p1, p2, new BigInteger("2"), 384, "secp384r1");
+    testTiming("secp384r1", p1, p2, new BigInteger("2"), 384);
   }
 
-  @SlowTest(providers = 
-      {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE, ProviderType.OPENJDK})
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testTimingBrainpoolP256r1() throws Exception {
     // edge case for Jacobian and projective coordinates
@@ -1065,8 +1338,7 @@ public static final EcPublicKeyTestVector EC_VALID_PUBLIC_KEY =
     BigInteger y2 =
         new BigInteger("25cdd610243c7e693fad7bd69b43ae3e63e94317c4c6b717d9c8bc3be8c996fb", 16);
     ECPoint p2 = new ECPoint(x2, y2);
-    testTiming(EcUtil.getBrainpoolP256r1Params(), p1, p2, new BigInteger("2"), 255,
-               "brainpoolP256r1");
+    testTiming("brainpoolP256r1", p1, p2, new BigInteger("2"), 255);
   }
 }
 

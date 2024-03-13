@@ -70,7 +70,7 @@ Additional test vectors\:
     keys have patterns that can be used by special case factoring algorithms.
 *   Extending tests for timing differences. So far there are only a limited
     number of tests against Java providers. The statistical analysis of the
-    measurments are relatively simple and could probably be improved. One goal
+    measurements are relatively simple and could probably be improved. One goal
     is to separate measuring the timings and doing the statistical analysis by
     defining a JSON structure for storing the measurements.
 *   Adding test vectors for long hashes and MACs. I.e. the inputs are strings

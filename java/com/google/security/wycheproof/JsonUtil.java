@@ -21,12 +21,19 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 
 /** Utilities for reading test vectors in JSON format */
 public class JsonUtil {
+
+  public static JsonObject getTestVectorsAbsolutePath(String path) throws IOException {
+    FileInputStream is = new FileInputStream(path);
+    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
+    JsonElement elem = JsonParser.parseReader(reader);
+    return elem.getAsJsonObject();
+  }
 
   /**
    * Reads a set of test vectors from a file.
@@ -39,12 +46,14 @@ public class JsonUtil {
   public static JsonObject getTestVectors(String filename) throws 
       IOException {
     // The directory where the test vectors are.
-    String testVectorsDir = "testvectors/";
-    FileInputStream is = new FileInputStream(testVectorsDir + filename);
-    JsonReader reader = new JsonReader(new InputStreamReader(is, UTF_8));
-    JsonParser parser = new JsonParser();
-    JsonElement elem = parser.parse(reader);
-    return elem.getAsJsonObject();
+    String testVectorsDir = "third_party/wycheproof/testvectors/";
+    return getTestVectorsAbsolutePath(testVectorsDir + filename);
+  }
+
+  public static JsonObject getTestVectorsV1(String filename) throws IOException {
+    // The directory where the test vectors are.
+    String testVectorsDir = "testvectors_v1/";
+    return getTestVectorsAbsolutePath(testVectorsDir + filename);
   }
 
   /** 

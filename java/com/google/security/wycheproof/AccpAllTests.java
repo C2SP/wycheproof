@@ -21,7 +21,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * Amazon Corretto Crypto Provider is a Java security provider from Amazon which uses OpenSSL. See
  * {@link https://github.com/corretto/amazon-corretto-crypto-provider}.
  *
- * <p>AccpAllTests runs all tests, except that tests that are explicitly excluded.
+ * <p>AccpAllTests runs all tests, except that tests that are explicitly excluded. The list of test
+ * classes below contains tests for primitives that are implemented by OpenSSL, but are not listed
+ * as implemented by the Amazon Corretto Crypto Provider. Tests for primitives that are not
+ * implemented are simply skipped. The reason for including the tests anyway is to catch
+ * accidential, experimental additions.
  */
 @RunWith(WycheproofRunner.class)
 @SuiteClasses({
@@ -29,7 +33,9 @@ import org.junit.runners.Suite.SuiteClasses;
   BasicTest.class,
   CipherInputStreamTest.class,
   CipherOutputStreamTest.class,
+  // Diffie-Hellman is not implemented by the provider.
   DhTest.class,
+  // DSA is not implemented by the provider.
   DsaTest.class,
   EcKeyTest.class,
   EcdhTest.class,
@@ -37,11 +43,20 @@ import org.junit.runners.Suite.SuiteClasses;
   JsonAeadTest.class,
   JsonCipherTest.class,
   JsonEcdhTest.class,
+  JsonKeyWrapTest.class,
+  JsonMacTest.class,
+  JsonPbeTest.class,
+  JsonPbkdfTest.class,
+  JsonRsaEncryptionTest.class,
   JsonSignatureTest.class,
+  // XDH is not implemented by the provider.
+  JsonXdhTest.class,
+  MacTest.class,
   MessageDigestTest.class,
-  RsaEncryptionTest.class,
   RsaKeyTest.class,
-  RsaSignatureTest.class
+  RsaPssTest.class,
+  RsaSignatureTest.class,
+  SecureRandomTest.class
 })
 @Provider(ProviderType.AMAZON_CORRETTO_CRYPTO_PROVIDER)
 public final class AccpAllTests {

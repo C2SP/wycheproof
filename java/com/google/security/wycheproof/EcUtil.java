@@ -37,13 +37,63 @@ import java.util.Arrays;
 public class EcUtil {
   /**
    * Returns the ECParameterSpec for a named curve. Not every provider implements the
-   * AlgorithmParameters. Therefore, most tests use alternative functions.
+   * AlgorithmParameters. For such providers this function constructs the parameter specs for the
+   * most popular curves.
    */
   public static ECParameterSpec getCurveSpec(String name)
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
     AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
     parameters.init(new ECGenParameterSpec(name));
     return parameters.getParameterSpec(ECParameterSpec.class);
+  }
+
+  /**
+   * Returns a constructed ECParameterSpec for a named curve.
+   *
+   * <p>If the curve is not known then an ECParameterSpec is constructed for some curves. The
+   * selection of the curves that are implemented using explicit parameters is somewhat arbitrary
+   * and does not reflect their popularity. Rather the selection was done to achieve somewhat decent
+   * test coverage. secp256r1, secp384r1 and secp521r1 were added becuase they are implemented by
+   * most providers. secp224r1 has recently been removed from jdk. brainpoolP224r1 and
+   * brainpoolP256r1 are curves, where the order is not close to a power of two, hence a bias in the
+   * generation of k might be detectable. secp256k1 may have a special case implementation, because
+   * this curve is used by bitcoin with modified ECDSA signatures. prime239v1 is the default curve
+   * used by BouncyCastle. FRP256v1 has been added simply because it is not popular and hence is one
+   * of the curves that likely uses general formulas for the EC computation (assuming it is
+   * supported).
+   */
+  public static ECParameterSpec getCurveSpecConstructed(String name)
+      throws NoSuchAlgorithmException, InvalidParameterSpecException {
+    try {
+      AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+      parameters.init(new ECGenParameterSpec(name));
+      return parameters.getParameterSpec(ECParameterSpec.class);
+    } catch (NoSuchAlgorithmException | InvalidParameterSpecException ex) {
+      // The provider does not support algorithm parameters.
+      // Hence the backup parameters are used below.
+    }
+    switch (name) {
+      case "secp224r1":
+        return getNistP224Params();
+      case "secp256r1":
+        return getNistP256Params();
+      case "secp384r1":
+        return getNistP384Params();
+      case "secp521r1":
+        return getNistP521Params();
+      case "secp256k1":
+        return getSecp256k1Params();
+      case "brainpoolP224r1":
+        return getBrainpoolP224r1Params();
+      case "brainpoolP256r1":
+        return getBrainpoolP256r1Params();
+      case "X9.62 prime239v1":
+        return getPrime239v1Params();
+      case "FRP256v1":
+        return getFRP256v1Params();
+      default:
+        throw new NoSuchAlgorithmException("Curve not implemented:" + name);
+    }
   }
 
   public static void printParameters(ECParameterSpec spec) {
@@ -61,66 +111,6 @@ public class EcUtil {
     System.out.println("Gx:" + generator.getAffineX());
     System.out.println("Gy:" + generator.getAffineY());
     System.out.println("order:" + spec.getOrder());
-  }
-
-  /** Returns the bit size of a given curve. TODO(bleichen): add all curves that are tested. */
-  public static int getCurveSize(String name) throws NoSuchAlgorithmException {
-    name = name.toLowerCase();
-    if (name.equals("secp224r1")) {
-      return 224;
-    } else if (name.equals("secp256r1")) {
-      return 256;
-    } else if (name.equals("secp384r1")) {
-      return 384;
-    } else if (name.equals("secp521r1")) {
-      return 521;
-    } else if (name.equals("secp256k1")) {
-      return 256;
-    } else if (name.equals("brainpoolp224r1")) {
-      return 224;
-    } else if (name.equals("brainpoolp224t1")) {
-      return 224;
-    } else if (name.equals("brainpoolp256r1")) {
-      return 256;
-    } else if (name.equals("brainpoolp256t1")) {
-      return 256;
-    } else if (name.equals("brainpoolp320r1")) {
-      return 320;
-    } else if (name.equals("brainpoolp320t1")) {
-      return 320;
-    } else if (name.equals("brainpoolp384r1")) {
-      return 384;
-    } else if (name.equals("brainpoolp384t1")) {
-      return 384;
-    } else if (name.equals("brainpoolp512r1")) {
-      return 512;
-    } else if (name.equals("brainpoolp512t1")) {
-      return 512;
-    } else {
-      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
-    }
-  }
-
-  /**
-   * Returns the ECParameterSpec for a named curve. Only a handful curves that are used in the tests
-   * are implemented.
-   */
-  public static ECParameterSpec getCurveSpecRef(String name) throws NoSuchAlgorithmException {
-    if (name.equals("secp224r1")) {
-      return getNistP224Params();
-    } else if (name.equals("secp256r1")) {
-      return getNistP256Params();
-    } else if (name.equals("secp384r1")) {
-      return getNistP384Params();
-    } else if (name.equals("secp521r1")) {
-      return getNistP521Params();
-    } else if (name.equals("brainpoolp224r1")) {
-      return getBrainpoolP224r1Params();
-    } else if (name.equals("brainpoolp256r1")) {
-      return getBrainpoolP256r1Params();
-    } else {
-      throw new NoSuchAlgorithmException("Curve not implemented:" + name);
-    }
   }
 
   public static ECParameterSpec getNistCurveSpec(
@@ -219,6 +209,76 @@ public class EcUtil {
     BigInteger n =
         new BigInteger("A9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7", 16);
     final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
+  }
+
+  public static ECParameterSpec getSecp256k1Params() {
+    BigInteger p =
+        new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F", 16);
+    BigInteger a = BigInteger.ZERO;
+    BigInteger b = new BigInteger("7", 16);
+    BigInteger x =
+        new BigInteger("79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
+    BigInteger y =
+        new BigInteger("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
+    BigInteger n =
+        new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+    final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
+  }
+
+  /**
+   * The curve prime239v1 is defined in X9.62. This curve is used as a default by BouncyCastle in
+   * the EC key generation if no curve has been specified. The KeyPairGenerator implemented in
+   * org/bouncycastle/jcajce/provider/asymmetric/ec/KeyPairGeneratorSpi.java uses the strength of
+   * 239 unless this value is explicitely set.
+   */
+  public static ECParameterSpec getPrime239v1Params() {
+    BigInteger p =
+        new BigInteger("7fffffffffffffffffffffff7fffffffffff8000000000007fffffffffff", 16);
+    BigInteger n =
+        new BigInteger("7fffffffffffffffffffffff7fffff9e5e9a9f5d9071fbd1522688909d0b", 16);
+    BigInteger a =
+        new BigInteger("7fffffffffffffffffffffff7fffffffffff8000000000007ffffffffffc", 16);
+    BigInteger b =
+        new BigInteger("6b016c3bdcf18941d0d654921475ca71a9db2fb27d1d37796185c2942c0a", 16);
+    BigInteger x =
+        new BigInteger("ffa963cdca8816ccc33b8642bedf905c3d358573d3f27fbbd3b3cb9aaaf", 16);
+    BigInteger y =
+        new BigInteger("7debe8e4e90a5dae6e4054ca530ba04654b36818ce226b39fccb7b02f1ae", 16);
+    final int h = 1;
+    ECFieldFp fp = new ECFieldFp(p);
+    EllipticCurve curve = new EllipticCurve(fp, a, b);
+    ECPoint g = new ECPoint(x, y);
+    return new ECParameterSpec(curve, g, n, h);
+  }
+
+  /**
+   * FRP256v1 is a rather unknown curve defined in
+   * https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000024668816 The curve was added because
+   * implementations of this curve have a large chance to use generic EC code, rather than optimized
+   * special case code.
+   */
+  public static ECParameterSpec getFRP256v1Params() {
+    BigInteger p =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B3961ADBCABC8CA6DE8FCF353D86E9C03", 16);
+    BigInteger a =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B3961ADBCABC8CA6DE8FCF353D86E9C00", 16);
+    BigInteger b =
+        new BigInteger("EE353FCA5428A9300D4ABA754A44C00FDFEC0C9AE4B1A1803075ED967B7BB73F", 16);
+    BigInteger n =
+        new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B53DC67E140D2BF941FFDD459C6D655E1", 16);
+    final int h = 1;
+    BigInteger x =
+        new BigInteger("B6B3D4C356C139EB31183D4749D423958C27D2DCAF98B70164C97A2DD98F5CFF", 16);
+    BigInteger y =
+        new BigInteger("6142E0F7C8B204911F9271F0F3ECEF8C2701C307E8E4C9E183115A1554062CFB", 16);
     ECFieldFp fp = new ECFieldFp(p);
     EllipticCurve curve = new EllipticCurve(fp, a, b);
     ECPoint g = new ECPoint(x, y);
@@ -345,8 +405,8 @@ public class EcUtil {
    * @param curve must be a prime order elliptic curve
    * @return the size of an element in bits
    */
-  public static int fieldSizeInBits(EllipticCurve curve) throws GeneralSecurityException {
-    return getModulus(curve).subtract(BigInteger.ONE).bitLength();
+  public static int fieldSizeInBits(EllipticCurve curve) {
+    return curve.getField().getFieldSize();
   }
 
   /**
@@ -355,7 +415,7 @@ public class EcUtil {
    * @param curve must be a prime order elliptic curve
    * @return the size of an element in bytes.
    */
-  public static int fieldSizeInBytes(EllipticCurve curve) throws GeneralSecurityException {
+  public static int fieldSizeInBytes(EllipticCurve curve) {
     return (fieldSizeInBits(curve) + 7) / 8;
   }
 
@@ -381,10 +441,10 @@ public class EcUtil {
       throw new GeneralSecurityException("point is at infinity");
     }
     // Check 0 <= x < p and 0 <= y < p.
-    if (x.signum() == -1 || x.compareTo(p) != -1) {
+    if (x.signum() == -1 || x.compareTo(p) >= 0) {
       throw new GeneralSecurityException("x is out of range");
     }
-    if (y.signum() == -1 || y.compareTo(p) != -1) {
+    if (y.signum() == -1 || y.compareTo(p) >= 0) {
       throw new GeneralSecurityException("y is out of range");
     }
     // Check y^2 == x^3 + a x + b (mod p)
@@ -420,7 +480,7 @@ public class EcUtil {
       throw new GeneralSecurityException("Only curves over prime order fields are supported");
     }
     BigInteger p = ((java.security.spec.ECFieldFp) field).getP();
-    if (x.compareTo(BigInteger.ZERO) == -1 || x.compareTo(p) != -1) {
+    if (x.signum() <= 0 || x.compareTo(p) >= 0) {
       throw new GeneralSecurityException("x is out of range");
     }
     // Compute rhs == x^3 + a x + b (mod p)
@@ -464,7 +524,7 @@ public class EcUtil {
         throw new GeneralSecurityException("Invalid format");
     }
     BigInteger x = new BigInteger(1, Arrays.copyOfRange(bytes, 1, bytes.length));
-    if (x.compareTo(BigInteger.ZERO) == -1 || x.compareTo(p) != -1) {
+    if (x.signum() <= 0 || x.compareTo(p) >= 0) {
       throw new GeneralSecurityException("x is out of range");
     }
     // Compute rhs == x^3 + a x + b (mod p)

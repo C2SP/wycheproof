@@ -17,7 +17,7 @@
 /**
  * Tests for RSASSA-PKCS1-v1_5 signature implementations of Web Crypto APIs.
  */
-goog.provide('wycheproof.webcryptoapi.RSASSA-PKCS1-V1_5');
+goog.provide('wycheproof.webcryptoapi.RSASSA_PKCS1_V1_5');
 goog.require('goog.testing.TestCase');
 goog.require('goog.testing.asserts');
 goog.require('goog.testing.jsunit');

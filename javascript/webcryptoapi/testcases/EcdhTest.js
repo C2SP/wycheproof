@@ -55,7 +55,7 @@ Ecdh.generateKey = function(curveName) {
 
 /**
  * Imports a ECDH key from the given key data.
- * @param {!JSONObject} keyData The key data in JWK format
+ * @param {?} keyData The key data in JWK format
  * @param {!Array<string>} usages The usages of the key
  *
  * @return {!Promise}
@@ -155,8 +155,8 @@ Ecdh.testKeyDerivation = function() {
 /**
  * Parameters of a ECDH key derivation test.
  * @param {!number} id Test case's id
- * @param {!JSONObject} privKeyData The private key's data in JWK format
- * @param {!JSONObject} pubKeyData The public key's data in JWK format
+ * @param {?} privKeyData The private key's data in JWK format
+ * @param {?} pubKeyData The public key's data in JWK format
  * @param {!string} sharedKey The expected shared key
  * @param {!string} result The expected result of the test case
  */

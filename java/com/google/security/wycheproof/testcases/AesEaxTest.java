@@ -22,7 +22,9 @@ package com.google.security.wycheproof;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
@@ -257,10 +259,20 @@ public class AesEaxTest {
             + "e632946e4999be20159977431bef0454"),
   };
 
+  /** Returns a Cipher instance for AES-EAX. */
+  private Cipher getAesEaxInstance() {
+    try {
+      return Cipher.getInstance("AES/EAX/NoPadding");
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+      TestUtil.skipTest("AES-EAX not supported");
+      return null;
+    }
+  }
+
   @Test
   public void testEax() throws Exception {
+    Cipher cipher = getAesEaxInstance();
     for (EaxTestVector test : EAX_TEST_VECTOR) {
-      Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       cipher.updateAAD(test.aad);
       byte[] ct = cipher.doFinal(test.pt);
@@ -270,8 +282,8 @@ public class AesEaxTest {
 
   @Test
   public void testLateUpdateAAD() throws Exception {
+    Cipher cipher = getAesEaxInstance();
     for (EaxTestVector test : EAX_TEST_VECTOR) {
-      Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       byte[] c0 = cipher.update(test.pt);
       try {

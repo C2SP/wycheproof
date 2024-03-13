@@ -30,9 +30,10 @@ goog.require('wycheproof.TestUtil');
 var TestUtil = wycheproof.TestUtil;
 
 
+
 /**
  * Non-negative arbitrary-precision integers.
- * @param {(!Array<Byte>|!Uint8Array)=} optValue
+ * @param {(!Array<number>|!Uint8Array)=} optValue
  *     The value of the BigInteger in big endian.
  * @constructor
  * @extends {e2e.BigNum}
@@ -100,7 +101,7 @@ wycheproof.BigInteger.prototype.toArrayBuffer = function(optValue) {
 /**
  * Odd prime big integer that could be use as the modulus in modular arithmetic
  * operations in crypto schemes such as ECDSA or ECDH.
- * @param {!Array<Byte>|!Uint8Array} modulus The modulus to use.
+ * @param {!Array<number>|!Uint8Array} modulus The modulus to use.
  * @constructor
  * @extends {e2e.BigPrimeNum}
  */

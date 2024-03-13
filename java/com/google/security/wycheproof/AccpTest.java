@@ -22,7 +22,9 @@ import org.junit.runners.Suite.SuiteClasses;
  * Amazon Corretto Crypto Provider is a Java security provider from Amazon which uses OpenSSL. See
  * {@link https://github.com/corretto/amazon-corretto-crypto-provider}.
  *
- * <p>AccpAllTests runs all tests, except that tests that are explicitly excluded.
+ * <p>AccpTest runs all tests, excpept tests that are slow or explicitly excluded. More tests are
+ * run by AccpAllTests, which also includes slow tests and tries to perform tests against primitives
+ * that are not or not yet implemented.
  */
 @RunWith(WycheproofRunner.class)
 @SuiteClasses({
@@ -30,19 +32,24 @@ import org.junit.runners.Suite.SuiteClasses;
   BasicTest.class,
   CipherInputStreamTest.class,
   CipherOutputStreamTest.class,
-  DhTest.class,
-  DsaTest.class,
   EcKeyTest.class,
   EcdhTest.class,
   EcdsaTest.class,
   JsonAeadTest.class,
   JsonCipherTest.class,
   JsonEcdhTest.class,
+  JsonKeyWrapTest.class,
+  JsonMacTest.class,
+  JsonPbeTest.class,
+  JsonPbkdfTest.class,
+  JsonRsaEncryptionTest.class,
   JsonSignatureTest.class,
+  MacTest.class,
   MessageDigestTest.class,
-  RsaEncryptionTest.class,
   RsaKeyTest.class,
-  RsaSignatureTest.class
+  RsaPssTest.class,
+  RsaSignatureTest.class,
+  SecureRandomTest.class
 })
 @Provider(ProviderType.AMAZON_CORRETTO_CRYPTO_PROVIDER)
 @Fast

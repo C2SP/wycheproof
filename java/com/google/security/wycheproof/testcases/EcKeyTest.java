@@ -23,10 +23,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
+import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
@@ -132,8 +133,14 @@ public class EcKeyTest {
   };
 
   @Test
-  public void testEncodedPublicKey() throws Exception {
-    KeyFactory kf = KeyFactory.getInstance("EC");
+  public void testEncodedPublicKey() {
+    KeyFactory kf;
+    try {
+      kf = KeyFactory.getInstance("EC");
+    } catch (NoSuchAlgorithmException ex) {
+      TestUtil.skipTest("EC not supported");
+      return;
+    }
     for (String encodedHex : EC_INVALID_PUBLIC_KEYS) {
       byte[] encoded = TestUtil.hexToBytes(encodedHex);
       X509EncodedKeySpec x509keySpec = new X509EncodedKeySpec(encoded);
@@ -148,16 +155,30 @@ public class EcKeyTest {
   }
 
   @Test
-  public void testEncodedPrivateKey() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-    keyGen.initialize(EcUtil.getNistP256Params());
-    KeyPair keyPair = keyGen.generateKeyPair();
+  public void testEncodedPrivateKey() {
+    KeyPairGenerator keyGen;
+    KeyFactory kf;
+    KeyPair keyPair;
+    try {
+      kf = KeyFactory.getInstance("EC");
+      keyGen = KeyPairGenerator.getInstance("EC");
+      keyGen.initialize(EcUtil.getNistP256Params());
+      keyPair = keyGen.generateKeyPair();
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate EC key.");
+      return;
+    }
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
     byte[] encoded = priv.getEncoded();
     System.out.println("Encoded ECPrivateKey:" + TestUtil.bytesToHex(encoded));
     PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
-    KeyFactory kf = KeyFactory.getInstance("EC");
-    ECPrivateKey decoded = (ECPrivateKey) kf.generatePrivate(spec);
+    ECPrivateKey decoded;
+    try {
+      decoded = (ECPrivateKey) kf.generatePrivate(spec);
+    } catch (GeneralSecurityException ex) {
+      fail("Provider cannot parse its own encoding." + ex);
+      return;
+    }
     assertEquals(priv.getS(), decoded.getS());
     assertEquals(priv.getParams().getCofactor(), decoded.getParams().getCofactor());
     assertEquals(priv.getParams().getCurve(), decoded.getParams().getCurve());
@@ -165,57 +186,108 @@ public class EcKeyTest {
     assertEquals(priv.getParams().getOrder(), decoded.getParams().getOrder());
   }
 
-  /**
-   * Tests key generation for given parameters. The test can be skipped if the curve is not a
-   * standard curve.
-   */
-  void testKeyGeneration(ECParameterSpec ecParams, boolean isStandard) throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+  /** Tests key generation for given parameters. */
+  void testKeyGeneration(ECParameterSpec ecParams) throws Exception {
     KeyPair keyPair;
     try {
+      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
       keyGen.initialize(ecParams);
       keyPair = keyGen.generateKeyPair();
-    } catch (InvalidAlgorithmParameterException ex) {
-      if (!isStandard) {
-        return;
-      }
-      throw ex;
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Cannot generate curve");
+      return;
     }
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
     ECPrivateKey priv = (ECPrivateKey) keyPair.getPrivate();
     EcUtil.checkPublicKey(pub);
     BigInteger s = priv.getS();
     // Check the length of s. Could fail with probability 2^{-32}.
-    assertTrue(s.bitLength() >= EcUtil.fieldSizeInBits(ecParams.getCurve()) - 32);
+    int orderSize = ecParams.getOrder().bitLength();
+    assertTrue(s.bitLength() >= orderSize - 32);
     // TODO(bleichen): correct curve?
     // TODO(bleichen): use RandomUtil
   }
 
+  /**
+   * Checks key generation for secp224r1. This curve has been removed from OpenJDK
+   * https://bugs.openjdk.org/browse/JDK-8235710 Some provider (e.g. BouncyCastle and Conscrypt
+   * support this curve.
+   */
   @Test
-  public void testKeyGenerationAll() throws Exception {
-    testKeyGeneration(EcUtil.getNistP224Params(), true);
-    testKeyGeneration(EcUtil.getNistP256Params(), true);
-    testKeyGeneration(EcUtil.getNistP384Params(), true);
-    testKeyGeneration(EcUtil.getNistP521Params(), true);
-    // Curves that are sometimes not supported.
-    testKeyGeneration(EcUtil.getBrainpoolP256r1Params(), false);
+  public void testKeyGenerationSecp224r1() throws Exception {
+    testKeyGeneration(EcUtil.getNistP224Params());
+  }
+
+  @Test
+  public void testKeyGenerationSecp256r1() throws Exception {
+    testKeyGeneration(EcUtil.getNistP256Params());
+  }
+
+  @Test
+  public void testKeyGenerationSecp384r1() throws Exception {
+    testKeyGeneration(EcUtil.getNistP384Params());
+  }
+
+  @Test
+  public void testKeyGenerationSecp521r1() throws Exception {
+    testKeyGeneration(EcUtil.getNistP521Params());
+  }
+
+  @Test
+  public void testKeyGenerationPrime239v1() throws Exception {
+    testKeyGeneration(EcUtil.getPrime239v1Params());
   }
 
   /**
-   * Checks that the default key size for ECDSA is up to date. The test uses NIST SP 800-57 part1
-   * revision 4, Table 2, page 53
-   * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf for the minimal
-   * key size of EC keys. Nist recommends a minimal security strength of 112 bits for the time until
-   * 2030. To achieve this security strength EC keys of at least 224 bits are required.
+   * Checks key generation for the 256-bit brainpool curve. This curve has been removed from OpenJDK
+   * https://bugs.openjdk.org/browse/JDK-8235710 Some provider (e.g. BouncyCastle) support this
+   * curve. In other cases (e.g. Conscrypt) it is possible to use this curve by specifying the curve
+   * parameters explicitly.
    */
   @Test
-  public void testDefaultKeyGeneration() throws Exception {
-    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+  public void testKeyGenerationBrainpoolP256r1() throws Exception {
+    testKeyGeneration(EcUtil.getBrainpoolP256r1Params());
+  }
+
+  /**
+   * Checks that the default behavior of an uninitialized EC key pair generator.
+   *
+   * <p>The requirements for passing this test are rather low. The test only expects that an
+   * uninitialized key pair generator uses a at least a 224-bit curve. Generally, it is a good idea
+   * to avoid such defaults at all, since they are difficult to change and easily become outdated.
+   * Additionally, there is no guarantee that providers use curves that are well supported. For
+   * example, jdk20 uses secp384r1 as default (https://bugs.java.com/view_bug.do?bug_id=8283475),
+   * BouncyCastle v. 1.71 uses prime239v1 and Conscrypt uses secp256r1.
+   *
+   * <p>NIST SP 800-57 part1 revision 4, Table 2, page 53
+   * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf for the minimal
+   * key size of EC keys. Nist recommends a minimal security strength of 112 bits for the time until
+   * 2030. To achieve this security strength EC keys of at least 224 bits are required. After 2030 a
+   * minimal security strength of 128 and hence 256-bit curves is required.
+   *
+   * <p>https://bugs.openjdk.org/browse/JDK-8235710 removes all elliptic curves with security
+   * strength significantly smaller than 128 bits. Hence, the default curve used by BouncyCastle is
+   * not supported by jdk.
+   */
+  @Test
+  public void testDefaultKeyGeneration() {
+    KeyPairGenerator keyGen;
+    try {
+      keyGen = KeyPairGenerator.getInstance("EC");
+    } catch (GeneralSecurityException ex) {
+      TestUtil.skipTest("Could not generate EC key");
+      return;
+    }
+    // Generates a key pair without initializing keyGen.
+    // Unfortunately, the interface of generateKeyPair does not declare a checked exception.
+    // Hence providers are forced to define and use some default parameters.
     KeyPair keyPair = keyGen.generateKeyPair();
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
-    int keySize = EcUtil.fieldSizeInBits(pub.getParams().getCurve());
+    System.out.println("Default parameters for EC key generation:");
+    EcUtil.printParameters(pub.getParams());
+    int keySize = pub.getParams().getCurve().getField().getFieldSize();
     if (keySize < 224) {
-      fail("Expected a default key size of at least 224 bits. Size of generate key is " + keySize);
+      fail("Expected a default key size of at least 224 bits. Size of generated key is " + keySize);
     }
   }
 
@@ -224,7 +296,7 @@ public class EcKeyTest {
    * should be rejected to prevent subgroup confinement attacks.
    */
   @Test
-  public void testPublicKeyAtInfinity() throws Exception {
+  public void testPublicKeyAtInfinity() {
     ECParameterSpec ecSpec = EcUtil.getNistP256Params();
     try {
       ECPublicKeySpec pubSpec = new ECPublicKeySpec(ECPoint.POINT_INFINITY, ecSpec);

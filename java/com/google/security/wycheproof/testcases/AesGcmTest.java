@@ -33,6 +33,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
@@ -41,11 +42,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-// TODO(bleichen):
-//   - For EAX I was able to derive some special cases by inverting OMAC.
-//     Not sure if that is possible here.
 /**
  * Testing AES-GCM
+ *
+ * <p>This class tests different uses of the JCE interfaces.
  *
  * <p>Other tests using AES-GCM are: CipherInputStreamTest.java CipherOuputStreamTest.java
  */
@@ -156,6 +156,16 @@ public class AesGcmTest {
         "f145c2dcaf339eede427be934357eac0"),
   };
 
+  /** Returns a Cipher instance for AES-GCM. */
+  private Cipher getAesGcmInstance() {
+    try {
+      return Cipher.getInstance("AES/GCM/NoPadding");
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+      TestUtil.skipTest("AES-GCM not supported");
+      return null;
+    }
+  }
+
   /**
    * Returns the GCM test vectors supported by the current provider. This is necessary since not
    * every provider supports all parameters sizes. For example SUNJCE does not support 8 byte tags
@@ -169,11 +179,11 @@ public class AesGcmTest {
   private Iterable<GcmTestVector> getTestVectors() throws Exception {
     ArrayList<GcmTestVector> supported = new ArrayList<GcmTestVector>();
     for (GcmTestVector test : GCM_TEST_VECTORS) {
+      Cipher cipher = getAesGcmInstance();
       if (test.nonceLengthInBits != 96 || test.tagLengthInBits != 128) {
         try {
           // Checks whether the parameter size is supported.
           // It would be nice if there was a way to check this without trying to encrypt.
-          Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
           cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException ex) {
           // Not supported
@@ -185,10 +195,11 @@ public class AesGcmTest {
     return supported;
   }
 
+
   @Test
   public void testVectors() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       cipher.updateAAD(test.aad);
       byte[] ct = cipher.doFinal(test.pt);
@@ -200,9 +211,9 @@ public class AesGcmTest {
   @Test
   public void testEncryptWithEmptyArrays() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
       byte[] empty = new byte[0];
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.pt.length);
       ByteBuffer ctBuffer = ByteBuffer.allocate(outputSize);
@@ -227,8 +238,8 @@ public class AesGcmTest {
   @Test
   public void testDecryptWithEmptyArrays() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       byte[] empty = new byte[0];
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.DECRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.ct.length);
       ByteBuffer ptBuffer = ByteBuffer.allocate(outputSize);
@@ -285,7 +296,7 @@ public class AesGcmTest {
   @Test
   public void testLateUpdateAAD() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       byte[] c0 = cipher.update(test.pt);
       try {
@@ -318,7 +329,7 @@ public class AesGcmTest {
   @Test
   public void testIvReuse() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       cipher.updateAAD(test.aad);
       byte[] ct1 = cipher.doFinal(test.pt);
@@ -343,8 +354,8 @@ public class AesGcmTest {
    */
   @Test
   public void testByteBufferSize() throws Exception {
+    Cipher cipher = getAesGcmInstance();
     for (GcmTestVector test : getTestVectors()) {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       // Encryption
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.pt.length);
@@ -360,8 +371,8 @@ public class AesGcmTest {
   @Test
   public void testByteBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt);
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.pt.length);
@@ -385,8 +396,8 @@ public class AesGcmTest {
   @Test
   public void testByteBufferAlias() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.pt.length);
       byte[] backingArray = new byte[outputSize];
@@ -423,7 +434,7 @@ public class AesGcmTest {
       for (int useUpdate = 0; useUpdate <= 1; useUpdate++) {
         SecretKeySpec key = new SecretKeySpec(new byte[16], "AES");
         GCMParameterSpec parameters = new GCMParameterSpec(128, new byte[12]);
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher cipher = getAesGcmInstance();
         cipher.init(Cipher.ENCRYPT_MODE, key, parameters);
 
         // these offsets are relative to the start of the buffer
@@ -451,7 +462,7 @@ public class AesGcmTest {
 
           System.arraycopy(outBuf, outputOffsetInBuffer, inBuf, inputOffsetInBuffer, ctLength);
 
-          cipher = Cipher.getInstance("AES/GCM/NoPadding");
+          cipher = getAesGcmInstance();
           cipher.init(Cipher.DECRYPT_MODE, key, parameters);
 
           int resultPtLength = 0;
@@ -500,9 +511,9 @@ public class AesGcmTest {
       // outputOffset = offset relative to start of input.
       for (int outputOffset = -1; outputOffset <= 1; outputOffset++) {
 
+        Cipher cipher = getAesGcmInstance();
         SecretKeySpec key = new SecretKeySpec(new byte[16], "AES");
         GCMParameterSpec parameters = new GCMParameterSpec(128, new byte[12]);
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, key, parameters);
 
         ByteBuffer output, input, inputRO;
@@ -602,8 +613,8 @@ public class AesGcmTest {
   @Test
   public void testReadOnlyByteBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt).asReadOnlyBuffer();
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       int outputSize = cipher.getOutputSize(test.pt.length);
@@ -632,8 +643,8 @@ public class AesGcmTest {
   @Test
   public void testByteBufferWithOffset() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(new byte[test.pt.length + 50]);
       ptBuffer.position(5);
       ptBuffer = ptBuffer.slice();
@@ -663,15 +674,15 @@ public class AesGcmTest {
   @Test
   public void testByteBufferTooShort() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
+      Cipher cipher = getAesGcmInstance();
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt);
       ByteBuffer ctBuffer = ByteBuffer.allocate(test.ct.length - 1);
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
       cipher.updateAAD(test.aad);
       try {
         cipher.doFinal(ptBuffer, ctBuffer);
-        fail("This should not work");
+        fail("doFinal with a ByteBuffer that is too short should not work");
       } catch (ShortBufferException ex) {
         // expected
       }
@@ -683,7 +694,7 @@ public class AesGcmTest {
       cipher.updateAAD(test.aad);
       try {
         cipher.doFinal(ctBuffer, decrypted);
-        fail("This should not work");
+        fail("doFinal with a ByteBuffer that is too short should not work");
       } catch (ShortBufferException ex) {
         // expected
       }
@@ -698,7 +709,7 @@ public class AesGcmTest {
   public void testEncryptWithEmptyByteBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
       // Encryption
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       ByteBuffer empty = ByteBuffer.allocate(0);
       ByteBuffer ptBuffer = ByteBuffer.wrap(test.pt);
       cipher.init(Cipher.ENCRYPT_MODE, test.key, test.parameters);
@@ -716,7 +727,7 @@ public class AesGcmTest {
   @Test
   public void testDecryptWithEmptyBuffer() throws Exception {
     for (GcmTestVector test : getTestVectors()) {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       ByteBuffer empty = ByteBuffer.allocate(0);
       ByteBuffer ctBuffer = ByteBuffer.wrap(test.ct);
       cipher.init(Cipher.DECRYPT_MODE, test.key, test.parameters);
@@ -763,12 +774,12 @@ public class AesGcmTest {
     byte[] counter = new byte[12];
     byte[] input = new byte[16];
     byte[] key = new byte[16];
-    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Cipher cipher = getAesGcmInstance();
     try {
       cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(counter));
     } catch (InvalidAlgorithmParameterException ex) {
       // OpenJDK8 does not support IvParameterSpec for GCM.
-      System.out.println("testDefaultTagSizeIvParameterSpec:" + ex.toString());
+      TestUtil.skipTest("IvParameterSpec for AES-GCM is not supported");
       return;
     }
     byte[] output = cipher.doFinal(input);
@@ -790,12 +801,12 @@ public class AesGcmTest {
   public void testDefaultTagSizeAlgorithmParameterGenerator() throws Exception {
     byte[] input = new byte[10];
     byte[] key = new byte[16];
-    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Cipher cipher = getAesGcmInstance();
     try {
       AlgorithmParameterGenerator.getInstance("GCM");
     } catch (NoSuchAlgorithmException ex) {
       // Conscrypt does not support AlgorithmParameterGenerator for GCM.
-      System.out.println("testDefaultTagSizeAlgorithmParameterGenerator:" + ex.toString());
+      TestUtil.skipTest("Algorithm parameters for GCM are not supported");
       return;
     }
     AlgorithmParameters param = AlgorithmParameterGenerator.getInstance("GCM").generateParameters();
@@ -837,17 +848,9 @@ public class AesGcmTest {
    * <p>The test is slow as we have to encrypt 2^32 blocks.
    */
   @ExcludedTest(
-    providers = {ProviderType.CONSCRYPT, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE},
-    comment = "Conscrypt doesn't support streaming, would crash. BouncyCastle needs > 1h."
-  )
-  @SlowTest(
-    providers = {
-      ProviderType.BOUNCY_CASTLE,
-      ProviderType.CONSCRYPT,
-      ProviderType.OPENJDK,
-      ProviderType.SPONGY_CASTLE
-    }
-  )
+      providers = {ProviderType.CONSCRYPT, ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE},
+      comment = "Conscrypt doesn't support streaming, would crash. BouncyCastle needs > 1h.")
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
   public void testWrappedAroundCounter() throws Exception {
     try {
@@ -855,7 +858,7 @@ public class AesGcmTest {
       byte[] input = new byte[16];
       byte[] key = new byte[16];
       (new SecureRandom()).nextBytes(key);
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      Cipher cipher = getAesGcmInstance();
       cipher.init(
           Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(16 * 8, iv));
       byte[] output = cipher.update(input);
@@ -880,19 +883,15 @@ public class AesGcmTest {
    * plaintext with an empty IV results in a ciphertext having a tag that is equal to the hash
    * subkey used in AES-GCM. I.e. both are the same as encrypting an all zero block.
    *
-   * <p>OpenJDK fails this test.
+   * <p>OpenJDK failed this test.
    */
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/35746778"}
-  )
   @Test
   public void testEncryptEmptyPlaintextWithEmptyIv() throws Exception {
     byte[] emptyIv = new byte[0];
     byte[] input = new byte[0];
     byte[] key = TestUtil.hexToBytes("56aae7bd5cbefc71d31c4338e6ddd6c5");
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Cipher cipher = getAesGcmInstance();
     Cipher block = Cipher.getInstance("AES/ECB/NoPadding");
     block.init(Cipher.ENCRYPT_MODE, keySpec);
     byte[] hashkey = block.doFinal(new byte[16]);
@@ -906,21 +905,16 @@ public class AesGcmTest {
       System.out.println("Hash subkey          :" + TestUtil.bytesToHex(hashkey));
       fail("Encrypting with an empty IV leaks the hash subkey.");
     } catch (GeneralSecurityException expected) {
-      System.out.println("testEncryptWithEmptyIv:" + expected.toString());
       // expected behavior
     }
   }
 
-  @NoPresubmitTest(
-    providers = {ProviderType.OPENJDK},
-    bugs = {"b/35746778"}
-  )
   @Test
   public void testDecryptWithEmptyIv() throws Exception {
     byte[] emptyIv = new byte[0];
     byte[] key = TestUtil.hexToBytes("56aae7bd5cbefc71d31c4338e6ddd6c5");
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Cipher cipher = getAesGcmInstance();
     try {
       cipher.init(Cipher.DECRYPT_MODE, keySpec, new GCMParameterSpec(16 * 8, emptyIv));
       String ciphertext = "2b65876c00d77facf8f3d0e5be792b129bab10b25bcb739b92d6e2eab241245ff449";
@@ -934,7 +928,7 @@ public class AesGcmTest {
       System.out.println("pt2:" + TestUtil.bytesToHex(pt2));
       fail("AES-GCM must not accept an IV of size 0.");
     } catch (GeneralSecurityException expected) {
-      System.out.println("testDecryptWithEmptyIv:" + expected.toString());
+      // expected behavior
     }
   }
 }

@@ -1,0 +1,208 @@
+{
+  "type": "object",
+  "definitions": {
+    "JsonWebEncryptionTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "JsonWebEncryption"
+          ]
+        },
+        "comment": {
+          "type": "string",
+          "description": "a description of what these tests have in common"
+        },
+        "private": {
+           "$ref": "#/definitions/JsonWebKey",
+           "description": "the private key"
+        },
+        "public": {
+              "$ref": "#/definitions/JsonWebKey",
+              "description": "the [optional] public key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonWebEncryptionTestVector"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "JsonWebKey": {
+      "type": "object",
+      "desription": "see https://tools.ietf.org/html/rfc7517#section-4 and https://tools.ietf.org/html/rfc7518#section-6",
+      "properties": {
+        "alg": {
+          "type": "string",
+          "description": "the encryption algorithm to use"
+        },
+        "use": {
+          "type": "string",
+          "description": "what type of crypto operation to perform",
+          "enum": [
+            "enc"
+          ]
+        },
+        "kid": {
+          "type": "string",
+          "description": "the ID of the key entry"
+        },
+        "kty": {
+          "type": "string",
+          "description": "the family of algorithms the key belongs to",
+          "enum": [
+            "oct",
+            "EC",
+            "RSA"
+          ]
+        },
+        "k": {
+          "type": "string",
+          "description": "the secret key value of an oct key"
+        },
+        "n": {
+          "type": "string",
+          "description": "the public modulus of an RSA key"
+        },
+        "e": {
+          "type": "string",
+          "description": "the public exponent of an RSA key"
+        },
+        "p": {
+          "type": "string",
+          "description": "the first prime factgor of an RSA key"
+        },
+        "q": {
+          "type": "string",
+          "description": "the second prime factor of an RSA key"
+        },
+        "dp": {
+          "type": "string",
+          "description": "the first factor Chinese Remainder Theorem exponent of an RSA key"
+        },
+        "dq": {
+          "type": "string",
+          "description": "the second factor Chinese Remainder Theorem exponent of an RSA key"
+        },
+        "qi": {
+          "type": "string",
+          "description": "the first factor Chinese Remainder Theorem coefficient of an RSA key"
+        },
+        "crv": {
+          "type": "string",
+          "description": "which defined curve to use",
+          "enum": [
+            "P-256",
+            "P-384",
+            "P-521"
+          ]
+        },
+        "x": {
+          "type": "string",
+          "description": "the x-coordinate of an EC key point"
+        },
+        "y": {
+          "type": "string",
+          "description": "the y-coordinate of an EC key point"
+        },
+        "d": {
+          "type": "string",
+          "description": "the private key value of an EC key or private exponent for RSA"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Recipient" : {
+      "type" : "object",
+      "description" : "Recipient specific information Section 7.2.1 of RFC 7516",
+      "properties" : {
+        "header" : {
+          "type" : "object",
+          "descrption" : "header information that is not integrity protected"
+        },
+        "encrypted_key" : {
+          "type" : "string",
+          "format" : "BASE64URL"
+        }
+      }
+    },
+    "JsonWebEncryptionTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "jwe": {
+          "type": "string",
+          "description": "The JSON Web Encryption in compact form"
+        },
+        "pt": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "[optional] Plaintext"
+        },
+        "enc": {
+          "type": "string",
+          "description": "the content encryption algorithm"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "generatorVersion": {
+      "type": "string",
+      "description": "the version of the test vectors."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "json_web_encryption_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/JsonWebEncryptionTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}

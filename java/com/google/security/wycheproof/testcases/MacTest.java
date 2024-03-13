@@ -18,10 +18,12 @@ import static org.junit.Assert.fail;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.nio.ByteBuffer;
-import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Locale;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
@@ -56,49 +58,63 @@ public class MacTest {
     return result;
   }
 
-  protected static boolean arrayEquals(byte[] a, byte[] b) {
-    if (a.length != b.length) {
-      return false;
+  /**
+   * Returns an Mac instance for an algorithm name.
+   *
+   * <p>The main purpose of this method is to try alternative algorithm names.
+   */
+  private static Mac getMac(String algorithmName) throws NoSuchAlgorithmException {
+    try {
+      return Mac.getInstance(algorithmName);
+    } catch (NoSuchAlgorithmException ex) {
+      // Some provider use alternative algorithm names.
     }
-    byte res = 0;
-    for (int i = 0; i < a.length; i++) {
-      res |= (byte) (a[i] ^ b[i]);
+    algorithmName = algorithmName.toUpperCase(Locale.ENGLISH);
+    switch (algorithmName) {
+      case "AES-CMAC":
+        // BouncyCastle generally uses a hyphen for CMAC algorithms.
+        // However, AES-CMAC is an exception.
+        return Mac.getInstance("AESCMAC");
+      case "SIPHASHX-2-4":
+        // Try the name used by BouncyCastle.
+        return Mac.getInstance("SIPHASH128-2-4");
+      case "SIPHASHX-4-8":
+        // Try the name used by BouncyCastle.
+        return Mac.getInstance("SIPHASH128-4-8");
+      default:
+        break;
     }
-    return res == 0;
+    throw new NoSuchAlgorithmException(algorithmName);
   }
 
   /**
    * Tests computing a MAC by computing it multiple times. The test passes all the results are the
    * same in all cases.
    *
-   * @param algorithm the name of the MAC (e.g. "HMACSHA1")
-   * @param key the key of the MAC
+   * @param mac an intialized instance of MAC.
    * @param data input data for the MAC. The size of the data must be at least as long as the sum of
    *     all chunkSizes.
    * @param chunkSizes the sizes of the chunks used in the calls of update
    */
-  private void testUpdateWithChunks(String algorithm, Key key, byte[] data, int... chunkSizes)
-      throws Exception {
-    Mac mac = Mac.getInstance(algorithm);
-
+  private void testUpdateWithChunks(Mac mac, byte[] data, int... chunkSizes) {
     // First evaluation: compute MAC in one piece.
     int totalLength = 0;
     for (int chunkSize : chunkSizes) {
       totalLength += chunkSize;
     }
-    mac.init(key);
+    mac.reset();
     mac.update(data, 0, totalLength);
     byte[] mac1 = mac.doFinal();
 
     // Second evaluation: using multiple chunks
-    mac.init(key);
+    mac.reset();
     int start = 0;
     for (int chunkSize : chunkSizes) {
       mac.update(data, start, chunkSize);
       start += chunkSize;
     }
     byte[] mac2 = mac.doFinal();
-    if (!arrayEquals(mac1, mac2)) {
+    if (!MessageDigest.isEqual(mac1, mac2)) {
       fail(
           "Different MACs for same input:"
               + " computed as one piece:"
@@ -107,7 +123,7 @@ public class MacTest {
               + TestUtil.bytesToHex(mac2));
     }
     // Third evaluation: using ByteBuffers
-    mac.init(key);
+    mac.reset();
     start = 0;
     for (int chunkSize : chunkSizes) {
       ByteBuffer chunk = ByteBuffer.wrap(data, start, chunkSize);
@@ -115,7 +131,7 @@ public class MacTest {
       start += chunkSize;
     }
     byte[] mac3 = mac.doFinal();
-    if (!arrayEquals(mac1, mac3)) {
+    if (!MessageDigest.isEqual(mac1, mac3)) {
       fail(
           "Different MACs for same input:"
               + " computed as one piece:"
@@ -126,7 +142,7 @@ public class MacTest {
     // Forth evaluation: using ByteBuffer slices.
     // The effect of using slice() is that the resulting ByteBuffer has
     // position 0, but possibly an non-zero value for arrayOffset().
-    mac.init(key);
+    mac.reset();
     start = 0;
     for (int chunkSize : chunkSizes) {
       ByteBuffer chunk = ByteBuffer.wrap(data, start, chunkSize).slice();
@@ -134,7 +150,7 @@ public class MacTest {
       start += chunkSize;
     }
     byte[] mac4 = mac.doFinal();
-    if (!arrayEquals(mac1, mac4)) {
+    if (!MessageDigest.isEqual(mac1, mac4)) {
       fail(
           "Different MACs for same input:"
               + " computed as one piece:"
@@ -150,8 +166,10 @@ public class MacTest {
    * submitted to the SHA-3 competition. Many of the implementations contain bugs. The authors
    * propose some tests for cryptographic libraries. The test here implements a check for
    * incremental updates with the values proposed in Table 3.
+   *
+   * @param mac an initialized instance of MAC.
    */
-  private void testUpdate(String algorithm, Key key) throws Exception {
+  private void testUpdate(Mac mac) {
     int[] chunkSize1 = {0, 8, 16, 24, 32, 40, 48, 56, 64};
     int[] chunkSize2 = {0, 8, 16, 24, 32, 40, 48, 56, 64};
     int[] chunkSize3 = {0, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
@@ -169,85 +187,123 @@ public class MacTest {
       for (int size2 : chunkSize2) {
         for (int size3 : chunkSize3) {
           for (int size4 : chunkSize4) {
-            testUpdateWithChunks(algorithm, key, data, size1, size2, size3, size4);
+            testUpdateWithChunks(mac, data, size1, size2, size3, size4);
           }
         }
       }
     }
   }
 
-  public void testMac(String algorithm, int keySize) throws Exception {
+  public void testMac(String algorithm, int keySize) {
+    Mac mac;
     try {
-      Mac.getInstance(algorithm);
+      mac = getMac(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      TestUtil.skipTest("Algorithm " + algorithm + " is not supported.");
       return;
     }
     byte[] key = new byte[keySize];
     SecureRandom rand = new SecureRandom();
     rand.nextBytes(key);
-    testUpdate(algorithm, new SecretKeySpec(key, algorithm));
+    try {
+      mac.init(new SecretKeySpec(key, algorithm));
+    } catch (InvalidKeyException ex) {
+      // The test uses typical key sizes. Hence, we expect that a provider accepts them.
+      fail(ex.toString());
+    }
+    testUpdate(mac);
   }
 
   @Test
-  public void testHmacSha1() throws Exception {
+  public void testHmacSha1() {
     testMac("HMACSHA1", 20);
   }
 
   @Test
-  public void testHmacSha224() throws Exception {
+  public void testHmacSha224() {
     testMac("HMACSHA224", 28);
   }
 
   @Test
-  public void testHmacSha256() throws Exception {
+  public void testHmacSha256() {
     testMac("HMACSHA256", 32);
   }
 
   @Test
-  public void testHmacSha384() throws Exception {
+  public void testHmacSha384() {
     testMac("HMACSHA384", 48);
   }
 
   @Test
-  public void testHmacSha512() throws Exception {
+  public void testHmacSha512() {
     testMac("HMACSHA512", 64);
   }
 
   @Test
-  public void testHmacSha3_224() throws Exception {
+  public void testHmacSha3_224() {
     testMac("HMACSHA3-224", 28);
   }
 
   @Test
-  public void testHmacSha3_256() throws Exception {
+  public void testHmacSha3_256() {
     testMac("HMACSHA3-256", 32);
   }
 
   @Test
-  public void testHmacSha3_384() throws Exception {
+  public void testHmacSha3_384() {
     testMac("HMACSHA3-384", 48);
   }
 
   @Test
-  public void testHmacSha3_512() throws Exception {
+  public void testHmacSha3_512() {
     testMac("HMACSHA3-512", 64);
+  }
+
+  @Test
+  public void testAesCmac() {
+    testMac("AES-CMAC", 16);
+  }
+
+  @Test
+  public void testSipHash24() {
+    testMac("SIPHASH-2-4", 16);
+  }
+
+  @Test
+  public void testSipHash48() {
+    testMac("SIPHASH-4-8", 16);
+  }
+
+  @Test
+  public void testSipHashX24() {
+    testMac("SIPHASHX-2-4", 16);
+  }
+
+  @Test
+  public void testSipHashX48() {
+    testMac("SIPHASHX-4-8", 16);
+  }
+
+  @Test
+  public void testKmac128() {
+    testMac("KMAC128", 32);
+  }
+
+  @Test
+  public void testKmac256() {
+    testMac("KMAC256", 64);
   }
 
   /**
    * Computes the mac of a message repeated multiple times.
    *
-   * @param algorithm the message digest (e.g. "HMACSHA1")
+   * @param mac an initialized instance of MAC
    * @param message the bytes to mac
    * @param repetitions the number of repetitions of the message
    * @return the digest
-   * @throws GeneralSecurityException if the computation of the mac fails (e.g. because the
-   *     algorithm is unknown).
    */
-  public byte[] macRepeatedMessage(String algorithm, Key key, byte[] message, long repetitions)
-      throws Exception {
-    Mac mac = Mac.getInstance(algorithm);
-    mac.init(key);
+  public byte[] macRepeatedMessage(Mac mac, byte[] message, long repetitions) {
+    mac.reset();
     // If the message is short then it is more efficient to collect multiple copies
     // of the message in one chunk and call update with the larger chunk.
     final int maxChunkSize = 1 << 16;
@@ -280,31 +336,30 @@ public class MacTest {
    * IMPLEMENTATION RETURNS INCORRECT HASH FOR LARGE SETS OF DATA
    */
   private void testLongMac(
-      String algorithm, String keyhex, String message, long repetitions, String expected)
-      throws Exception {
-
-    Key key = new SecretKeySpec(TestUtil.hexToBytes(keyhex), algorithm);
-    byte[] bytes = message.getBytes(UTF_8);
-    byte[] mac = null;
+      String algorithm, String keyhex, String message, long repetitions, String expected) {
+    Mac mac;
     try {
-      mac = macRepeatedMessage(algorithm, key, bytes, repetitions);
+      mac = getMac(algorithm);
     } catch (NoSuchAlgorithmException ex) {
-      System.out.println("Algorithm " + algorithm + " is not supported. Skipping test.");
+      TestUtil.skipTest(algorithm + " not supported");
       return;
     }
-    String hexmac = TestUtil.bytesToHex(mac);
-    assertEquals(expected, hexmac);
+    Key key = new SecretKeySpec(TestUtil.hexToBytes(keyhex), algorithm);
+    try {
+      mac.init(key);
+    } catch (InvalidKeyException ex) {
+      // Should not happen unless the setup is wrong.
+      fail(ex.toString());
+    }
+    byte[] bytes = message.getBytes(UTF_8);
+    byte[] tag = macRepeatedMessage(mac, bytes, repetitions);
+    String hextag = TestUtil.bytesToHex(tag);
+    assertEquals(expected, hextag);
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMacSha1() throws Exception {
+  public void testLongHmacSha1() {
     testLongMac(
         "HMACSHA1",
         "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
@@ -319,15 +374,9 @@ public class MacTest {
         "d7f4c387f2237ea119fcc27cd7520fc5132b6230");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMacSha256() throws Exception {
+  public void testLongHmacSha256() {
     testLongMac(
         "HMACSHA256",
         "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
@@ -342,15 +391,9 @@ public class MacTest {
         "59a75754df7093fa4339aa618b64b104f153a5b42cc85394fdb8735b13ea684a");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMacSha384() throws Exception {
+  public void testLongHmacSha384() {
     testLongMac(
         "HMACSHA384",
         "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
@@ -369,15 +412,9 @@ public class MacTest {
             + "a477e6a84d159d8b7a3daaa89c4f2372");
   }
 
-  @SlowTest(
-      providers = {
-        ProviderType.OPENJDK,
-        ProviderType.BOUNCY_CASTLE,
-        ProviderType.SPONGY_CASTLE,
-        ProviderType.CONSCRYPT
-      })
+  @SlowTest(providers = {ProviderType.ALL})
   @Test
-  public void testLongMacSha512() throws Exception {
+  public void testLongHmacSha512() {
     testLongMac(
         "HMACSHA512",
         "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
@@ -395,4 +432,80 @@ public class MacTest {
         "31b1d721b958203bff7d7ddf50d48b17fc760a80a99a7f23ec966ce3bbefff29"
             + "0d176eebbb6a440960024be0726c94960bbf75816548a7fd4552c7baba4585ee");
   }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongKmac128() {
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        100000000L,
+        "d76732c2478b6934b7540a6e14eb0e141490c61cfe19c994672e3d82e67a4e0a");
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        2147483647L,
+        "8fbf0040e0e683725ed05e2dc173e60074558f4ab028758308aa006f89ab85c7");
+    testLongMac(
+        "KMAC128",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "a",
+        5000000000L,
+        "e0e7fb8ebbc38169b40e4d84c72b71ac8520c88eca8dbfa458f05c2fe1bffc25");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongKmac256() {
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        100000000L,
+        "8c326db82f5293bfdb22e99d1748e4007a65f7b1d946c9001f31219553bea688"
+            + "b3ad85fc7a5a8fc597bb9f5a0890c0fe0fb5e4352b8578b78991a9f8071a5676");
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        2147483647L,
+        "b13915abaf37056dc73dc9ee02d423b43197b93d0565ec235167a2dac603e51d"
+            + "053be97f4cbc14d16a0946d2623cbef73234845d68f9884c34fed5a4e58155c9");
+    testLongMac(
+        "KMAC256",
+        "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "a",
+        5000000000L,
+        "08a2ff8b5a515fed657b776c6074fdc8503dd78149a12e3e0d0aaff7f2411cf3"
+            + "5b01cde641fda9ebbba303cdc3822e1322fcdd372cb2a591dfe94cc185144515");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongSipHash24() {
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 100000000L, "4b9f6118b9f5c32b");
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 2147483647L, "a56c0b5b7697380b");
+    testLongMac(
+        "SIPHASH-2-4", "000102030405060708090a0b0c0d0e0f", "a", 5000000000L, "cd53c50ef11b0bd9");
+  }
+
+  @SlowTest(providers = {ProviderType.ALL})
+  @Test
+  public void testLongSipHash48() {
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 100000000L, "1236d5c1cbd31e3e");
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 2147483647L, "77aa750aabd11dae");
+    testLongMac(
+        "SIPHASH-4-8", "000102030405060708090a0b0c0d0e0f", "a", 5000000000L, "a85ee898fa713536");
+  }
 }
+
+
