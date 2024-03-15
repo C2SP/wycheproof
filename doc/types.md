@@ -638,7 +638,7 @@ Fields additional to the fields in TestVector are\:
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------------
 key      | [HexBytes](formats.md#data-types) | the key
-iv       | [HexBytes](formats.md#data-types) | the initialisation vector
+iv       | [HexBytes](formats.md#data-types) | the initialization vector
 msg      | [HexBytes](formats.md#data-types) | the plaintext
 tag      | [HexBytes](formats.md#data-types) | the authentication tag
 
