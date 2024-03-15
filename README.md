@@ -52,7 +52,7 @@ Project Wycheproof has tests for the most popular crypto algorithms, including
 
 - AES-EAX
 - AES-GCM
-- Chacha20/Poly1305
+- ChaCha20-Poly1305
 - [DH](doc/dh.md)
 - DHIES
 - [DSA](doc/dsa.md)
