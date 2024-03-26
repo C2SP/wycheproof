@@ -8,7 +8,11 @@ mountain in the world. The main motivation for the project is to have a goal
 that is achievable. The smaller the mountain the more likely it is to be able to
 climb it.*
 
-[TOC]
+> [!NOTE]
+> Hello RWC 2024 attendees and others! Wycheproof recently moved to community
+> maintenance thanks to the shared efforts of Google and C2SP.
+> We are still working to update the README and documentation,
+> but we welcome your feedback and look forward to your contributions!
 
 ## Introduction
 
