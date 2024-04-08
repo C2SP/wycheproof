@@ -1,6 +1,6 @@
 # Project Wycheproof
 
-https://github.com/google/wycheproof
+https://github.com/c2sp/wycheproof
 
 *Project Wycheproof is named after
 [Mount Wycheproof](https://en.wikipedia.org/wiki/Mount_Wycheproof), the smallest
@@ -16,11 +16,8 @@ climb it.*
 
 ## Introduction
 
-Project Wycheproof tests crypto libraries against known attacks. It is developed
-and maintained by members of Google Security Team, but it is not an official
-Google product.
+Project Wycheproof tests crypto libraries against known attacks.
 
-At Google, we rely on many third party cryptographic software libraries.
 Unfortunately, in cryptography, subtle mistakes can have catastrophic
 consequences, and we found that libraries fall into such implementation
 pitfalls much too often and for much too long. Good implementation guidelines,
@@ -226,7 +223,7 @@ Project Wycheproof:
 
 ### Maintainers
 
-Project Wycheproof is maintained by:
+Project Wycheproof has been maintained by:
 
 *   Daniel Bleichenbacher
 *   Thai Duong
