@@ -160,8 +160,9 @@ var (
 	customFormats = []jsonschema.Format{
 		{
 			Name: "Asn",
-			// TODO(XXX): validate "Asn" format.
-			Validate: noValidateFormat,
+			// For ASN.1 data we can validate the format is valid hex, but to decode
+			// further we need to know the expected structure (and encoding) of the data.
+			Validate: validateHex,
 		},
 		{
 			Name: "Der",
