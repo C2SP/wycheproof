@@ -165,8 +165,9 @@ var (
 		},
 		{
 			Name: "Der",
-			// TODO(XXX): validate "Der" format.
-			Validate: noValidateFormat,
+			// For DER-encoded data, we can validate the format is valid hex, but to decode
+			// further we need to know the expected structure of the data.
+			Validate: validateHex,
 		},
 		{
 			Name: "EcCurve",
