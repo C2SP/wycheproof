@@ -172,8 +172,8 @@ var (
 		},
 		{
 			Name: "EcCurve",
-			// TODO(XXX): validate "EcCurve" format.
-			Validate: noValidateFormat,
+			// TODO(XXX): Seems like the EcCurve format should be defined as an enum?
+			Validate: validateCurve,
 		},
 		{
 			Name:     "HexBytes",
@@ -222,4 +222,18 @@ func validatePem(value any) error {
 	}
 
 	return nil
+}
+
+func validateCurve(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string EcCurve value: %v", value)
+	}
+
+	switch strVal {
+	case "curve25519", "curve448":
+		return nil
+	default:
+		return fmt.Errorf("invalid EcCurve: unknown curve name: %v", value)
+	}
 }
