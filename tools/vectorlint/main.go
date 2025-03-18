@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -37,6 +38,7 @@ func main() {
 	for _, f := range customFormats {
 		schemaCompiler.RegisterFormat(&f)
 	}
+	schemaCompiler.AssertFormat() // Opt in to format validation.
 
 	var total, valid, invalid, noSchema, ignored int
 	for _, vectorDir := range vectorDirectoryParts {
@@ -171,9 +173,8 @@ var (
 			Validate: noValidateFormat,
 		},
 		{
-			Name: "HexBytes",
-			// TODO(XXX): validate "HexBytes" format.
-			Validate: noValidateFormat,
+			Name:     "HexBytes",
+			Validate: validateHex,
 		},
 		{
 			Name: "BigInt",
@@ -190,5 +191,19 @@ var (
 
 // noValidateFormat is a placeholder Format.Validate callback that performs no validation of the input.
 func noValidateFormat(_ any) error {
+	return nil
+}
+
+func validateHex(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string HexBytes value: %v", value)
+	}
+
+	_, err := hex.DecodeString(strVal)
+	if err != nil {
+		return fmt.Errorf("invalid HexBytes value: %v: %w", value, err)
+	}
+
 	return nil
 }
