@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"github.com/santhosh-tekuri/jsonschema/v6"
@@ -182,9 +183,8 @@ var (
 			Validate: noValidateFormat,
 		},
 		{
-			Name: "Pem",
-			// TODO(XXX): validate "Pem" format.
-			Validate: noValidateFormat,
+			Name:     "Pem",
+			Validate: validatePem,
 		},
 	}
 )
@@ -205,5 +205,19 @@ func validateHex(value any) error {
 		return fmt.Errorf("invalid HexBytes value: %v: %w", value, err)
 	}
 
+	return nil
+}
+
+func validatePem(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string Pem value: %v", value)
+	}
+
+	_, rest := pem.Decode([]byte(strVal))
+	if len(rest) != 0 {
+		return fmt.Errorf("invalid Pem value: unexpected trailing bytes %x", rest)
+	}
+	
 	return nil
 }
