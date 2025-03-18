@@ -179,8 +179,8 @@ var (
 		},
 		{
 			Name: "BigInt",
-			// TODO(XXX): validate "BigInt" format.
-			Validate: noValidateFormat,
+			// For big integers, we can validate the format is valid hex but not much else.
+			Validate: validateHex,
 		},
 		{
 			Name:     "Pem",
@@ -218,6 +218,6 @@ func validatePem(value any) error {
 	if len(rest) != 0 {
 		return fmt.Errorf("invalid Pem value: unexpected trailing bytes %x", rest)
 	}
-	
+
 	return nil
 }
