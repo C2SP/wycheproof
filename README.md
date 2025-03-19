@@ -12,6 +12,11 @@ climb it.*
 > We are still working to update the README and documentation,
 > but we welcome your feedback and look forward to your contributions!
 
+### Contributing
+
+If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
+us pull requests. You can also report bugs or request new tests.
+
 ## Introduction
 
 Project Wycheproof tests crypto libraries against known attacks.
@@ -98,8 +103,3 @@ Project Wycheproof was originally created and maintained by:
 *   Emilia Kasper
 *   Quan Nguyen
 *   Charles Lee
-
-### Contributing
-
-If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
-us pull requests. You can also report bugs or request new tests.
