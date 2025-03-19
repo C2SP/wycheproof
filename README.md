@@ -89,9 +89,9 @@ Project Wycheproof:
 [cve-2003-0971]: https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971
 [ecdh-test]: https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java
 
-### Maintainers
+### Credit
 
-Project Wycheproof has been maintained by:
+Project Wycheproof was originally created and maintained by:
 
 *   Daniel Bleichenbacher
 *   Thai Duong
