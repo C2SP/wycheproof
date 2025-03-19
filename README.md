@@ -1,7 +1,5 @@
 # Project Wycheproof
 
-https://github.com/c2sp/wycheproof
-
 *Project Wycheproof is named after
 [Mount Wycheproof](https://en.wikipedia.org/wiki/Mount_Wycheproof), the smallest
 mountain in the world. The main motivation for the project is to have a goal
