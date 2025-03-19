@@ -13,7 +13,7 @@
 
 ## GitHub source-code
 
-https://github.com/google/wycheproof
+https://github.com/c2sp/wycheproof
 
 ## Some common issues {#issues}
 
