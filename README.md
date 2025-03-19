@@ -99,12 +99,7 @@ Project Wycheproof was originally created and maintained by:
 *   Quan Nguyen
 *   Charles Lee
 
-### Contact and mailing list
+### Contributing
 
 If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
 us pull requests. You can also report bugs or request new tests.
-
-If you'd like to talk to our developers or get notified about major new
-tests, you may want to subscribe to our
-[mailing list](https://groups.google.com/forum/#!forum/wycheproof-users). To
-join, simply send an empty mail to wycheproof-users+subscribe@googlegroups.com.
