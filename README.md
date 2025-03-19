@@ -98,7 +98,7 @@ providers in [OpenJDK](http://openjdk.java.net/).
 *   Clone the repository:
 
 ```
-git clone https://github.com/google/wycheproof.git
+git clone https://github.com/c2sp/wycheproof.git
 ```
 
 [jce-policy-instructions]: http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters
