@@ -2,7 +2,9 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"github.com/santhosh-tekuri/jsonschema/v6"
@@ -14,10 +16,14 @@ import (
 	"strings"
 )
 
+var (
+	schemaDirectory    = flag.String("schemas-dir", "schemas", "directory containing schema files")
+	vectorsDirectories = flag.String("vectors-dir", "testvectors_v1,testvectors", "comma separated directories containing vector files")
+	vectorFilter       = flag.String("vector-filter", "", "only validate vector files matching the provided pattern")
+	vectorRegex        *regexp.Regexp
+)
+
 func main() {
-	schemaDirectory := flag.String("schemas-dir", "schemas", "directory containing schema files")
-	vectorsDirectories := flag.String("vectors-dir", "testvectors_v1,testvectors", "comma separated directories containing vector files")
-	vectorFilter := flag.String("vector-filter", "", "only validate vector files matching the provided pattern")
 
 	flag.Parse()
 
@@ -26,7 +32,6 @@ func main() {
 	log.Printf("reading schemas from %q\n", *schemaDirectory)
 	log.Printf("reading vectors from %q\n", vectorDirectoryParts)
 
-	var vectorRegex *regexp.Regexp
 	if *vectorFilter != "" {
 		vectorRegex = regexp.MustCompile(*vectorFilter)
 		log.Printf("filtering vectors with %q\n", *vectorFilter)
@@ -37,95 +42,23 @@ func main() {
 	for _, f := range customFormats {
 		schemaCompiler.RegisterFormat(&f)
 	}
+	schemaCompiler.AssertFormat() // Opt in to format validation.
 
-	var total, valid, invalid, noSchema, ignored int
+	var results schemaLintResults
+
 	for _, vectorDir := range vectorDirectoryParts {
-		err := filepath.WalkDir(vectorDir, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() || !strings.HasSuffix(d.Name(), ".json") {
-				return nil
-			}
-
-			if vectorRegex != nil && !vectorRegex.MatchString(d.Name()) {
-				return nil
-			}
-
-			vectorData, err := os.ReadFile(path)
-			if err != nil {
-				return fmt.Errorf("failed to read %s: %w", path, err)
-			}
-
-			total++
-
-			var vector struct {
-				Schema string `json:"schema"`
-			}
-
-			if err := json.Unmarshal(vectorData, &vector); err != nil {
-				log.Printf("❌ %q: invalid vector JSON data: %s\n", path, err)
-				invalid++
-				return nil
-			}
-
-			if vector.Schema == "" {
-				log.Printf("❌ %q: no schema specified\n", path)
-				noSchema++
-				return nil
-			}
-
-			if missingSchemas[vector.Schema] {
-				log.Printf("⚠️ %q: ignoring missing schema %q\n", path, vector.Schema)
-				ignored++
-				return nil
-			}
-
-			schemaPath := filepath.Join(*schemaDirectory, vector.Schema)
-			if _, err := os.Stat(schemaPath); os.IsNotExist(err) {
-				log.Printf("❌ %q: referenced schema %q not found\n", path, vector.Schema)
-				invalid++
-				return nil
-			}
-
-			schema, err := schemaCompiler.Compile(schemaPath)
-			if err != nil {
-				log.Printf("❌ %q: invalid schema %q: %s\n", path, vector.Schema, err)
-				invalid++
-				return nil
-			}
-
-			var instance any
-			if err := json.Unmarshal(vectorData, &instance); err != nil {
-				log.Printf("❌ %q: invalid vector JSON data: %s\n", path, err)
-				invalid++
-				return nil
-			}
-
-			if err := schema.Validate(instance); err != nil {
-				log.Printf("❌ %q: vector doesn't validate with schema: %s\n", path, err)
-				invalid++
-				return nil
-			}
-
-			log.Printf("✅ %q: validates with %q\n", path, vector.Schema)
-			valid++
-			return nil
-		})
-		if err != nil {
-			fmt.Printf("Error walking directory: %v\n", err)
-			os.Exit(1)
+		if err := lintVectorDir(schemaCompiler, &results, vectorDir); err != nil {
+			log.Fatalf("error linting schemas: %v\n", err)
 		}
 	}
 
-	log.Printf("linted %d vector files\n", total)
-	log.Printf("valid: %d\n", valid)
-	log.Printf("invalid: %d\n", invalid)
-	log.Printf("no schema: %d\n", noSchema)
-	log.Printf("ignored: %d\n", ignored)
+	log.Printf("linted %d vector files\n", results.total)
+	log.Printf("valid: %d\n", results.valid)
+	log.Printf("invalid: %d\n", results.invalid)
+	log.Printf("no schema: %d\n", results.noSchema)
+	log.Printf("ignored: %d\n", results.ignored)
 
-	os.Exit(invalid)
+	os.Exit(results.invalid)
 }
 
 var (
@@ -157,38 +90,205 @@ var (
 	customFormats = []jsonschema.Format{
 		{
 			Name: "Asn",
-			// TODO(XXX): validate "Asn" format.
-			Validate: noValidateFormat,
+			// For ASN.1 data we can validate the format is valid hex, but to decode
+			// further we need to know the expected structure (and encoding) of the data.
+			Validate: validateHex,
 		},
 		{
 			Name: "Der",
-			// TODO(XXX): validate "Der" format.
-			Validate: noValidateFormat,
+			// For DER-encoded data, we can validate the format is valid hex, but to decode
+			// further we need to know the expected structure of the data.
+			Validate: validateHex,
 		},
 		{
 			Name: "EcCurve",
-			// TODO(XXX): validate "EcCurve" format.
-			Validate: noValidateFormat,
+			// TODO(XXX): Seems like the EcCurve format should be defined as an enum?
+			Validate: validateCurve,
 		},
 		{
-			Name: "HexBytes",
-			// TODO(XXX): validate "HexBytes" format.
-			Validate: noValidateFormat,
+			Name:     "HexBytes",
+			Validate: validateHex,
 		},
 		{
 			Name: "BigInt",
-			// TODO(XXX): validate "BigInt" format.
-			Validate: noValidateFormat,
+			// For big integers, we can validate the format is valid hex but not much else.
+			Validate: validateHex,
 		},
 		{
-			Name: "Pem",
-			// TODO(XXX): validate "Pem" format.
-			Validate: noValidateFormat,
+			Name:     "Pem",
+			Validate: validatePem,
 		},
 	}
 )
 
-// noValidateFormat is a placeholder Format.Validate callback that performs no validation of the input.
-func noValidateFormat(_ any) error {
+func validateHex(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string HexBytes value: %v", value)
+	}
+
+	_, err := hex.DecodeString(strVal)
+	if err != nil {
+		return fmt.Errorf("invalid HexBytes value: %v: %w", value, err)
+	}
+
 	return nil
+}
+
+func validatePem(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string Pem value: %v", value)
+	}
+
+	_, rest := pem.Decode([]byte(strVal))
+	if len(rest) != 0 {
+		return fmt.Errorf("invalid Pem value: unexpected trailing bytes %x", rest)
+	}
+
+	return nil
+}
+
+func validateCurve(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("invalid non-string EcCurve value: %v", value)
+	}
+
+	switch strVal {
+	case "curve25519", "curve448":
+		return nil
+	default:
+		return fmt.Errorf("invalid EcCurve: unknown curve name: %v", value)
+	}
+}
+
+func lintVectorDir(schemaCompiler *jsonschema.Compiler, results *schemaLintResults, vectorDir string) error {
+	err := filepath.WalkDir(vectorDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() || !strings.HasSuffix(d.Name(), ".json") {
+			return nil
+		}
+
+		if vectorRegex != nil && !vectorRegex.MatchString(d.Name()) {
+			return nil
+		}
+
+		results.total++
+
+		vectorData, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read %s: %w", path, err)
+		}
+
+		if err := lintVectorTestGroups(vectorData, path); err != nil {
+			log.Printf("❌ %q: %s\n", path, err)
+			results.invalid++
+			return nil
+		}
+
+		if err := lintVectorToSchema(schemaCompiler, vectorData, path, results); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error walking directory: %w", err)
+	}
+
+	return nil
+}
+
+func lintVectorTestGroups(vectorData []byte, path string) error {
+	var vector struct {
+		NumberOfTests int `json:"numberOfTests"`
+		TestGroups    []struct {
+			Tests []struct {
+				TcId int `json:"tcId"`
+			} `json:"tests"`
+		} `json:"testGroups"`
+	}
+	if err := json.Unmarshal(vectorData, &vector); err != nil {
+		return fmt.Errorf("error decoding vector JSON data for test groups: %w", err)
+	}
+
+	// Within a vector file, test case IDs must be unique.
+	testCaseIds := make(map[int]struct{})
+	for _, tg := range vector.TestGroups {
+		for _, test := range tg.Tests {
+			if _, ok := testCaseIds[test.TcId]; ok {
+				return fmt.Errorf("vector %q has duplicate tcId %d", path, test.TcId)
+			}
+			testCaseIds[test.TcId] = struct{}{}
+		}
+	}
+
+	if testCount := len(testCaseIds); testCount != vector.NumberOfTests {
+		return fmt.Errorf("vector %q declared %d tests in group, had %d", path, vector.NumberOfTests, testCount)
+	}
+
+	return nil
+}
+
+func lintVectorToSchema(schemaCompiler *jsonschema.Compiler, vectorData []byte, path string, results *schemaLintResults) error {
+	var vector struct {
+		Schema string `json:"schema"`
+	}
+
+	if err := json.Unmarshal(vectorData, &vector); err != nil {
+		log.Printf("❌ %q: invalid vector JSON data: %s\n", path, err)
+		results.invalid++
+		return nil
+	}
+
+	if vector.Schema == "" {
+		log.Printf("❌ %q: no schema specified\n", path)
+		results.noSchema++
+		return nil
+	}
+
+	if missingSchemas[vector.Schema] {
+		log.Printf("⚠️ %q: ignoring missing schema %q\n", path, vector.Schema)
+		results.ignored++
+		return nil
+	}
+
+	schemaPath := filepath.Join(*schemaDirectory, vector.Schema)
+	if _, err := os.Stat(schemaPath); os.IsNotExist(err) {
+		log.Printf("❌ %q: referenced schema %q not found\n", path, vector.Schema)
+		results.invalid++
+		return nil
+	}
+
+	schema, err := schemaCompiler.Compile(schemaPath)
+	if err != nil {
+		log.Printf("❌ %q: invalid schema %q: %s\n", path, vector.Schema, err)
+		results.invalid++
+		return nil
+	}
+
+	var instance any
+	if err := json.Unmarshal(vectorData, &instance); err != nil {
+		log.Printf("❌ %q: invalid vector JSON data: %s\n", path, err)
+		results.invalid++
+		return nil
+	}
+
+	if err := schema.Validate(instance); err != nil {
+		log.Printf("❌ %q: vector doesn't validate with schema: %s\n", path, err)
+		results.invalid++
+		return nil
+	}
+
+	log.Printf("✅ %q: validates with %q\n", path, vector.Schema)
+	results.valid++
+	return nil
+}
+
+type schemaLintResults struct {
+	total, valid, invalid, noSchema, ignored int
 }
