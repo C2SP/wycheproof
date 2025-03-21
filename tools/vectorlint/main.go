@@ -191,11 +191,6 @@ var (
 	}
 )
 
-// noValidateFormat is a placeholder Format.Validate callback that performs no validation of the input.
-func noValidateFormat(_ any) error {
-	return nil
-}
-
 func validateHex(value any) error {
 	strVal, ok := value.(string)
 	if !ok {
