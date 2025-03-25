@@ -105,9 +105,9 @@ Project Wycheproof's vectors, or test runners:
     *   Test: testModifiedPublic and testWrongOrderEcdhc in
         [EcdhTest][ecdh-test].
 
-[dsa-test]: https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/DsaTest.java
+[dsa-test]: https://github.com/C2SP/wycheproof/blob/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca/java/com/google/security/wycheproof/testcases/DsaTest.java
 [cve-2003-0971]: https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971
-[ecdh-test]: https://github.com/google/wycheproof/blob/master/java/com/google/security/wycheproof/testcases/EcdhTest.java
+[ecdh-test]: https://github.com/C2SP/wycheproof/blob/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca/java/com/google/security/wycheproof/testcases/EcdhTest.java
 
 ### Credit
 
