@@ -84,9 +84,12 @@ including
 Historically Wycheproof also included test harnesses (e.g. for Java and
 Javascript cryptography implementations) that tested a variety of attacks
 directly against implementations. Since transitioning to community support
-these harnesses have been removed (but still exist in `git` history for
-interested parties). Our current focus is on implementation-agnostic test
-vectors.
+these harnesses have [been removed][harness-rm] (but still exist in `git`
+history for interested parties at [cd27d64]). Our current focus is on
+implementation-agnostic test vectors.
+
+[harness-rm]: https://github.com/C2SP/wycheproof/commit/d9b8297cc998fd1a11e64cdd585a671e8923f48b
+[cd27d64]: https://github.com/C2SP/wycheproof/tree/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca
 
 ### Hall of Bugs
 
