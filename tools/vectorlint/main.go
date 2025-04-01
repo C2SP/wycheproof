@@ -156,7 +156,7 @@ func validateCurve(value any) error {
 	}
 
 	switch strVal {
-	case "curve25519", "curve448", "secp224r1", "secp256r1", "secp384r1", "secp521r1", "P-256K", "P-256", "P-384", "P-521":
+	case "edwards25519", "curve25519", "edwards448", "curve448", "secp224r1", "secp256r1", "secp384r1", "secp521r1", "P-256K", "P-256", "P-384", "P-521":
 		return nil
 	default:
 		return fmt.Errorf("invalid EcCurve: unknown curve name: %v", value)
