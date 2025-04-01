@@ -12,23 +12,22 @@
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "jwk": {
-          "type": "object",
-          "description": "the private key in webcrypto format"
+        "publicKey": {
+          "$ref": "#/definitions/PublicKey"
         },
-        "key": {
-          "type": "object",
-          "description": "unencoded key pair"
-        },
-        "keyDer": {
+        "publicKeyDer": {
           "type": "string",
           "format": "Asn",
           "description": "Asn encoded public key"
         },
-        "keyPem": {
+        "publicKeyPem": {
           "type": "string",
           "format": "Pem",
-          "description": "Pem encoded public key"
+          "description": "PEM encoded public key"
+        },
+        "publicKeyJwk": {
+          "type": "object",
+          "description": "the public key in webcrypto format"
         },
         "tests": {
           "type": "array",
@@ -38,6 +37,32 @@
         }
       },
       "required": ["source"],
+      "additionalProperties": false
+    },
+    "PublicKey": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "ECDSAPublicKey",
+            "EDDSAPublicKey"
+          ]
+        },
+        "curve": {
+          "type": "string",
+          "format": "EcCurve",
+          "description": "the name of the curve"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the size of the key in bits"
+        },
+        "pk": {
+          "type": "string",
+          "format": "Hex",
+          "description": "the public key"
+        }
+      },
       "additionalProperties": false
     },
     "SignatureTestVector": {
@@ -77,9 +102,9 @@
           },
           "description": "A list of flags"
         }
-      },
-      "additionalProperties": false
-    }
+      }
+    },
+    "additionalProperties": false
   },
   "properties": {
     "algorithm": {
@@ -108,7 +133,7 @@
     },
     "schema": {
       "enum": [
-        "eddsa_verify_schema.json"
+        "eddsa_verify_schema_v1.json"
       ]
     },
     "testGroups": {
