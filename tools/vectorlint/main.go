@@ -101,8 +101,7 @@ var (
 			Validate: validateHex,
 		},
 		{
-			Name: "EcCurve",
-			// TODO(XXX): Seems like the EcCurve format should be defined as an enum?
+			Name:     "EcCurve",
 			Validate: validateCurve,
 		},
 		{
@@ -149,18 +148,33 @@ func validatePem(value any) error {
 	return nil
 }
 
+// TODO(XXX): standardize on curve name representation, use a schema enum instead of a type.
+var curveNames = map[string]bool{
+	"edwards25519": true,
+	"curve25519":   true,
+	"edwards448":   true,
+	"curve448":     true,
+	"secp224r1":    true,
+	"secp256r1":    true,
+	"secp384r1":    true,
+	"secp521r1":    true,
+	"P-256K":       true,
+	"P-256":        true,
+	"P-384":        true,
+	"P-521":        true,
+}
+
 func validateCurve(value any) error {
 	strVal, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("invalid non-string EcCurve value: %v", value)
 	}
 
-	switch strVal {
-	case "edwards25519", "curve25519", "edwards448", "curve448", "secp224r1", "secp256r1", "secp384r1", "secp521r1", "P-256K", "P-256", "P-384", "P-521":
-		return nil
-	default:
-		return fmt.Errorf("invalid EcCurve: unknown curve name: %v", value)
+	if _, ok := curveNames[strVal]; !ok {
+		return fmt.Errorf("invalid EcCurve: unknown curve name: %q", strVal)
 	}
+
+	return nil
 }
 
 func lintVectorDir(schemaCompiler *jsonschema.Compiler, results *schemaLintResults, vectorDir string) error {
