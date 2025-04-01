@@ -12,20 +12,19 @@
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "jwk": {
-          "type": "object",
-          "description": "[optional] the public key in webcrypto format"
-        },
-        "key": {
+        "publicKey": {
           "$ref": "#/definitions/EcPublicKey",
-          "description": "unenocded EC public key"
+          "description": "unencoded EC public key"
         },
-        "keyDer": {
+        "publicKeyJwk": {
+          "$ref": "#/definitions/PublicKeyJwkEc"
+        },
+        "publicKeyDer": {
           "type": "string",
           "format": "Der",
           "description": "DER encoded public key"
         },
-        "keyPem": {
+        "publicKeyPem": {
           "type": "string",
           "format": "Pem",
           "description": "Pem encoded public key"
@@ -84,6 +83,41 @@
           "type": "string",
           "format": "BigInt",
           "description": "the y-coordinate of the public key point"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PublicKeyJwkEc": {
+      "type": "object",
+      "properties": {
+        "kid": {
+          "type": "string",
+          "description": "the ID of the key entry"
+        },
+        "kty": {
+          "type": "string",
+          "description": "the family of algorithms the key belongs to",
+          "enum": [
+            "EC"
+          ]
+        },
+        "crv": {
+          "type": "string",
+          "description": "which defined curve to use",
+          "enum": [
+            "P-256",
+            "P-384",
+            "P-521",
+            "secp256k1"
+          ]
+        },
+        "x": {
+          "type": "string",
+          "description": "the x-coordinate of an EC key point"
+        },
+        "y": {
+          "type": "string",
+          "description": "the y-coordinate of an EC key point"
         }
       },
       "additionalProperties": false
@@ -203,7 +237,7 @@
     },
     "schema": {
       "enum": [
-        "ecdsa_p1363_verify_schema.json"
+        "ecdsa_p1363_verify_schema_v1.json"
       ]
     },
     "testGroups": {
