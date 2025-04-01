@@ -12,43 +12,42 @@
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "d": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The private exponent"
-        },
-        "e": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The public exponent"
-        },
-        "keyAsn": {
+        "publicKeyAsn": {
           "type": "string",
           "format": "Der",
           "description": "ASN encoding of the sequence [n, e]"
         },
-        "keyDer": {
+        "publicKeyDer": {
           "type": "string",
           "format": "Der",
           "description": "ASN encoding of the public key"
         },
-        "keyJwk": {
-          "type": "object",
-          "description": "Public key in JWK format"
-        },
-        "keyPem": {
+        "publicKeyPem": {
           "type": "string",
           "format": "Pem",
           "description": "Pem encoded public key"
         },
-        "keysize": {
+        "publicKey": {
+          "type": "object",
+          "properties": {
+            "modulus": {
+              "type": "string",
+              "format": "BigInt",
+              "description": "The modulus of the key"
+            },
+            "publicExponent": {
+              "type": "string",
+              "format": "BigInt",
+              "description": "The public exponent"
+            }
+          }
+        },
+        "keyJwk": {
+          "$ref": "#/definitions/PublicKeyJwkRsa"
+        },
+        "keySize": {
           "type": "integer",
           "description": "the size of the modulus in bits"
-        },
-        "n": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The modulus of the key"
         },
         "sha": {
           "type": "string",
@@ -62,6 +61,35 @@
         }
       },
       "required": ["source"],
+      "additionalProperties": false
+    },
+    "PublicKeyJwkRsa": {
+      "type": "object",
+      "properties": {
+        "alg": {
+          "type": "string",
+          "description": "the encryption/signing algorithm to use"
+        },
+        "kid": {
+          "type": "string",
+          "description": "the ID of the key entry"
+        },
+        "kty": {
+          "type": "string",
+          "description": "the family of algorithms the key belongs to",
+          "enum": [
+            "RSA"
+          ]
+        },
+        "n": {
+          "type": "string",
+          "description": "the public modulus of an RSA key"
+        },
+        "e": {
+          "type": "string",
+          "description": "the public exponent of an RSA key"
+        }
+      },
       "additionalProperties": false
     },
     "SignatureTestVector": {
@@ -132,7 +160,7 @@
     },
     "schema": {
       "enum": [
-        "rsassa_pkcs1_verify_schema.json"
+        "rsassa_pkcs1_verify_schema_v1.json"
       ]
     },
     "testGroups": {
