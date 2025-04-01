@@ -12,17 +12,7 @@
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "d": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The private exponent"
-        },
-        "e": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The public exponent"
-        },
-        "keysize": {
+        "keySize": {
           "type": "integer",
           "description": "the keySize in bits"
         },
@@ -34,13 +24,8 @@
           "type": "string",
           "description": "The hash function used for the message generating function."
         },
-        "n": {
-          "type": "string",
-          "format": "BigInt",
-          "description": "The modulus of the key"
-        },
-        "privateKeyJwk": {
-          "$ref": "#/definitions/PrivateKeyJwkRsa"
+        "privateKey": {
+          "$ref": "#/definitions/PrivateKey"
         },
         "privateKeyPem": {
           "type": "string",
@@ -51,6 +36,9 @@
           "type": "string",
           "format": "Der",
           "description": "Pkcs 8 encoded private key."
+        },
+        "privateKeyJwk": {
+          "$ref": "#/definitions/PrivateKeyJwkRsa"
         },
         "sha": {
           "type": "string",
@@ -64,6 +52,54 @@
         }
       },
       "required": ["source"],
+      "additionalProperties": false
+    },
+    "PrivateKey": {
+      "type": "object",
+      "properties": {
+        "modulus": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "privateExponent": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "publicExponent": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "prime1": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "prime2": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "exponent1": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "exponent2": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "coefficient": {
+          "type": "string",
+          "format": "BigInt"
+        },
+        "otherPrimeInfos": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "Hex"
+            }
+          }
+        }
+      },
       "additionalProperties": false
     },
     "PrivateKeyJwkRsa": {
@@ -194,7 +230,7 @@
     },
     "schema": {
       "enum": [
-        "rsaes_oaep_decrypt_schema.json"
+        "rsaes_oaep_decrypt_schema_v1.json"
       ]
     },
     "testGroups": {
