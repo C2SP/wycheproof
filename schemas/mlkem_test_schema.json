@@ -1,0 +1,228 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "ML-KEM"
+      ]
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "mlkem_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/MLKEMTestGroup"
+          },
+          {
+            "$ref": "#/definitions/MLKEMEncapsTestGroup"
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "algorithm",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "MLKEMTestGroup": {
+      "type": "object",
+      "description": "A test for KeyGen and/or Decaps",
+      "properties": {
+        "type": {
+          "enum": [
+            "MLKEMTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "parameterSet": {
+          "enum": [
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "seed": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The d || z seed"
+              },
+              "ek": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The encapsulation key derived from the seed"
+              },
+              "c": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "An input ciphertext"
+              },
+              "K": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The output shared secret"
+              },
+              "result": {
+                "type": "string",
+                "description": "Test result",
+                "enum": [
+                  "valid",
+                  "invalid",
+                  "acceptable"
+                ]
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              }
+            },
+            "required": [
+              "tcId",
+              "seed",
+              "ek",
+              "c",
+              "K",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "source",
+        "parameterSet",
+        "tests"
+      ],
+      "additionalProperties": false
+    },
+    "MLKEMEncapsTestGroup": {
+      "type": "object",
+      "description": "A test for Encaps",
+      "properties": {
+        "type": {
+          "enum": [
+            "MLKEMEncapsTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "parameterSet": {
+          "enum": [
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "ek": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The encapsulation key"
+              },
+              "m": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The ML-KEM.Encaps_internal m input"
+              },
+              "c": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The output ciphertext"
+              },
+              "K": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The output shared secret"
+              },
+              "result": {
+                "type": "string",
+                "description": "Test result",
+                "enum": [
+                  "valid",
+                  "invalid",
+                  "acceptable"
+                ]
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              }
+            },
+            "required": [
+              "tcId",
+              "ek",
+              "m",
+              "c",
+              "K",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "source",
+        "parameterSet",
+        "tests"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
