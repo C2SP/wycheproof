@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "JsonWebKey": {
+      "type": "object",
+      "description": "see https://tools.ietf.org/html/rfc7517#section-4 and https://tools.ietf.org/html/rfc7518#section-6",
+      "properties": {
+        "alg": {
+          "type": "string",
+          "description": "the encryption/signing algorithm to use"
+        },
+        "use": {
+          "type": "string",
+          "description": "what type of crypto operation to perform",
+          "enum": [
+            "sig",
+            "enc"
+          ]
+        },
+        "key_ops": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description" : "an alternative to use"
+        },
+        "kid": {
+          "type": "string",
+          "description": "the ID of the key entry"
+        },
+        "kty": {
+          "type": "string",
+          "description": "the family of algorithms the key belongs to",
+          "enum": [
+            "",
+            "oct",
+            "EC",
+            "RSA",
+            "OKP"
+          ]
+        },
+        "k": {
+          "type": "string",
+          "description": "the secret key value of an oct key"
+        },
+        "n": {
+          "type": "string",
+          "description": "the public modulus of an RSA key"
+        },
+        "e": {
+          "type": "string",
+          "description": "the public exponent of an RSA key"
+        },
+        "p": {
+          "type": "string",
+          "description": "the first prime factgor of an RSA key"
+        },
+        "q": {
+          "type": "string",
+          "description": "the second prime factor of an RSA key"
+        },
+        "dp": {
+          "type": "string",
+          "description": "the first factor Chinese Remainder Theorem exponent of an RSA key"
+        },
+        "dq": {
+          "type": "string",
+          "description": "the second factor Chinese Remainder Theorem exponent of an RSA key"
+        },
+        "qi": {
+          "type": "string",
+          "description": "the first factor Chinese Remainder Theorem coefficient of an RSA key"
+        },
+        "crv": {
+          "type": "string",
+          "description": "which defined curve to use",
+          "enum": [
+            "P-256",
+            "P-256K",
+            "P-384",
+            "P-521",
+            "secp256k1",
+            "X448",
+            "X25519",
+            "Ed25519",
+            "Ed448"
+          ]
+        },
+        "x": {
+          "type": "string",
+          "description": "the x-coordinate of an EC key point"
+        },
+        "y": {
+          "type": "string",
+          "description": "the y-coordinate of an EC key point"
+        },
+        "d": {
+          "type": "string",
+          "description": "the private key value of an EC key or private exponent for RSA"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JsonWebKeyset": {
+      "type": "object",
+      "description": "see https://tools.ietf.org/html/rfc7517#section-5",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonWebKey"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "JsonWebKeyOrKeyset": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/JsonWebKeyset"
+        },
+        {
+          "$ref": "#/definitions/JsonWebKey"
+        }
+      ]
+    }
+  }
+}
