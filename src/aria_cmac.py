@@ -1,0 +1,33 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import aria
+import cmac
+import util
+
+
+class AriaCmac(cmac.Cmac):
+  """Defined in RFC 4493"""
+  name = "ARIA-CMAC"
+  block_cipher = aria.Aria
+  # OIDs for ARIA-CMAC with a key size in bits
+  # Defined in RFC 5794
+  oids = {
+      128: "1.2.410.200046.1.1.21",
+      192: "1.2.410.200046.1.1.22",
+      256: "1.2.410.200046.1.1.23"
+  }
+
+  def __init__(self, key: bytes, macsize: int = 16):
+    super().__init__(aria.Aria(key), macsize)

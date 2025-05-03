@@ -1,0 +1,43 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SM4_GCM_KTV = [{
+    "iv": "00001234567800000000ABCD",
+    "key": "0123456789ABCDEFFEDCBA9876543210",
+    "msg": "AAAAAAAAAAAAAAAABBBBBBBBBBBBBBBB"
+           "CCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDD"
+           "EEEEEEEEEEEEEEEEFFFFFFFFFFFFFFFF"
+           "EEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAA",
+    "aad": "FEEDFACEDEADBEEFFEEDFACEDEADBEEFABADDAD2",
+    "ct": "17F399F08C67D5EE19D0DC9969C4BB7D"
+          "5FD46FD3756489069157B282BB200735"
+          "D82710CA5C22F0CCFA7CBF93D496AC15"
+          "A56834CBCF98C397B4024A2691233B8D",
+    "tag": "83DE3541E4C2B58177E065A9BF7B62EC"
+}]
+
+SM4_CCM_KTV = [{
+    "iv": "00001234567800000000ABCD",
+    "key": "0123456789ABCDEFFEDCBA9876543210",
+    "msg": "AAAAAAAAAAAAAAAABBBBBBBBBBBBBBBB"
+           "CCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDD"
+           "EEEEEEEEEEEEEEEEFFFFFFFFFFFFFFFF"
+           "EEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAA",
+    "aad": "FEEDFACEDEADBEEFFEEDFACEDEADBEEFABADDAD2",
+    "ct": "48AF93501FA62ADBCD414CCE6034D895"
+          "DDA1BF8F132F042098661572E7483094"
+          "FD12E518CE062C98ACEE28D95DF4416B"
+          "ED31A2F04476C18BB40C84A74B97DC5B",
+    "tag": "16842D4FA186F56AB33256971FA110F4"
+}]
