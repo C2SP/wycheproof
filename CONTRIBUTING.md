@@ -1,5 +1,4 @@
-Want to contribute? Great! First, read this page (including the small print at
-the end).
+Want to contribute? Great!
 
 ### Before you contribute
 Before you start working on a larger contribution, you should get in touch with
