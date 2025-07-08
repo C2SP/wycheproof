@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "definitions": {
+    "MlDsaSignTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["MlDsaSign"]
+        },
+        "privateSeed": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "32-byte seed that generated the private key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "mldsa_sign_common.json#/definitions/MlDsaSignTestVector"
+          }
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "privateSeed", "tests", "source"]
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": ["mldsa_sign_seed_schema.json"]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MlDsaSignTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"]
+}
