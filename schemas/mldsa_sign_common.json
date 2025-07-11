@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "MlDsaSignTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to sign"
+        },
+        "ctx": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "[optional] The additional context string (empty if not provided)"
+        },
+        "sig": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The encoded signature (empty in case of expected failure)"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": ["valid", "invalid"]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["tcId", "comment", "msg", "sig", "result", "flags"]
+    }
+  }
+}

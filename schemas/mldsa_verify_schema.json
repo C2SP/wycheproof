@@ -1,0 +1,97 @@
+{
+  "type": "object",
+  "definitions": {
+    "MlDsaVerifyTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["MlDsaVerify"]
+        },
+        "public_key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "Encoded ML-DSA public key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MlDsaVerifyTestVector"
+          }
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        }
+      }
+    },
+    "MlDsaVerifyTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to verify"
+        },
+        "ctx": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "[optional] The additional context string (empty if not provided)"
+        },
+        "sig": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The encoded signature"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": ["valid", "invalid"]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      }
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "type": "object",
+      "description": "a description of the labels used in the test vectors"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": ["mldsa_verify_schema.json"]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MlDsaVerifyTestGroup"
+      }
+    }
+  }
+}
