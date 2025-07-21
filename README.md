@@ -144,6 +144,16 @@ At the time of writing, the following `testvectors_v1` files are missing schemas
 
 Contribution of schemas for the above vectors would be most welcome.
 
+### Is there additional documentation about test vectors?
+
+Some legacy documentation for [files](doc/files.md), [formats](doc/formats.md) 
+and [types](doc/types.md) are available, but not necessarily in-sync with the 
+current test vector state. 
+
+In general, prefer referencing the [schema files](schemas) since these are tested 
+[in CI](https://github.com/cpu/wycheproof/actions/workflows/vectorlint.yml) to
+ensure vector file contents match their advertised schema.
+
 ### Where is the test harness code?
 
 Historically Wycheproof also included test harnesses (e.g. for Java and
