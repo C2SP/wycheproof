@@ -1,5 +1,3 @@
-<!-- AUTO-GENERATED FILE; DO NOT MODIFY -->
-
 # Test vector types
 
 Version\: 0.8rc21
@@ -10,7 +8,7 @@ Version\: 0.8rc21
 
 A test group for authenticated encryption with additional data.
 
-Fields in AeadTestGroup are\:
+Fields in AeadTestGroup are:
 
 **name** | **type**                                          | **desc**                                                                                                                                                                                                                                                                                                         | **enum**
 -------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
@@ -24,7 +22,7 @@ tests    | List of [AeadTestVector](types.md#aeadtestvector) | a list of test ve
 
 A test vector for authenticated encryption with additional data.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -48,7 +46,7 @@ signautes are accepted. Other libraries accept some signatures where the pair
 (r,s) uses an alternative BER encoding assuming of course that the encoded (r,s)
 is valid.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------------------------------
@@ -61,7 +59,7 @@ Used in [DsaTestGroup](#dsatestgroup),
 
 ## DaeadTestGroup
 
-Fields in DaeadTestGroup are\:
+Fields in DaeadTestGroup are:
 
 **name** | **type**                                            | **desc**               | **enum**
 -------- | --------------------------------------------------- | ---------------------- | --------
@@ -74,7 +72,7 @@ tests    | List of [DaeadTestVector](types.md#daeadtestvector) | a list of test 
 A test vector used for authenticated deterministic encryption with additional
 data.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -----------------------------
@@ -93,7 +91,7 @@ same public key for the signatures in multiple representations. The public keys
 are valid with the sole exception that they may use short keys and weak hash
 functions such as SHA-1.
 
-Fields in DsaP1363TestGroup are\:
+Fields in DsaP1363TestGroup are:
 
 **name** | **type**                                                    | **desc**                       | **enum**
 -------- | ----------------------------------------------------------- | ------------------------------ | --------
@@ -135,7 +133,7 @@ y        | [BigInt](formats.md#data-types) | the public key value               
 
 ## DsaTestGroup
 
-Fields in DsaTestGroup are\:
+Fields in DsaTestGroup are:
 
 **name** | **type**                                                          | **desc**                       | **enum**
 -------- | ----------------------------------------------------------------- | ------------------------------ | --------
@@ -148,7 +146,7 @@ tests    | List of [AsnSignatureTestVector](types.md#asnsignaturetestvector) | a
 
 ## EcPointTestGroup
 
-Fields in EcPointTestGroup are\:
+Fields in EcPointTestGroup are:
 
 **name** | **type**                                                | **desc**                       | **enum**
 -------- | ------------------------------------------------------- | ------------------------------ | --------
@@ -159,7 +157,7 @@ tests    | List of [EcPointTestVector](types.md#ecpointtestvector) | a list of t
 
 ## EcPointTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------------------
@@ -200,7 +198,7 @@ wy           | [BigInt](formats.md#data-types)   | the y-coordinate of the publi
 
 ## EcPublicKeyTestGroup
 
-Fields in EcPublicKeyTestGroup are\:
+Fields in EcPublicKeyTestGroup are:
 
 **name** | **type**                                                        | **desc**                         | **enum**
 -------- | --------------------------------------------------------------- | -------------------------------- | --------
@@ -214,7 +212,7 @@ Draft version for test vectors that test importing of EC public keys. The test
 vectors contain modified EC public keys. The goal of the test is to recognize if
 importing the EC public keys notices inconsistencies and bad formatting.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                        | **desc**
 -------- | ------------------------------- | --------
@@ -248,7 +246,7 @@ type     | str                             | an unnamed EC group over a prime fi
 
 ## EcdhEcpointTestGroup
 
-Fields in EcdhEcpointTestGroup are\:
+Fields in EcdhEcpointTestGroup are:
 
 **name** | **type**                                                        | **desc**                       | **enum**                                      | **optional**
 -------- | --------------------------------------------------------------- | ------------------------------ | --------------------------------------------- | ------------
@@ -259,7 +257,7 @@ tests    | List of [EcdhEcpointTestVector](types.md#ecdhecpointtestvector) | a l
 
 ## EcdhEcpointTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**                 | **ref**
 -------- | --------------------------------- | ------------------------ | -------
@@ -271,7 +269,7 @@ Used in [EcdhEcpointTestGroup](#ecdhecpointtestgroup).
 
 ## EcdhPemTestGroup
 
-Fields in EcdhPemTestGroup are\:
+Fields in EcdhPemTestGroup are:
 
 **name** | **type**                                                | **desc**                     | **enum**                              | **optional**
 -------- | ------------------------------------------------------- | ---------------------------- | ------------------------------------- | ------------
@@ -282,7 +280,7 @@ tests    | List of [EcdhPemTestVector](types.md#ecdhpemtestvector) | a list of t
 
 ## EcdhPemTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -294,7 +292,7 @@ Used in [EcdhPemTestGroup](#ecdhpemtestgroup).
 
 ## EcdhTestGroup
 
-Fields in EcdhTestGroup are\:
+Fields in EcdhTestGroup are:
 
 **name** | **type**                                          | **desc**                                                                                                                                                                                                                                                                | **enum**                        | **optional**
 -------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------
@@ -305,7 +303,7 @@ tests    | List of [EcdhTestVector](types.md#ecdhtestvector) | a list of test ve
 
 ## EcdhTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -317,7 +315,7 @@ Used in [EcdhTestGroup](#ecdhtestgroup).
 
 ## EcdhWebcryptoTestGroup
 
-Fields in EcdhWebcryptoTestGroup are\:
+Fields in EcdhWebcryptoTestGroup are:
 
 **name** | **type**                                                            | **desc**                     | **enum**                                          | **optional**
 -------- | ------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------- | ------------
@@ -328,7 +326,7 @@ tests    | List of [EcdhWebcryptoTestVector](types.md#ecdhwebcryptotestvector) |
 
 ## EcdhWebcryptoTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -345,7 +343,7 @@ this group are meant for signature verification. The test group contains the
 same public key for the signatures in multiple representations. The public keys
 are valid.
 
-Fields in EcdsaBitcoinTestGroup are\:
+Fields in EcdsaBitcoinTestGroup are:
 
 **name** | **type**                                                          | **desc**                         | **enum**
 -------- | ----------------------------------------------------------------- | -------------------------------- | --------
@@ -364,7 +362,7 @@ same public key for the signatures in multiple representations. The public keys
 are valid with the sole exception that they may use short keys and weak hash
 functions such as SHA-1.
 
-Fields in EcdsaP1363TestGroup are\:
+Fields in EcdsaP1363TestGroup are:
 
 **name** | **type**                                                    | **desc**                           | **optional** | **enum**
 -------- | ----------------------------------------------------------- | ---------------------------------- | ------------ | --------
@@ -383,7 +381,7 @@ signature verification. The test group contains the same public key for the
 signatures in multiple representations. The public keys are valid with the sole
 exception that they may use short keys and weak hash functions such as SHA-1.
 
-Fields in EcdsaTestGroup are\:
+Fields in EcdsaTestGroup are:
 
 **name** | **type**                                                          | **desc**                         | **enum**
 -------- | ----------------------------------------------------------------- | -------------------------------- | --------
@@ -396,7 +394,7 @@ tests    | List of [AsnSignatureTestVector](types.md#asnsignaturetestvector) | a
 
 ## EddsaTestGroup
 
-Fields in EddsaTestGroup are\:
+Fields in EddsaTestGroup are:
 
 **name** | **type**                                                    | **desc**                            | **since** | **ref**            | **enum**
 -------- | ----------------------------------------------------------- | ----------------------------------- | --------- | ------------------ | --------
@@ -412,7 +410,7 @@ tests    | List of [SignatureTestVector](types.md#signaturetestvector) | a list 
 A test group for key derivation functions that take 4 arguments (ikm, salt,
 info, size) as input.
 
-Fields in HkdfTestGroup are\:
+Fields in HkdfTestGroup are:
 
 **name** | **type**                                          | **desc**                    | **enum**
 -------- | ------------------------------------------------- | --------------------------- | --------
@@ -425,7 +423,7 @@ tests    | List of [HkdfTestVector](types.md#hkdftestvector) | a list of test ve
 A test vector for HKDF (or any other key derivation function with input ikm,
 salt, info, size
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -439,7 +437,7 @@ Used in [HkdfTestGroup](#hkdftestgroup).
 
 ## IndCpaTestGroup
 
-Fields in IndCpaTestGroup are\:
+Fields in IndCpaTestGroup are:
 
 **name** | **type**                                              | **desc**               | **enum**
 -------- | ----------------------------------------------------- | ---------------------- | --------
@@ -455,7 +453,7 @@ under chosen plaintext attacks. These primitives are without an integrity check
 and hence without additional authenticated data. For example AES using cipher
 block chaining (CBC) is tested using this format.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------------------
@@ -539,7 +537,7 @@ x        | [Base64Url](formats.md#data-types) | the public key value |
 A test group for key derivation functions that take 2 arguments (seed, size) as
 input.
 
-Fields in KdfTestGroup are\:
+Fields in KdfTestGroup are:
 
 **name** | **type**                                        | **desc**                     | **enum**
 -------- | ----------------------------------------------- | ---------------------------- | --------
@@ -554,7 +552,7 @@ functions that take a seed and a size as input and generate a pseudorandom
 output depending on the seed. (The size may simply determine the length of the
 pseudorandom output or may change the pseudorandom stream).
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | --------
@@ -566,7 +564,7 @@ Used in [KdfTestGroup](#kdftestgroup).
 
 ## KeywrapTestGroup
 
-Fields in KeywrapTestGroup are\:
+Fields in KeywrapTestGroup are:
 
 **name** | **type**                                                | **desc**               | **enum**
 -------- | ------------------------------------------------------- | ---------------------- | --------
@@ -582,7 +580,7 @@ material. In some cases the input size is restricted to typical key sizes e.g. a
 multiple of 8 bytes. The encryption may assume that the wrapped bytes have high
 entropy. Hence some of the key wrap primitives are deterministic.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | ---------------------
@@ -594,7 +592,7 @@ Used in [KeywrapTestGroup](#keywraptestgroup).
 
 ## MacTestGroup
 
-Fields in MacTestGroup are\:
+Fields in MacTestGroup are:
 
 **name** | **type**                                        | **desc**                             | **enum**
 -------- | ----------------------------------------------- | ------------------------------------ | --------
@@ -607,7 +605,7 @@ tests    | List of [MacTestVector](types.md#mactestvector) | a list of test vect
 
 A test vector for message authentication codes (MAC).
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | ----------------------
@@ -619,7 +617,7 @@ Used in [MacTestGroup](#mactestgroup).
 
 ## MacWithIvTestGroup
 
-Fields in MacWithIvTestGroup are\:
+Fields in MacWithIvTestGroup are:
 
 **name** | **type**                                                    | **desc**                             | **enum**
 -------- | ----------------------------------------------------------- | ------------------------------------ | --------
@@ -633,7 +631,7 @@ tests    | List of [MacWithIvTestVector](types.md#macwithivtestvector) | a list 
 
 A test vector for message authentication codes (MAC) that use an IV.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------------
@@ -649,7 +647,7 @@ Used in [MacWithIvTestGroup](#macwithivtestgroup).
 A test group for key derivation functions that take 4 arguments (password, salt,
 iteration count and output size) as input.
 
-Fields in PbkdfTestGroup are\:
+Fields in PbkdfTestGroup are:
 
 **name** | **type**                                            | **desc**               | **enum**
 -------- | --------------------------------------------------- | ---------------------- | --------
@@ -661,7 +659,7 @@ tests    | List of [PbkdfTestVector](types.md#pbkdftestvector) | a list of test 
 A test vector for PBKDF (or any other key derivation function with input
 password, salt, iteration count, size.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name**       | **type**                          | **desc**
 -------------- | --------------------------------- | --------
@@ -677,7 +675,7 @@ Used in [PbkdfTestGroup](#pbkdftestgroup).
 
 A test group for primality tests.
 
-Fields in PrimalityTestGroup are\:
+Fields in PrimalityTestGroup are:
 
 **name** | **type**                                                    | **desc**               | **enum**
 -------- | ----------------------------------------------------------- | ---------------------- | --------
@@ -691,7 +689,7 @@ invalid if it is 0, 1, -1 or composite. The status of the negative of a prime is
 somewhat unlclear. Some libraries accept them as primes. Because of this the
 negative of a prime has result "acceptable".
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                        | **desc**
 -------- | ------------------------------- | -------------------
@@ -730,7 +728,7 @@ version        | int                             | The version of the private ke
 
 ## RsaPublicKeyAsnTestGroup
 
-Fields in RsaPublicKeyAsnTestGroup are\:
+Fields in RsaPublicKeyAsnTestGroup are:
 
 **name**        | **type**                                                                | **desc**                    | **enum**
 --------------- | ----------------------------------------------------------------------- | --------------------------- | --------
@@ -742,7 +740,7 @@ tests           | List of [RsaPublicKeyAsnTestVector](types.md#rsapublickeyasnte
 
 ## RsaPublicKeyAsnTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                     | **desc**
 -------- | ---------------------------- | ----------------------------------
@@ -752,7 +750,7 @@ Used in [RsaPublicKeyAsnTestGroup](#rsapublickeyasntestgroup).
 
 ## RsaPublicKeyPemTestGroup
 
-Fields in RsaPublicKeyPemTestGroup are\:
+Fields in RsaPublicKeyPemTestGroup are:
 
 **name**      | **type**                                                                | **desc**                                 | **enum**
 ------------- | ----------------------------------------------------------------------- | ---------------------------------------- | --------
@@ -764,7 +762,7 @@ tests         | List of [RsaPublicKeyPemTestVector](types.md#rsapublickeypemtest
 
 ## RsaPublicKeyPemTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                     | **desc**
 -------- | ---------------------------- | ---------------------------------
@@ -774,7 +772,7 @@ Used in [RsaPublicKeyPemTestGroup](#rsapublickeypemtestgroup).
 
 ## RsaesOaepTestGroup
 
-Fields in RsaesOaepTestGroup are\:
+Fields in RsaesOaepTestGroup are:
 
 **name**        | **type**                                                    | **desc**                                                    | **since** | **optional** | **enum**
 --------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | --------- | ------------ | --------
@@ -793,7 +791,7 @@ tests           | List of [RsaesOaepTestVector](types.md#rsaesoaeptestvector) | 
 
 ## RsaesOaepTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | ---------------------------------
@@ -805,7 +803,7 @@ Used in [RsaesOaepTestGroup](#rsaesoaeptestgroup).
 
 ## RsaesPkcs1TestGroup
 
-Fields in RsaesPkcs1TestGroup are\:
+Fields in RsaesPkcs1TestGroup are:
 
 **name**        | **type**                                                      | **desc**                    | **since** | **optional** | **enum**
 --------------- | ------------------------------------------------------------- | --------------------------- | --------- | ------------ | --------
@@ -821,7 +819,7 @@ tests           | List of [RsaesPkcs1TestVector](types.md#rsaespkcs1testvector) 
 
 ## RsaesPkcs1TestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | ---------------------
@@ -832,7 +830,7 @@ Used in [RsaesPkcs1TestGroup](#rsaespkcs1testgroup).
 
 ## RsassaPkcs1GenTestGroup
 
-Fields in RsassaPkcs1GenTestGroup are\:
+Fields in RsassaPkcs1GenTestGroup are:
 
 **name**        | **type**                                                    | **desc**                               | **ref**  | **since** | **optional** | **enum**
 --------------- | ----------------------------------------------------------- | -------------------------------------- | -------- | --------- | ------------ | --------
@@ -853,7 +851,7 @@ tests           | List of [SignatureTestVector](types.md#signaturetestvector) | 
 
 ## RsassaPkcs1TestGroup
 
-Fields in RsassaPkcs1TestGroup are\:
+Fields in RsassaPkcs1TestGroup are:
 
 **name** | **type**                                                    | **desc**                                                                                                       | **ref**  | **since** | **optional** | **enum**
 -------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------- | --------- | ------------ | --------
@@ -870,7 +868,7 @@ tests    | List of [SignatureTestVector](types.md#signaturetestvector) | a list 
 
 ## RsassaPssTestGroup
 
-Fields in RsassaPssTestGroup are\:
+Fields in RsassaPssTestGroup are:
 
 **name** | **type**                                                    | **desc**                                                    | **enum**
 -------- | ----------------------------------------------------------- | ----------------------------------------------------------- | --------
@@ -889,7 +887,7 @@ tests    | List of [RsassaPssTestVector](types.md#rsassapsstestvector) | a list 
 
 ## RsassaPssTestVector
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------
@@ -905,7 +903,7 @@ signatures where the primitive specifies the encoding as an array of bytes (e.g.
 P1363 encoded ECDSA signatures.) Public key signatures with additional
 formatting (e.g. ASN.1 encoded ECDSA signatures) have their separate types.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------
@@ -945,7 +943,7 @@ test vectors. The list below describes the fields that are common to all test
 groups, though generally a test group contains additional fields depending on
 the test for which the test vectors are intended for.
 
-Fields in TestGroup are\:
+Fields in TestGroup are:
 
 **name** | **type** | **desc**
 -------- | -------- | ----------------------
@@ -963,7 +961,7 @@ tcId     | int         | A unique identifier of the test case in a test file. Th
 
 ## XdhAsnTestGroup
 
-Fields in XdhAsnTestGroup are\:
+Fields in XdhAsnTestGroup are:
 
 **name** | **type**                                              | **desc**                                                                                                                                                                                                                                                                                                                  | **enum**
 -------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
@@ -976,7 +974,7 @@ tests    | List of [XdhAsnTestVector](types.md#xdhasntestvector) | a list of tes
 A test vector for a key exchange using XDH. Public and private keys are ASN
 encoded.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | ----------------------------
@@ -988,7 +986,7 @@ Used in [XdhAsnTestGroup](#xdhasntestgroup).
 
 ## XdhJwkTestGroup
 
-Fields in XdhJwkTestGroup are\:
+Fields in XdhJwkTestGroup are:
 
 **name** | **type**                                              | **desc**                                                                                                                                                                                                                                                                                                                  | **enum**
 -------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
@@ -1002,7 +1000,7 @@ A test vector for a key exchange using XDH. XDH is a Diffie-Hellman key exchange
 defined in RFC 7748. Both public and private key in this test vector are using
 the jwk format.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**                                  | **ref**
 -------- | --------------------------------- | ----------------------------------------- | -------
@@ -1014,7 +1012,7 @@ Used in [XdhJwkTestGroup](#xdhjwktestgroup).
 
 ## XdhPemTestGroup
 
-Fields in XdhPemTestGroup are\:
+Fields in XdhPemTestGroup are:
 
 **name** | **type**                                              | **desc**                                                                                                                                                                                                                                                                                                                  | **enum**
 -------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
@@ -1027,7 +1025,7 @@ tests    | List of [XdhPemTestVector](types.md#xdhpemtestvector) | a list of tes
 A test vector for a key exchange using XDH. Public and private keys are pem
 encoded.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -----------------------
@@ -1039,7 +1037,7 @@ Used in [XdhPemTestGroup](#xdhpemtestgroup).
 
 ## XdhTestGroup
 
-Fields in XdhTestGroup are\:
+Fields in XdhTestGroup are:
 
 **name** | **type**                                        | **desc**                                                                                                                                                                                                                                                                                                                  | **enum**
 -------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------
@@ -1054,7 +1052,7 @@ defined in RFC 7748. Both public and private key in this test vector are just
 raw bytes. That is valid public keys and valid private keys are 32 bytes each
 for X25519 and 56 bytes for X448.
 
-Fields additional to the fields in TestVector are\:
+Fields additional to the fields in TestVector are:
 
 **name** | **type**                          | **desc**
 -------- | --------------------------------- | -------------------------------
