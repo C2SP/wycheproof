@@ -9,6 +9,25 @@ Test vectors are maintained as JSON test vector data, with accompanying
 [JSON schema](https://json-schema.org/docs) files that document the structure 
 of the test vector data.
 
+## Getting started
+
+1. Clone this repository. You may also want to integrate Wycheproof as a Git 
+   submodule or otherwise set up automation to keep track of changes over time.
+2. Write (_or generate from the JSON schema files_) code to load the vector data 
+   as appropriate for your implementation language/project.
+3. For each algorithm of interest, identify the inputs to your cryptography 
+   APIs, and the produced outputs, mapping back to what the test vectors
+   provide.
+4. Iterate through applicable test vectors, ensuring that the results
+   produced by your API when given the relevant input data matches the test 
+   vector expected results.
+5. For best results, integrate this process into your continuous integration 
+   (CI) process so tests are run for all new contributions/changes.
+
+You may find it helpful to examine how other projects like 
+[pyca/cryptography](https://github.com/pyca/cryptography) have 
+[integrated Wycheproof's test vectors](https://github.com/pyca/cryptography/tree/ec689a96c98037fc9929e830f551a85cac3973d3/tests/wycheproof).
+
 ## Coverage
 
 Project Wycheproof has test vectors for the most popular crypto algorithms,
