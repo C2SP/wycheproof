@@ -1,5 +1,4 @@
-# Bugs found by Project Wycheproof
-See [list of issues](issues.md) for details.
+# Historic bugs found by Project Wycheproof
 
 ## Package OpenJDK
 
@@ -46,10 +45,10 @@ See [list of issues](issues.md) for details.
 ## Package Go JOSE (https://github.com/square/go-jose)
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
-| ECDH Invalid Curve Attack        | Quan Nguyen                | CVE-2016-9121     | $5500 total by Square Inc. for all bugs | To be released                         |
-| Multiple signatures, auth bypass | Quan Nguyen                | CVE-2016-9122     |                                         | To be released                         |
-| Integer overflow, HMAC bypass    | Quan Nguyen                | CVE-2016-9123     |                                         | To be released                         |
-| Accepts embedded HMAC key        | Quan Nguyen                |   N/A             |                                         | To be released                         |
+| ECDH Invalid Curve Attack        | Quan Nguyen                | CVE-2016-9121     | $5500 total by Square Inc. for all bugs | |
+| Multiple signatures, auth bypass | Quan Nguyen                | CVE-2016-9122     |                                         | |
+| Integer overflow, HMAC bypass    | Quan Nguyen                | CVE-2016-9123     |                                         | |
+| Accepts embedded HMAC key        | Quan Nguyen                |   N/A             |                                         | |
 
 ## Package Go crypto
 
@@ -61,8 +60,8 @@ See [list of issues](issues.md) for details.
 ## Package Nimbus JOSE+JWT (https://connect2id.com/products/nimbus-jose-jwt)
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
-| CBC-HMAC is vulnerable to padding oracle attack  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
-| CBC-HMAC integer overflow, HMAC bypass  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  | To be released
+| CBC-HMAC is vulnerable to padding oracle attack  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  |
+| CBC-HMAC integer overflow, HMAC bypass  | Quan Nguyen                |  N/A              |   https://goo.gl/ACZQeI  |
 
 ## Package OpenSSL
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
