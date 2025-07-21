@@ -1,5 +1,14 @@
 # Project Wycheproof
 
+Project Wycheproof is a [community managed](https://github.com/C2SP) repository
+of test vectors that can be used by cryptography library developers to test 
+against known attacks, specification inconsistencies, and other various 
+implementation bugs.
+
+Test vectors are maintained as JSON test vector data, with accompanying 
+[JSON schema](https://json-schema.org/docs) files that document the structure 
+of the test vector data.
+
 > [!NOTE]
 > Hello RWC 2024 attendees and others! Wycheproof recently moved to community
 > maintenance thanks to the shared efforts of Google and C2SP.
