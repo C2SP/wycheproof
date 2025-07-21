@@ -15,40 +15,6 @@ of the test vector data.
 > We are still working to update the README and documentation,
 > but we welcome your feedback and look forward to your contributions!
 
-## Introduction
-
-Project Wycheproof contains test vectors that can be used to test crypto
-libraries against known attacks.
-
-Unfortunately, in cryptography, subtle mistakes can have catastrophic
-consequences, and we found that libraries fall into such implementation
-pitfalls much too often and for much too long. Good implementation guidelines,
-however, are hard to come by: understanding how to implement cryptography
-securely requires digesting decades' worth of academic literature. We recognize
-that software engineers fix and prevent bugs with unit testing, and we found
-that cryptographic loopholes can be resolved by the same means.
-
-These observations have prompted us to develop Project Wycheproof, a collection
-of test vectors that detect known weaknesses or check for expected behaviors of
-some cryptographic algorithm. Project Wycheproof provides test vectors for most
-cryptographic algorithms, including RSA, elliptic curve crypto and
-authenticated encryption. Our cryptographers have systematically surveyed the
-literature and implemented most known attacks. We have over 80 test cases which
-have uncovered more than [40 bugs](doc/bugs.md). For example, we found that we
-could recover the private key of widely-used DSA and ECDHC implementations.
-
-While we are committed to develop vectors for as many attacks as possible,
-Project Wycheproof is by no means complete. Passing the test vectors does not
-imply that the library is secure, it just means that it is not vulnerable to the
-attacks that Project Wycheproof's vectors test for. Cryptographers are also
-constantly discovering new attacks. Nevertheless, with Project Wycheproof
-developers and users now can check their libraries against a large number of
-known attacks, without having to spend years reading academic papers or become
-cryptographers themselves.
-
-For more information on the goals and strategies of Project Wycheproof, please
-check out our [documentation](doc/).
-
 ## Coverage
 
 Project Wycheproof has test vectors for the most popular crypto algorithms,
