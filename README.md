@@ -9,12 +9,6 @@ Test vectors are maintained as JSON test vector data, with accompanying
 [JSON schema](https://json-schema.org/docs) files that document the structure 
 of the test vector data.
 
-> [!NOTE]
-> Hello RWC 2024 attendees and others! Wycheproof recently moved to community
-> maintenance thanks to the shared efforts of Google and C2SP.
-> We are still working to update the README and documentation,
-> but we welcome your feedback and look forward to your contributions!
-
 ## Coverage
 
 Project Wycheproof has test vectors for the most popular crypto algorithms,
