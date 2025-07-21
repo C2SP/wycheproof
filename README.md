@@ -9,7 +9,8 @@
 ### Contributing
 
 If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
-us pull requests. You can also report bugs or request new tests.
+us pull requests. You can also report bugs or request new tests as 
+[GitHub issues](https://github.com/C2SP/wycheproof/issues/new).
 
 ## Introduction
 
