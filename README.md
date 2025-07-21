@@ -91,36 +91,6 @@ mountain in the world. The main motivation for the project at the time of its
 creation was to have a goal that is achievable. The smaller the mountain the 
 more likely it is to be able to climb it.
 
-### Should consuming projects use `testvectors` or `testvectors_v1`?
-
-At the time of writing, projects should consider writing harness code to use
-**both** vector data sources for maximum coverage. Some algorithms only have 
-coverage via `testvectors_v1` (e.g. ML-KEM, ML-DSA) while others are only
-covered by `testvectors` data (e.g. `RsassaPkcs1Generate`).
-
-We understand this situation is not ideal and are prioritizing an effort to 
-consolidate down to single source of test data. Stay tuned.
-
-### Do all vectors have schemas?
-
-At the time of writing, the following `testvectors_v1` files are missing schemas:
-
-* `testvectors_v1/aes_ff1_base*_test.json`
-* `testvectors_v1/aes_ff1_radix*_test.json`
-* `testvectors_v1/ec_prime_order_curves_test.json`	
-* `testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json`
-* `testvectors_v1/pbes2_hmacsha*_aes_*_test.json`
-* `testvectors_v1/pbkdf2_hmacsha*_test.json`
-* `testvectors_v1/rsa_pss_*_sha*_mgf*_params_test.json` 
-* `testvectors_v1/rsa_pss_misc_params_test.json`
-
-Contribution of schemas for the above vectors would be most welcome.
-
-### Has Wycheproof testing found notable bugs?
-
-See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using 
-Wycheproof's test harnesses, or test vector data.
-
 ### What downstream projects use Wycheproof testvectors?
 
 Wycheproof test vectors are used in some form by a number of important
@@ -143,6 +113,36 @@ cryptography projects and libraries. In no particular order these include:
 
 If your project uses test vectors from Wycheproof, feel free to open a PR
 to add it to the list above!
+
+### Has Wycheproof testing found notable bugs?
+
+See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using
+Wycheproof's test harnesses, or test vector data.
+
+### Should consuming projects use `testvectors` or `testvectors_v1`?
+
+At the time of writing, projects should consider writing harness code to use
+**both** vector data sources for maximum coverage. Some algorithms only have
+coverage via `testvectors_v1` (e.g. ML-KEM, ML-DSA) while others are only
+covered by `testvectors` data (e.g. `RsassaPkcs1Generate`).
+
+We understand this situation is not ideal and are prioritizing an effort to
+consolidate down to single source of test data. Stay tuned.
+
+### Do all vectors have schemas?
+
+At the time of writing, the following `testvectors_v1` files are missing schemas:
+
+* `testvectors_v1/aes_ff1_base*_test.json`
+* `testvectors_v1/aes_ff1_radix*_test.json`
+* `testvectors_v1/ec_prime_order_curves_test.json`
+* `testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json`
+* `testvectors_v1/pbes2_hmacsha*_aes_*_test.json`
+* `testvectors_v1/pbkdf2_hmacsha*_test.json`
+* `testvectors_v1/rsa_pss_*_sha*_mgf*_params_test.json`
+* `testvectors_v1/rsa_pss_misc_params_test.json`
+
+Contribution of schemas for the above vectors would be most welcome.
 
 ### Where is the test harness code?
 
