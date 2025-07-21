@@ -1,5 +1,3 @@
-<!-- AUTO-GENERATED FILE; DO NOT MODIFY -->
-
 # Test vector files
 
 ## AeadTest
@@ -7,9 +5,9 @@
 Test vectors of type AeadTest test authenticated encryption with additional
 data. The test vectors are intended for testing both encryption and decryption.
 
-Test vectors with "result" \: "valid" are valid encryptions. Test vectors with
-"result" \: "invalid" are using invalid parameters or contain an invalid
-ciphertext or tag. Test vectors with "result" \: "acceptable" are using weak
+Test vectors with "result": "valid" are valid encryptions. Test vectors with
+"result": "invalid" are using invalid parameters or contain an invalid
+ciphertext or tag. Test vectors with "result": "acceptable" are using weak
 parameters.
 
 JSON schema\: aead_test_schema.json
@@ -18,7 +16,7 @@ Type of the test group\: [AeadTestGroup](types.md#aeadtestgroup)
 
 Type of the test vectors\: [AeadTestVector](types.md#aeadtestvector)
 
-**name**                     | **tests** | **validity** | **algorithm** {.sortable}
+**name**                     | **tests** | **validity** | **algorithm**
 ---------------------------- | --------- | ------------ | -------------
 aead_aes_siv_cmac_test.json  | 828       | 180, 0, 648  | AEAD-AES-SIV-CMAC
 aegis128L_test.json          | 462       | 350, 0, 112  | AEGIS128L
@@ -47,7 +45,7 @@ Type of the test group\: [DaeadTestGroup](types.md#daeadtestgroup)
 
 Type of the test vectors\: [DaeadTestVector](types.md#daeadtestvector)
 
-**name**               | **tests** | **validity** | **algorithm** {.sortable}
+**name**               | **tests** | **validity** | **algorithm**
 ---------------------- | --------- | ------------ | -------------
 aes_siv_cmac_test.json | 442       | 118, 0, 324  | AES-SIV-CMAC
 
@@ -62,8 +60,8 @@ length of the field order. The tests expect that all signatures with other sizes
 (e.g. additional appended bytes) are rejected. (Though there are not a lot of
 test vectors verifying this).
 
-Test vectors with "result" \: "valid" are valid signatures. Test vectors with
-"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
+Test vectors with "result": "valid" are valid signatures. Test vectors with
+"result": "invalid" are invalid. Test vectors with "result": "acceptable"
 are signatures that may or may not be rejected. The reasons for potential
 rejection are described with labels.
 
@@ -73,7 +71,7 @@ Type of the test group\: [DsaP1363TestGroup](types.md#dsap1363testgroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
-**name**                            | **tests** | **validity** | **algorithm** {.sortable}
+**name**                            | **tests** | **validity** | **algorithm**
 ----------------------------------- | --------- | ------------ | -------------
 dsa_2048_224_sha224_p1363_test.json | 127       | 38, 0, 89    | DSA
 dsa_2048_224_sha256_p1363_test.json | 155       | 66, 0, 89    | DSA
@@ -85,8 +83,8 @@ dsa_3072_256_sha256_p1363_test.json | 155       | 66, 0, 89    | DSA
 Test vectors of test DsaVerify are intended for checking the signature
 verification of DSA signatures.
 
-Test vectors with "result" \: "valid" are valid signatures. Test vectors with
-"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
+Test vectors with "result": "valid" are valid signatures. Test vectors with
+"result": "invalid" are invalid. Test vectors with "result": "acceptable"
 are signatures that may be rejected for a number of reasons\: they can be
 signatures with valid values for r and s, but with an invalid or non-standard
 encoding. They can be signatures with weak or non-standard parameters. All the
@@ -99,7 +97,7 @@ Type of the test group\: [DsaTestGroup](types.md#dsatestgroup)
 Type of the test vectors\:
 [AsnSignatureTestVector](types.md#asnsignaturetestvector)
 
-**name**                      | **tests** | **validity** | **algorithm** {.sortable}
+**name**                      | **tests** | **validity** | **algorithm**
 ----------------------------- | --------- | ------------ | -------------
 dsa_2048_224_sha224_test.json | 330       | 39, 1, 290   | DSA
 dsa_2048_224_sha256_test.json | 358       | 67, 1, 290   | DSA
@@ -119,7 +117,7 @@ Type of the test group\: [EcdhEcpointTestGroup](types.md#ecdhecpointtestgroup)
 Type of the test vectors\:
 [EcdhEcpointTestVector](types.md#ecdhecpointtestvector)
 
-**name**                         | **tests** | **validity** | **algorithm** {.sortable}
+**name**                         | **tests** | **validity** | **algorithm**
 -------------------------------- | --------- | ------------ | -------------
 ecdh_secp224r1_ecpoint_test.json | 96        | 77, 1, 18    | ECDH
 ecdh_secp256r1_ecpoint_test.json | 216       | 191, 1, 24   | ECDH
@@ -138,7 +136,7 @@ Type of the test group\: [EcdhTestGroup](types.md#ecdhtestgroup)
 
 Type of the test vectors\: [EcdhTestVector](types.md#ecdhtestvector)
 
-**name**                       | **tests** | **validity**   | **algorithm** {.sortable}
+**name**                       | **tests** | **validity**   | **algorithm**
 ------------------------------ | --------- | -------------- | -------------
 ecdh_brainpoolP224r1_test.json | 476       | 205, 219, 52   | ECDH
 ecdh_brainpoolP256r1_test.json | 522       | 253, 219, 50   | ECDH
@@ -165,7 +163,7 @@ Type of the test group\:
 Type of the test vectors\:
 [EcdhWebcryptoTestVector](types.md#ecdhwebcryptotestvector)
 
-**name**                 | **tests** | **validity** | **algorithm** {.sortable}
+**name**                 | **tests** | **validity** | **algorithm**
 ------------------------ | --------- | ------------ | -------------
 ecdh_webcrypto_test.json | 833       | 743, 0, 90   | ECDH
 
@@ -178,8 +176,8 @@ IEEE P1363 encoded signatures are the concatenation of the values r and s
 encoded as unsigned integers in bigendian order using a fixed size equal to the
 length of the field order.
 
-Test vectors with "result" \: "valid" are valid signatures. Test vectors with
-"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
+Test vectors with "result": "valid" are valid signatures. Test vectors with
+"result": "invalid" are invalid. Test vectors with "result": "acceptable"
 are signatures that may or may not be rejected. The reasons for potential
 rejection are described with labels. Weak parameters such as small curves, hash
 functions weaker than the security of the curve are potential reasons.
@@ -190,7 +188,7 @@ Type of the test group\: [EcdsaP1363TestGroup](types.md#ecdsap1363testgroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
-**name**                                     | **tests** | **validity** | **algorithm** {.sortable}
+**name**                                     | **tests** | **validity** | **algorithm**
 -------------------------------------------- | --------- | ------------ | -------------
 ecdsa_brainpoolP224r1_sha224_p1363_test.json | 190       | 120, 3, 67   | ECDSA
 ecdsa_brainpoolP256r1_sha256_p1363_test.json | 220       | 149, 3, 68   | ECDSA
@@ -214,8 +212,8 @@ ecdsa_webcrypto_test.json                    | 362       | 270, 10, 82  | ECDSA
 Test vectors of type EcdsaVerify are meant for the verification of ASN encoded
 ECDSA signatures.
 
-Test vectors with "result" \: "valid" are valid signatures. Test vectors with
-"result" \: "invalid" are invalid. Test vectors with "result" \: "acceptable"
+Test vectors with "result": "valid" are valid signatures. Test vectors with
+"result": "invalid" are invalid. Test vectors with "result": "acceptable"
 are signatures that may or may not be rejected. The reasons for potential
 rejection are described with labels. Weak parameters such as small curves, hash
 functions weaker than the security of the curve are potential reasons.
@@ -228,7 +226,7 @@ Type of the test group\: [EcdsaTestGroup](types.md#ecdsatestgroup)
 Type of the test vectors\:
 [AsnSignatureTestVector](types.md#asnsignaturetestvector)
 
-**name**                               | **tests** | **validity** | **algorithm** {.sortable}
+**name**                               | **tests** | **validity** | **algorithm**
 -------------------------------------- | --------- | ------------ | -------------
 ecdsa_brainpoolP224r1_sha224_test.json | 359       | 121, 2, 236  | ECDSA
 ecdsa_brainpoolP256r1_sha256_test.json | 389       | 150, 0, 239  | ECDSA
@@ -268,7 +266,7 @@ Type of the test group\: [EddsaTestGroup](types.md#eddsatestgroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
-**name**        | **tests** | **validity** | **algorithm** {.sortable}
+**name**        | **tests** | **validity** | **algorithm**
 --------------- | --------- | ------------ | -------------
 ed448_test.json | 86        | 17, 0, 69    | EDDSA
 eddsa_test.json | 145       | 84, 0, 61    | EDDSA
@@ -286,7 +284,7 @@ Type of the test group\: [HkdfTestGroup](types.md#hkdftestgroup)
 
 Type of the test vectors\: [HkdfTestVector](types.md#hkdftestvector)
 
-**name**              | **tests** | **validity** | **algorithm** {.sortable}
+**name**              | **tests** | **validity** | **algorithm**
 --------------------- | --------- | ------------ | -------------
 hkdf_sha1_test.json   | 106       | 103, 0, 3    | HKDF-SHA-1
 hkdf_sha256_test.json | 105       | 102, 0, 3    | HKDF-SHA-256
@@ -304,7 +302,7 @@ Type of the test group\: [IndCpaTestGroup](types.md#indcpatestgroup)
 
 Type of the test vectors\: [IndCpaTestVector](types.md#indcpatestvector)
 
-**name**                | **tests** | **validity** | **algorithm** {.sortable}
+**name**                | **tests** | **validity** | **algorithm**
 ----------------------- | --------- | ------------ | -------------
 aes_cbc_pkcs5_test.json | 183       | 72, 0, 111   | AES-CBC-PKCS5
 
@@ -325,7 +323,7 @@ Type of the test group\: [KeywrapTestGroup](types.md#keywraptestgroup)
 
 Type of the test vectors\: [KeywrapTestVector](types.md#keywraptestvector)
 
-**name**      | **tests** | **validity** | **algorithm** {.sortable}
+**name**      | **tests** | **validity** | **algorithm**
 ------------- | --------- | ------------ | -------------
 kw_test.json  | 162       | 36, 0, 126   | KW
 kwp_test.json | 254       | 20, 60, 174  | KWP
@@ -346,7 +344,7 @@ Type of the test group\: [MacTestGroup](types.md#mactestgroup)
 
 Type of the test vectors\: [MacTestVector](types.md#mactestvector)
 
-**name**                | **tests** | **validity** | **algorithm** {.sortable}
+**name**                | **tests** | **validity** | **algorithm**
 ----------------------- | --------- | ------------ | -------------
 aes_cmac_test.json      | 308       | 60, 0, 248   | AES-CMAC
 hmac_sha1_test.json     | 170       | 66, 0, 104   | HMACSHA1
@@ -373,7 +371,7 @@ Type of the test group\: [MacWithIvTestGroup](types.md#macwithivtestgroup)
 
 Type of the test vectors\: [MacWithIvTestVector](types.md#macwithivtestvector)
 
-**name**           | **tests** | **validity** | **algorithm** {.sortable}
+**name**           | **tests** | **validity** | **algorithm**
 ------------------ | --------- | ------------ | -------------
 gmac_test.json     | 449       | 102, 0, 347  | AES-GMAC
 vmac_128_test.json | 764       | 424, 0, 340  | VMAC-AES
@@ -389,7 +387,7 @@ Type of the test group\: [PrimalityTestGroup](types.md#primalitytestgroup)
 
 Type of the test vectors\: [PrimalityTestVector](types.md#primalitytestvector)
 
-**name**            | **tests** | **validity** | **algorithm** {.sortable}
+**name**            | **tests** | **validity** | **algorithm**
 ------------------- | --------- | ------------ | -------------
 primality_test.json | 280       | 66, 8, 206   | PrimalityTest
 
@@ -409,7 +407,7 @@ Type of the test group\: [RsaesOaepTestGroup](types.md#rsaesoaeptestgroup)
 
 Type of the test vectors\: [RsaesOaepTestVector](types.md#rsaesoaeptestvector)
 
-**name**                                  | **tests** | **validity** | **algorithm** {.sortable}
+**name**                                  | **tests** | **validity** | **algorithm**
 ----------------------------------------- | --------- | ------------ | -------------
 rsa_oaep_2048_sha1_mgf1sha1_test.json     | 34        | 17, 0, 17    | RSAES-OAEP
 rsa_oaep_2048_sha224_mgf1sha1_test.json   | 29        | 13, 0, 16    | RSAES-OAEP
@@ -446,7 +444,7 @@ Type of the test group\: [RsaesPkcs1TestGroup](types.md#rsaespkcs1testgroup)
 
 Type of the test vectors\: [RsaesPkcs1TestVector](types.md#rsaespkcs1testvector)
 
-**name**                 | **tests** | **validity** | **algorithm** {.sortable}
+**name**                 | **tests** | **validity** | **algorithm**
 ------------------------ | --------- | ------------ | -------------
 rsa_pkcs1_2048_test.json | 65        | 42, 0, 23    | RSAES-PKCS1-v1_5
 rsa_pkcs1_3072_test.json | 65        | 41, 0, 24    | RSAES-PKCS1-v1_5
@@ -467,7 +465,7 @@ Type of the test group\:
 
 Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
-**name**                   | **tests** | **validity** | **algorithm** {.sortable}
+**name**                   | **tests** | **validity** | **algorithm**
 -------------------------- | --------- | ------------ | -------------
 rsa_sig_gen_misc_test.json | 158       | 80, 78, 0    | RSASSA-PKCS1-v1_5
 
@@ -478,8 +476,8 @@ verification of RSA PKCS #1 v 1.5 signatures.
 
 RSA signature verification should generally be very strict about checking the
 padding. Because of this most RSA signatures with a slightly modified padding
-have "result" \: "invalid". Only a small number of RSA signatures implementing
-legacy behaviour (such as a missing NULL in the encoding) have "result" \:
+have "result": "invalid". Only a small number of RSA signatures implementing
+legacy behaviour (such as a missing NULL in the encoding) have "result":
 "acceptable".
 
 JSON schema\: rsassa_pkcs1_verify_schema.json
@@ -488,7 +486,7 @@ Type of the test group\: [RsassaPkcs1TestGroup](types.md#rsassapkcs1testgroup)
 
 Type of the test vectors\: [SignatureTestVector](types.md#signaturetestvector)
 
-**name**                                | **tests** | **validity** | **algorithm** {.sortable}
+**name**                                | **tests** | **validity** | **algorithm**
 --------------------------------------- | --------- | ------------ | -------------
 rsa_signature_2048_sha224_test.json     | 241       | 7, 1, 233    | RSASSA-PKCS1-v1_5
 rsa_signature_2048_sha256_test.json     | 240       | 7, 3, 230    | RSASSA-PKCS1-v1_5
@@ -519,7 +517,7 @@ of RSASSA-PSS signatures.
 
 RSA signature verification should generally be very strict about checking the
 padding. Because of this RSASSA-PSS signatures with a modified padding have
-"result" \: "invalid".
+"result": "invalid".
 
 JSON schema\: rsassa_pss_verify_schema.json
 
@@ -527,7 +525,7 @@ Type of the test group\: [RsassaPssTestGroup](types.md#rsassapsstestgroup)
 
 Type of the test vectors\: [RsassaPssTestVector](types.md#rsassapsstestvector)
 
-**name**                                  | **tests** | **validity** | **algorithm** {.sortable}
+**name**                                  | **tests** | **validity** | **algorithm**
 ----------------------------------------- | --------- | ------------ | -------------
 rsa_pss_2048_sha1_mgf1_20_test.json       | 82        | 0, 42, 40    | RSASSA-PSS
 rsa_pss_2048_sha256_mgf1_0_test.json      | 100       | 61, 0, 39    | RSASSA-PSS
@@ -552,7 +550,7 @@ Type of the test group\: [XdhAsnTestGroup](types.md#xdhasntestgroup)
 
 Type of the test vectors\: [XdhAsnTestVector](types.md#xdhasntestvector)
 
-**name**             | **tests** | **validity** | **algorithm** {.sortable}
+**name**             | **tests** | **validity** | **algorithm**
 -------------------- | --------- | ------------ | -------------
 x25519_asn_test.json | 535       | 265, 253, 17 | XDH
 x448_asn_test.json   | 527       | 253, 257, 17 | XDH
@@ -571,7 +569,7 @@ Type of the test group\: [XdhTestGroup](types.md#xdhtestgroup)
 
 Type of the test vectors\: [XdhTestVector](types.md#xdhtestvector)
 
-**name**         | **tests** | **validity** | **algorithm** {.sortable}
+**name**         | **tests** | **validity** | **algorithm**
 ---------------- | --------- | ------------ | -------------
 x25519_test.json | 518       | 265, 253, 0  | XDH
 x448_test.json   | 510       | 253, 257, 0  | XDH
@@ -589,7 +587,7 @@ Type of the test group\: [XdhJwkTestGroup](types.md#xdhjwktestgroup)
 
 Type of the test vectors\: [XdhJwkTestVector](types.md#xdhjwktestvector)
 
-**name**             | **tests** | **validity** | **algorithm** {.sortable}
+**name**             | **tests** | **validity** | **algorithm**
 -------------------- | --------- | ------------ | -------------
 x25519_jwk_test.json | 531       | 265, 253, 13 | XDH
 x448_jwk_test.json   | 523       | 253, 257, 13 | XDH
@@ -609,7 +607,7 @@ Type of the test group\: [XdhPemTestGroup](types.md#xdhpemtestgroup)
 
 Type of the test vectors\: [XdhPemTestVector](types.md#xdhpemtestvector)
 
-**name**             | **tests** | **validity** | **algorithm** {.sortable}
+**name**             | **tests** | **validity** | **algorithm**
 -------------------- | --------- | ------------ | -------------
 x25519_pem_test.json | 518       | 265, 253, 0  | XDH
 x448_pem_test.json   | 510       | 253, 257, 0  | XDH

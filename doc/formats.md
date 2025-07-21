@@ -1,7 +1,5 @@
 # Wycheproof formats for test vectors
 
-[TOC]
-
 ## Overview
 
 This document contains a general overview over the formats used and conventions
