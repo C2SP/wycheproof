@@ -74,6 +74,8 @@ including
 - HMAC
 - [RSA](doc/rsa.md)
 - X25519, X448
+- ML-KEM (Kyber)
+- ML-DSA (CRYSTALS-Dilithium)
 
 The test vectors detect whether a library is vulnerable to many attacks,
 including
