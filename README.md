@@ -53,6 +53,21 @@ If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
 us pull requests. You can also report bugs or request new tests as
 [GitHub issues](https://github.com/C2SP/wycheproof/issues/new).
 
+## Development Priorities
+
+We're in the process of revitalizing development and maintenance of Project 
+Wycheproof as a C2SP project with a renewed focus on the test vector data. 
+Our immediate priorities are:
+
+1. Consolidating `testvectors` and `testvectors_v1` into a single directory of
+   test data.
+2. Completing JSON schema descriptions of all test vectors.
+3. Improving documentation and support for external contributors to provide
+   new test data.
+4. Developing a community of downstream consumers who can help sheppard 
+   maintenance and review of new test vector data.
+5. Adding additional algorithm and test case coverage to the test vector data.
+
 ## FAQ
 
 ### Why is the project called "Wycheproof"?
@@ -62,6 +77,31 @@ Project Wycheproof is named after
 mountain in the world. The main motivation for the project at the time of its 
 creation was to have a goal that is achievable. The smaller the mountain the 
 more likely it is to be able to climb it.
+
+### Should consuming projects use `testvectors` or `testvectors_v1`?
+
+At the time of writing, projects should consider writing harness code to use
+**both** vector data sources for maximum coverage. Some algorithms only have 
+coverage via `testvectors_v1` (e.g. ML-KEM, ML-DSA) while others are only
+covered by `testvectors` data (e.g. `RsassaPkcs1Generate`).
+
+We understand this situation is not ideal and are prioritizing an effort to 
+consolidate down to single source of test data. Stay tuned.
+
+### Do all vectors have schemas?
+
+At the time of writing, the following `testvectors_v1` files are missing schemas:
+
+* `testvectors_v1/aes_ff1_base*_test.json`
+* `testvectors_v1/aes_ff1_radix*_test.json`
+* `testvectors_v1/ec_prime_order_curves_test.json`	
+* `testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json`
+* `testvectors_v1/pbes2_hmacsha*_aes_*_test.json`
+* `testvectors_v1/pbkdf2_hmacsha*_test.json`
+* `testvectors_v1/rsa_pss_*_sha*_mgf*_params_test.json` 
+* `testvectors_v1/rsa_pss_misc_params_test.json`
+
+Contribution of schemas for the above vectors would be most welcome.
 
 ### Has Wycheproof testing found notable bugs?
 
