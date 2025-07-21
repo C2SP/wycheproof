@@ -83,17 +83,6 @@ including
 *   Of course, all Bleichenbacher’s attacks
 *   And many more -- we have over 80 test cases
 
-### Test Harnesses
-
-Historically Wycheproof also included test harnesses (e.g. for Java and
-Javascript cryptography implementations) that tested a variety of attacks
-directly against implementations. Since transitioning to community support
-these harnesses have [been removed][harness-rm] (but still exist in `git`
-history for interested parties at [cd27d64]). Our current focus is on
-implementation-agnostic test vectors.
-
-[harness-rm]: https://github.com/C2SP/wycheproof/commit/d9b8297cc998fd1a11e64cdd585a671e8923f48b
-[cd27d64]: https://github.com/C2SP/wycheproof/tree/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca
 
 ### Hall of Bugs
 
@@ -122,6 +111,29 @@ Project Wycheproof is named after
 mountain in the world. The main motivation for the project at the time of its 
 creation was to have a goal that is achievable. The smaller the mountain the 
 more likely it is to be able to climb it.
+
+#### Where is the test harness code?
+
+Historically Wycheproof also included test harnesses (e.g. for Java and
+Javascript cryptography implementations) that tested a variety of attacks
+directly against implementations. Since transitioning to community support
+these harnesses have [been removed][harness-rm] (but still exist in `git`
+history for interested parties at [cd27d64]). Our current focus is on
+implementation-agnostic test vectors.
+
+Testing 3rd party cryptography libraries directly means flaws are only 
+uncovered after they have been committed, and potentially released, by the
+projects under test. Instead, we encourage downstream projects to regularly test
+their code using Wycheproof test vectors as part of their development process.
+This approach helps catch flaws _before_ they can become CVEs, means new 
+features get tested immediately, and helps distribute the maintenance burden.
+This allows the Wycheproof maintainers to focus on test vectors instead of 
+tracking downstream development of many projects while simultaneously 
+maintaining an ever-increasing number of language & project-specific test 
+harnesses.
+
+[harness-rm]: https://github.com/C2SP/wycheproof/commit/d9b8297cc998fd1a11e64cdd585a671e8923f48b
+[cd27d64]: https://github.com/C2SP/wycheproof/tree/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca
 
 ### Credit
 
