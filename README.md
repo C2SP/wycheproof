@@ -83,25 +83,6 @@ including
 *   Of course, all Bleichenbacher’s attacks
 *   And many more -- we have over 80 test cases
 
-
-### Hall of Bugs
-
-Here are some of the notable vulnerabilities that are uncovered by
-Project Wycheproof's vectors, or test runners:
-
-*   OpenJDK's SHA1withDSA leaks private keys > 1024 bits
-    *   Test: testBiasSha1WithDSA in [DsaTest][dsa-test].
-    *   This bug is the same as [CVE-2003-0971][cve-2003-0971] ("GnuPG generated
-        ElGamal signatures that leaked the private key").
-
-*   Bouncy Castle's ECDHC leaks private keys
-    *   Test: testModifiedPublic and testWrongOrderEcdhc in
-        [EcdhTest][ecdh-test].
-
-[dsa-test]: https://github.com/C2SP/wycheproof/blob/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca/java/com/google/security/wycheproof/testcases/DsaTest.java
-[cve-2003-0971]: https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2003-0971
-[ecdh-test]: https://github.com/C2SP/wycheproof/blob/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca/java/com/google/security/wycheproof/testcases/EcdhTest.java
-
 ### FAQ
 
 #### Why is the project called "Wycheproof"?
@@ -111,6 +92,11 @@ Project Wycheproof is named after
 mountain in the world. The main motivation for the project at the time of its 
 creation was to have a goal that is achievable. The smaller the mountain the 
 more likely it is to be able to climb it.
+
+#### Has Wycheproof testing found notable bugs?
+
+See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using 
+Wycheproof's test harnesses, or test vector data.
 
 #### Where is the test harness code?
 
