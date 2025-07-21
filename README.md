@@ -15,12 +15,6 @@ of the test vector data.
 > We are still working to update the README and documentation,
 > but we welcome your feedback and look forward to your contributions!
 
-## Contributing
-
-If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
-us pull requests. You can also report bugs or request new tests as 
-[GitHub issues](https://github.com/C2SP/wycheproof/issues/new).
-
 ## Introduction
 
 Project Wycheproof contains test vectors that can be used to test crypto
@@ -84,6 +78,14 @@ including
 *   Biased nonces in digital signature schemes
 *   Of course, all Bleichenbacher’s attacks
 *   And many more -- we have over 80 test cases
+
+We welcome contribution of new test vector data, and algorithms.
+
+## Contributing
+
+If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
+us pull requests. You can also report bugs or request new tests as
+[GitHub issues](https://github.com/C2SP/wycheproof/issues/new).
 
 ## FAQ
 
