@@ -15,7 +15,7 @@ of the test vector data.
 > We are still working to update the README and documentation,
 > but we welcome your feedback and look forward to your contributions!
 
-### Contributing
+## Contributing
 
 If you want to contribute, please read [CONTRIBUTING](CONTRIBUTING.md) and send
 us pull requests. You can also report bugs or request new tests as 
@@ -55,7 +55,7 @@ cryptographers themselves.
 For more information on the goals and strategies of Project Wycheproof, please
 check out our [documentation](doc/).
 
-### Coverage
+## Coverage
 
 Project Wycheproof has test vectors for the most popular crypto algorithms,
 including
@@ -83,9 +83,9 @@ including
 *   Of course, all Bleichenbacher’s attacks
 *   And many more -- we have over 80 test cases
 
-### FAQ
+## FAQ
 
-#### Why is the project called "Wycheproof"?
+### Why is the project called "Wycheproof"?
 
 Project Wycheproof is named after 
 [Mount Wycheproof](https://en.wikipedia.org/wiki/Mount_Wycheproof), the smallest
@@ -93,12 +93,12 @@ mountain in the world. The main motivation for the project at the time of its
 creation was to have a goal that is achievable. The smaller the mountain the 
 more likely it is to be able to climb it.
 
-#### Has Wycheproof testing found notable bugs?
+### Has Wycheproof testing found notable bugs?
 
 See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using 
 Wycheproof's test harnesses, or test vector data.
 
-#### Where is the test harness code?
+### Where is the test harness code?
 
 Historically Wycheproof also included test harnesses (e.g. for Java and
 Javascript cryptography implementations) that tested a variety of attacks
@@ -121,7 +121,7 @@ harnesses.
 [harness-rm]: https://github.com/C2SP/wycheproof/commit/d9b8297cc998fd1a11e64cdd585a671e8923f48b
 [cd27d64]: https://github.com/C2SP/wycheproof/tree/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca
 
-### Credit
+### Who created Wycheproof?
 
 Project Wycheproof was originally created and maintained by:
 
