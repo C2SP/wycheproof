@@ -108,6 +108,29 @@ Contribution of schemas for the above vectors would be most welcome.
 See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using 
 Wycheproof's test harnesses, or test vector data.
 
+### What downstream projects use Wycheproof testvectors?
+
+Wycheproof test vectors are used in some form by a number of important
+cryptography projects and libraries. In no particular order these include:
+
+* [OpenSSL](https://openssl.org/)
+* [BoringSSL](https://boringssl.googlesource.com/boringssl/)
+* [aws-lc](https://github.com/aws/aws-lc)
+* [LibreSSL](https://github.com/libressl/portable)
+* [NSS](https://firefox-source-docs.mozilla.org/security/nss/index.html)
+* [pyca/cryptography](https://cryptography.io/en/latest/)
+* [Botan](https://botan.randombit.net/)
+* [Go cryptography](https://golang.org)
+* [swift-crypto](https://github.com/apple/swift-crypto)
+* [RustCrypto](https://github.com/RustCrypto/)
+* [Graviola](https://github.com/ctz/graviola)
+* [Tink](https://developers.google.com/tink)
+* [PyCryptdome](https://www.pycryptodome.org/)
+* [OpenTitan](https://github.com/lowRISC/opentitan)
+
+If your project uses test vectors from Wycheproof, feel free to open a PR
+to add it to the list above!
+
 ### Where is the test harness code?
 
 Historically Wycheproof also included test harnesses (e.g. for Java and
