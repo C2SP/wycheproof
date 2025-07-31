@@ -116,7 +116,7 @@ to add it to the list above!
 
 ### Has Wycheproof testing found notable bugs?
 
-See [docs/bugs.md](docs/bugs.md) for some notable historic bugs found using
+See [doc/bugs.md](doc/bugs.md) for some notable historic bugs found using
 Wycheproof's test harnesses, or test vector data.
 
 ### Should consuming projects use `testvectors` or `testvectors_v1`?
