@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "definitions": {
+    "KeywrapTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "KeywrapTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the keySize in bits"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KeywrapTestVector"
+          }
+        }
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+    "KeywrapTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the wrapping key"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the key bytes to wrap"
+        },
+        "ct": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the wrapped key"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "keywrap_test_schema_v1.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/KeywrapTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}

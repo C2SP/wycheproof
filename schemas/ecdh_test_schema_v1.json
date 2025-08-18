@@ -1,0 +1,117 @@
+{
+  "type": "object",
+  "definitions": {
+    "EcdhTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcdhTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "curve": {
+          "type": "string",
+          "format": "EcCurve",
+          "description": "the name of the curve"
+        },
+        "encoding": {
+          "type": "string",
+          "description": "the encoding of the public key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EcdhTestVector"
+          }
+        }
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+    "EcdhTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "public": {
+          "type": "string",
+          "format": "Asn",
+          "description": "Encoded public key"
+        },
+        "private": {
+          "type": "string",
+          "format": "BigInt",
+          "description": "the private key"
+        },
+        "shared": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The shared secret key"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "ecdh_test_schema_v1.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcdhTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}
