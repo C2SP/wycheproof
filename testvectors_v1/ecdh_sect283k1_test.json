@@ -9,12 +9,27 @@
     "Java providers."
   ],
   "notes" : {
-    "AddSubChain" : "The private key has a special value. Implementations using addition subtraction chains for the point multiplication may get the point at infinity as an intermediate result. See CVE_2017_10176",
-    "CompressedPoint" : "The point in the public key is compressed. Not every library supports points in compressed format.",
-    "InvalidAsn" : "The public key in this test uses an invalid ASN encoding. Some cases where the ASN parser is not strictly checking the ASN format are benign as long as the ECDH computation still returns the correct shared value.",
-    "LowOrderPublic" : "The public key is a point with low order. Such public keys should be rejected if the ECDH primitive does a full public key validation. It may be accepted if only a partial key validation is performed."
+    "AddSubChain" : {
+      "bugType" : "KNOWN_BUG",
+      "description" : "The private key has a special value. Implementations using addition subtraction chains for the point multiplication may get the point at infinity as an intermediate result.",
+      "cves" : [
+        "CVE-2017-10176"
+      ]
+    },
+    "CompressedPoint" : {
+      "bugType" : "UNKNOWN",
+      "description" : "The point in the public key is compressed. Not every library supports points in compressed format."
+    },
+    "InvalidAsn" : {
+      "bugType" : "UNKNOWN",
+      "description" : "The public key in this test uses an invalid ASN encoding. Some cases where the ASN parser is not strictly checking the ASN format are benign as long as the ECDH computation still returns the correct shared value."
+    },
+    "LowOrderPublic" : {
+      "bugType" : "CAN_OF_WORMS",
+      "description" : "The public key is a point with low order. Such public keys should be rejected if the ECDH primitive does a full public key validation. It may be accepted if only a partial key validation is performed."
+    }
   },
-  "schema" : "ecdh_test_schema.json",
+  "schema" : "ecdh_test_schema_v1.json",
   "testGroups" : [
     {
       "curve" : "sect283k1",
