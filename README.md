@@ -110,6 +110,7 @@ cryptography projects and libraries. In no particular order these include:
 * [Tink](https://developers.google.com/tink)
 * [PyCryptdome](https://www.pycryptodome.org/)
 * [OpenTitan](https://github.com/lowRISC/opentitan)
+* [Zig](https://github.com/ziglang/zig)
 
 If your project uses test vectors from Wycheproof, feel free to open a PR
 to add it to the list above!
