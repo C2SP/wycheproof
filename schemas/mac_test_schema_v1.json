@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "definitions": {
+    "MacTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "MacTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the keySize in bits"
+        },
+        "tagSize": {
+          "type": "integer",
+          "description": "the expected size of the tag in bits"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MacTestVector"
+          }
+        }
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+    "MacTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the key"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the plaintext"
+        },
+        "tag": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the authentication tag"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "mac_test_schema_v1.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MacTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}
