@@ -1,0 +1,129 @@
+{
+  "type": "object",
+  "definitions": {
+    "JsonWebEncryptionTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "JsonWebEncryption"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "comment": {
+          "type": "string",
+          "description": "a description of what these tests have in common"
+        },
+        "private": {
+          "$ref": "json_web_crypto_common.json#/definitions/JsonWebKey",
+          "description": "the private key"
+        },
+        "public": {
+          "$ref": "json_web_crypto_common.json#/definitions/JsonWebKey",
+          "description": "the [optional] public key"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonWebEncryptionTestVector"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["source"]
+    },
+    "Recipient" : {
+      "type" : "object",
+      "description" : "Recipient specific information Section 7.2.1 of RFC 7516",
+      "properties" : {
+        "header" : {
+          "type" : "object",
+          "descrption" : "header information that is not integrity protected"
+        },
+        "encrypted_key" : {
+          "type" : "string",
+          "format" : "BASE64URL"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JsonWebEncryptionTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "jwe": {
+          "type": "string",
+          "description": "The JSON Web Encryption in compact form"
+        },
+        "pt": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "[optional] Plaintext"
+        },
+        "enc": {
+          "type": "string",
+          "description": "the content encryption algorithm"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "json_web_encryption_schema_v1.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/JsonWebEncryptionTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}
