@@ -1,0 +1,131 @@
+{
+  "type": "object",
+  "definitions": {
+    "JsonWebCryptoTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "JsonWebCrypto"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "comment": {
+          "type": "string",
+          "description": "a description of what these tests have in common"
+        },
+        "private": {
+          "$ref": "json_web_crypto_common.json#/definitions/JsonWebKeyOrKeyset",
+          "description": "the private or secret key in webcrypto format"
+        },
+        "public": {
+          "$ref": "json_web_crypto_common.json#/definitions/JsonWebKeyOrKeyset",
+          "description": "[optional] the public key in webcrypto format"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonWebCryptoTestVector"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["source"]
+    },
+    "JsonWebCryptoTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "jws": {
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "The JSON serialization form"
+            },
+            {
+              "type": "string",
+              "description": "The compact serialization form"
+            }
+          ],
+          "description": "The JSON Web Signature"
+        },
+        "jwe": {
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "The JSON serialization form"
+            },
+            {
+              "type": "string",
+              "description": "The compact serialization form"
+            }
+          ],
+          "description": "The JSON Web Encryption"
+        },
+        "pt": {
+          "type": "string",
+          "description": "[optional] Plaintext"
+        },
+        "result": {
+          "type": "string",
+          "description": "Test result",
+          "enum": [
+            "valid",
+            "invalid",
+            "acceptable"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "json_web_crypto_schema_v1.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/JsonWebCryptoTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false
+}
