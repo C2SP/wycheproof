@@ -2,7 +2,6 @@
 
 <!-- a list of links to the documentation -->
 
-*   [goals.md](goals.md) describes the goals of the project.
 *   [files.md](files.md) describes tests for which test vectors exists as well
     as the test vectors.
 *   [formats.md](formats.md) describes the general format of the test vectors.
