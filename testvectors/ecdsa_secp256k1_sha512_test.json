@@ -1,6 +1,6 @@
 {
   "algorithm" : "ECDSA",
-  "numberOfTests" : 450,
+  "numberOfTests" : 453,
   "header" : [
     "Test vectors of type EcdsaVerify are meant for the verification",
     "of ASN encoded ECDSA signatures."
@@ -5334,6 +5334,56 @@
           "sig" : "3046022100dd60d7cf83a08208637212b65d079fb658d8ef1b8438d9c58f4122b0cd14ac49022100f1d762516f4d6c3e6a98dd31dc3869dc7cf35944f33b35c6a17fe632d2b18cd5",
           "result" : "valid",
           "flags" : []
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaVerify",
+      "source" : {
+        "name" : "github/davidben/ecdsa-non-minimal-tag",
+        "version" : "0.1"
+      },
+      "key" : {
+        "curve" : "secp256k1",
+        "keySize" : 256,
+        "type" : "EcPublicKey",
+        "uncompressed" : "04b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6ff0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9",
+        "wx" : "00b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6f",
+        "wy" : "00f0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9"
+      },
+      "keyDer" : "3056301006072a8648ce3d020106052b8104000a03420004b838ff44e5bc177bf21189d0766082fc9d843226887fc9760371100b7ee20a6ff0c9d75bfba7b31a6bca1974496eeb56de357071955d83c4b1badaa0b21832e9",
+      "keyPem" : "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEuDj/ROW8F3vyEYnQdmCC/J2EMiaIf8l2\nA3EQC37iCm/wyddb+6ezGmvKGXRJbutW3jVwcZVdg8Sxutqgshgy6Q==\n-----END PUBLIC KEY-----",
+      "sha" : "SHA-512",
+      "tests" : [
+        {
+          "tcId" : 451,
+          "comment" : "signature with non-minimal SEQUENCE tag",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "3f104402206cb914246e1c92050a03d9b0b4f05ddf5eebd9d87486236561230f18b407a1e9022034d2f1a567d7e647b178552dec35875a2cc61df3ce8ae2c1357ea8c5ff505561",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 452,
+          "comment" : "signature with non-minimal INTEGER tag on r",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "30451f02206cb914246e1c92050a03d9b0b4f05ddf5eebd9d87486236561230f18b407a1e9022034d2f1a567d7e647b178552dec35875a2cc61df3ce8ae2c1357ea8c5ff505561",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 453,
+          "comment" : "signature with non-minimal INTEGER tag on s",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "304502206cb914246e1c92050a03d9b0b4f05ddf5eebd9d87486236561230f18b407a1e91f022034d2f1a567d7e647b178552dec35875a2cc61df3ce8ae2c1357ea8c5ff505561",
+          "result" : "invalid"
         }
       ]
     }

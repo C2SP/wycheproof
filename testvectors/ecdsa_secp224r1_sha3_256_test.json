@@ -1,6 +1,6 @@
 {
   "algorithm" : "ECDSA",
-  "numberOfTests" : 393,
+  "numberOfTests" : 396,
   "header" : [
     "Test vectors of type EcdsaVerify are meant for the verification",
     "of ASN encoded ECDSA signatures."
@@ -4800,6 +4800,56 @@
           "sig" : "303e021d00e472e504ef4b293b7f4a6cc99ba33a702f35593f49cb284137776b44021d00c1efe440463fde3b604d48319e0ddb93261ae608d009942a01933241",
           "result" : "valid",
           "flags" : []
+        }
+      ]
+    },
+    {
+      "type" : "EcdsaVerify",
+      "source" : {
+        "name" : "github/davidben/ecdsa-non-minimal-tag",
+        "version" : "0.1"
+      },
+      "key" : {
+        "curve" : "secp224r1",
+        "keySize" : 224,
+        "type" : "EcPublicKey",
+        "uncompressed" : "04eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5",
+        "wx" : "00eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7",
+        "wy" : "00eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5"
+      },
+      "keyDer" : "304e301006072a8648ce3d020106052b81040021033a0004eada93be10b2449e1e8bb58305d52008013c57107c1a20a317a6cba7eca672340c03d1d2e09663286691df55069fa25490c9dd9f9c0bb2b5",
+      "keyPem" : "-----BEGIN PUBLIC KEY-----\nME4wEAYHKoZIzj0CAQYFK4EEACEDOgAE6tqTvhCyRJ4ei7WDBdUgCAE8VxB8GiCj\nF6bLp+ymcjQMA9HS4JZjKGaR31UGn6JUkMndn5wLsrU=\n-----END PUBLIC KEY-----",
+      "sha" : "SHA3-256",
+      "tests" : [
+        {
+          "tcId" : 394,
+          "comment" : "signature with non-minimal SEQUENCE tag",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "3f103d021d008ed6690a135a8f918c0598c2d2ffcd120bc36966c9897d160e763264021c2f396442932cb80e2cca3381ebf0d975f33f6d7b77da96aefba1216a",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 395,
+          "comment" : "signature with non-minimal INTEGER tag on r",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "303e1f021d008ed6690a135a8f918c0598c2d2ffcd120bc36966c9897d160e763264021c2f396442932cb80e2cca3381ebf0d975f33f6d7b77da96aefba1216a",
+          "result" : "invalid"
+        },
+        {
+          "tcId" : 396,
+          "comment" : "signature with non-minimal INTEGER tag on s",
+          "flags" : [
+            "InvalidEncoding"
+          ],
+          "msg" : "313233343030",
+          "sig" : "303e021d008ed6690a135a8f918c0598c2d2ffcd120bc36966c9897d160e7632641f021c2f396442932cb80e2cca3381ebf0d975f33f6d7b77da96aefba1216a",
+          "result" : "invalid"
         }
       ]
     }
