@@ -72,14 +72,12 @@ We're in the process of revitalizing development and maintenance of Project
 Wycheproof as a C2SP project with a renewed focus on the test vector data. 
 Our immediate priorities are:
 
-1. Consolidating `testvectors` and `testvectors_v1` into a single directory of
-   test data.
-2. Completing JSON schema descriptions of all test vectors.
-3. Improving documentation and support for external contributors to provide
-   new test data.
-4. Developing a community of downstream consumers who can help sheppard 
+1. Completing JSON schema descriptions of all test vectors.
+2. Improving documentation and tooling support for external contributors to
+   provide new test data to existing vector files.
+3. Developing a community of downstream consumers who can help sheppard 
    maintenance and review of new test vector data.
-5. Adding additional algorithm and test case coverage to the test vector data.
+4. Adding additional algorithm and test case coverage to the test vector data.
 
 ## FAQ
 
@@ -120,15 +118,18 @@ to add it to the list above!
 See [doc/bugs.md](doc/bugs.md) for some notable historic bugs found using
 Wycheproof's test harnesses, or test vector data.
 
-### Should consuming projects use `testvectors` or `testvectors_v1`?
+### Where is the `testvectors/` directory?
 
-At the time of writing, projects should consider writing harness code to use
-**both** vector data sources for maximum coverage. Some algorithms only have
-coverage via `testvectors_v1` (e.g. ML-KEM, ML-DSA) while others are only
-covered by `testvectors` data (e.g. `RsassaPkcs1Generate`).
+We recently combined the `testvectors/` and `testvectors_v1/` directories into
+a single unified directory with one consistent approach to schemas.
 
-We understand this situation is not ideal and are prioritizing an effort to
-consolidate down to single source of test data. Stay tuned.
+Users requiring the original ("v0") test vector data can clone this repo from
+the [`wycheproof-v0-vectors`] tag, but are encouraged to consider updating to
+use `testvectors_v1/` to benefit from future updates. If there are features/test
+coverage from `testvectors/` missing from `testvectors_v1/`, or there's another
+issue blocking your update please open an issue describing your needs.
+
+[`wycheproof-v0-vectors`]: https://github.com/C2SP/wycheproof/releases/tag/wycheproof-v0-vectors
 
 ### Do all vectors have schemas?
 
