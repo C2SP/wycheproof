@@ -17,8 +17,6 @@ versions in a number of places and is anticipated to be used for version 1.0. A
 significant difference is that the new test vectors contain more information
 about the test that is performed with the test vector. This information contains
 links to CVEs, papers and tries to classify potential bugs by type and effect.
-The old test vectors are in the directory `wycheproof/testvectors/`, while the
-new test vectors are in `wycheproof/testvectors_v1/`.
 
 ## JSON schemas
 
