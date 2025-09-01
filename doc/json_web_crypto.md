@@ -231,7 +231,7 @@ in Java by using the JCE interface. Wrong PKCS #1 paddings throw an exception,
 while valid paddings don't. Hence attacks using side channels such as the
 ones described in [RGGSWY18](bib.md#rggswy18) may still be possible.
 
-Test vectors in wycheproof/testvectors/json_web_encryption_test.json can be
+Test vectors in wycheproof/testvectors_v1/json_web_encryption_test.json can be
 used to test for this vulnerability. One drawback is that they are currently
 provider dependent.
 
