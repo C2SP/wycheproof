@@ -46,3 +46,30 @@ All new schema files should:
 [schema lint]: https://github.com/C2SP/wycheproof/blob/main/.github/workflows/vectorlint.yml
 [source schema]: https://github.com/C2SP/wycheproof/blob/main/schemas/common.json
 [schema ref]: https://json-schema.org/understanding-json-schema/structuring#dollarref
+
+### Test vector best practices
+
+All new JSON test vector files should:
+
+* Reference a schema.
+* Be placed in the `testvectors_v1/` directory.
+* Divide individual JSON files by the most important algorithm parameter (e.g.
+  key size). When convenient, try to split the test vectors so that consumers
+  that may not support all variations of the algorithm can test with specific
+  vector files without needing additional post-filtering.
+
+####  Choosing a source name
+
+The common [source schema] allows specifying a name and version for your new
+test vectors.
+
+We intend to use the source element to allow targetted updates to test vector
+data identified by the source name/version. For this reason, when augmenting
+existing vector files with new data try to choose a source name that will be
+specific enough for future regeneration without affecting unrelated data.
+
+For example, using source name "github/myusername/weak_params" for new vector
+data added to `imaginary_algorithm_2048_test.json` may be preferrable to
+"github.com/myusername" if you intend to add other kinds of test vectors to
+`imaginary_algorithm_2048_test.json` in the future, and would want to be able to
+update those separately from the weak parameter test vector data.
