@@ -18,7 +18,7 @@ import (
 
 var (
 	schemaDirectory    = flag.String("schemas-dir", "schemas", "directory containing schema files")
-	vectorsDirectories = flag.String("vectors-dir", "testvectors_v1,testvectors", "comma separated directories containing vector files")
+	vectorsDirectories = flag.String("vectors-dir", "testvectors_v1", "comma separated directories containing vector files")
 	vectorFilter       = flag.String("vector-filter", "", "only validate vector files matching the provided pattern")
 	vectorRegex        *regexp.Regexp
 )
