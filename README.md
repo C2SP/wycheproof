@@ -33,9 +33,16 @@ You may find it helpful to examine how other projects like
 Project Wycheproof has test vectors for the most popular crypto algorithms,
 including
 
+- AEGIS
 - AES-EAX
+- AES-FF1
 - AES-GCM
+- AES-SIV
+- ARIA
+- ASCON
+- Camellia
 - ChaCha20-Poly1305
+- XChaCha20-Poly1305
 - [DH](doc/dh.md)
 - DHIES
 - [DSA](doc/dsa.md)
@@ -45,7 +52,14 @@ including
 - ECIES
 - HKDF
 - HMAC
+- KMAC
+- MORUS
+- PBKDF2
 - [RSA](doc/rsa.md)
+- SEED
+- SipHash
+- SM4
+- VMAC
 - X25519, X448
 - ML-KEM (Kyber)
 - ML-DSA (CRYSTALS-Dilithium)
