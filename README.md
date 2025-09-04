@@ -137,7 +137,6 @@ At the time of writing, the following `testvectors_v1` files are missing schemas
 
 * `testvectors_v1/aes_ff1_base*_test.json`
 * `testvectors_v1/aes_ff1_radix*_test.json`
-* `testvectors_v1/ec_prime_order_curves_test.json`
 * `testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json`
 * `testvectors_v1/pbes2_hmacsha*_aes_*_test.json`
 * `testvectors_v1/pbkdf2_hmacsha*_test.json`
