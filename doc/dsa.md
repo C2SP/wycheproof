@@ -3,7 +3,7 @@
 [TOC]
 
 The digital signature algorithm (DSA) is one of three signature schemes
-descripted in the digital signature standard [[FIPS-186-4]](bib.md#fips-186-4).
+described in the digital signature standard [[FIPS-186-4]](bib.md#fips-186-4).
 
 ## Key generation
 

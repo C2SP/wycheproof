@@ -112,7 +112,7 @@ is passive. The attacker just needs the ability to observe an encrypted
 connection. The tag size is irrelevant.
 
 Under the assumption that chosen ciphertext attacks are possible it might be
-possible to combine the attack above with Fergusons attack
+possible to combine the attack above with Ferguson's attack
 https://csrc.nist.gov/csrc/media/projects/block-cipher-techniques/documents/bcm/comments/cwc-gcm/ferguson2.pdf
 and attack connections with frequent key rotations.
 
