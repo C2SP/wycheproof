@@ -70,9 +70,6 @@ var (
 		// testvectors_v1/aes_ff1_radix*_test.json:
 		"fpe_list_test_schema.json": true,
 
-		// testvectors_v1/ec_prime_order_curves_test.json:
-		"ec_curve_test_schema.json": true,
-
 		// testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json
 		"ecdsa_bitcoin_verify_schema.json": true,
 

@@ -1,0 +1,160 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "EcCurveTest"
+      ]
+    },
+    "schema": {
+      "enum": [
+        "ec_curve_test_schema.json"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcCurveTest"
+      }
+    }
+  },
+  "required": [
+    "algorithm",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "EcCurveTest": {
+      "type": "object",
+      "description": "A test for checking elliptic curve domain parameters.",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcCurveTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name identifying the elliptic curve"
+              },
+              "oid": {
+                "type": "string",
+                "description": "Object identifier of the ellptic curve"
+              },
+              "ref": {
+                "type": "string",
+                "description": "Standard containing the domain parameters"
+              },
+              "p": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "Prime identifying the field of definition"
+              },
+              "n": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "Order of the curve"
+              },
+              "a": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "Coefficient a of the curve's Weierstrass equation"
+              },
+              "b": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "Coefficient b of the curve's Weierstrass equation"
+              },
+              "gx": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "x coordinate of the curve's generator"
+              },
+              "gy": {
+                "type": "string",
+                "format": "BigInt",
+                "description": "y coordinate of the curve's generator"
+              },
+              "h": {
+                "type": "integer",
+                "description": "Cofactor of the curve"
+              },
+              "result": {
+                "type": "string",
+                "description": "Test result",
+                "enum": [
+                  "valid",
+                  "invalid",
+                  "acceptable"
+                ]
+              }
+            },
+            "required": [
+              "tcId",
+              "oid",
+              "p",
+              "n",
+              "a",
+              "b",
+              "gx",
+              "gy",
+              "h",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "type",
+        "source",
+        "tests"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
