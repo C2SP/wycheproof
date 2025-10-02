@@ -1,148 +1,154 @@
 {
-  "numberOfTests" : 26,
-  "header" : [
+  "numberOfTests": 26,
+  "header": [
     "Test vectors of type JsonWebKey are intended for tests that verify the ",
     "validation of keysets of a JSON Web Encryption/Signature library."
   ],
-  "notes" : {
-    "MixedKeySet" : {
+  "notes": {
+    "MixedKeySet": {
       "bugType": "KNOWN_BUG",
-      "description" : "The keyset contains public and private keys. The test expects that such keysets are rejected."
+      "description": "The keyset contains public and private keys. The test expects that such keysets are rejected."
     },
-    "DuplicateKid" : {
+    "DuplicateKid": {
       "bugType": "KNOWN_BUG",
-      "description" : "The keyset contains multiple keys with the same kid. The test expects that such keysets are rejected."
+      "description": "The keyset contains multiple keys with the same kid. The test expects that such keysets are rejected."
     },
-    "Ambiguous" : {
+    "Ambiguous": {
       "bugType": "CAN_OF_WORMS",
-      "description" : "Marks test vectors with behavior that is not well defined by the RFCs. Best practice is to reject such cases."
+      "description": "Marks test vectors with behavior that is not well defined by the RFCs. Best practice is to reject such cases."
     }
   },
-  "schema" : "json_web_key_schema_v1.json",
-  "testGroups" : [
+  "schema": "json_web_key_schema_v1.json",
+  "testGroups": [
     {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "jws_mixedSymmetryKeyset",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
-            "alg" : "HS256",
-            "use" : "sig",
-            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
+            "alg": "HS256",
+            "use": "sig",
+            "k": "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
           },
           {
-            "alg" : "ES256",
-            "use" : "sig",
-            "x" : "04N0xi21hshyvBp7I167sbE_bXqyqkAPfefdklMO7wY",
-            "y" : "UI8exy-C06a7DUnjIdENkxeFtHM4-l_41LqEw9nVgmw",
-            "crv" : "P-256",
-            "kid" : "kid-ec-sign",
-            "kty" : "EC"
+            "alg": "ES256",
+            "use": "sig",
+            "x": "04N0xi21hshyvBp7I167sbE_bXqyqkAPfefdklMO7wY",
+            "y": "UI8exy-C06a7DUnjIdENkxeFtHM4-l_41LqEw9nVgmw",
+            "crv": "P-256",
+            "kid": "kid-ec-sign",
+            "kty": "EC"
           }
         ]
       },
-      "tests" : [
+      "tests": [
         {
-          "tcId" : 1,
-          "comment" : "rejectsValid",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "invalid",
-          "flags" : ["MixedKeySet", "Ambiguous"]
-        }
-      ]
-    },
-    {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
-      },
-      "comment": "jws_keyset",
-      "private" : {
-        "keys" : [
-          {
-            "alg" : "HS256",
-            "use" : "sig",
-            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
-          },
-          {
-            "alg" : "HS256",
-            "use" : "sig",
-            "k" : "-xbuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign-2",
-            "kty" : "oct"
-          }
-        ]
-      },
-      "tests" : [
-        {
-          "tcId" : 2,
-          "comment" : "acceptsValid",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "valid",
-          "flags" : []
-        },
-        {
-          "tcId" : 3,
-          "comment" : "rejectsModifiedSignature",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.XD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "invalid",
-          "flags" : []
-        }
-      ]
-    },
-    {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
-      },
-      "comment": "jws_duplicate_kid",
-      "private" : {
-        "keys" : [
-          {
-            "alg" : "HS256",
-            "use" : "sig",
-            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
-          },
-          {
-            "alg" : "HS256",
-            "use" : "sig",
-            "k" : "-xxuDNsVZ2iJtos-akfXTSCt4UO2cruLCsbWlBingge",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
-          }
-        ]
-      },
-      "tests" : [
-        {
-          "tcId" : 4,
-          "comment" : "rejectsDuplicateKid",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "invalid",
-          "flags" : ["DuplicateKid", "Ambiguous"]
+          "tcId": 1,
+          "comment": "rejectsValid",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "invalid",
+          "flags": [
+            "MixedKeySet",
+            "Ambiguous"
+          ]
         }
       ]
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
+      },
+      "comment": "jws_keyset",
+      "private": {
+        "keys": [
+          {
+            "alg": "HS256",
+            "use": "sig",
+            "k": "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
+          },
+          {
+            "alg": "HS256",
+            "use": "sig",
+            "k": "-xbuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign-2",
+            "kty": "oct"
+          }
+        ]
+      },
+      "tests": [
+        {
+          "tcId": 2,
+          "comment": "acceptsValid",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "valid",
+          "flags": []
+        },
+        {
+          "tcId": 3,
+          "comment": "rejectsModifiedSignature",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.XD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "invalid",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
+      },
+      "comment": "jws_duplicate_kid",
+      "private": {
+        "keys": [
+          {
+            "alg": "HS256",
+            "use": "sig",
+            "k": "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
+          },
+          {
+            "alg": "HS256",
+            "use": "sig",
+            "k": "-xxuDNsVZ2iJtos-akfXTSCt4UO2cruLCsbWlBingge",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
+          }
+        ]
+      },
+      "tests": [
+        {
+          "tcId": 4,
+          "comment": "rejectsDuplicateKid",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "invalid",
+          "flags": [
+            "DuplicateKid",
+            "Ambiguous"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "rs256",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
             "alg": "RS256",
             "use": "sig",
@@ -154,24 +160,24 @@
             "dp": "kEpEnuJNfdqa-_VFb1RayJF6bjDmXQTcN_a47wUIZVMSWHR9KkMz41v0D_-oY7HVl73Kw0NagnVCaeH75HgeX5v6ZBQsrpIigynr3hl8T_LLNwIXebVnpFI2n5de0BTZ0DraxfZvOhYJEJV43NE8zWm7fdHLx2fxVFJ5mBGkXv0",
             "dq": "U_xJCnXF51iz5AP7MXq-K6YDIR8_t0UzEMV-riNm_OkVKAoWMnDZFG8R3sU98djQaxwKT-fsg2KjvbuTz1igBUzzijAvQESpkiUB82i2fNAj6rqJybpNKESq3FWkoL1dsgYsS19knJ31gDWWRFRHZFujjPyXiexz4BBmjK1Mc1E",
             "qi": "Uvb84tWiJF3fB-U9wZSPi7juGgrzeXS_LYtf5fcdV0fZg_h_5nSVpXyYyQ-PK218qEC5MlDkaHKRD9wBOe_eU_zJTNoXzB2oAcgl2MapBWUMytbiF84ghP_2K9UD63ZVsyrorSZhmsJIBBuqQjrmk0tIdpMdlMxLYhrbYwFxUqc",
-           "kid": "kid-rsa-sign",
-           "kty": "RSA"
-        }
-      ]
-    },
-    "public": {
-      "keys" : [
-        {
-          "alg": "RS256",
-          "use": "sig",
-          "n": "kqGboBfAWttWPCA-0cGRgsY6SaYoIARt0B_PkaEcIq9HPYNdu9n6UuWHuuTHrjF_ZoQW97r5HaAorNvrMEGTGdxCHZdEtkHvNVVmrtxTBLiQCbCozXhFoIrVcr3qUBrdGnNn_M3jJi7Wg7p_-x62nS5gNG875oyheRkutHsQXikFZwsN3q_TsPNOVlCiHy8mxzaFTUQGm-X8UYexFyAivlDSjgDJLAZSWfxd7k9Gxuwa3AUfQqQcVcegmgKGCaErQ3qQbh1x7WB6iopE3_-GZ8HMAVtR9AmrVscqYsnjhaCehfAI0iKKs8zXr8tISc0ORbaalrkk03H1ZrsEnDKEWQ",
-          "e": "AQAB",
-          "kid": "kid-rsa-sign",
-          "kty": "RSA"
-        }
-      ]
-    },
-    "tests": [
+            "kid": "kid-rsa-sign",
+            "kty": "RSA"
+          }
+        ]
+      },
+      "public": {
+        "keys": [
+          {
+            "alg": "RS256",
+            "use": "sig",
+            "n": "kqGboBfAWttWPCA-0cGRgsY6SaYoIARt0B_PkaEcIq9HPYNdu9n6UuWHuuTHrjF_ZoQW97r5HaAorNvrMEGTGdxCHZdEtkHvNVVmrtxTBLiQCbCozXhFoIrVcr3qUBrdGnNn_M3jJi7Wg7p_-x62nS5gNG875oyheRkutHsQXikFZwsN3q_TsPNOVlCiHy8mxzaFTUQGm-X8UYexFyAivlDSjgDJLAZSWfxd7k9Gxuwa3AUfQqQcVcegmgKGCaErQ3qQbh1x7WB6iopE3_-GZ8HMAVtR9AmrVscqYsnjhaCehfAI0iKKs8zXr8tISc0ORbaalrkk03H1ZrsEnDKEWQ",
+            "e": "AQAB",
+            "kid": "kid-rsa-sign",
+            "kty": "RSA"
+          }
+        ]
+      },
+      "tests": [
         {
           "tcId": 5,
           "comment": "acceptsValid",
@@ -183,13 +189,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "rs256",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
             "alg": "RSA1_5",
             "use": "enc",
@@ -201,24 +207,24 @@
             "dp": "kEpEnuJNfdqa-_VFb1RayJF6bjDmXQTcN_a47wUIZVMSWHR9KkMz41v0D_-oY7HVl73Kw0NagnVCaeH75HgeX5v6ZBQsrpIigynr3hl8T_LLNwIXebVnpFI2n5de0BTZ0DraxfZvOhYJEJV43NE8zWm7fdHLx2fxVFJ5mBGkXv0",
             "dq": "U_xJCnXF51iz5AP7MXq-K6YDIR8_t0UzEMV-riNm_OkVKAoWMnDZFG8R3sU98djQaxwKT-fsg2KjvbuTz1igBUzzijAvQESpkiUB82i2fNAj6rqJybpNKESq3FWkoL1dsgYsS19knJ31gDWWRFRHZFujjPyXiexz4BBmjK1Mc1E",
             "qi": "Uvb84tWiJF3fB-U9wZSPi7juGgrzeXS_LYtf5fcdV0fZg_h_5nSVpXyYyQ-PK218qEC5MlDkaHKRD9wBOe_eU_zJTNoXzB2oAcgl2MapBWUMytbiF84ghP_2K9UD63ZVsyrorSZhmsJIBBuqQjrmk0tIdpMdlMxLYhrbYwFxUqc",
-           "kid": "kid-rsa-sign",
-           "kty": "RSA"
-        }
-      ]
-    },
-    "public": {
-      "keys" : [
-        {
-          "alg": "RSA1_5",
-          "use": "enc",
-          "n": "kqGboBfAWttWPCA-0cGRgsY6SaYoIARt0B_PkaEcIq9HPYNdu9n6UuWHuuTHrjF_ZoQW97r5HaAorNvrMEGTGdxCHZdEtkHvNVVmrtxTBLiQCbCozXhFoIrVcr3qUBrdGnNn_M3jJi7Wg7p_-x62nS5gNG875oyheRkutHsQXikFZwsN3q_TsPNOVlCiHy8mxzaFTUQGm-X8UYexFyAivlDSjgDJLAZSWfxd7k9Gxuwa3AUfQqQcVcegmgKGCaErQ3qQbh1x7WB6iopE3_-GZ8HMAVtR9AmrVscqYsnjhaCehfAI0iKKs8zXr8tISc0ORbaalrkk03H1ZrsEnDKEWQ",
-          "e": "AQAB",
-          "kid": "kid-rsa-sign",
-          "kty": "RSA"
-        }
-      ]
-    },
-    "tests": [
+            "kid": "kid-rsa-sign",
+            "kty": "RSA"
+          }
+        ]
+      },
+      "public": {
+        "keys": [
+          {
+            "alg": "RSA1_5",
+            "use": "enc",
+            "n": "kqGboBfAWttWPCA-0cGRgsY6SaYoIARt0B_PkaEcIq9HPYNdu9n6UuWHuuTHrjF_ZoQW97r5HaAorNvrMEGTGdxCHZdEtkHvNVVmrtxTBLiQCbCozXhFoIrVcr3qUBrdGnNn_M3jJi7Wg7p_-x62nS5gNG875oyheRkutHsQXikFZwsN3q_TsPNOVlCiHy8mxzaFTUQGm-X8UYexFyAivlDSjgDJLAZSWfxd7k9Gxuwa3AUfQqQcVcegmgKGCaErQ3qQbh1x7WB6iopE3_-GZ8HMAVtR9AmrVscqYsnjhaCehfAI0iKKs8zXr8tISc0ORbaalrkk03H1ZrsEnDKEWQ",
+            "e": "AQAB",
+            "kid": "kid-rsa-sign",
+            "kty": "RSA"
+          }
+        ]
+      },
+      "tests": [
         {
           "tcId": 6,
           "comment": "rejectsWrongUse",
@@ -229,14 +235,14 @@
       ]
     },
     {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "jws_rsa_roca_key",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
             "alg": "RS256",
             "use": "sig",
@@ -276,104 +282,104 @@
       ]
     },
     {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "keysize_too_small",
       "private": {
-        "keys" : [
+        "keys": [
           {
-            "kty" : "RSA",
-            "use" : "sig",
-            "alg" : "RS256",
-            "n" : "rJBIp6T1YK-RtPyvYqFFlcucqewSAA_IReSFchE8qyiQrbARqRlXWkB2DR8j_pJQnIpYELbQWZC5Cd0PTGAU8rMbar2AW6zpmBbi7aQf17lUBdt8XI9M9rq7FPVQ1dDdUXm1SVH_9qqWhvMPR422SbfHBEzCAtzK0ANDRo6qz78",
-            "e" : "AQAB",
-            "kid" : "RS256_1024",
-            "d" : "DDpubTOc0DAQ0LT5QeSwvcEy34p8ttsBDUB42yqKh7-occGg0FodEEAYikYZjGAjUzx6EIRYtlTkyX4_QWFe11T83kaaq8cGaeVHOQO9X7jE6a4OXDXtQfuGFnwY7p9gsh7ubF4wluscZSgx-ORdWYw6KdMMlvOmjbMFkf2bY30",
-            "p" : "05fc-rSRnbI7triMRRFRb2E14RGCd-SWEw8Mqzp1ZhAQzJjsj0DNsMGrYSwDu-OwI9iR9GGFeI-xFEN8iprnHQ",
-            "q" : "0MeAUVlQndrXDzW5p2x8K9lahE02t22WE4z8eipV-IBy6LEKw3Rjyvm_jRAUyToAEhTXziMMgzL7WNrbBdUviw",
-            "dp" : "di08S32sUpIoTb43AaBRhk6Z5BF-d-3gb9aY8c1dolpYt5y1irDb8NvKFySZFUhuqSadJguNmy9N7I5gsZ0gdQ",
-            "dq" : "YqTwbv9JRNxiYpBa4M00Oi-fQgWNhctkbmZd4IbiSeC-6kzELidvAzdPlyHzAETERcbNVFthDRhog8ocVDwvEw",
-            "qi" : "PPzwRANcGFRHXh26SArFDSoFnzLRjoGclqMZmx44VaZT7A5Vd-TXZ31uC3pV_EGLEyAu4ZQwIoxL-dKK-IUcmw"
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "n": "rJBIp6T1YK-RtPyvYqFFlcucqewSAA_IReSFchE8qyiQrbARqRlXWkB2DR8j_pJQnIpYELbQWZC5Cd0PTGAU8rMbar2AW6zpmBbi7aQf17lUBdt8XI9M9rq7FPVQ1dDdUXm1SVH_9qqWhvMPR422SbfHBEzCAtzK0ANDRo6qz78",
+            "e": "AQAB",
+            "kid": "RS256_1024",
+            "d": "DDpubTOc0DAQ0LT5QeSwvcEy34p8ttsBDUB42yqKh7-occGg0FodEEAYikYZjGAjUzx6EIRYtlTkyX4_QWFe11T83kaaq8cGaeVHOQO9X7jE6a4OXDXtQfuGFnwY7p9gsh7ubF4wluscZSgx-ORdWYw6KdMMlvOmjbMFkf2bY30",
+            "p": "05fc-rSRnbI7triMRRFRb2E14RGCd-SWEw8Mqzp1ZhAQzJjsj0DNsMGrYSwDu-OwI9iR9GGFeI-xFEN8iprnHQ",
+            "q": "0MeAUVlQndrXDzW5p2x8K9lahE02t22WE4z8eipV-IBy6LEKw3Rjyvm_jRAUyToAEhTXziMMgzL7WNrbBdUviw",
+            "dp": "di08S32sUpIoTb43AaBRhk6Z5BF-d-3gb9aY8c1dolpYt5y1irDb8NvKFySZFUhuqSadJguNmy9N7I5gsZ0gdQ",
+            "dq": "YqTwbv9JRNxiYpBa4M00Oi-fQgWNhctkbmZd4IbiSeC-6kzELidvAzdPlyHzAETERcbNVFthDRhog8ocVDwvEw",
+            "qi": "PPzwRANcGFRHXh26SArFDSoFnzLRjoGclqMZmx44VaZT7A5Vd-TXZ31uC3pV_EGLEyAu4ZQwIoxL-dKK-IUcmw"
           }
         ]
       },
-      "public" : {
-        "keys" : [
+      "public": {
+        "keys": [
           {
-            "kty" : "RSA",
-            "use" : "sig",
-            "alg" : "RS256",
-            "n" : "rJBIp6T1YK-RtPyvYqFFlcucqewSAA_IReSFchE8qyiQrbARqRlXWkB2DR8j_pJQnIpYELbQWZC5Cd0PTGAU8rMbar2AW6zpmBbi7aQf17lUBdt8XI9M9rq7FPVQ1dDdUXm1SVH_9qqWhvMPR422SbfHBEzCAtzK0ANDRo6qz78",
-            "e" : "AQAB",
-            "kid" : "RS256_1024"
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "n": "rJBIp6T1YK-RtPyvYqFFlcucqewSAA_IReSFchE8qyiQrbARqRlXWkB2DR8j_pJQnIpYELbQWZC5Cd0PTGAU8rMbar2AW6zpmBbi7aQf17lUBdt8XI9M9rq7FPVQ1dDdUXm1SVH_9qqWhvMPR422SbfHBEzCAtzK0ANDRo6qz78",
+            "e": "AQAB",
+            "kid": "RS256_1024"
           }
         ]
       },
-      "tests" : [
+      "tests": [
         {
-          "tcId" : 8,
-          "comment" : "rejects1024bitRsaKey",
-          "jws" : "eyJhbGciOiJSUzI1NiIsImtpZCI6IlJTMjU2XzEwMjQifQ..AFuv9BiuEQP1Nmidc5xFw0qIT1d0NmgqakVKmJ-mMJNzg_J1L6nNXxMrSXCS6sfGIgXc44-vk8StVf7eIKjxozqzZ3Z2jT8AX_vp6_1WOje9jSPYEwf-3OgmD2QcyV14jXVTx9s0M8WKoYIo4_zA4qGiViE18khwGd9uqsjrJVA",
-          "result" : "invalid",
-          "flags": []
-        }
-      ]
-    },
-    {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
-      },
-      "comment": "exponentOne",
-      "private": {
-        "keys" : [
-          {
-            "kty" : "RSA",
-            "use" : "sig",
-            "alg" : "RS256",
-            "n" : "u-SfdHPjFtGmzuoH6gheIIZ4nLwUHBQEtFGqOe0N8JuZUc5VOzlI8yl0r8ESilAouttkdftexj4VFJz5R9FH90ypVQDPL0H4mC_RtkcJ1DBB8MriU8dmzqSXP1SBs4s5L-pJWxKKLjXddD6gXJZ7HT_aPl2olvlLh8JkD_52U6sjdeP3OWDKvMu5GsrMlS9XJCVaCx8r9698OEElwK-ZW9PztgTSb-MvyTuyzis5Yc13n_z0wMLahpDilI2fzNsZ3yH6htu4VXPraSEZV6C0Z7epAAAUqiUnxh3WRupEICaewYEnW3MVS2hHwLwtPu_RR0XHoZr1oPSlQMP3Zi2QKw",
-            "e" : "AQ",
-            "kid" : "RS256_2048",
-            "d" : "AQ",
-            "p" : "3IPTertqAkvQnaJsrPPYTLXhHzpTUKAFmFlNhP7-VeidMyg-dvr-NmPaC5iQCvWraXgO2Xh-yjPC5gTFG8Qx8IZtax4DNp9yQV5qVMohs-YXtfd4afaLqvffRAXBZlKTL5tquubSQqMwJ5HLqwAZzCgifi3KXRhsf9wUom3UFKs",
-            "q" : "2iDt2_MW5MEB9qXDMNJ9FAEBeppGkiRTwFH4KJkbvTVDUaN1HCLklQJPJsF7J9ylLOgx7-KFhPFJrrc9GLWISxv6Rp7ciKHHuIjzPkuNxJbq3La3-x5thGll9JXvEX2lDojUx2uedw3Xiu04-ECRbVvauF-CsN29C413gzlRcoE",
-            "dp" : "AQ",
-            "dq" : "AQ",
-            "qi" : "kBgmwm2yaYSIqUD6NVBwffWokCg_FSxTwaVZq6xv9WAz9mcIz81VFDLkP1_K6XsdnZiMX9p2pZg02TmKXX-nMT5128ueofiqvmTa_4FVqqOzYYoY4sdYMXR1z_rYroeRttojYWG1udmctHWDhNUUofSsCo08c7owVRShq1oSjlE"
-          }
-        ]
-      },
-      "public" : {
-        "keys" : [
-          {
-            "kty" : "RSA",
-            "use" : "sig",
-            "alg" : "RS256",
-            "n" : "u-SfdHPjFtGmzuoH6gheIIZ4nLwUHBQEtFGqOe0N8JuZUc5VOzlI8yl0r8ESilAouttkdftexj4VFJz5R9FH90ypVQDPL0H4mC_RtkcJ1DBB8MriU8dmzqSXP1SBs4s5L-pJWxKKLjXddD6gXJZ7HT_aPl2olvlLh8JkD_52U6sjdeP3OWDKvMu5GsrMlS9XJCVaCx8r9698OEElwK-ZW9PztgTSb-MvyTuyzis5Yc13n_z0wMLahpDilI2fzNsZ3yH6htu4VXPraSEZV6C0Z7epAAAUqiUnxh3WRupEICaewYEnW3MVS2hHwLwtPu_RR0XHoZr1oPSlQMP3Zi2QKw",
-            "e" : "AQ",
-            "kid" : "RS256_2048"
-          }
-        ]
-      },
-      "tests" : [
-        {
-          "tcId" : 9,
-          "comment" : "rejectsPublicExponent1",
-          "jws" : "eyJhbGciOiJSUzI1NiIsImtpZCI6IlJTMjU2XzIwNDgifQ..AAH_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________ADAxMA0GCWCGSAFlAwQCAQUABCC2RQuThyxZrC1hF3430kwQRUtpKnK2r9hhkP2mQe8zsg",
-          "result" : "invalid",
+          "tcId": 8,
+          "comment": "rejects1024bitRsaKey",
+          "jws": "eyJhbGciOiJSUzI1NiIsImtpZCI6IlJTMjU2XzEwMjQifQ..AFuv9BiuEQP1Nmidc5xFw0qIT1d0NmgqakVKmJ-mMJNzg_J1L6nNXxMrSXCS6sfGIgXc44-vk8StVf7eIKjxozqzZ3Z2jT8AX_vp6_1WOje9jSPYEwf-3OgmD2QcyV14jXVTx9s0M8WKoYIo4_zA4qGiViE18khwGd9uqsjrJVA",
+          "result": "invalid",
           "flags": []
         }
       ]
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
+      },
+      "comment": "exponentOne",
+      "private": {
+        "keys": [
+          {
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "n": "u-SfdHPjFtGmzuoH6gheIIZ4nLwUHBQEtFGqOe0N8JuZUc5VOzlI8yl0r8ESilAouttkdftexj4VFJz5R9FH90ypVQDPL0H4mC_RtkcJ1DBB8MriU8dmzqSXP1SBs4s5L-pJWxKKLjXddD6gXJZ7HT_aPl2olvlLh8JkD_52U6sjdeP3OWDKvMu5GsrMlS9XJCVaCx8r9698OEElwK-ZW9PztgTSb-MvyTuyzis5Yc13n_z0wMLahpDilI2fzNsZ3yH6htu4VXPraSEZV6C0Z7epAAAUqiUnxh3WRupEICaewYEnW3MVS2hHwLwtPu_RR0XHoZr1oPSlQMP3Zi2QKw",
+            "e": "AQ",
+            "kid": "RS256_2048",
+            "d": "AQ",
+            "p": "3IPTertqAkvQnaJsrPPYTLXhHzpTUKAFmFlNhP7-VeidMyg-dvr-NmPaC5iQCvWraXgO2Xh-yjPC5gTFG8Qx8IZtax4DNp9yQV5qVMohs-YXtfd4afaLqvffRAXBZlKTL5tquubSQqMwJ5HLqwAZzCgifi3KXRhsf9wUom3UFKs",
+            "q": "2iDt2_MW5MEB9qXDMNJ9FAEBeppGkiRTwFH4KJkbvTVDUaN1HCLklQJPJsF7J9ylLOgx7-KFhPFJrrc9GLWISxv6Rp7ciKHHuIjzPkuNxJbq3La3-x5thGll9JXvEX2lDojUx2uedw3Xiu04-ECRbVvauF-CsN29C413gzlRcoE",
+            "dp": "AQ",
+            "dq": "AQ",
+            "qi": "kBgmwm2yaYSIqUD6NVBwffWokCg_FSxTwaVZq6xv9WAz9mcIz81VFDLkP1_K6XsdnZiMX9p2pZg02TmKXX-nMT5128ueofiqvmTa_4FVqqOzYYoY4sdYMXR1z_rYroeRttojYWG1udmctHWDhNUUofSsCo08c7owVRShq1oSjlE"
+          }
+        ]
+      },
+      "public": {
+        "keys": [
+          {
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "n": "u-SfdHPjFtGmzuoH6gheIIZ4nLwUHBQEtFGqOe0N8JuZUc5VOzlI8yl0r8ESilAouttkdftexj4VFJz5R9FH90ypVQDPL0H4mC_RtkcJ1DBB8MriU8dmzqSXP1SBs4s5L-pJWxKKLjXddD6gXJZ7HT_aPl2olvlLh8JkD_52U6sjdeP3OWDKvMu5GsrMlS9XJCVaCx8r9698OEElwK-ZW9PztgTSb-MvyTuyzis5Yc13n_z0wMLahpDilI2fzNsZ3yH6htu4VXPraSEZV6C0Z7epAAAUqiUnxh3WRupEICaewYEnW3MVS2hHwLwtPu_RR0XHoZr1oPSlQMP3Zi2QKw",
+            "e": "AQ",
+            "kid": "RS256_2048"
+          }
+        ]
+      },
+      "tests": [
+        {
+          "tcId": 9,
+          "comment": "rejectsPublicExponent1",
+          "jws": "eyJhbGciOiJSUzI1NiIsImtpZCI6IlJTMjU2XzIwNDgifQ..AAH_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________ADAxMA0GCWCGSAFlAwQCAQUABCC2RQuThyxZrC1hF3430kwQRUtpKnK2r9hhkP2mQe8zsg",
+          "result": "invalid",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS256",
       "private": {
@@ -399,9 +405,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS384",
       "private": {
@@ -427,9 +433,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS512",
       "private": {
@@ -455,9 +461,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS256",
       "private": {
@@ -483,9 +489,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS384",
       "private": {
@@ -511,9 +517,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS512",
       "private": {
@@ -539,9 +545,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS256",
       "private": {
@@ -567,9 +573,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS384",
       "private": {
@@ -595,9 +601,9 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "HS512",
       "private": {
@@ -623,13 +629,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "wrong_algorithm",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES521",
             "use": "sig",
@@ -643,7 +649,7 @@
         ]
       },
       "public": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES521",
             "use": "sig",
@@ -667,13 +673,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "invalid_algorithm",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES224",
             "use": "sig",
@@ -687,7 +693,7 @@
         ]
       },
       "public": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES224",
             "use": "sig",
@@ -711,13 +717,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "invalid_use",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "enc",
@@ -731,7 +737,7 @@
         ]
       },
       "public": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "enc",
@@ -755,13 +761,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "invalid_point",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "sig",
@@ -775,7 +781,7 @@
         ]
       },
       "public": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "sig",
@@ -799,13 +805,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "wrong_curve",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "sig",
@@ -819,17 +825,17 @@
         ]
       },
       "public": {
-        "keys" : [
-        {
-          "alg": "ES256",
-          "use": "sig",
-          "x": "04N0xi21hshyvBp7I167sbE_bXqyqkAPfefdklMO7wY",
-          "y": "UI8exy-C06a7DUnjIdENkxeFtHM4-l_41LqEw9nVgmw",
-          "crv": "P-384",
-          "kid": "kid-ec-sign",
-          "kty": "EC"
-        }
-      ]
+        "keys": [
+          {
+            "alg": "ES256",
+            "use": "sig",
+            "x": "04N0xi21hshyvBp7I167sbE_bXqyqkAPfefdklMO7wY",
+            "y": "UI8exy-C06a7DUnjIdENkxeFtHM4-l_41LqEw9nVgmw",
+            "crv": "P-384",
+            "kid": "kid-ec-sign",
+            "kty": "EC"
+          }
+        ]
       },
       "tests": [
         {
@@ -843,13 +849,13 @@
     },
     {
       "type": "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "wrong_kty",
       "private": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "sig",
@@ -863,7 +869,7 @@
         ]
       },
       "public": {
-        "keys" : [
+        "keys": [
           {
             "alg": "ES256",
             "use": "sig",
@@ -886,58 +892,58 @@
       ]
     },
     {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "invalid_aes_gcm_key",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
-            "alg" : "A256GCM",
-            "use" : "sig",
-            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
+            "alg": "A256GCM",
+            "use": "sig",
+            "k": "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
           }
         ]
       },
-      "tests" : [
+      "tests": [
         {
-          "tcId" : 25,
-          "comment" : "rejectsAesKey",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "invalid",
-          "flags" : []
+          "tcId": 25,
+          "comment": "rejectsAesKey",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "invalid",
+          "flags": []
         }
       ]
     },
     {
-      "type" : "JsonWebKey",
-      "source" : {
-        "name" : "google-wycheproof",
-        "version" : "0.3"
+      "type": "JsonWebKey",
+      "source": {
+        "name": "google-wycheproof",
+        "version": "0.3"
       },
       "comment": "invalid_aes_kw_key",
-      "private" : {
-        "keys" : [
+      "private": {
+        "keys": [
           {
-            "alg" : "A256KW",
-            "use" : "sig",
-            "k" : "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
-            "kid" : "kid-aes-sign",
-            "kty" : "oct"
+            "alg": "A256KW",
+            "use": "sig",
+            "k": "-ebuDNsVZ2iJtoZ-akfXTSCt4UO2cruLCsbWlBinggE",
+            "kid": "kid-aes-sign",
+            "kty": "oct"
           }
         ]
       },
-      "tests" : [
+      "tests": [
         {
-          "tcId" : 26,
-          "comment" : "rejectsAesKey",
-          "jws" : "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
-          "result" : "invalid",
-          "flags" : []
+          "tcId": 26,
+          "comment": "rejectsAesKey",
+          "jws": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZC1hZXMtc2lnbiJ9.Zm9v.TD37p4c_0jmreSrBSDmE0F3mYSPtkZ3WrSyI5wb_KTg",
+          "result": "invalid",
+          "flags": []
         }
       ]
     }
