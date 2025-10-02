@@ -29,10 +29,13 @@ jobs:
             exit 1
           fi
 
-      - name: Verify formatting
+      - name: Verify Go formatting
         # 'gofmt -l .' to list files whose formatting differs from gofmt's
         # 'test -z' to verify that the output is empty
         run: test -z "$(gofmt -l .)"
+
+      - name: Verify JSON formatting
+        run: ./tools/reformat_json.py && git diff --exit-code
 
       - name: Run vectorlint
         run: go run ./tools/vectorlint
