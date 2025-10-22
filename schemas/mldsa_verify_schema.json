@@ -26,7 +26,9 @@
         "source": {
           "$ref": "common.json#/definitions/Source"
         }
-      }
+      },
+      "additionalProperties": false,
+      "required": ["type", "publicKey", "publicKeyDer", "tests"]
     },
     "MlDsaVerifyTestVector": {
       "type": "object",
@@ -66,13 +68,20 @@
           },
           "description": "A list of flags"
         }
-      }
+      },
+      "additionalProperties": false,
+      "required": ["tcId", "comment", "msg", "sig", "flags"]
     }
   },
   "properties": {
     "algorithm": {
       "type": "string",
       "description": "the primitive tested in the test file"
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
     },
     "header": {
       "type": "array",
@@ -97,5 +106,7 @@
         "$ref": "#/definitions/MlDsaVerifyTestGroup"
       }
     }
-  }
+  },
+  "additionalProperties": false,
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"]
 }
