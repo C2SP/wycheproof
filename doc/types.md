@@ -881,7 +881,7 @@ mgf      | str                                                         | the mes
 mgfSha   | [MdName](formats.md#hash-functions)                         | The hash function used for the message generating function. |
 n        | [BigInt](formats.md#data-types)                             | The modulus of the key                                      |
 sLen     | int                                                         | The length of the salt in bytes                             |
-sha      | [MdName](formats.md#hash-functions)                         | The hash function for hashing the message.                   |
+sha      | [MdName](formats.md#hash-functions)                         | The hash function for hashing the message.                  |
 type     | str                                                         | the type of the test                                        | '[RsassaPssVerify](files.md#rsassapssverify)'
 tests    | List of [RsassaPssTestVector](types.md#rsassapsstestvector) | a list of test vectors                                      |
 
