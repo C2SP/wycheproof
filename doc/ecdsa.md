@@ -19,7 +19,7 @@ signature generation are leaking the private keys.
 ## Signature verification
 
 An ECDSA signature is a DER encoded tuple of two integers (r,s). To verify a
-signature of a messag $$m$$ the verifier first checks $$0 < r < n$$ and $$0 < s
+signature of a message $$m$$ the verifier first checks $$0 < r < n$$ and $$0 < s
 < n$$. The verifier computes a (potentially truncated) hash $$z$$ of the message
 $$m$$ and computes.
 

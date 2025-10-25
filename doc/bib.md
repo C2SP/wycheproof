@@ -1,7 +1,7 @@
 # References
 
 <!-- Format for references:
-The labels used in this file are not final. Hence thrid parties should not refer
+The labels used in this file are not final. Hence third parties should not refer
 to them.
 
 Unfortunately there seems to be no simple way to manage references in markdown.
@@ -193,7 +193,7 @@ J. Manger,
 Crypto 2001.
 
 This paper shows that OAEP is susceptible to a chosen ciphertext attack if error
-messages distinguish between different failure condidtions.
+messages distinguish between different failure conditions.
 
 ### Smart10
 N. Smart,

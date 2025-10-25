@@ -11,7 +11,7 @@ def main():
     json_files = list(testvectors_dir.glob('*.json'))
 
     for json_file in json_files:
-        # AES-FF1 tests incude inputs expressed as a list of integers and escaped
+        # AES-FF1 tests include inputs expressed as a list of integers and escaped
         # non-printable characters that format poorly. For now we ignore these 
         # files for reformatting.
         if not json_file.name.startswith('aes_ff1_'):

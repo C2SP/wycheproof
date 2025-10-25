@@ -15,7 +15,7 @@ TLDR: Implementations should no longer use Spongy Castle and
 switch to a provider that is well maintained.
 
 Below is a list of bugs and potential patches for the case where switching away
-from Sponcy Castle is not possbile in a short term.
+from Spongy Castle is not possible in a short term.
 
 ## AES-GCM
 
@@ -30,11 +30,11 @@ ConsCrypt patched it themselves.
 The AES-GCM implementation uses a weak default size for the tag (i.e. 64 bits).
 Such a tag size is not adequate for many use cases.
 
-**Patch:** The implementation should always sepcify the tag size.
+**Patch:** The implementation should always specify the tag size.
 
 The Wycheproof test *testIvReuse* fails, because Spongy Castle allows to reuse a
-previous IV simply by forgetting to initialze a Cipher instance after encrypting
-with it. IV resuse leaks the authentication key.
+previous IV simply by forgetting to initialize a Cipher instance after encrypting
+with it. IV reuse leaks the authentication key.
 
 **Patch:** The implementation should always reinitialize a Cipher instance, that
 is call init() with a fresh IV. Other providers check that a call to init()
@@ -122,7 +122,7 @@ not what the public key pretends to use.
 The test *testEncode* fails because Spongy Castle uses long form encoded public
 keys in some cases. Typically all keys on named curves should use the OIDs of
 these curves instead of encoding the parameters of that curve. The reason is
-taht some providers only accept named curves. Hence using long form encoded
+that some providers only accept named curves. Hence using long form encoded
 public keys can lead to incompatibilities.
 
 ## ECIES

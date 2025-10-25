@@ -596,7 +596,7 @@ x448_jwk_test.json   | 523       | 253, 257, 13 | XDH
 
 Test vectors of type XdhPemComp are intended for verifying XDH.
 
-Public and private keys are PEM encoded. The tests inlcude vectors generated for
+Public and private keys are PEM encoded. The tests include vectors generated for
 edge cases, arithmetic overflows, points on twists and public keys for the wrong
 curve. The tests do not include invalid PEM formats, though such tests may be
 added in the future.
