@@ -231,7 +231,7 @@ Used in [EcPublicKeyTestGroup](#ecpublickeytestgroup).
 
 ## EcUnnamedGroup
 
-An unamed EC group
+An unnamed EC group
 
 **name** | **type**                        | **desc**                                                   | **enum**
 -------- | ------------------------------- | ---------------------------------------------------------- | --------
@@ -881,7 +881,7 @@ mgf      | str                                                         | the mes
 mgfSha   | [MdName](formats.md#hash-functions)                         | The hash function used for the message generating function. |
 n        | [BigInt](formats.md#data-types)                             | The modulus of the key                                      |
 sLen     | int                                                         | The length of the salt in bytes                             |
-sha      | [MdName](formats.md#hash-functions)                         | The hash function for hasing the message.                   |
+sha      | [MdName](formats.md#hash-functions)                         | The hash function for hashing the message.                   |
 type     | str                                                         | the type of the test                                        | '[RsassaPssVerify](files.md#rsassapssverify)'
 tests    | List of [RsassaPssTestVector](types.md#rsassapsstestvector) | a list of test vectors                                      |
 
@@ -917,8 +917,8 @@ Used in [DsaP1363TestGroup](#dsap1363testgroup),
 
 ## Test
 
-The root type of each JSON file with tests. Each file contains one ore more test
-groups. Each test group contains one ore more test vectors. All test vectors in
+The root type of each JSON file with tests. Each file contains one or more test
+groups. Each test group contains one or more test vectors. All test vectors in
 the same file have the same type and test the same cryptographic primitive.
 
 **name**         | **type**     | **desc**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | **since**
@@ -926,7 +926,7 @@ the same file have the same type and test the same cryptographic primitive.
 algorithm        | str          | The primitive tested in the test file. This is mainly a brief description of the algorithm used. So far there is no formal definition of this field and its description may change.                                                                                                                                                                                                                                                                                                         |
 generatorVersion | str          | The version of the test vectors. The version number has the format major.minor (or major.minor[release candidate]). The plan is to change the format of the test vectors in major versions only, once version 1.0 has been reached. Conversely, version 1.0 will be published once we think the format for the test vectors are sufficiently stable.                                                                                                                                        |
 header           | list of str  | additional documentation                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-notes            | JSON         | A description of the labels used in the test vectors. Some test vectors contain labels that formally describe the test vector. It can be helpful to make test more precise. For example libraries differ in whether they accept ASN encodings different from DER. Hence many of the test vectors with alternative BER encoding are rated as acceptable. Labels allow to decide whether tests with alternatve BER encoding should be rejected or accepted when testing a particular library. |
+notes            | JSON         | A description of the labels used in the test vectors. Some test vectors contain labels that formally describe the test vector. It can be helpful to make test more precise. For example libraries differ in whether they accept ASN encodings different from DER. Hence many of the test vectors with alternative BER encoding are rated as acceptable. Labels allow to decide whether tests with alternative BER encoding should be rejected or accepted when testing a particular library. |
 numberOfTests    | int          | The number of test vectors in this test. Each test vector has a unique tcId in the range 1 .. tcId.                                                                                                                                                                                                                                                                                                                                                                                         |
 schema           | str          | The filename of the JSON schema that defines the format of the test vectors in this file. If the format of the test vectors changes then a new schema will be generate, so that comparing the name of the schema with an expected name can be used to check for compatibility between test vectors and test code.                                                                                                                                                                           | 0.7
 testGroups       | list of JSON | a list of test groups                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -938,7 +938,7 @@ of test vectors of the same type. The test group describes parameters that are
 common for all the test vectors. Often some parameters are given in multiple
 formats to simplify testing. For example, asymmetric private key are typically
 given in a raw format, PKCS #8 encoded and in PEM format. All fields in a test
-group are corretly formatted. Incorrectly formatted inputs are always in the
+group are correctly formatted. Incorrectly formatted inputs are always in the
 test vectors. The list below describes the fields that are common to all test
 groups, though generally a test group contains additional fields depending on
 the test for which the test vectors are intended for.

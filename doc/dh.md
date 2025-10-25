@@ -66,9 +66,9 @@ use this lower limit because that is what the SUN provider is currently doing.
 ## Weak parameters
 
 The DH parameters must be carefully chosen to avoid security issues. A panel at
-Eurocrypt'92 discussed the possiblity of trapdoors in DL based primitives
+Eurocrypt'92 discussed the possibility of trapdoors in DL based primitives
 [[Eurocrypt92-panel]](bib.md#eurocrypt92-panel). A. Lenstra pointed out that the
-primes chould be chosen such that the special number field sieve can be used to
+primes should be chosen such that the special number field sieve can be used to
 compute discrete logarithms. Gordon has analyzed methods to generate and detect
 weak parameters [[Gordon92]](bib.md#gordon92). Section 4 of Gordons paper
 describes a method that can detect some special cases, but no general method was

@@ -92,7 +92,7 @@ testing encoding properly are denial of service attacks.
 The test vectors contain a number of invalid encoded ephemeral keys. Some of the
 test vectors contain a shared secret key. This is done so that a ECDH
 computation done after importing an invalid key can be evaluate. I.e. If
-importing a key is somewhat forgiving, but the ECDH compuatation is nevertheless
+importing a key is somewhat forgiving, but the ECDH computatation is nevertheless
 correct then this is less likely to lead to an attack than if the ECDH
-compuation after importing an invalid key leads to an incorrect point
+computation after importing an invalid key leads to an incorrect point
 multiplication.

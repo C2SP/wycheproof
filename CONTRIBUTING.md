@@ -63,13 +63,13 @@ All new JSON test vector files should:
 The common [source schema] allows specifying a name and version for your new
 test vectors.
 
-We intend to use the source element to allow targetted updates to test vector
+We intend to use the source element to allow targeted updates to test vector
 data identified by the source name/version. For this reason, when augmenting
 existing vector files with new data try to choose a source name that will be
 specific enough for future regeneration without affecting unrelated data.
 
 For example, using source name "github/myusername/weak_params" for new vector
-data added to `imaginary_algorithm_2048_test.json` may be preferrable to
+data added to `imaginary_algorithm_2048_test.json` may be preferable to
 "github.com/myusername" if you intend to add other kinds of test vectors to
 `imaginary_algorithm_2048_test.json` in the future, and would want to be able to
 update those separately from the weak parameter test vector data.

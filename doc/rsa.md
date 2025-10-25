@@ -20,7 +20,7 @@ All the references above clearly state that keys smaller than 2048 bits should
 only be used in legacy cases. Therefore, it seems wrong to use a default key
 size smaller than 2048 bits. If a user really wants a small RSA key then such a
 choice should be made by explicitly providing the desired key length during the
-initalization of a key pair generator.
+initialization of a key pair generator.
 
 According to https://docs.oracle.com/javase/7/docs/api/javax/crypto/Cipher.html
 every implementation of the Java platform is required to implement RSA with both
@@ -293,8 +293,8 @@ scheme. Unfortunately, many implementations don't use this OID. Rather they use
 the object identifier rsaEncryption regardless of the purpose of the key. Using
 the OID id-RSASSA-PSS would be preferable, since this would make it easier to
 ensure that a key is only used for a single purpose. RFC 5756 gives some guide
-lines when to use RSASSA-PSS parameters in certifiates. Wycheproof contains test
-vector for both key formats. The key formats are distinguised by the schema of
+lines when to use RSASSA-PSS parameters in certificates. Wycheproof contains test
+vector for both key formats. The key formats are distinguished by the schema of
 the file:
 
 *   *rsassa_pss_verify_schema.json*: test vectors with this schema contain DER
@@ -336,7 +336,7 @@ function only supports a single set of parameter choices.
 
 Manger describes an chosen ciphertext attack against RSA in
 [[Manger01]](bib.md#manger01). There are implementations that were susceptible
-to Mangers attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
+to Manger's attack, e.g. [[CVE-2012-5081]](bib.md#cve-2012-5081).
 
 There is a big difference between chosen ciphertext attacks against RSA-OAEP
 and RSA-PKCS #1 v.1.5: a chosen ciphertext attack against RSA-OAEP implies that
@@ -429,7 +429,7 @@ implementations:
 BouncyCastle supports additional algorithm names with SHA-3 such as
 `RSA/ECB/OAEPwithSHA3-256andMGF1Padding`. It is in principle possible to
 use SHAKE128 and SHAKE256 as an alternative to MGF1 (similar to RFC 8702). Since
-we are not aware of any standards or RFCs makeing such a proposal, there are no
+we are not aware of any standards or RFCs making such a proposal, there are no
 test vectors using SHA-3.
 
 **Encoding keys** It is possible to include RSAES-OAEP parameters in DER and PEM

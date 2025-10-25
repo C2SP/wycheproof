@@ -98,7 +98,7 @@ described below
 **Type** | **Representation**
 :------- | :-----------------
 HexBytes | This is an array of bytes represented as by hexadecimal string.
-BigInt   | An integer in hexadecimal representation using a twos complement representation and big-endian order. The integer is negative if the first byte is greater character is greater than 7. Starting with verion 0.7 the size is always a multiple of 2. This simplifies conversion to an array of bytes. Examples: 259: "0103", -192: "ff40", 0: "00", 255: "00ff"
+BigInt   | An integer in hexadecimal representation using a twos complement representation and big-endian order. The integer is negative if the first byte is greater character is greater than 7. Starting with version 0.7 the size is always a multiple of 2. This simplifies conversion to an array of bytes. Examples: 259: "0103", -192: "ff40", 0: "00", 255: "00ff"
 Asn      | A hexadecimal encoded array of bytes. This may be a valid or invalid ASN encoding.
 Der      | A valid DER encoding represented as a hexadecimal string.
 Pem      | A valid PEM encoded key

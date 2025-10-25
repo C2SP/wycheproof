@@ -10,9 +10,9 @@ implementations can't enforce that users don't repeat IVs unless they use
 restricted interfaces. However, implementations should at least avoid features
 that increase the probability of incorrect usages.
 
-One such dangerors featur in JCA is that the default behaviour of Cipher.doFinal
+One such dangerous feature in JCA is that the default behaviour of Cipher.doFinal
 is to reinitialize the cipher with the same parameters as the last encryption.
-For AES-GCM this behaviour would imply that the authencation key is leaked.
+For AES-GCM this behaviour would imply that the authentication key is leaked.
 Therefore, any reasonable implementation of AES-GCM should not allow two
 encryptions without an explicit initialization of the IV.
 
@@ -74,7 +74,7 @@ unaffected by incorrect encryption), but the decrypted plaintext is incorrect.
 The situation where encryption is correct, but decryption is faulty is similar:
 the authentication passes, but the plaintext is wrong.
 
-Besides returing incorrect plaintext, this bug can leak the authentication key.
+Besides returning incorrect plaintext, this bug can leak the authentication key.
 One scenario where this bug is exploitable is the following: We assume that
 there is a client-server scenario where either the client or the server use a
 faulty encryption rsp. decryption (but not both). We assume that the client
