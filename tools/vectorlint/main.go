@@ -7,13 +7,14 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
-	"github.com/santhosh-tekuri/jsonschema/v6"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 var (
@@ -237,6 +238,7 @@ func lintVectorTestGroups(vectorData []byte, path string) error {
 	var vector struct {
 		NumberOfTests int `json:"numberOfTests"`
 		TestGroups    []struct {
+			Type  string `json:"type"`
 			Tests []struct {
 				TcId int `json:"tcId"`
 			} `json:"tests"`
@@ -244,6 +246,22 @@ func lintVectorTestGroups(vectorData []byte, path string) error {
 	}
 	if err := json.Unmarshal(vectorData, &vector); err != nil {
 		return fmt.Errorf("error decoding vector JSON data for test groups: %w", err)
+	}
+
+	// Within a vector file, all test groups must have the same type.
+	testGroupTypes := make(map[string]bool)
+	for _, tg := range vector.TestGroups {
+		if tg.Type != "" {
+			testGroupTypes[tg.Type] = true
+		}
+	}
+
+	if len(testGroupTypes) > 1 {
+		var types []string
+		for t := range testGroupTypes {
+			types = append(types, t)
+		}
+		return fmt.Errorf("vector %q has multiple test group types: %v (expected only one type per file)", path, types)
 	}
 
 	// Within a vector file, test case IDs must be unique.
