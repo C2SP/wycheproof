@@ -22,7 +22,7 @@
     },
     "schema": {
       "enum": [
-        "mlkem_test_schema.json"
+        "mlkem_encaps_test_schema.json"
       ]
     },
     "testGroups": {
@@ -30,7 +30,7 @@
       "items": {
         "oneOf": [
           {
-            "$ref": "#/definitions/MLKEMTestGroup"
+            "$ref": "#/definitions/MLKEMEncapsTestGroup"
           }
         ]
       }
@@ -44,13 +44,13 @@
   ],
   "additionalProperties": false,
   "definitions": {
-    "MLKEMTestGroup": {
+    "MLKEMEncapsTestGroup": {
       "type": "object",
-      "description": "A test for KeyGen and/or Decaps",
+      "description": "A test for Encaps",
       "properties": {
         "type": {
           "enum": [
-            "MLKEMTest"
+            "MLKEMEncapsTest"
           ],
           "description": "A legacy field, test files contain only one type per file"
         },
@@ -77,20 +77,20 @@
                 "type": "string",
                 "description": "A brief description of the test case"
               },
-              "seed": {
-                "type": "string",
-                "format": "HexBytes",
-                "description": "The d || z seed"
-              },
               "ek": {
                 "type": "string",
                 "format": "HexBytes",
-                "description": "The encapsulation key derived from the seed"
+                "description": "The encapsulation key"
+              },
+              "m": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The ML-KEM.Encaps_internal m input"
               },
               "c": {
                 "type": "string",
                 "format": "HexBytes",
-                "description": "An input ciphertext"
+                "description": "The output ciphertext"
               },
               "K": {
                 "type": "string",
@@ -117,8 +117,8 @@
             "required": [
               "tcId",
               "flags",
-              "seed",
               "ek",
+              "m",
               "c",
               "K",
               "result"
@@ -128,7 +128,6 @@
         }
       },
       "required": [
-        "type",
         "source",
         "parameterSet",
         "tests"
