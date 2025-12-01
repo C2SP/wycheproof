@@ -53,10 +53,13 @@ All new JSON test vector files should:
 
 * Reference a schema.
 * Be placed in the `testvectors_v1/` directory.
-* Divide individual JSON files by the most important algorithm parameter (e.g.
-  key size). When convenient, try to split the test vectors so that consumers
+* Be divided up by test type, and important algorithm parameters 
+  (e.g. encap vs decap, key size).
+  When convenient, try to split the test vectors so that consumers
   that may not support all variations of the algorithm can test with specific
   vector files without needing additional post-filtering.
+  While the schema may indicate test groups can contain multiple test types
+  we've come to prefer one test file per test group type.
 
 ####  Choosing a source name
 
