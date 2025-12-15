@@ -73,3 +73,15 @@
 |           Summary                |            Credits         |         CVE       |       Upstream Acknowledgement          | Tests                                  |
 |:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
 | Overly lax RSA PKCS1v1.5 parsing | Alex Gaynor and Paul Kehrer | N/A | [link](https://github.com/openbsd/src/commit/4698a0ba0d5547fce37134cb00f204c68f429885#diff-8c6377c3026df41da690063739326043) |
+
+## Package JavaScript Elliptic
+|           Summary                |            Credits         |         CVE       |                Details                  | Tests                                  |
+|:---------------------------:     |:--------------------------:|:-----------------:|:--------------------------------------: |:---------------------------------------:
+| ECDSA rejects valid signatures | Markus Schiffermuller | CVE-2024-48948 | [Trail of Bits blog][ToB elliptic] | `ecdsa_secp*_sha256_test.json` |
+| EdDSA malleable signatures | Markus Schiffermuller | CVE-2024-48949 | [Trail of Bits blog][ToB elliptic] | `ed25519_test.json` |
+| ECDSA malleable signatures | Markus Schiffermuller | CVE-2024-42459 | [Trail of Bits blog][ToB elliptic], [elliptic#317] | `ecdsa_secp*_sha256_test.json` |
+| EdDSA malleable signatures | Markus Schiffermuller | CVE-2024-42460 | [Trail of Bits blog][ToB elliptic], [elliptic#317] | `ed25519_test.json` |
+| ECDSA malleable signatures | Markus Schiffermuller | CVE-2024-42461 | [Trail of Bits blog][ToB elliptic], [elliptic#317] | `ecdsa_secp*_sha256_test.json` |
+
+[ToB elliptic]: https://blog.trailofbits.com/2025/11/18/we-found-cryptography-bugs-in-the-elliptic-library-using-wycheproof/
+[elliptic#317]: https://github.com/indutny/elliptic/pull/317
