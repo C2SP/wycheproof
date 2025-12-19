@@ -1,0 +1,127 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "ML-KEM"
+      ]
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "mlkem_semi_expanded_decaps_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/MLKEMDecapsTestGroup"
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "algorithm",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "MLKEMDecapsTestGroup": {
+      "type": "object",
+      "description": "A test for ML-KEM decapsulation validation",
+      "properties": {
+        "type": {
+          "enum": [
+            "MLKEMDecapsValidationTest"
+          ],
+          "description": "Test type for decapsulation validation"
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "parameterSet": {
+          "enum": [
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "dk": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The full decapsulation key"
+              },
+              "c": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "An input ciphertext"
+              },
+              "result": {
+                "type": "string",
+                "description": "Test result",
+                "enum": [
+                  "valid",
+                  "invalid",
+                  "acceptable"
+                ]
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              }
+            },
+            "required": [
+              "tcId",
+              "flags",
+              "dk",
+              "c",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "type",
+        "source",
+        "parameterSet",
+        "tests"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
