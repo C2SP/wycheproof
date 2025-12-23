@@ -22,17 +22,13 @@
     },
     "schema": {
       "enum": [
-        "mlkem_test_schema.json"
+        "mlkem_keygen_seed_test_schema.json"
       ]
     },
     "testGroups": {
       "type": "array",
       "items": {
-        "oneOf": [
-          {
-            "$ref": "#/definitions/MLKEMTestGroup"
-          }
-        ]
+        "$ref": "#/definitions/MLKEMKeyGenTestGroup"
       }
     }
   },
@@ -44,15 +40,14 @@
   ],
   "additionalProperties": false,
   "definitions": {
-    "MLKEMTestGroup": {
+    "MLKEMKeyGenTestGroup": {
       "type": "object",
-      "description": "A test for KeyGen and/or Decaps",
+      "description": "A test for KeyGen using seed format",
       "properties": {
         "type": {
           "enum": [
-            "MLKEMTest"
-          ],
-          "description": "A legacy field, test files contain only one type per file"
+            "MLKEMKeyGen"
+          ]
         },
         "source": {
           "$ref": "common.json#/definitions/Source"
@@ -80,22 +75,17 @@
               "seed": {
                 "type": "string",
                 "format": "HexBytes",
-                "description": "The d || z seed"
+                "description": "The d || z seed for key generation"
               },
               "ek": {
                 "type": "string",
                 "format": "HexBytes",
-                "description": "The encapsulation key derived from the seed"
+                "description": "The expected encapsulation key"
               },
-              "c": {
+              "dk": {
                 "type": "string",
                 "format": "HexBytes",
-                "description": "An input ciphertext"
-              },
-              "K": {
-                "type": "string",
-                "format": "HexBytes",
-                "description": "The output shared secret"
+                "description": "The expected expanded decapsulation key"
               },
               "result": {
                 "type": "string",
@@ -116,10 +106,9 @@
             },
             "required": [
               "tcId",
-              "flags",
               "seed",
-              "c",
-              "K",
+              "ek",
+              "dk",
               "result"
             ],
             "additionalProperties": false
