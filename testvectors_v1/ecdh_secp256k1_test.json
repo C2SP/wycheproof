@@ -118,6 +118,10 @@
       "bugType": "MODIFIED_PARAMETER",
       "description": "The order of the public key has been modified.",
       "effect": "If this order is used in a cryptographic primitive instead of the correct order then an invalid curve attack is possible and the private keys may leak. E.g. ECDHC in BC 1.52 suffered from this."
+    },
+    "NoCofactor": {
+      "bugType": "MISSING_PARAMETER",
+      "description": "The cofactor field is absent from the ECParameters. RFC 3279 Section 2.3.5 requires the cofactor to be present."
     }
   },
   "testGroups": [
@@ -5671,9 +5675,9 @@
         },
         {
           "tcId": 503,
-          "comment": "cofactor = 0",
+          "comment": "no cofactor",
           "flags": [
-            "NegativeCofactor",
+            "NoCofactor",
             "InvalidPublic",
             "UnnamedCurve"
           ],
@@ -5710,9 +5714,9 @@
         },
         {
           "tcId": 506,
-          "comment": "cofactor = None",
+          "comment": "no cofactor",
           "flags": [
-            "ModifiedCofactor",
+            "NoCofactor",
             "UnusedParam",
             "UnnamedCurve"
           ],
