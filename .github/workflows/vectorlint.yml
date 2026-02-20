@@ -22,8 +22,7 @@ jobs:
       - uses: geomys/sandboxed-step@v1.2.1
         with:
           run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
-  lint:
-    name: Lint vectors/schemas
+  golint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -49,6 +48,18 @@ jobs:
         # 'gofmt -l .' to list files whose formatting differs from gofmt's
         # 'test -z' to verify that the output is empty
         run: test -z "$(gofmt -l .)"
+  vectorlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
 
       - name: Verify JSON formatting
         run: ./tools/reformat_json.py && git diff --exit-code
