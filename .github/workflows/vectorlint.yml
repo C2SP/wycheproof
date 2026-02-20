@@ -22,6 +22,20 @@ jobs:
       - uses: geomys/sandboxed-step@v1.2.1
         with:
           run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+  gostaticcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      - uses: geomys/sandboxed-step@v1.2.1
+        with:
+          run: go run honnef.co/go/tools/cmd/staticcheck@latest ./...
   golint:
     runs-on: ubuntu-latest
     steps:
