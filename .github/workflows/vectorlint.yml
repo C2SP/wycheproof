@@ -8,7 +8,21 @@ on:
   pull_request:
 
 jobs:
-  build:
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - uses: geomys/sandboxed-step@v1.2.1
+        with:
+          run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+  lint:
     name: Lint vectors/schemas
     runs-on: ubuntu-latest
     steps:
