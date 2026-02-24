@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -121,12 +122,12 @@ var (
 func validateHex(value any) error {
 	strVal, ok := value.(string)
 	if !ok {
-		return fmt.Errorf("invalid non-string HexBytes value: %v", value)
+		return errors.New("invalid non-string HexBytes value")
 	}
 
 	_, err := hex.DecodeString(strVal)
 	if err != nil {
-		return fmt.Errorf("invalid HexBytes value: %v: %w", value, err)
+		return fmt.Errorf("invalid HexBytes value: %w", err)
 	}
 
 	return nil
@@ -135,7 +136,7 @@ func validateHex(value any) error {
 func validatePem(value any) error {
 	strVal, ok := value.(string)
 	if !ok {
-		return fmt.Errorf("invalid non-string Pem value: %v", value)
+		return errors.New("invalid non-string Pem value")
 	}
 
 	_, rest := pem.Decode([]byte(strVal))
@@ -184,7 +185,7 @@ var curveNames = map[string]bool{
 func validateCurve(value any) error {
 	strVal, ok := value.(string)
 	if !ok {
-		return fmt.Errorf("invalid non-string EcCurve value: %v", value)
+		return errors.New("invalid non-string EcCurve value")
 	}
 
 	if _, ok := curveNames[strVal]; !ok {
