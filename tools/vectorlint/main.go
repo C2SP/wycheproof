@@ -125,6 +125,10 @@ func validateHex(value any) error {
 		return errors.New("invalid non-string HexBytes value")
 	}
 
+	if strVal != strings.ToLower(strVal) {
+		return errors.New("invalid non-lowercase HexBytes value")
+	}
+
 	_, err := hex.DecodeString(strVal)
 	if err != nil {
 		return fmt.Errorf("invalid HexBytes value: %w", err)
