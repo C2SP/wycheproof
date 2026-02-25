@@ -25,7 +25,8 @@
               "format": "BigInt",
               "description": "The public exponent"
             }
-          }
+          },
+          "required": ["modulus", "publicExponent"]
         },
         "publicKeyAsn": {
           "type": "string",
@@ -72,7 +73,7 @@
           }
         }
       },
-      "required": ["source"],
+      "required": ["type", "source", "publicKey", "publicKeyAsn", "publicKeyDer", "publicKeyPem", "keySize", "mgf", "mgfSha", "sLen", "sha", "tests"],
       "additionalProperties": false
     },
     "RsassaPssTestVector": {
@@ -97,13 +98,7 @@
           "description": "a signature for msg"
         },
         "result": {
-          "type": "string",
-          "description": "Test result",
-          "enum": [
-            "valid",
-            "invalid",
-            "acceptable"
-          ]
+          "$ref": "common.json#/definitions/Result"
         },
         "flags": {
           "type": "array",
@@ -113,6 +108,7 @@
           "description": "A list of flags"
         }
       },
+      "required": ["tcId", "comment", "msg", "sig", "result", "flags"],
       "additionalProperties": false
     }
   },
@@ -152,5 +148,6 @@
       }
     }
   },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
   "additionalProperties": false
 }

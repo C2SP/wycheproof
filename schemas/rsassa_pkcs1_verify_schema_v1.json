@@ -40,7 +40,8 @@
               "format": "BigInt",
               "description": "The public exponent"
             }
-          }
+          },
+          "required": ["modulus", "publicExponent"]
         },
         "keyJwk": {
           "$ref": "json_web_crypto_common.json#/definitions/JsonWebKey"
@@ -56,51 +57,11 @@
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/SignatureTestVector"
+            "$ref": "signatures_common.json#/definitions/SignatureTestVector"
           }
         }
       },
-      "required": ["source"],
-      "additionalProperties": false
-    },
-    "SignatureTestVector": {
-      "type": "object",
-      "properties": {
-        "tcId": {
-          "type": "integer",
-          "description": "Identifier of the test case"
-        },
-        "comment": {
-          "type": "string",
-          "description": "A brief description of the test case"
-        },
-        "msg": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "The message to sign"
-        },
-        "sig": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "A signature for msg"
-        },
-        "result": {
-          "type": "string",
-          "description": "Test result",
-          "enum": [
-            "valid",
-            "invalid",
-            "acceptable"
-          ]
-        },
-        "flags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of flags"
-        }
-      },
+      "required": ["type", "source", "publicKeyAsn", "publicKeyDer", "publicKeyPem", "publicKey", "keySize", "sha", "tests"],
       "additionalProperties": false
     }
   },
@@ -140,5 +101,6 @@
       }
     }
   },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
   "additionalProperties": false
 }
