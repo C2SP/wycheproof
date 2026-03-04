@@ -8,15 +8,44 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Lint vectors/schemas
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      - uses: geomys/sandboxed-step@v1.2.1
+        with:
+          run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+  gostaticcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      - uses: geomys/sandboxed-step@v1.2.1
+        with:
+          run: go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+  golint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
 
@@ -33,6 +62,18 @@ jobs:
         # 'gofmt -l .' to list files whose formatting differs from gofmt's
         # 'test -z' to verify that the output is empty
         run: test -z "$(gofmt -l .)"
+  vectorlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
 
       - name: Verify JSON formatting
         run: ./tools/reformat_json.py && git diff --exit-code
@@ -42,3 +83,6 @@ jobs:
 
       - name: Run twistcheck
         run: go run ./tools/twistcheck
+
+      - name: Run schemagen
+        run: go run ./tools/schemagen

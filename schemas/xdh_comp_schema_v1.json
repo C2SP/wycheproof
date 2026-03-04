@@ -23,7 +23,7 @@
           }
         }
       },
-      "required": ["source"],
+      "required": ["type", "source", "curve", "tests"],
       "additionalProperties": false
     },
     "XdhTestVector": {
@@ -53,13 +53,7 @@
           "description": "the shared secret"
         },
         "result": {
-          "type": "string",
-          "description": "Test result",
-          "enum": [
-            "valid",
-            "invalid",
-            "acceptable"
-          ]
+          "$ref": "common.json#/definitions/Result"
         },
         "flags": {
           "type": "array",
@@ -68,9 +62,10 @@
           },
           "description": "A list of flags"
         }
-      }
-    },
-    "additionalProperties": false
+      },
+      "required": ["tcId", "comment", "public", "private", "shared", "result", "flags"],
+      "additionalProperties": false
+    }
   },
   "properties": {
     "algorithm": {
@@ -108,5 +103,6 @@
       }
     }
   },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
   "additionalProperties": false
 }

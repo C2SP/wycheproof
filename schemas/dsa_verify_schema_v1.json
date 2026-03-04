@@ -33,53 +33,13 @@
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/AsnSignatureTestVector"
+            "$ref": "signatures_common.json#/definitions/AsnSignatureTestVector"
           }
         }
       },
-      "required": ["source"],
+      "required": ["type", "source", "publicKey", "publicKeyDer", "publicKeyPem", "sha", "tests"],
       "additionalProperties": false
-    },
-    "AsnSignatureTestVector": {
-      "type": "object",
-      "properties": {
-        "tcId": {
-          "type": "integer",
-          "description": "Identifier of the test case"
-        },
-        "comment": {
-          "type": "string",
-          "description": "A brief description of the test case"
-        },
-        "msg": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "The message to sign"
-        },
-        "sig": {
-          "type": "string",
-          "format": "Asn",
-          "description": "An ASN encoded signature for msg"
-        },
-        "result": {
-          "type": "string",
-          "description": "Test result",
-          "enum": [
-            "valid",
-            "invalid",
-            "acceptable"
-          ]
-        },
-        "flags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of flags"
-        }
-      }
-    },
-    "additionalProperties": false
+    }
   },
   "properties": {
     "algorithm": {
@@ -117,5 +77,6 @@
       }
     }
   },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
   "additionalProperties": false
 }

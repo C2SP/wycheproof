@@ -59,53 +59,13 @@
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/SignatureTestVector"
+            "$ref": "signatures_common.json#/definitions/SignatureTestVector"
           }
         }
       },
-      "required": ["source", "privateKey", "keySize", "sha", "tests"],
+      "required": ["type", "source", "privateKey", "keyAsn", "keyDer", "keyPem", "keySize", "privateKeyPkcs8", "privateKeyPem", "sha", "tests"],
       "additionalProperties": false
-    },
-    "SignatureTestVector": {
-      "type": "object",
-      "properties": {
-        "tcId": {
-          "type": "integer",
-          "description": "Identifier of the test case"
-        },
-        "comment": {
-          "type": "string",
-          "description": "A brief description of the test case"
-        },
-        "msg": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "The message to sign"
-        },
-        "sig": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "A signature for msg"
-        },
-        "result": {
-          "type": "string",
-          "description": "Test result",
-          "enum": [
-            "valid",
-            "invalid",
-            "acceptable"
-          ]
-        },
-        "flags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of flags"
-        }
-      }
-    },
-    "additionalProperties": false
+    }
   },
   "properties": {
     "algorithm": {
@@ -138,5 +98,6 @@
       }
     }
   },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
   "additionalProperties": false
 }
