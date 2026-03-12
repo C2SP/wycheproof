@@ -1,0 +1,194 @@
+{
+  "algorithm": "BLS",
+  "schema": "bls_sig_verify_schema_v1.json",
+  "numberOfTests": 9,
+  "header": [
+    "Test vectors for BLS signature verification using the",
+    "min-pk variant (public keys in G1, signatures in G2)",
+    "with the Proof of Possession scheme (POP DST).",
+    "See draft-irtf-cfrg-bls-signature-06."
+  ],
+  "notes": {
+    "EmptyMessage": {
+      "bugType": "EDGE_CASE",
+      "description": "The message is empty. Valid BLS signatures support empty messages."
+    },
+    "IdentityPoint": {
+      "bugType": "EDGE_CASE",
+      "description": "The signature or public key is the identity (point at infinity).",
+      "effect": "The identity point as a signature or key is always invalid per the BLS spec."
+    },
+    "InvalidEncoding": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The serialized point has an invalid encoding.",
+      "effect": "Accepting invalid encodings may enable various attacks."
+    },
+    "InvalidFlags": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The serialized point has valid coordinates but incorrect flag bits.",
+      "effect": "Accepting points with wrong flags can bypass validation or produce incorrect points."
+    },
+    "InvalidSignature": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature is not a valid point or does not verify.",
+      "effect": "Accepting such signatures allows forgery."
+    },
+    "LargeMessage": {
+      "bugType": "EDGE_CASE",
+      "description": "The message is large. Ensures hash-to-curve handles arbitrary length input."
+    },
+    "NotInSubgroup": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature point is on the curve but not in the prime-order subgroup.",
+      "effect": "Accepting points not in the subgroup enables rogue-key and other attacks.",
+      "links": [
+        "https://eprint.iacr.org/2021/323"
+      ]
+    },
+    "NotOnCurve": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature point is not on the curve.",
+      "effect": "Accepting points not on the curve can lead to forgery or subgroup attacks."
+    },
+    "SignatureMalleability": {
+      "bugType": "SIGNATURE_MALLEABILITY",
+      "description": "A modified signature that is mathematically related to a valid one.",
+      "effect": "Signature malleability can break protocols that assume signature uniqueness."
+    },
+    "TruncatedSignature": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature has been truncated.",
+      "effect": "Accepting truncated signatures likely means signatures can be forged."
+    },
+    "Valid": {
+      "bugType": "BASIC",
+      "description": "The test vector contains a valid BLS signature."
+    },
+    "WrongDST": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature was produced with a different domain separation tag.",
+      "effect": "Accepting signatures with wrong DST enables cross-protocol attacks.",
+      "links": [
+        "https://datatracker.ietf.org/doc/draft-irtf-cfrg-bls-signature/"
+      ]
+    },
+    "WrongKey": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature was computed with a different key.",
+      "effect": "Accepting such signatures means authentication is broken."
+    },
+    "WrongMessage": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature was computed over a different message.",
+      "effect": "Accepting such signatures means message integrity is broken."
+    }
+  },
+  "testGroups": [
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_",
+      "publicKey": {
+        "pk": "a4bcda49dec1d1c334505ea7b7341f9ddd248d577c0446bda0f82323abd16b996be0b2610d5a9e75b2851466bbbc5910",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "valid POP-scheme signature #1",
+          "msg": "7794fb6bc819064faf0a9800275dc337600115356d9d20de7a6dd3345d478d8f",
+          "sig": "ad1617f1ba2d69ef27029a5b5c9a949461224b7e9f1a11ec391740e72ff3bd255cff91c3bf2157004b11a2fd284c732802cfc64069063edede95f4ab9f5d306dd1ca658962a7473fbd7440ee0e33a1f208cd6239405de4b96b2ee5ea28b56770",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "valid POP-scheme signature #2",
+          "msg": "8e07de40a1a67a414f659f0b8cde425492cd7cabb46efe65d39d90537366e89e",
+          "sig": "911ef18cb8d3f6abef9aa5cb956496a57c5b9fcf02bbff29d5a752e457b9db73cf21dd363ab78ab8d97a7c45420e6ac60a6e4cff41ea4a2600bc6790081dcb4090ce49fa03095ef88dd021af1541f22b5c62d29b30894b01957d3336af75f4b7",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "valid POP-scheme signature #3",
+          "msg": "d6a716c50bd33bc28a4f282f62dad0dd787f06f62d3aa1dfe6998c8379170a19",
+          "sig": "a30d0c56beda8d5bf6364e071ae1e8ad5c364244dfde5a9574105e52e86a68f97851eaaf70bc43fd7c332ecd10903f2e00e8a685913ee6b5e9de4e09118e166f02136de664ee5c7ac45e40073d5cac643ec68f6272be05243d553767f20300ee",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "valid POP-scheme signature #4",
+          "msg": "3d0641482217461cdb520edbbcab0584bb21624f3632da797ff4e88412881c99",
+          "sig": "83486f8777fc9c0e88961cbcb31b97e56c43892681409d2711ea045e3476936db46564d0cfe13b4540e72168daef3d4a051fec3523fc38fea48ac8225ca74355a93e479b86a296dd7a125d2af56c1f159951b58c8847be6232b9ba67f4a9386e",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 5,
+          "comment": "valid POP-scheme signature #5",
+          "msg": "409a223569cc519c4d317b6d7b28a88057108284f458792eb8491c2c30adaf06",
+          "sig": "a6e925838ff50389d84f1d3b42e3872c90176f4ba903663b5a3a9ab3bd368e444adcaf4f27523d86f9076a09b2d579e40e9a77d586a9c19d2f9923572ed848471337d5dedd6ce7874638d0bba1b868325f570c60e2e056c680aa9c50477738eb",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 6,
+          "comment": "valid POP-scheme signature on empty message",
+          "msg": "",
+          "sig": "b7bb118da821a39aaca126b2e0d7eea651e29850d38d30292cb35b28217844f2aafa749e7276754ebefa32313df00ba80f6f0da91bc4895a51ce72a35e46f20ce6e70b210651a719eaff17b487b3cb6a97cef0e4b558e2835941a902f16fa993",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "EmptyMessage"
+          ]
+        },
+        {
+          "tcId": 7,
+          "comment": "signature from Basic scheme, verified under POP scheme",
+          "msg": "bcb7d639d53298321f428111a17d9e3db2242a5dc5d7777152970d5e570376c7",
+          "sig": "9199e0c9ae31411fd4dd1804525cb6bdc35746c7b69bde70b3139bc910c1aa9166e516423781289695bfcc4c9a97d361109219ef90a4d68fe1959a5a3c7696283b50bab2acd13d646e65465b3cdd6e3356063188df2894abf52ac260e9d3b087",
+          "result": "invalid",
+          "flags": [
+            "WrongDST"
+          ]
+        },
+        {
+          "tcId": 8,
+          "comment": "identity point as POP-scheme signature",
+          "msg": "bcb7d639d53298321f428111a17d9e3db2242a5dc5d7777152970d5e570376c7",
+          "sig": "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "IdentityPoint"
+          ]
+        },
+        {
+          "tcId": 9,
+          "comment": "POP-scheme signature with wrong key",
+          "msg": "bcb7d639d53298321f428111a17d9e3db2242a5dc5d7777152970d5e570376c7",
+          "sig": "9447aad4c5dc7d8cc360b6eb98ae0594991c2c4eec5137dfdd738de1665417f8cd635d4481744af1f49809562ce0dfd103a210c333768a24d4c73b75712e52c587d08c54f8fb79f0171451045f7790ff4251ca5e87b6b622e213f2a1c780b163",
+          "result": "invalid",
+          "flags": [
+            "WrongKey"
+          ]
+        }
+      ]
+    }
+  ]
+}

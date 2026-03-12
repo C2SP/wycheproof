@@ -1,0 +1,484 @@
+{
+  "algorithm": "BLS",
+  "schema": "bls_sig_verify_schema_v1.json",
+  "numberOfTests": 29,
+  "header": [
+    "Test vectors for BLS signature verification using the",
+    "min-pk variant (public keys in G1, signatures in G2)",
+    "with the Basic scheme (NUL DST).",
+    "See draft-irtf-cfrg-bls-signature-06 for specification."
+  ],
+  "notes": {
+    "EdgeCase": {
+      "bugType": "EDGE_CASE",
+      "description": "The test vector tests an edge case input."
+    },
+    "EmptyMessage": {
+      "bugType": "EDGE_CASE",
+      "description": "The message is empty. Valid BLS signatures support empty messages."
+    },
+    "IdentityPoint": {
+      "bugType": "EDGE_CASE",
+      "description": "The signature or public key is the identity (point at infinity).",
+      "effect": "The identity point as a signature or key is always invalid per the BLS spec."
+    },
+    "InvalidEncoding": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The serialized point has an invalid encoding.",
+      "effect": "Accepting invalid encodings may enable various attacks."
+    },
+    "InvalidFlags": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The serialized point has valid coordinates but incorrect flag bits.",
+      "effect": "Accepting points with wrong flags can bypass validation or produce incorrect points."
+    },
+    "InvalidSignature": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature is not a valid point or does not verify.",
+      "effect": "Accepting such signatures allows forgery."
+    },
+    "LargeMessage": {
+      "bugType": "EDGE_CASE",
+      "description": "The message is large. Ensures hash-to-curve handles arbitrary length input."
+    },
+    "NotInSubgroup": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature point is on the curve but not in the prime-order subgroup.",
+      "effect": "Accepting points not in the subgroup enables rogue-key and other attacks.",
+      "links": [
+        "https://eprint.iacr.org/2021/323"
+      ]
+    },
+    "NotOnCurve": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature point is not on the curve.",
+      "effect": "Accepting points not on the curve can lead to forgery or subgroup attacks."
+    },
+    "SignatureMalleability": {
+      "bugType": "SIGNATURE_MALLEABILITY",
+      "description": "A modified signature that is mathematically related to a valid one.",
+      "effect": "Signature malleability can break protocols that assume signature uniqueness."
+    },
+    "TruncatedSignature": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature has been truncated.",
+      "effect": "Accepting truncated signatures likely means signatures can be forged."
+    },
+    "Valid": {
+      "bugType": "BASIC",
+      "description": "The test vector contains a valid BLS signature."
+    },
+    "WrongKey": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature was computed with a different key.",
+      "effect": "Accepting such signatures means authentication is broken."
+    },
+    "WrongMessage": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The signature was computed over a different message.",
+      "effect": "Accepting such signatures means message integrity is broken."
+    }
+  },
+  "testGroups": [
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "94a5273d00c168abda8d377ead014f7689f9ce3fd476193bb4e1bfb0c46e0decbb0579b4a2f406c4c4876d3964d02729",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "valid signature",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "valid signature over empty message",
+          "msg": "",
+          "sig": "82a8c355cc7eca9697e2c71ed3216c4797888fe4239d17b726d174d0d8e1fffc5572f062c09a522a422e2b8f5b76963f13a66a3102114fe2d1d8252594cd6ca3c577ec65c537a2663ee3fb1dc7bffe09a95d27eff4a78e59d0de42f103702000",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "EmptyMessage"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "valid signature over 1024-byte message",
+          "msg": "63ac81f4dbd1402cf7aa3933cc1628ced8475c85a8e430a835bb944a071807d3b407e9a8d27cee8579ca79c5772063282431a3de93ada02a9627666e761c54952cd814b8971e644a5d1027775a020c022f8e3ca83d6eaf728378ca05378701c742211b3df3ffd77c35a9f8858b674253548bb6dc1d7c9aee8924c66987c05a179461d84b845237b9061c75f3450832f2cabe5b413c89a5828c4aa83a5e827e2eff8bb07f40a3b9441ccd963131d4399a6baff6e6ec478ca77b95d8c6f3212bee6e04d06f171458669aeaf240fd307832278c07533ad90befac11566899492488b73e814b4944e5475e74d86d73d4a2ca4747ba6417672cb4f02ec28687d802373ed28e74cd22ffb6738cea8e18dd35f86472b55924fed392b9aac2a84289e602410926c6671dfcdbf7545e4f0ff12ec61069ee5b36cab9ed73e17e74f2871ebba251a5ba3014685441defbd63e51dda2ead7a975cc13f6be09671ca51e7505c9baa921b3707eb76d13679e951245fa3d6a32f0d7a61cd8c2e3a5bcf52bba35b7372a0da3968db16abacc722356082245d86b84a218f0a33b1a7796801cb78aafd4a01ddbabc1fc79c9273a052cebe9dff9c0f529c8f910095b6ba65cf02a609adb1693bb922493810fb8d60db9532d0b3047887faa0194145886b616d1cc0f876f9bf50485fad1e9c0b6a103bdcee941ddc7973173bbce056acc4964cd41225e3a779bc7790223fcd19709e2dee2280e13180a944682e9c6b59c35bffbf15477bf9d55c5955ca1007663cb35c804ae2420bc05c4c1c3b94d1a718da9673e1a35d2149202941bd7a37580814771f41dc69b0e0159d8dd06f985ec153200da63a851bd68c4da4b5c19517d0010e561adfed854fedba17f65d0d8d8541d934313c44a47bc01850dcc3156f177e535824de45e81bb9e8c21edfcc6368d4f2973eb00c2898e4b4cbf9b0bdaec0a8c3e75532f1f7f0f26277abb2c6cbfd73ba6eea88364417f171367354f6b528aa8ffb5b1b820cdf263c5dee54f548fceb26d9328607ad302897dc5b4acbe0ba641f9a6cbae4d8ef5db058c93c72682ca9fb3ea511057c1663fe904da7f4206232f0382110ee633db620faea26f1470b9856718cead81869a3a8438a781f183f596b9981abae7beb8fc6a733a425c47f6a009d70bde5f57c9885029287215bdf1af8a5085a6b9c3484cd92c01d9ddd4db94585d9a02e5bcbcb6e4f532a7c142ffc0568e0e6ec3ea341cfb226180d7133930a3983bd53b24267c2b0d4b37a9a629cf503147840f65ec8bbef4e582fead6a6e1e894fd5934b9191806cbe0a60ca21b9d8efa9ccfdf1acdd07ab0109f97b81646847d982d8c92469f2c2d7e94cdd8e6f6ea89956cf8426eb0f2b002ac7904e5c23a507a60a1177e9eee44781774edfcae74d1cf65f2be3b9103f2b718c8542a795001852",
+          "sig": "ac08f27a1dbc934c872d4461d8e4f65a98543f825f2855a51058617aa9df45b714ec8a456de02c0c5a67c37d0e50093205caddc347886f075dba392c3ee38bb0e22352483ecc9ec038cb603712dd3b59f222af5c537ac8b3dad7c2fd2f317fde",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "LargeMessage"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "signature for a different message",
+          "msg": "510da7895d3f105f88897e1ad9745d6c20306a35611328fda5b859b1d2bce1fd",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "WrongMessage"
+          ]
+        },
+        {
+          "tcId": 5,
+          "comment": "identity point as signature",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "IdentityPoint"
+          ]
+        },
+        {
+          "tcId": 6,
+          "comment": "truncated signature",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8",
+          "result": "invalid",
+          "flags": [
+            "TruncatedSignature"
+          ]
+        },
+        {
+          "tcId": 7,
+          "comment": "signature with extra trailing bytes",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b0001",
+          "result": "invalid",
+          "flags": [
+            "InvalidEncoding"
+          ]
+        },
+        {
+          "tcId": 8,
+          "comment": "all-zero signature bytes (invalid encoding)",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "InvalidEncoding"
+          ]
+        },
+        {
+          "tcId": 9,
+          "comment": "negated valid signature (flipped sign bit)",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "932954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "SignatureMalleability"
+          ]
+        },
+        {
+          "tcId": 10,
+          "comment": "x-coordinate \u003e= field prime",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "bfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "result": "invalid",
+          "flags": [
+            "NotOnCurve"
+          ]
+        },
+        {
+          "tcId": 11,
+          "comment": "valid signature but wrong public key",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "8e2e8597a5e2be2c4c5f30e229bc28df0f56bcb6f46b440e892e56a2010fc4f5e1f1d707fd6dfebda2797ab1d9c66c8e045f4f3147b93552a048ab31b4539ae0595606684df5d960015764a2246250359b06eb01f2fbaf0f488c6476557774e3",
+          "result": "invalid",
+          "flags": [
+            "WrongKey"
+          ]
+        },
+        {
+          "tcId": 12,
+          "comment": "valid signature #2",
+          "msg": "bf9aae54ca25695f9a5c23a3a966016e3667a14f76759d027847d5c30e82a097a7c8a6b7e7744a8a1376dd80e38759c2",
+          "sig": "8573daf00b96f16fd4b0ba9d474d9f1eaee5b0157ad3b7380ee55d52d163bbc3eb13d3251ca86fd167234a624ebfe2af05b07c9cff5b3f2d65bef51c2af762933d5726a90153e327b0dd0f09c9e1ffae856d147d2c1cc50a6fdb84546b7ff312",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 13,
+          "comment": "valid signature #3",
+          "msg": "3a8bf2fe342d896c48509c5b775b2e1b0f310dd925b3d9acb32ff4f70e431c91055cf3a1d07573264528db94e367cf2b",
+          "sig": "a2c83e5173798ebc7f0040112203148922f7195aa5277deff8f0039e211264a81a5feb84fc89ee28ece6fa9a2f78de96181fbd732662b271c6e067ffd656d8262f5d74bb19bffe0f7a84e3ed28c24cc569eebf150b2548302777440d66a79c7f",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 14,
+          "comment": "valid signature #4",
+          "msg": "0db789536bc9576f45efe87fe808917c6f2955909cd32646fd1aca5d5eac6a00b12248f2227346a53547e63f051a9036",
+          "sig": "8c33694afbdc4704bd09ce7f903ebf57f17c288b06ab64f2c86ca90370b6ef40592495ab036fff530ddfa9d0cc7de6480a049959812e931631a06e95b55d8fe9e642eaefcb8f2abaaa505f0045a15b94f63469a890373800944ba854b2b42311",
+          "result": "valid",
+          "flags": [
+            "Valid"
+          ]
+        },
+        {
+          "tcId": 15,
+          "comment": "valid signature on single byte 0x00",
+          "msg": "00",
+          "sig": "aaf1ddab1b5e136039f70e6cd8cdb10823ff3a203e5810ecf840bb4d4917a7fe9bd36a470d4279f4033a03e4d178d4e40af0bed0d6f6049f47f19b69f5ffd88065ed1e2d7ed7ed1fbd2a877457fba6258b7c8c7193da5bfbe68fd73aec179c0b",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "EdgeCase"
+          ]
+        },
+        {
+          "tcId": 16,
+          "comment": "valid signature on single byte 0x01",
+          "msg": "01",
+          "sig": "a215f925374a57aea3fad7e234c61fa95c6434482e4a4f8ca66c14e47242464e48a996d6c6c7cc58d7f92976d59b305c01e7e481d1ff2c388d24fde398bf6c87058b8bbf9bd8634b7e7630add931698ac063816c5d7fae41df36c0951ce24a3a",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "EdgeCase"
+          ]
+        },
+        {
+          "tcId": 17,
+          "comment": "valid signature on single byte 0xff",
+          "msg": "ff",
+          "sig": "80d38d4ab35e76aeaee94dfe6cbb7902463e1adf5400f59badcb1fdbd8ccc10d8ead61e2c068e57a3b3d0c971dd5700607fc5544705d58e69ba68b4e0bc0202f120ac22f8eec337aa97d53c678a8833c19270e4a01209d479e801b16dd33ba4b",
+          "result": "valid",
+          "flags": [
+            "Valid",
+            "EdgeCase"
+          ]
+        },
+        {
+          "tcId": 18,
+          "comment": "valid G2 point but compression flag cleared",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "332954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        },
+        {
+          "tcId": 19,
+          "comment": "valid G2 point but infinity flag set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "f32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        },
+        {
+          "tcId": 20,
+          "comment": "G2 identity point with sort flag set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        },
+        {
+          "tcId": 21,
+          "comment": "G2 identity with compression flag cleared",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        },
+        {
+          "tcId": 22,
+          "comment": "valid G2 point with infinity and sort flags set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "f32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        },
+        {
+          "tcId": 23,
+          "comment": "compressed flag but uncompressed-length encoding",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "InvalidEncoding"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 24,
+          "comment": "identity public key must be rejected",
+          "msg": "49683f97a9f3fa4aa0a064125f2e8b08158ad0047f58502e3990b9ab8f6987c8",
+          "sig": "9120d39fe320c65a706e2731685bfe1b77a15ddcdcd9ec16fe31ea288fc51eb1c80dd01fdd78a9687e04cd5eda03d81205bd4e91be21280205e6f656833487bf939926188e990ae6aefc020dcab6a1706ce254354e7e3c759e156059ce559dd0",
+          "result": "invalid",
+          "flags": [
+            "IdentityPoint"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "14a5273d00c168abda8d377ead014f7689f9ce3fd476193bb4e1bfb0c46e0decbb0579b4a2f406c4c4876d3964d02729",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 25,
+          "comment": "valid G1 public key but compression flag cleared",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "d4a5273d00c168abda8d377ead014f7689f9ce3fd476193bb4e1bfb0c46e0decbb0579b4a2f406c4c4876d3964d02729",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 26,
+          "comment": "valid G1 public key but infinity flag set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 27,
+          "comment": "G1 identity public key with sort flag set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 28,
+          "comment": "G1 identity with compression flag cleared",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "BlsSigVerify",
+      "source": {
+        "name": "c2sp/wycheproof/blsvecgen",
+        "version": "0.1"
+      },
+      "ciphersuite": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_",
+      "publicKey": {
+        "pk": "f4a5273d00c168abda8d377ead014f7689f9ce3fd476193bb4e1bfb0c46e0decbb0579b4a2f406c4c4876d3964d02729",
+        "group": "G1",
+        "keySize": 48
+      },
+      "tests": [
+        {
+          "tcId": 29,
+          "comment": "valid G1 public key with infinity and sort flags set",
+          "msg": "ee9532fe3baff4ee5b4c6856330d8c97a6992be07f191e267839a1e1251ef15e",
+          "sig": "b32954e4d26af40560107f38f5d7501e676b945852e718795f3c89f4956d727feda5aef4d20488ebc4ffd7f4d3e43cd8171346d48f96f4a237bd257a384ae1c198f10476a27ee8d1a997cf11f5592b35ecc2b088a0039a15857ac9e1fab5a71b",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
+          ]
+        }
+      ]
+    }
+  ]
+}
