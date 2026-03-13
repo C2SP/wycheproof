@@ -1,7 +1,7 @@
 {
   "algorithm": "BLS",
   "schema": "bls_aggregate_verify_schema_v1.json",
-  "numberOfTests": 8,
+  "numberOfTests": 19,
   "header": [
     "Test vectors for BLS aggregate signature verification",
     "using the min-pk variant (public keys in G1, sigs in G2).",
@@ -23,14 +23,36 @@
       "description": "The identity point appears in the aggregate.",
       "effect": "Identity points as signatures or keys must be rejected."
     },
+    "InvalidFlags": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The aggregate signature has incorrect flag bits."
+    },
     "MismatchedCount": {
       "bugType": "AUTH_BYPASS",
       "description": "The number of public keys and messages does not match.",
       "effect": "Implementations must reject when counts differ."
     },
+    "NotInSubgroup": {
+      "bugType": "AUTH_BYPASS",
+      "description": "A point in the aggregate is on the curve but not in the subgroup.",
+      "effect": "Accepting wrong-subgroup points enables rogue-key attacks."
+    },
+    "NotOnCurve": {
+      "bugType": "AUTH_BYPASS",
+      "description": "A point in the aggregate is not on the curve.",
+      "effect": "Accepting points not on the curve can lead to forgery."
+    },
+    "TruncatedSignature": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The aggregate signature has been truncated."
+    },
     "ValidAggregate": {
       "bugType": "BASIC",
       "description": "A valid aggregate signature."
+    },
+    "WrongKey": {
+      "bugType": "AUTH_BYPASS",
+      "description": "One of the public keys does not match the corresponding signer."
     },
     "WrongMessage": {
       "bugType": "AUTH_BYPASS",
@@ -50,16 +72,16 @@
           "tcId": 1,
           "comment": "valid aggregate of 3 signatures",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da",
-            "a4277f926432d7af78ee6877bb25e00141ea536e1d73973982d0e822a697aa2751e38eab08c865621a32ff09c4a83d86",
-            "abdb2aabf1c82e12fa632d5be6e43b48bf13f6fc90c06d8536e7d3c958a39f3fc0bfb0e201295b9ee105fb854d165216"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88"
           ],
           "messages": [
-            "7fc9c32553be0113462e65c02d02438bf70e27c72ae12287098ada5b2e48fca2",
-            "d0a49c78531d034ca4bba62d19a82348c6c28483332fca2a75206d0d7e6b7b77",
-            "270caa74ed21a4388d6c2b30c125aabc203a58a1e0571dc04bbdbd951947cd39"
+            "8489c433fa44a7d279106de6513747da82e0d2b9b822f61374028002c69df357",
+            "85983873aa35e9c74d68903852fe70650fb3adabc6e672e1452cea6af6b292f9",
+            "75d6f563b2b6926a0bd56b382f12f05b2db6526b3dd647924ce6d273af9583ec"
           ],
-          "sig": "89bbe44f3379bc36920782e3968ec639bc97f9a00829da896d1678cbf60885fd1b2a935ea4b0b83fbcce3b19fc770b5f0b76a4df2e0a38c689ce7b732d1850bf765918628c09123fb66bc709c549250aee5c235134397eb06ac2bb9277ef2060",
+          "sig": "a5122955c85f5cba46a7802964d74cb9304d5ff73658cf58940f096782d9eee8a296760212cb25e64cf5f2ea7612ccc1130fe52c01edba642b1c16aec655a2849f819fd160531dde63a1d3429bbf072857c04fbcfdcd2ad0191ef6ea9fdea513",
           "result": "valid",
           "flags": [
             "ValidAggregate"
@@ -69,12 +91,12 @@
           "tcId": 2,
           "comment": "valid aggregate of 1 signature",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166"
           ],
           "messages": [
-            "f660fe0ec5d6b4020055eef7b264d09fd6147279aa5839715618edf1e7364b63"
+            "d500134708d0d44609afb87a37c1e239a5672aba35b5b180d3d8c80ed2e405e0"
           ],
-          "sig": "a93b73526aa872a729c4e4b1c43ee0a8f02d39022e1b3743ea9e1cd9e8a43eeb8671ca888e9854d8117b2f36998dcb8915daefa41e3de30df920a4b9fb769a329ff641b7dfe3dcd8994984f084964fc0b105e4a22720e6a216206cbf9bc85063",
+          "sig": "a582387f7ee2b4990b04d3202308fbf3ab40e02d8ef0fe06e9e6fc5484201dcccac05db4a0907773404aff117d4b94931134bdf082a24db5e512dad974732c01a543232b83b951f7d07aef4dcf5fbc7c27a0b90c3491f4323fab3b6b7783ec08",
           "result": "valid",
           "flags": [
             "ValidAggregate"
@@ -84,20 +106,20 @@
           "tcId": 3,
           "comment": "valid aggregate of 5 signatures",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da",
-            "a4277f926432d7af78ee6877bb25e00141ea536e1d73973982d0e822a697aa2751e38eab08c865621a32ff09c4a83d86",
-            "abdb2aabf1c82e12fa632d5be6e43b48bf13f6fc90c06d8536e7d3c958a39f3fc0bfb0e201295b9ee105fb854d165216",
-            "a6022583923d4952d5351920f20aa4df725b69abcefee843b53231f70348afca2689704155fa70e32094148b9ee8f478",
-            "a62a4c787d957efe5647b07fbc0b7c9cb71a2c82fef06bf72d592c517697933a3c5631bef25e282e4c49028099010fa4"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88",
+            "abd1eeb22b802f853e743e96ef517d3617d3f8b4316d63cf702956b3cb759654ce1f822dd13c9b2ed8be6025d35c09c7",
+            "98888259262d10708b6464e26c4bac999dea189e91c26f979f9421085d8c9af1be5b2c3141805958809367d94927b0ee"
           ],
           "messages": [
-            "f37468fdbd4cc37b261f6607a9794ca2fa36cf7ca872bbb1c19a8b8bc452e3f9",
-            "53ce91b02375c5d6433c5225dc3b2ec4c93ba148d6cc4cfb364dc7c32daab434",
-            "cfe50803192d9be9a5ba166953afce690f041ffb444ab1e7b5f6e682f8d67e23",
-            "a464e21e9eb2fd81683902bed82334f08d3c91c37df23711744cdf2fba8dafff",
-            "ede03b29be2a431009ae1522d14157a9bcf81388d77c0e271e10f48460514a4b"
+            "c097afa0aee9493ce593c0078320dc48a7fd16bf5ff6e942f443d2ae31d99709",
+            "1a2084426a66bd29a2c3149cfbd681f32b8e37d9df19e327ead114f439635c86",
+            "bfe504f400b56c9e9d2304c4a0086bfdd5e142025a256f492ecc589a38e9a913",
+            "b555e1a19d1e5dc082b32244c976fee91376f2cbe3b0d4b9c89fa0cc223ad847",
+            "641b19034eea6e5f2c449f2431156ccfe79d9d6c070598079c1f39c9263bdfb4"
           ],
-          "sig": "917ea3e32cfa039c1cf59891b93b66ccd813778eba8ba7f81a3758f0ae1de4c5e20974ba1bfd6bc45fcbb69bffc0c13e04d4eb60f98947e237261178e1864c20cd9d102b06f270ba10164c4657a74dc350a13e37a940ff43cc1e08efe7f10522",
+          "sig": "8855a532a63b024344926ea29a7c0eadfbb7f100e146af83b70bf471a7e8211eb14de274aac2597e74aa0679e1086b3715db07740d485ead7bcb3fc60ff97eb2b030bdc0decbf55c2ac7a5dea384b2470fdb6794b6ff733898445cea8aa73a13",
           "result": "valid",
           "flags": [
             "ValidAggregate"
@@ -107,16 +129,16 @@
           "tcId": 4,
           "comment": "aggregate with one wrong message",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da",
-            "a4277f926432d7af78ee6877bb25e00141ea536e1d73973982d0e822a697aa2751e38eab08c865621a32ff09c4a83d86",
-            "abdb2aabf1c82e12fa632d5be6e43b48bf13f6fc90c06d8536e7d3c958a39f3fc0bfb0e201295b9ee105fb854d165216"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88"
           ],
           "messages": [
-            "b145f00dbd4a2b89b86df8d99f479e8cecd3142d42662de5bafd61d3495fd106",
-            "4e80ec388eb5eb560dfe457754b9b266993db73d7a353073cc07ef892972c749",
-            "97660313869b8cf7a6fc3f2aeb7678f38d921dc52d17758290ea66422acf0b75"
+            "56233089b53bb6c737a2873039c089ea3ca37feda1e7b0f7a24ef0f9b4152f6a",
+            "8ef50607162fbe2625548b487f94d80020342e837253fe7738f4cfde41229a16",
+            "658879ba2bc16ff26399895adbe8a4b4e88adf87a626355ff5fac49d98e2b968"
           ],
-          "sig": "a48c0014e63a26d6e54b5989af7e11c3b79c99e525996d3e5455516dce75c2d0d609e8ffe37f33d07eab07b67097d6a61455d69f3c4aef10d38ac4cbd758f3b00597e4da79ef3dd6605c6fbdfd60bd7709672dca71e0d3261b9eb6756f5b21fd",
+          "sig": "a79729563b3e97a04150f19634307309f972a00bc742f134b9ccb0339d36a65467fd6259424386a4e308df066fd5de6a078f8c9336d9f2b606e0b4965b4c26b440dd51512e0ff098c36dabcef0639116b38180b8a34113e0d1c4a005cee4cceb",
           "result": "invalid",
           "flags": [
             "WrongMessage"
@@ -126,13 +148,13 @@
           "tcId": 5,
           "comment": "mismatched pubkey and message count",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da",
-            "a4277f926432d7af78ee6877bb25e00141ea536e1d73973982d0e822a697aa2751e38eab08c865621a32ff09c4a83d86"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28"
           ],
           "messages": [
-            "f1c194c6470a094e200966a65f31e9d4171b7052542eb547961e03401ccffb8d"
+            "79618030148ddcfbf1ecdee3bac0444fd443a1bfd9b17d84315a31dac40a6bf1"
           ],
-          "sig": "b946b1dd853fdeb78eaddc510a33de32e0fbf8f4a83f6933ebe5166cde4dd26acdfd3608cb8a7ef6bb78b7bc11e2791800d829438504bfa515fb64b33d5f3f29cc30786e04fe6670df7cb65f3a84874e2da389f0f9f548a4efa64bb668c314f0",
+          "sig": "93c27e6bece0c6f86accbf47acce8abe1f5e7e1142ca5b0c3c201a93e50a006e4239c51462e0c0ae83dbc0ec80165525049032f9f8273e3c9ecc08dc22661acb9e2c5b57e02b712df7589f2c14e5c76a8dabbf293b73a1a8e467b5340a5b0b29",
           "result": "invalid",
           "flags": [
             "MismatchedCount"
@@ -153,10 +175,10 @@
           "tcId": 7,
           "comment": "identity point as aggregate signature",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da"
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166"
           ],
           "messages": [
-            "dcb235aa47654350133ff04162ee3dde80da2b9ce81ee9524b6c90dacadfe91f"
+            "47f6088129f8e0f40dab31b1b489b35a8547e8e8e041429cacdf8cf0fba04f05"
           ],
           "sig": "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "result": "invalid",
@@ -168,17 +190,209 @@
           "tcId": 8,
           "comment": "identity public key in aggregate",
           "pubkeys": [
-            "aca0e72d0e7c660691a9ea1275161e83dcf63525e545699075c374c84a101cbbd0ba3f8455cb87fb6431a70ceb04e8da",
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
             "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
           ],
           "messages": [
-            "5127e230dab92e5128b739b6ac3a1091847224f171f3634f06596c9b6a586d83",
-            "0a90883c193179f8782e9e8818c9417f4975f540aaf805846357cd9ceaad5223"
+            "5078aa2b3d8512508d6217b3e0e8131ee5e185ed963aca0f28f33bad44915216",
+            "194016d37e9250a6abfacf1259d14e9d8f67f30adcbc6797d59032ff5f40adcb"
           ],
-          "sig": "829d4a5c89051815ca2e1cbc151c6ab06eaad8d06c5f86543732c63719a0944864cb8550ddc4a841cfdd567251c299720d09dbdd019b1471ff5e0150e48c433f775c51f3051d4392e05a8b2e6f77a136626636e3341e1c2b2ae94908532c646d",
+          "sig": "9453a1ae27d5d796bb6c2e1edf538a0929268caa7ca39961041530376143f3233ca7e0e236f3f1f7b05b665aba47082108b39c589b3d95bfef2aaad894711233b0192e39a7aa019cfab9d11f4596c2e311b1e0d4d7ca58b35c5fd3d44dfc2987",
           "result": "invalid",
           "flags": [
             "IdentityPoint"
+          ]
+        },
+        {
+          "tcId": 9,
+          "comment": "valid aggregate of 2 signatures",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28"
+          ],
+          "messages": [
+            "471a23ccf1f3d2e18652ec28938a7c60e0020ccbb36844222f15416d135d20a6",
+            "b4b14b8868da9c5092a5a87b57e0e1f6559aaef72cf880be248a1d8a20f8745c"
+          ],
+          "sig": "870b43f339a83e85b9ca36171df5bebf4bc470b016e9af1b5fd45dbeed17a5aeb7050d8ca746a2500580e836de28032904e45fff0caa138b64443358c36ee35f235fb1647014dc6fffb3ae0e9a0e68966cb44f4664313348e135aaac030e2e44",
+          "result": "valid",
+          "flags": [
+            "ValidAggregate"
+          ]
+        },
+        {
+          "tcId": 10,
+          "comment": "valid aggregate of 4 signatures",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88",
+            "abd1eeb22b802f853e743e96ef517d3617d3f8b4316d63cf702956b3cb759654ce1f822dd13c9b2ed8be6025d35c09c7"
+          ],
+          "messages": [
+            "89e46729c71a257787a6da201688fd1df7384232dd22d5e3f5e49b4ff7ce402a",
+            "4c21fe8abc8fed83c88533179b0947c91c8467d0aa4dd880f09e759f43a41789",
+            "5f5fee8593e26d4c47a27a1a1832162227cbcdbd065b1f29e2c35f8d783dad19",
+            "4fe88aaa90aef88733e9d5689ca744105972b03e36db79b3cdd5b90396ba6974"
+          ],
+          "sig": "87ff7459abaa62d9e5fdf4bcb55bcb8c5259985b6998016d15fab547f36df6fc3c178c50dff1f5a909643355dda4b19712525f58d362e66e482dc3b01868316ca7382a10db7b641560bbcde2c21c3deb521df4ed8fbd8a68f808293f9a191e05",
+          "result": "valid",
+          "flags": [
+            "ValidAggregate"
+          ]
+        },
+        {
+          "tcId": 11,
+          "comment": "valid aggregate with one empty message",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88"
+          ],
+          "messages": [
+            "f134e797d12a7e28306de70f10d8e9f60366380a2127c807935f10498c77f22d",
+            "3f6924f05454646cd33d903784c6847da4511af6ed61b93a77bfef0875b5570e",
+            ""
+          ],
+          "sig": "b6a149b65aafde0efc67a6777f6d70dd58513ed77d52790b966902fed52f025d201eddae3045b9420dcd7a3eff2d0614038f3325cd47ffc80207c66f7a99894212b3fa2f9fbe69a6ec48cbcca66db0630c53c7296ca75fa1dfce79ec28a29470",
+          "result": "valid",
+          "flags": [
+            "ValidAggregate"
+          ]
+        },
+        {
+          "tcId": 12,
+          "comment": "aggregate with wrong key at position 0",
+          "pubkeys": [
+            "98888259262d10708b6464e26c4bac999dea189e91c26f979f9421085d8c9af1be5b2c3141805958809367d94927b0ee",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88"
+          ],
+          "messages": [
+            "83945cf4bf485b04bad955d307cb3e82ac891d7ef1603c00addfed25113c9e31",
+            "b6c2a3a9e91128c7d652590be31246331ca77c2f393c9465ef3272cbb62f2845",
+            "116e9dfde19b58ad02c3ae4e9f8cc85cf926516f2e6021c297c06f015cf53c53"
+          ],
+          "sig": "acf2e4051e8adceb53cc57f0e8956ad919840cec0384311a4da12b56681e6608fbc5eed7e6a7ad2b3db2a997950271d910dc56480285b129415e8a7ad8fce1e9a1fbdc58352e25648911fa65476fd880fbab1c8e6673de3fa488c654707ea1c5",
+          "result": "invalid",
+          "flags": [
+            "WrongKey"
+          ]
+        },
+        {
+          "tcId": 13,
+          "comment": "aggregate with wrong key at position 1",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "98888259262d10708b6464e26c4bac999dea189e91c26f979f9421085d8c9af1be5b2c3141805958809367d94927b0ee",
+            "8761d17dcade7eee617ad92775d7925c502571427f705a7696471f45d74b7d09eb25e5c18cd703dcf97f2b3ee9031a88"
+          ],
+          "messages": [
+            "4027c1f86d93e90c867c14d51080b87ccecc0ea0716c878fd1b87fe72dcb73d5",
+            "bf228b7d006874fdd47be7f5341ca437bd8ee261d99259a5401780bc3db2497c",
+            "aba086f97f764e83c26c1e3a761df295a32f7030d0c50ded82f7876d4b560f1b"
+          ],
+          "sig": "a4f26d95c302ddb2a68b63013ed09751c4e295ec6575477514d08a023071d6de8fdeaaa3ac4593e1f4acec32cfc48ab50f45f58005dfaee7eafbde01d87aca89d479abe68b5f456d550af390bde1fd9895c25131f7e56d4bea1583b2488427db",
+          "result": "invalid",
+          "flags": [
+            "WrongKey"
+          ]
+        },
+        {
+          "tcId": 14,
+          "comment": "more messages than pubkeys",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166"
+          ],
+          "messages": [
+            "cc63358b34719f2ebe7766cb22a943d3ffc512379a129cb56b1b7329c9054862",
+            "5883974c97fe22b9f47242ca0ad0c7c770e029fea2d1d895c704175441efb7cb"
+          ],
+          "sig": "91ae46d44332f78103308984bd3efb419c65ef3285c2a858ffceb2172067f7622055f99ba5ecab4a0c0ce6a1b9eecd19113cb9f7f006e635764c8b46e77e6404407d18196f89fe4f6445bb719080ffb31b9acfa48d2afab73926ad1d2cb60ea5",
+          "result": "invalid",
+          "flags": [
+            "MismatchedCount"
+          ]
+        },
+        {
+          "tcId": 15,
+          "comment": "aggregate sig that is not on the twist curve",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166"
+          ],
+          "messages": [
+            "73add243efcd56c7e6a971a3922910dc556b7c3c3502e407e446c9507356d08e"
+          ],
+          "sig": "800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+          "result": "invalid",
+          "flags": [
+            "NotOnCurve"
+          ]
+        },
+        {
+          "tcId": 16,
+          "comment": "truncated aggregate signature (48 bytes)",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166"
+          ],
+          "messages": [
+            "fb57b45b0304b1c962c593cd0e245a83133caf3ae4b42051bb12009e9c362960"
+          ],
+          "sig": "883f7e412e994c10809a36551912207a72631967f58120b82a910cecdb4235490359a491a3dae32ed10577de78135b32",
+          "result": "invalid",
+          "flags": [
+            "TruncatedSignature"
+          ]
+        },
+        {
+          "tcId": 17,
+          "comment": "not-on-curve public key in aggregate",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          ],
+          "messages": [
+            "74327bfbc189e23f5fbf45cb9c05cdb8ad057879ba48322d3e35c20e8f4d570f",
+            "761df242620141a81484e9028cd8561d564cf37561b2b61922c7ea283231266d"
+          ],
+          "sig": "ac42c832cfcf6dfd5ddacbf6be4f056db800d547b58a763c66cdf31905ec3103b3d28aba9e00bfd5778bacae5dbae82b18e2cbc3d8d1bad3a001bb0db7be5899327a9ece7f87f571cd483e10017caad2ade86ef9e04af74c34d1570d7c44df11",
+          "result": "invalid",
+          "flags": [
+            "NotOnCurve"
+          ]
+        },
+        {
+          "tcId": 18,
+          "comment": "wrong-subgroup public key in aggregate",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004"
+          ],
+          "messages": [
+            "2e1954767a0ebd1a357934d6c80ec2c8706d19b87581269987f20607eea8782e",
+            "1c24b7aa7bff0ae14b1b3796453acf41b4eed3641b545a44675dbb1509b6473f"
+          ],
+          "sig": "b610971992f97691b74d933c907cf4505a5034594c3d753ed3e6ed8c3b9047f04c7a4425c4e9d14baaf6ac235b17192a0fdd611a16cc7b3a7db0b967039b0f78469e719ec33a89b4f42e06c849fedcef657b15f1c7ea5bbb2bbffab04a37d9e9",
+          "result": "invalid",
+          "flags": [
+            "NotInSubgroup"
+          ]
+        },
+        {
+          "tcId": 19,
+          "comment": "aggregate sig with compression flag cleared",
+          "pubkeys": [
+            "8c8952f3238b417adceb667320f14a91ca01b7c23a77d48eeabd7ece4237e0ece219b58ca1cf752672a29976284b1166",
+            "84a0ee1d905f6bb760ad0af7d6fd17184505e782209c6bd8e1854d4cd294fa977a7c1c2347c04f7f7b754b2d89a20e28"
+          ],
+          "messages": [
+            "b6a2b92cc0be49d573b50f2376921f2b9f3334e0d90df28fcd3417aa6f3a33a2",
+            "32ee4ba619075fe457e5358c5ce0286f2d26419ea7b627057d53ffbb08b7ea17"
+          ],
+          "sig": "26c9c498d7f6bd79ae35210a5a4a6b9d50f6f9ca0b3c6e61275b6d9e0a20a84309d24cf0ed49cc8aa5fda7ad09acca200b7398cb5ded17a190e8484ccc04cdc9a1aa7a483bfdf1a9516f3fe6fef4ad7ca23c20a28753292582465a055f0ad068",
+          "result": "invalid",
+          "flags": [
+            "InvalidFlags"
           ]
         }
       ]
