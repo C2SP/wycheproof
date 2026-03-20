@@ -23,9 +23,13 @@
     "Internal": {
       "bugType": "BASIC",
       "description": "A test vector with mu and no msg for use with Sign_internal and Verify_internal"
+    },
+    "IncorrectPrivateKeyLength": {
+      "bugType": "BASIC",
+      "description": "The private key has an incorrect length."
     }
   },
-  "numberOfTests": 79,
+  "numberOfTests": 82,
   "schema": "mldsa_sign_seed_schema.json",
   "testGroups": [
     {
@@ -1203,6 +1207,72 @@
             "BoundaryCondition"
           ],
           "mu": "e8f2162fbe6c55d1f02e684b8093da29013f0ff64fbd52714534e7cf4560900d463daa31fba870bd1cdd546e4ad109204454c828faaa7da73d40cf9784c49111"
+        }
+      ]
+    },
+    {
+      "type": "MlDsaSign",
+      "privateSeed": "",
+      "privateKeyPkcs8": "",
+      "publicKey": null,
+      "source": {
+        "name": "github/FiloSottile/lengths",
+        "version": "0.1"
+      },
+      "tests": [
+        {
+          "tcId": 84,
+          "comment": "empty private seed",
+          "msg": "",
+          "sig": "",
+          "result": "invalid",
+          "flags": [
+            "IncorrectPrivateKeyLength"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MlDsaSign",
+      "privateSeed": "00000000000000000000000000000000000000000000000000000000000000",
+      "privateKeyPkcs8": "",
+      "publicKey": null,
+      "source": {
+        "name": "github/FiloSottile/lengths",
+        "version": "0.1"
+      },
+      "tests": [
+        {
+          "tcId": 85,
+          "comment": "private seed one byte too short",
+          "msg": "",
+          "sig": "",
+          "result": "invalid",
+          "flags": [
+            "IncorrectPrivateKeyLength"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MlDsaSign",
+      "privateSeed": "000000000000000000000000000000000000000000000000000000000000000000",
+      "privateKeyPkcs8": "",
+      "publicKey": null,
+      "source": {
+        "name": "github/FiloSottile/lengths",
+        "version": "0.1"
+      },
+      "tests": [
+        {
+          "tcId": 86,
+          "comment": "private seed one byte too long",
+          "msg": "",
+          "sig": "",
+          "result": "invalid",
+          "flags": [
+            "IncorrectPrivateKeyLength"
+          ]
         }
       ]
     }
