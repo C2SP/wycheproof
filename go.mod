@@ -15,5 +15,6 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/sanity-io/litter v1.5.8 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
+	github.com/supranational/blst v0.3.16 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
