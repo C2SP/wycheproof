@@ -1,32 +1,32 @@
 {
   "type": "object",
   "definitions": {
-    "BlsAggregateVerifyTestGroup": {
+    "BlsHashToG2TestGroup": {
       "type": "object",
       "properties": {
         "type": {
           "enum": [
-            "BlsAggregateVerify"
+            "BlsHashToG2"
           ]
         },
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "ciphersuite": {
+        "dst": {
           "type": "string",
-          "description": "The BLS ciphersuite identifier"
+          "description": "The domain separation tag used for hash_to_curve"
         },
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/BlsAggregateVerifyTestVector"
+            "$ref": "#/definitions/BlsHashToG2TestVector"
           }
         }
       },
-      "required": ["type", "source", "ciphersuite", "tests"],
+      "required": ["type", "source", "dst", "tests"],
       "additionalProperties": false
     },
-    "BlsAggregateVerifyTestVector": {
+    "BlsHashToG2TestVector": {
       "type": "object",
       "properties": {
         "tcId": {
@@ -37,26 +37,15 @@
           "type": "string",
           "description": "A brief description of the test case"
         },
-        "pubkeys": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "HexBytes"
-          },
-          "description": "The compressed public keys"
-        },
-        "messages": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "HexBytes"
-          },
-          "description": "The messages that were signed"
-        },
-        "sig": {
+        "msg": {
           "type": "string",
           "format": "HexBytes",
-          "description": "The aggregated BLS signature in compressed form"
+          "description": "The input message"
+        },
+        "expected": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The expected hash-to-curve output point in compressed form"
         },
         "result": {
           "$ref": "common.json#/definitions/Result"
@@ -70,7 +59,7 @@
         }
       },
       "additionalProperties": false,
-      "required": ["tcId", "comment", "pubkeys", "messages", "sig", "result", "flags"]
+      "required": ["tcId", "comment", "msg", "expected", "result", "flags"]
     }
   },
   "properties": {
@@ -94,13 +83,13 @@
     },
     "schema": {
       "enum": [
-        "bls_aggregate_verify_schema_v1.json"
+        "bls_hash_to_g2_schema.json"
       ]
     },
     "testGroups": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/BlsAggregateVerifyTestGroup"
+        "$ref": "#/definitions/BlsHashToG2TestGroup"
       }
     }
   },
