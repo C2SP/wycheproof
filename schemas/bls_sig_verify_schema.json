@@ -1,0 +1,87 @@
+{
+  "type": "object",
+  "definitions": {
+    "BlsSigVerifyTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "BlsSigVerify"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "ciphersuite": {
+          "type": "string",
+          "description": "The BLS ciphersuite identifier, e.g. BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_"
+        },
+        "publicKey": {
+          "$ref": "#/definitions/BlsPublicKey"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "signatures_common.json#/definitions/SignatureTestVector"
+          }
+        }
+      },
+      "required": ["type", "source", "ciphersuite", "publicKey", "tests"],
+      "additionalProperties": false
+    },
+    "BlsPublicKey": {
+      "type": "object",
+      "properties": {
+        "pk": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The compressed public key"
+        },
+        "group": {
+          "type": "string",
+          "enum": ["G1", "G2"],
+          "description": "The group the public key belongs to"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "The size of the public key in bytes"
+        }
+      },
+      "required": ["pk", "group", "keySize"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "The primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "bls_sig_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BlsSigVerifyTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}

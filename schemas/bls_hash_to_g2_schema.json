@@ -1,0 +1,98 @@
+{
+  "type": "object",
+  "definitions": {
+    "BlsHashToG2TestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "BlsHashToG2"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "dst": {
+          "type": "string",
+          "description": "The domain separation tag used for hash_to_curve"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BlsHashToG2TestVector"
+          }
+        }
+      },
+      "required": ["type", "source", "dst", "tests"],
+      "additionalProperties": false
+    },
+    "BlsHashToG2TestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The input message"
+        },
+        "expected": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The expected hash-to-curve output point in compressed form"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["tcId", "comment", "msg", "expected", "result", "flags"]
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "The primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "bls_hash_to_g2_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BlsHashToG2TestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}

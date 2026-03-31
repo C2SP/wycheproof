@@ -61,6 +61,7 @@ including
 - SM4
 - VMAC
 - X25519, X448
+- BLS-12-381
 - ML-KEM (Kyber)
 - ML-DSA (CRYSTALS-Dilithium)
 

@@ -1,0 +1,109 @@
+{
+  "type": "object",
+  "definitions": {
+    "BlsAggregateVerifyTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "BlsAggregateVerify"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "ciphersuite": {
+          "type": "string",
+          "description": "The BLS ciphersuite identifier"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BlsAggregateVerifyTestVector"
+          }
+        }
+      },
+      "required": ["type", "source", "ciphersuite", "tests"],
+      "additionalProperties": false
+    },
+    "BlsAggregateVerifyTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "pubkeys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "HexBytes"
+          },
+          "description": "The compressed public keys"
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "HexBytes"
+          },
+          "description": "The messages that were signed"
+        },
+        "sig": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The aggregated BLS signature in compressed form"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["tcId", "comment", "pubkeys", "messages", "sig", "result", "flags"]
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "The primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "bls_aggregate_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BlsAggregateVerifyTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
