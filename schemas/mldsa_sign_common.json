@@ -45,16 +45,31 @@
       },
       "additionalProperties": false,
       "required": ["tcId", "comment", "sig", "result", "flags"],
-      "if": {
-        "properties": {
-          "result": {
-            "const": "valid"
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "valid"
+              }
+            }
+          },
+          "then": {
+            "required": ["mu"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "flags": { "contains": { "const": "Internal" } }
+            },
+            "required": ["flags"]
+          },
+          "then": {
+            "properties": { "msg": false }
           }
         }
-      },
-      "then": {
-        "required": ["mu"]
-      }
+      ]
     }
   }
 }
