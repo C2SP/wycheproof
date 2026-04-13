@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "PbkdfTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "PbkdfTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PbkdfTestVector"
+          }
+        }
+      },
+      "required": ["type", "tests"],
+      "additionalProperties": false
+    },
+    "PbkdfTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        },
+        "password": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The password as a hex-encoded byte string"
+        },
+        "salt": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The salt for the key derivation"
+        },
+        "iterationCount": {
+          "type": "integer",
+          "description": "The number of iterations for the key derivation"
+        },
+        "dkLen": {
+          "type": "integer",
+          "description": "The length of the derived key in bytes"
+        },
+        "dk": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The derived key"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        }
+      },
+      "required": ["tcId", "comment", "flags", "password", "salt", "iterationCount", "dkLen", "dk", "result"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "PBKDF2-HMACSHA1",
+        "PBKDF2-HMACSHA224",
+        "PBKDF2-HMACSHA256",
+        "PBKDF2-HMACSHA384",
+        "PBKDF2-HMACSHA512"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "pbkdf_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PbkdfTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
