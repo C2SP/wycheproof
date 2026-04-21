@@ -1,7 +1,7 @@
 {
   "algorithm": "ECDSA",
   "schema": "ecdsa_p1363_verify_schema_v1.json",
-  "numberOfTests": 221,
+  "numberOfTests": 226,
   "header": [
     "Test vectors of type EcdsaVerify are meant for the verification",
     "of IEEE P1363 encoded ECDSA signatures."
@@ -4093,6 +4093,156 @@
           "msg": "0000000000000000000000000000000000000000",
           "sig": "004f71014057dde59269ba089c49082dab3ffa9af3008d1abb842b2f932a04c2dd19a2f2109a57c88c32",
           "result": "valid"
+        }
+      ]
+    },
+    {
+      "type": "EcdsaP1363Verify",
+      "source": {
+        "name": "github/davidben/ecdsa-r-s-edge-cases",
+        "version": "0.1"
+      },
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp160r1",
+        "keySize": 160,
+        "uncompressed": "0439891bd61138e775cd012518ff00f59ae01c473325026b77b1c44affb1592dcf711b4290e9404c9f",
+        "wx": "39891bd61138e775cd012518ff00f59ae01c4733",
+        "wy": "25026b77b1c44affb1592dcf711b4290e9404c9f"
+      },
+      "publicKeyDer": "303e301006072a8648ce3d020106052b81040008032a000439891bd61138e775cd012518ff00f59ae01c473325026b77b1c44affb1592dcf711b4290e9404c9f",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMD4wEAYHKoZIzj0CAQYFK4EEAAgDKgAEOYkb1hE453XNASUY/wD1muAcRzMlAmt3\nscRK/7FZLc9xG0KQ6UBMnw==\n-----END PUBLIC KEY-----\n",
+      "sha": "SHA-256",
+      "tests": [
+        {
+          "tcId": 222,
+          "comment": "r = 4, x = 4 is valid",
+          "flags": [
+            "ValidSignature"
+          ],
+          "msg": "68656c6c6f2c20776f726c64",
+          "sig": "0000000000000000000000000000000000000000040100000000000000000001f4c8f927aed3ca752254",
+          "result": "valid"
+        }
+      ]
+    },
+    {
+      "type": "EcdsaP1363Verify",
+      "source": {
+        "name": "github/davidben/ecdsa-r-s-edge-cases",
+        "version": "0.1"
+      },
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp160r1",
+        "keySize": 160,
+        "uncompressed": "041a56b4e2ab0384b1daa35459f77066b5918b49d5a3a47844c1b449a82f14658948402cf8c592e0af",
+        "wx": "1a56b4e2ab0384b1daa35459f77066b5918b49d5",
+        "wy": "a3a47844c1b449a82f14658948402cf8c592e0af"
+      },
+      "publicKeyDer": "303e301006072a8648ce3d020106052b81040008032a00041a56b4e2ab0384b1daa35459f77066b5918b49d5a3a47844c1b449a82f14658948402cf8c592e0af",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMD4wEAYHKoZIzj0CAQYFK4EEAAgDKgAEGla04qsDhLHao1RZ93BmtZGLSdWjpHhE\nwbRJqC8UZYlIQCz4xZLgrw==\n-----END PUBLIC KEY-----\n",
+      "sha": "SHA-256",
+      "tests": [
+        {
+          "tcId": 223,
+          "comment": "r = 5, x = 4 is invalid",
+          "flags": [
+            "ArithmeticError"
+          ],
+          "msg": "68656c6c6f2c20776f726c64",
+          "sig": "0000000000000000000000000000000000000000050100000000000000000001f4c8f927aed3ca752254",
+          "result": "invalid"
+        }
+      ]
+    },
+    {
+      "type": "EcdsaP1363Verify",
+      "source": {
+        "name": "github/davidben/ecdsa-r-s-edge-cases",
+        "version": "0.1"
+      },
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp160r1",
+        "keySize": 160,
+        "uncompressed": "0439891bd61138e775cd012518ff00f59ae01c473325026b77b1c44affb1592dcf711b4290e9404c9f",
+        "wx": "39891bd61138e775cd012518ff00f59ae01c4733",
+        "wy": "25026b77b1c44affb1592dcf711b4290e9404c9f"
+      },
+      "publicKeyDer": "303e301006072a8648ce3d020106052b81040008032a000439891bd61138e775cd012518ff00f59ae01c473325026b77b1c44affb1592dcf711b4290e9404c9f",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMD4wEAYHKoZIzj0CAQYFK4EEAAgDKgAEOYkb1hE453XNASUY/wD1muAcRzMlAmt3\nscRK/7FZLc9xG0KQ6UBMnw==\n-----END PUBLIC KEY-----\n",
+      "sha": "SHA-256",
+      "tests": [
+        {
+          "tcId": 224,
+          "comment": "r = 4 + n, x = 4 is invalid; r was not reduced mod n",
+          "flags": [
+            "ArithmeticError"
+          ],
+          "msg": "68656c6c6f2c20776f726c64",
+          "sig": "0100000000000000000001f4c8f927aed3ca75225b0100000000000000000001f4c8f927aed3ca752254",
+          "result": "invalid"
+        }
+      ]
+    },
+    {
+      "type": "EcdsaP1363Verify",
+      "source": {
+        "name": "github/davidben/ecdsa-r-s-edge-cases",
+        "version": "0.1"
+      },
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp160r1",
+        "keySize": 160,
+        "uncompressed": "042a675dfed49c0f8c298abae00cd7afdcb7fd84caa94d8033f6cbbb84b9f8b7e4838c495c46439355",
+        "wx": "2a675dfed49c0f8c298abae00cd7afdcb7fd84ca",
+        "wy": "a94d8033f6cbbb84b9f8b7e4838c495c46439355"
+      },
+      "publicKeyDer": "303e301006072a8648ce3d020106052b81040008032a00042a675dfed49c0f8c298abae00cd7afdcb7fd84caa94d8033f6cbbb84b9f8b7e4838c495c46439355",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMD4wEAYHKoZIzj0CAQYFK4EEAAgDKgAEKmdd/tScD4wpirrgDNev3Lf9hMqpTYAz\n9su7hLn4t+SDjElcRkOTVQ==\n-----END PUBLIC KEY-----\n",
+      "sha": "SHA-256",
+      "tests": [
+        {
+          "tcId": 225,
+          "comment": "r = p - 4, x = p - 3 is invalid",
+          "flags": [
+            "ArithmeticError"
+          ],
+          "msg": "68656c6c6f2c20776f726c64",
+          "sig": "00ffffffffffffffffffffffffffffffff7ffffffb0100000000000000000001f4c8f927aed3ca752254",
+          "result": "invalid"
+        }
+      ]
+    },
+    {
+      "type": "EcdsaP1363Verify",
+      "source": {
+        "name": "github/davidben/ecdsa-r-s-edge-cases",
+        "version": "0.1"
+      },
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp160r1",
+        "keySize": 160,
+        "uncompressed": "04d8add22064027856c162243ab09ea966429752978822a506712385ab3ebe5c61737c3bbb722b06b9",
+        "wx": "d8add22064027856c162243ab09ea96642975297",
+        "wy": "8822a506712385ab3ebe5c61737c3bbb722b06b9"
+      },
+      "publicKeyDer": "303e301006072a8648ce3d020106052b81040008032a0004d8add22064027856c162243ab09ea966429752978822a506712385ab3ebe5c61737c3bbb722b06b9",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMD4wEAYHKoZIzj0CAQYFK4EEAAgDKgAE2K3SIGQCeFbBYiQ6sJ6pZkKXUpeIIqUG\ncSOFqz6+XGFzfDu7cisGuQ==\n-----END PUBLIC KEY-----\n",
+      "sha": "SHA-256",
+      "tests": [
+        {
+          "tcId": 226,
+          "comment": "r = 4 + p, x = 4 is invalid; values only match mod p",
+          "flags": [
+            "ArithmeticError"
+          ],
+          "msg": "68656c6c6f2c20776f726c64",
+          "sig": "00ffffffffffffffffffffffffffffffff800000030100000000000000000001f4c8f927aed3ca752254",
+          "result": "invalid"
         }
       ]
     }
