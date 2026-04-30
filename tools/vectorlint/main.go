@@ -78,9 +78,6 @@ var (
 		// testvectors_v1/pbes2_hmacsha*_aes_*_test.json:
 		"pbe_test_schema.json": true,
 
-		// testvectors_v1/pbkdf2_hmacsha*_test.json:
-		"pbkdf_test_schema.json": true,
-
 		// testvectors_v1/rsa_pss_*_sha*_mgf*_params_test.json
 		// testvectors_v1/rsa_pss_misc_params_test.json:
 		"rsassa_pss_with_parameters_verify_schema.json": true,
