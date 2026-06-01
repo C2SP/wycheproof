@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "PkixKeyDecodeTestGroup": {
+      "type": "object",
+      "description": "A group of PKIX key-decode test cases sharing the same algorithm, parameter set, and key encoding.",
+      "properties": {
+        "type": {
+          "enum": ["PkixKeyDecode"]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "keyType": {
+          "type": "string",
+          "description": "The kind of key encoding tested: 'pkcs8' for a PKCS#8 PrivateKeyInfo (RFC 5208 / RFC 5958), 'spki' for a SubjectPublicKeyInfo (RFC 5280).",
+          "enum": ["pkcs8", "spki"]
+        },
+        "algorithm": {
+          "type": "string",
+          "description": "The cryptographic algorithm the encoded key is for (e.g. 'ML-DSA', 'RSA', 'ECDSA', 'Ed25519')."
+        },
+        "parameterSet": {
+          "type": "string",
+          "description": "An algorithm-specific parameter selector (e.g. 'ML-DSA-44', 'secp256r1', '2048'). Vectors within a group MUST share this value."
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PkixKeyDecodeTestVector"
+          }
+        }
+      },
+      "required": ["type", "source", "keyType", "algorithm", "parameterSet", "tests"],
+      "additionalProperties": false
+    },
+    "PkixKeyDecodeTestVector": {
+      "type": "object",
+      "description": "A single PKIX key-decode test case. The encoded field is fed to the parser selected by the group's keyType. The result indicates expected parser behavior; this corpus tests parser acceptance only and does not assert anything about the recovered key material.",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "encoded": {
+          "type": "string",
+          "format": "Der",
+          "description": "Hex-encoded bytes to be fed to the key parser."
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags categorizing the mutation or property tested"
+        }
+      },
+      "required": ["tcId", "comment", "encoded", "result", "flags"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "description": "The primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": ["pkix_key_decode_schema.json"]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PkixKeyDecodeTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
