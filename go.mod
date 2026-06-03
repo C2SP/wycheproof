@@ -1,6 +1,6 @@
 module github.com/c2sp/wycheproof
 
-go 1.24.0
+go 1.26.4
 
 require (
 	filippo.io/edwards25519 v1.1.0
