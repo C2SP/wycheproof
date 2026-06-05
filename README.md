@@ -125,6 +125,7 @@ cryptography projects and libraries. In no particular order these include:
 * [OpenTitan](https://github.com/lowRISC/opentitan)
 * [Zig](https://github.com/ziglang/zig)
 * [liboqs](https://github.com/open-quantum-safe/liboqs)
+* [bc-rust](https://github.com/bcgit/bc-rust)
 
 If your project uses test vectors from Wycheproof, feel free to open a PR
 to add it to the list above!

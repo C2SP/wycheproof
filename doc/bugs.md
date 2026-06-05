@@ -85,3 +85,9 @@
 
 [ToB elliptic]: https://blog.trailofbits.com/2025/11/18/we-found-cryptography-bugs-in-the-elliptic-library-using-wycheproof/
 [elliptic#317]: https://github.com/indutny/elliptic/pull/317
+
+## Package Bouncy Castle Rust
+Project Wycheproof tests were run during pre-release development alpha, so no CVEs or PRs, but these would have made it into production if not for Project Wycheproof:
+* ML-DSA: would not have rejected malformed private keys with s1/s2 out of range; potentially resulting in multiple private keys producing signatures valid under the same public key, and the associated issues with binding properties.
+* ML-KEM: would not have rejected malformed public keys with t out of range, potentially resulting in multiple public keys producing ciphertexts that can be decapsulated by the same private key, and the associated issues with binding properties.
+* ML-KEM: found an extremely rarely occurring bug where a private key coefficient is exactly -q (-3329) and falls on the boundary of the barrett reduction algorithm, causing the key to encode incorrectly.
