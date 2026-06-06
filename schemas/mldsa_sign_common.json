@@ -20,12 +20,17 @@
         "ctx": {
           "type": "string",
           "format": "HexBytes",
-          "description": "[optional] The additional context string (empty if not provided)"
+          "description": "[optional] The additional context string (if omitted, the context input is empty)"
+        },
+        "rnd": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "[optional] The 32-byte random value (if omitted, implicitly all zeroes for deterministic signing)"
         },
         "mu": {
           "type": "string",
           "format": "HexBytes",
-          "description": "[optional] The 64-byte μ value"
+          "description": "[optional] The 64-byte μ value (omitted in case of expected failure)"
         },
         "sig": {
           "type": "string",
@@ -56,6 +61,16 @@
           },
           "then": {
             "required": ["mu"]
+          }
+        },
+        {
+          "if": {
+            "required": ["rnd"]
+          },
+          "then": {
+            "properties": {
+              "flags": { "contains": { "const": "Randomized" } }
+            }
           }
         },
         {
