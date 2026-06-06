@@ -62,8 +62,8 @@ including
 - VMAC
 - X25519, X448
 - BLS-12-381
-- ML-KEM (Kyber)
-- ML-DSA (CRYSTALS-Dilithium)
+- ML-KEM (CRYSTALS-Kyber)
+- [ML-DSA (CRYSTALS-Dilithium)](doc/mldsa.md)
 
 The test vectors detect whether a library is vulnerable to many attacks,
 including
