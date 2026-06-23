@@ -15,67 +15,17 @@ bugs have been acknowledged or fixed.
 All submissions, including submissions by project members, require review. We
 use GitHub pull requests for this purpose.
 
-### Test schemas
-All new test types should be accompanied by [JSON schema] files describing the
-test vector data structure. See the [`schemas/` directory][schema dir] for
-existing examples.
+### Adding or updating test vectors
 
-Test vector files are [linted in CI][schema lint] against their schemas. You can
-run the lint locally after installing Go with `go run ./tools/vectorlint`.
+Use the `vectorgen` tool for test vector changes rather than hand-editing
+JSON. It can create new vector files, append new groups or tests, patch
+fields across existing vectors, and replace regenerated groups. In all cases
+it takes care of `tcId` assignment, `numberOfTests`, canonical formatting,
+and schema validation.
 
-#### Schema best practices
-
-All new schema files should:
-
-* Describe common top-level properties matching pre-existing schemas/vectors
-  (e.g. `algorithm`, `header`, `notes`, `numberOfTests`, and `schema`).
-* Divide vector files into test groups.
-* Use `"additionalProperties": false` in each defined object to prevent
-  unspecified fields in vector data.
-* Use `"required": [...]` in each defined object to specify the expected
-  mandatory properties in vector data.
-* Within each test group, specify a `source`, referencing the common
-  [`common.json#/definitions/Source`][source schema] element.
-* Avoid deprecated schema fields (e.g. `generatorVersion`).
-* Avoid duplicating complex schema elements across many schema files (e.g.
-  public key definitions). Instead, create a separate schema file for the common
-  object and [reference it][schema ref] throughout other schema files.
-
-[JSON schema]: https://json-schema.org/
-[schema dir]: https://github.com/C2SP/wycheproof/tree/main/schemas
-[schema lint]: https://github.com/C2SP/wycheproof/blob/main/.github/workflows/vectorlint.yml
-[source schema]: https://github.com/C2SP/wycheproof/blob/main/schemas/common.json
-[schema ref]: https://json-schema.org/understanding-json-schema/structuring#dollarref
-
-### Test vector best practices
-
-All new JSON test vector files should:
-
-* Reference a schema.
-* Be placed in the `testvectors_v1/` directory.
-* Be divided up by test type, and important algorithm parameters 
-  (e.g. encap vs decap, key size).
-  When convenient, try to split the test vectors so that consumers
-  that may not support all variations of the algorithm can test with specific
-  vector files without needing additional post-filtering.
-  While the schema may indicate test groups can contain multiple test types
-  we've come to prefer one test file per test group type.
-
-####  Choosing a source name
-
-The common [source schema] allows specifying a name and version for your new
-test vectors.
-
-We intend to use the source element to allow targeted updates to test vector
-data identified by the source name/version. For this reason, when augmenting
-existing vector files with new data try to choose a source name that will be
-specific enough for future regeneration without affecting unrelated data.
-
-For example, using source name "github/myusername/weak_params" for new vector
-data added to `imaginary_algorithm_2048_test.json` may be preferable to
-"github.com/myusername" if you intend to add other kinds of test vectors to
-`imaginary_algorithm_2048_test.json` in the future, and would want to be able to
-update those separately from the weak parameter test vector data.
+See [doc/vectorgen.md](./doc/vectorgen.md) for the workflows, along with
+schema and test vector best practices (including how to choose a source name
+for new vector data).
 
 ### Language specific ecosystem considerations
 
