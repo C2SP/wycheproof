@@ -9,6 +9,8 @@
     These formats are also described more formally using JSON schemas, which are
     located in the directory wycheproof/schemas.
 *   [bugs.md](bugs.md) is a list of bugs.
+*   [vectorgen.md](vectorgen.md) describes the `vectorgen` tool for adding and
+    updating test vectors.
 
 ## GitHub source-code
 
