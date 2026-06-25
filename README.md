@@ -199,6 +199,11 @@ of interest.
 [harness-rm]: https://github.com/C2SP/wycheproof/commit/d9b8297cc998fd1a11e64cdd585a671e8923f48b
 [cd27d64]: https://github.com/C2SP/wycheproof/tree/cd27d6419bedd83cbd24611ec54b6d4bfdb0cdca
 
+### What license is Wycheproof offered under?
+
+Copyright 2016-2026 The Wycheproof Authors, offered under the
+[Apache License 2.0](/LICENSE).
+
 ### Who created Wycheproof?
 
 Project Wycheproof was originally created and maintained by:
