@@ -39,7 +39,7 @@ including
 - AES-GCM
 - AES-SIV
 - ARIA
-- ASCON
+- ASCON v1.2 (not yet SP 800-232)
 - Camellia
 - ChaCha20-Poly1305
 - XChaCha20-Poly1305
