@@ -127,6 +127,7 @@ cryptography projects and libraries. In no particular order these include:
 * [liboqs](https://github.com/open-quantum-safe/liboqs)
 * [bc-rust](https://github.com/bcgit/bc-rust)
 * [leancrypto](https://github.com/smuellerDD/leancrypto)
+* [Odin](https://github.com/odin-lang/odin)
 
 If your project uses test vectors from Wycheproof, feel free to open a PR
 to add it to the list above!
