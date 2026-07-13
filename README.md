@@ -42,6 +42,7 @@ including
 - ASCON v1.2 (not yet SP 800-232)
 - Camellia
 - ChaCha20-Poly1305
+- [Chunked encryption (Cobblestone)](doc/c2sp_chunked_encryption.md)
 - XChaCha20-Poly1305
 - [DH](doc/dh.md)
 - DHIES
