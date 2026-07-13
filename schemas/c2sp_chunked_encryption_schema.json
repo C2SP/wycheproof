@@ -1,0 +1,308 @@
+{
+  "type": "object",
+  "definitions": {
+    "ChunkedEncryptionTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "ChunkedEncryption"
+          ]
+        },
+        "aead": {
+          "enum": [
+            "AEAD_AES_128_GCM",
+            "AEAD_AES_256_GCM"
+          ],
+          "description": "The underlying AEAD, by IANA registry name"
+        },
+        "sha": {
+          "enum": [
+            "SHA-512"
+          ],
+          "description": "The hash function used for HKDF-Expand"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChunkedEncryptionTestVector"
+          }
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "aead",
+        "sha",
+        "tests",
+        "source"
+      ]
+    },
+    "ChunkedEncryptionTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The input key (may have an invalid length)"
+        },
+        "ctx": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The context byte string (may be empty)"
+        },
+        "ct": {
+          "type": "string",
+          "format": "CompressedHexBytes",
+          "description": "The ciphertext, zlib-compressed and then hex-encoded"
+        },
+        "aeadKey": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The derived AEAD key, for testing raw mode directly (absent for invalid vectors that exercise key derivation or the commitment check)"
+        },
+        "baseNonce": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The derived base nonce, for testing raw mode directly (absent for invalid vectors that exercise key derivation or the commitment check)"
+        },
+        "msgLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The length in bytes of the message (for valid tests), or of the valid message prefix a streaming implementation may produce before failing (for invalid tests, if present)"
+        },
+        "msgSha512": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The SHA-512 hash of the message (for valid tests), or of the valid message prefix a streaming implementation may produce before failing (for invalid tests, if present)"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "valid"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "aeadKey",
+              "baseNonce",
+              "msgLength",
+              "msgSha512"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "flags": {
+                "contains": {
+                  "const": "HeaderFailure"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "invalid"
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "aeadKey"
+                  ]
+                },
+                {
+                  "required": [
+                    "baseNonce"
+                  ]
+                },
+                {
+                  "required": [
+                    "msgLength"
+                  ]
+                },
+                {
+                  "required": [
+                    "msgSha512"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "flags": {
+                "contains": {
+                  "const": "PartialPlaintext"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "invalid"
+              }
+            },
+            "required": [
+              "aeadKey",
+              "baseNonce",
+              "msgLength",
+              "msgSha512"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "flags": {
+                "contains": {
+                  "const": "ValidFinalChunk"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "invalid"
+              }
+            },
+            "required": [
+              "aeadKey",
+              "baseNonce"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "invalid"
+              },
+              "flags": {
+                "not": {
+                  "anyOf": [
+                    {
+                      "contains": {
+                        "const": "HeaderFailure"
+                      }
+                    },
+                    {
+                      "contains": {
+                        "const": "PartialPlaintext"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "aeadKey",
+              "baseNonce"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "msgLength"
+                  ]
+                },
+                {
+                  "required": [
+                    "msgSha512"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false,
+      "required": [
+        "tcId",
+        "comment",
+        "key",
+        "ctx",
+        "ct",
+        "result",
+        "flags"
+      ]
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "Cobblestone-128",
+        "Cobblestone-256"
+      ],
+      "description": "the primitive tested in the test file"
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "c2sp_chunked_encryption_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ChunkedEncryptionTestGroup"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "algorithm",
+    "header",
+    "notes",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ]
+}

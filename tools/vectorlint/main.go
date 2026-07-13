@@ -2,12 +2,15 @@
 package main
 
 import (
+	"bytes"
+	"compress/zlib"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -105,6 +108,10 @@ var (
 			Validate: validateHex,
 		},
 		{
+			Name:     "CompressedHexBytes",
+			Validate: validateCompressedHex,
+		},
+		{
 			Name: "BigInt",
 			// For big integers, we can validate the format is valid hex but not much else.
 			Validate: validateHex,
@@ -129,6 +136,39 @@ func validateHex(value any) error {
 	_, err := hex.DecodeString(strVal)
 	if err != nil {
 		return fmt.Errorf("invalid HexBytes value: %w", err)
+	}
+
+	return nil
+}
+
+func validateCompressedHex(value any) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return errors.New("invalid non-string CompressedHexBytes value")
+	}
+
+	if strVal != strings.ToLower(strVal) {
+		return errors.New("invalid non-lowercase CompressedHexBytes value")
+	}
+
+	compressed, err := hex.DecodeString(strVal)
+	if err != nil {
+		return fmt.Errorf("invalid CompressedHexBytes value: %w", err)
+	}
+
+	br := bytes.NewReader(compressed)
+	zr, err := zlib.NewReader(br)
+	if err != nil {
+		return fmt.Errorf("invalid CompressedHexBytes value: %w", err)
+	}
+	if _, err := io.Copy(io.Discard, zr); err != nil {
+		return fmt.Errorf("invalid CompressedHexBytes value: %w", err)
+	}
+	if err := zr.Close(); err != nil {
+		return fmt.Errorf("invalid CompressedHexBytes value: %w", err)
+	}
+	if br.Len() != 0 {
+		return fmt.Errorf("invalid CompressedHexBytes value: %d trailing bytes after zlib stream", br.Len())
 	}
 
 	return nil
