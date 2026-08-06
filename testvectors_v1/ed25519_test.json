@@ -1,7 +1,7 @@
 {
   "algorithm": "EDDSA",
   "schema": "eddsa_verify_schema_v1.json",
-  "numberOfTests": 150,
+  "numberOfTests": 151,
   "header": [
     "Test vectors of type EddsaVerify are intended for testing"
   ],
@@ -3320,6 +3320,39 @@
           "msg": "44530b0b34f598767a7b875b0caee3c7b9c502d1",
           "sig": "cfbd450a2c83cb8436c348822fe3ee347d4ee937b7f2ea11ed755cc52852407c9eec2c1fa30d2f9aef90e89b2cc3bcef2b1b9ca59f712110d19894a9cf6a2802",
           "result": "valid"
+        }
+      ]
+    },
+    {
+      "type": "EddsaVerify",
+      "source": {
+        "name": "github/cpu/eddsazerosigngen",
+        "version": "1.0"
+      },
+      "publicKey": {
+        "type": "EDDSAPublicKey",
+        "curve": "edwards25519",
+        "keySize": 255,
+        "pk": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      "publicKeyDer": "302a300506032b6570032100d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=\n-----END PUBLIC KEY-----\n",
+      "publicKeyJwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "kid": "none",
+        "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
+      },
+      "tests": [
+        {
+          "tcId": 151,
+          "comment": "R encodes y = 1 with the sign bit of x set. The only point with y = 1 has x = 0, so decoding must fail (RFC 8032, Section 5.1.3). Accepted only by verifiers that ignore the sign of x.",
+          "flags": [
+            "InvalidEncoding"
+          ],
+          "msg": "313233343030",
+          "sig": "0100000000000000000000000000000000000000000000000000000000000080c803ee1f2342aa96ff698a393d1ab5e66f3eda101d6d120b394c3fd32c117d0a",
+          "result": "invalid"
         }
       ]
     }
