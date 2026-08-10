@@ -39,7 +39,8 @@ including
 - AES-GCM
 - AES-SIV
 - ARIA
-- ASCON v1.2 (not yet SP 800-232)
+- ASCON v1.2 AEAD (Ascon-128, Ascon-128a, Ascon-80pq; pre-standardization)
+- NIST SP 800-232 Ascon-AEAD128
 - Camellia
 - ChaCha20-Poly1305
 - [Chunked encryption (Cobblestone)](doc/c2sp_chunked_encryption.md)
