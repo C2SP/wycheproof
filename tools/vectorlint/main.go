@@ -69,9 +69,6 @@ func main() {
 var (
 	// TODO(XXX): some _v1 vectors reference schema files that don't exist. Until fixed, ignore these schemas.
 	missingSchemas = map[string]bool{
-		// testvectors_v1/aes_ff1_radix*_test.json:
-		"fpe_list_test_schema.json": true,
-
 		// testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json
 		"ecdsa_bitcoin_verify_schema.json": true,
 
