@@ -61,19 +61,11 @@ func main() {
 	log.Printf("valid: %d\n", results.valid)
 	log.Printf("invalid: %d\n", results.invalid)
 	log.Printf("no schema: %d\n", results.noSchema)
-	log.Printf("ignored: %d\n", results.ignored)
 
 	os.Exit(results.invalid)
 }
 
 var (
-	// TODO(XXX): some _v1 vectors reference schema files that don't exist. Until fixed, ignore these schemas.
-	missingSchemas = map[string]bool{
-		// testvectors_v1/rsa_pss_*_sha*_mgf*_params_test.json
-		// testvectors_v1/rsa_pss_misc_params_test.json:
-		"rsassa_pss_with_parameters_verify_schema.json": true,
-	}
-
 	customFormats = []jsonschema.Format{
 		{
 			Name: "Asn",
@@ -329,12 +321,6 @@ func lintVectorToSchema(schemaCompiler *jsonschema.Compiler, vectorData []byte, 
 		return nil
 	}
 
-	if missingSchemas[vector.Schema] {
-		log.Printf("⚠️ %q: ignoring missing schema %q\n", path, vector.Schema)
-		results.ignored++
-		return nil
-	}
-
 	schemaPath := filepath.Join(*schemaDirectory, vector.Schema)
 	if _, err := os.Stat(schemaPath); os.IsNotExist(err) {
 		log.Printf("❌ %q: referenced schema %q not found\n", path, vector.Schema)
@@ -368,5 +354,5 @@ func lintVectorToSchema(schemaCompiler *jsonschema.Compiler, vectorData []byte, 
 }
 
 type schemaLintResults struct {
-	total, valid, invalid, noSchema, ignored int
+	total, valid, invalid, noSchema int
 }
