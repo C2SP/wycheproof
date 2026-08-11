@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "FpeStrTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "FpeStrTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "alphabet": {
+          "type": "string",
+          "description": "The alphabet used to encode plaintexts and ciphertexts. The character at position i encodes the digit i."
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "The key size in bits"
+        },
+        "msgSize": {
+          "type": "integer",
+          "description": "The length of plaintexts and ciphertexts in characters"
+        },
+        "radix": {
+          "type": "integer",
+          "description": "The radix, i.e. the number of characters in the alphabet"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FpeStrTestVector"
+          }
+        }
+      },
+      "required": ["type", "alphabet", "keySize", "msgSize", "radix", "tests"],
+      "additionalProperties": false
+    },
+    "FpeStrTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "key": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The key"
+        },
+        "tweak": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The tweak"
+        },
+        "msg": {
+          "type": "string",
+          "description": "The plaintext, encoded with the alphabet of the test group. Invalid test cases may contain characters outside the alphabet."
+        },
+        "ct": {
+          "type": "string",
+          "description": "The ciphertext, encoded with the alphabet of the test group"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "required": ["tcId", "comment", "key", "tweak", "msg", "ct", "result", "flags"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "AES-FF1"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "fpe_str_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FpeStrTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
