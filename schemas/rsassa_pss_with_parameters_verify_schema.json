@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "RsassaPssWithParametersTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "RsassaPssWithParametersVerify"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "publicKey": {
+          "type": "object",
+          "properties": {
+            "modulus": {
+              "type": "string",
+              "format": "BigInt",
+              "description": "The modulus of the key"
+            },
+            "publicExponent": {
+              "type": "string",
+              "format": "BigInt",
+              "description": "The public exponent"
+            }
+          },
+          "required": ["modulus", "publicExponent"]
+        },
+        "publicKeyAsn": {
+          "type": "string",
+          "format": "Der",
+          "description": "ASN encoding of the sequence [n, e]"
+        },
+        "publicKeyDer": {
+          "type": "string",
+          "format": "Der",
+          "description": "ASN encoding of the public key. The algorithm identifier includes the RSASSA-PSS parameters specified in Appendix A of RFC 8017."
+        },
+        "publicKeyPem": {
+          "type": "string",
+          "format": "Pem",
+          "description": "Pem encoded public key"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the size of the modulus in bits"
+        },
+        "mgf": {
+          "type": "string",
+          "description": "the message generating function (e.g. MGF1)"
+        },
+        "mgfSha": {
+          "type": "string",
+          "description": "The hash function used for the message generating function."
+        },
+        "sLen": {
+          "type": "integer",
+          "description": "The salt length"
+        },
+        "sha": {
+          "type": "string",
+          "description": "The hash function for hashing the message."
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RsassaPssTestVector"
+          }
+        }
+      },
+      "required": ["type", "publicKey", "publicKeyAsn", "publicKeyDer", "publicKeyPem", "keySize", "mgf", "mgfSha", "sLen", "sha", "tests"],
+      "additionalProperties": false
+    },
+    "RsassaPssTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to sign"
+        },
+        "sig": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "a signature for msg"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        }
+      },
+      "required": ["tcId", "comment", "msg", "sig", "result", "flags"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "RSASSA-PSS"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "rsassa_pss_with_parameters_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RsassaPssWithParametersTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
