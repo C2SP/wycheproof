@@ -86,14 +86,10 @@ us pull requests. You can also report bugs or request new tests as
 ## Development Priorities
 
 We're in the process of revitalizing development and maintenance of Project 
-Wycheproof as a C2SP project with a renewed focus on the test vector data. 
-Our immediate priorities are:
+Wycheproof as a C2SP project with a renewed focus on the test vector data.
 
-1. Improving documentation and tooling support for external contributors to
-   provide new test data to existing vector files.
-2. Developing a community of downstream consumers who can help sheppard 
-   maintenance and review of new test vector data.
-3. Adding additional algorithm and test case coverage to the test vector data.
+Our immediate priority is adding additional algorithm and test case coverage to
+the test vector data.
 
 ## FAQ
 
