@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "PbeTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "PbeTest"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PbeTestVector"
+          }
+        }
+      },
+      "required": ["type", "tests"],
+      "additionalProperties": false
+    },
+    "PbeTestVector": {
+      "type": "object",
+      "properties": {
+        "tcId": {
+          "type": "integer",
+          "description": "Identifier of the test case"
+        },
+        "comment": {
+          "type": "string",
+          "description": "A brief description of the test case"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of flags"
+        },
+        "password": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The password as a hex-encoded byte string. PBKDF takes an arbitrary octet string as input. The conversion from passwords given as strings to octet strings is not defined in the RFC."
+        },
+        "salt": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The salt for the key derivation"
+        },
+        "iterationCount": {
+          "type": "integer",
+          "description": "The number of iterations for the key derivation"
+        },
+        "iv": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The IV used for the encryption"
+        },
+        "msg": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The message to encrypt"
+        },
+        "ct": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "The ciphertext"
+        },
+        "result": {
+          "$ref": "common.json#/definitions/Result"
+        }
+      },
+      "required": ["tcId", "comment", "flags", "password", "salt", "iterationCount", "iv", "msg", "ct", "result"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "PbeWithHmacSha1AndAes_128",
+        "PbeWithHmacSha1AndAes_192",
+        "PbeWithHmacSha1AndAes_256",
+        "PbeWithHmacSha224AndAes_128",
+        "PbeWithHmacSha224AndAes_192",
+        "PbeWithHmacSha224AndAes_256",
+        "PbeWithHmacSha256AndAes_128",
+        "PbeWithHmacSha256AndAes_192",
+        "PbeWithHmacSha256AndAes_256",
+        "PbeWithHmacSha384AndAes_128",
+        "PbeWithHmacSha384AndAes_192",
+        "PbeWithHmacSha384AndAes_256",
+        "PbeWithHmacSha512AndAes_128",
+        "PbeWithHmacSha512AndAes_192",
+        "PbeWithHmacSha512AndAes_256"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "The number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "pbe_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PbeTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
