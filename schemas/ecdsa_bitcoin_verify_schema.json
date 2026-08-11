@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "EcdsaBitcoinTestGroup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "EcdsaBitcoinVerify"
+          ]
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "publicKey": {
+          "$ref": "ecdsa_common.json#/definitions/EcPublicKey",
+          "description": "unencoded EC public key"
+        },
+        "publicKeyDer": {
+          "type": "string",
+          "format": "Der",
+          "description": "DER encoded public key"
+        },
+        "publicKeyPem": {
+          "type": "string",
+          "format": "Pem",
+          "description": "Pem encoded public key"
+        },
+        "sha": {
+          "enum": [
+            "SHA-256"
+          ],
+          "description": "the hash function used for ECDSA"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "signatures_common.json#/definitions/AsnSignatureTestVector"
+          }
+        }
+      },
+      "required": ["type", "publicKey", "publicKeyDer", "publicKeyPem", "sha", "tests"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "ECDSA"
+      ]
+    },
+    "generatorVersion": {
+      "type": "string",
+      "description": "DEPRECATED: prefer \"source\" property in test group",
+      "deprecated": true
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "ecdsa_bitcoin_verify_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EcdsaBitcoinTestGroup"
+      }
+    }
+  },
+  "required": ["algorithm", "header", "notes", "numberOfTests", "schema", "testGroups"],
+  "additionalProperties": false
+}
