@@ -1,0 +1,348 @@
+{
+  "algorithm": "EDDSA-to-XDH",
+  "header": [
+    "Test vectors for converting Ed25519 public keys to X25519 public keys."
+  ],
+  "notes": {
+    "Ktv": {
+      "bugType": "BASIC",
+      "description": "A known conversion result for a prime-order public key."
+    },
+    "SmallOrderPublicKey": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The Edwards public key is a canonical torsion point and conversion must fail."
+    },
+    "MixedOrderPublicKey": {
+      "bugType": "AUTH_BYPASS",
+      "description": "The Edwards public key is not in the prime-order subgroup and conversion must fail.",
+      "links": [
+        "https://github.com/paragonie/sodium_compat/commit/e4d4933af9463a96a1a3cbaeb94327b90e3350ca"
+      ]
+    }
+  },
+  "numberOfTests": 34,
+  "schema": "eddsa_to_xdh_schema_v1.json",
+  "testGroups": [
+    {
+      "type": "EddsaToXdh",
+      "source": {
+        "name": "github/paragonie/sodium_compat/boundary-regressions",
+        "version": "2.5.2"
+      },
+      "edwardsCurve": "edwards25519",
+      "montgomeryCurve": "curve25519",
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "RFC 8032 prime-order control",
+          "publicKey": "fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025",
+          "convertedPublicKey": "cbb22fc9f790bd3eba9b84680c157ca4950a9894362601701f89c3c4d9fda23a",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "generated prime-order control 1",
+          "publicKey": "f2741795058d07954f8b3c5aebbf20f28d3ec3bb32e3b51aef97e4be6afb68b5",
+          "convertedPublicKey": "35b6b5368971acc9890ad3206a0801a3b8a1ec3b90088e26a713b421d4ea8d4a",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "generated prime-order control 2",
+          "publicKey": "2bbc204b9088e455bedb8424c780f8b8a387474644664ef7641902c8ebdf333c",
+          "convertedPublicKey": "96acbfd3f6dea288286b243bab3452e033282f578d44714de1eab1be7676937b",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "generated prime-order control 3",
+          "publicKey": "8b73de57a413d70e2f3f15bb4d3918ce0b85e4fe41a72efd776d06b8cae4059e",
+          "convertedPublicKey": "6fed7b67eb7ecb96a1eed7a8c75b35e00da832362d8c3e89a577c9f744d74a36",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        },
+        {
+          "tcId": 5,
+          "comment": "reject canonical torsion point 0",
+          "publicKey": "0100000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 6,
+          "comment": "reject canonical torsion point 1",
+          "publicKey": "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac037a",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 7,
+          "comment": "reject canonical torsion point 2",
+          "publicKey": "0000000000000000000000000000000000000000000000000000000000000080",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 8,
+          "comment": "reject canonical torsion point 3",
+          "publicKey": "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc05",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 9,
+          "comment": "reject canonical torsion point 4",
+          "publicKey": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 10,
+          "comment": "reject canonical torsion point 5",
+          "publicKey": "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc85",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 11,
+          "comment": "reject canonical torsion point 6",
+          "publicKey": "0000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 12,
+          "comment": "reject canonical torsion point 7",
+          "publicKey": "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac03fa",
+          "result": "invalid",
+          "flags": [
+            "SmallOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 13,
+          "comment": "reject prime-order point 1 plus torsion point 1",
+          "publicKey": "15deb30729eb3e465c88f11b57d0c8d36eb0f670c3b22d2f80ea6049eeb2c23b",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 14,
+          "comment": "reject prime-order point 1 plus torsion point 2",
+          "publicKey": "31f20adf0f25a04f6d0940d2eb6a0b7d4aa2f18c9571a6f7eb74bf059b0d7215",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 15,
+          "comment": "reject prime-order point 1 plus torsion point 3",
+          "publicKey": "db3274482b52f4937b405c00496b0511a364c58d4798ceae171262803d465729",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 16,
+          "comment": "reject prime-order point 1 plus torsion point 4",
+          "publicKey": "fb8ae86afa72f86ab074c3a51440df0d72c13c44cd1c4ae510681b419504974a",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 17,
+          "comment": "reject prime-order point 1 plus torsion point 5",
+          "publicKey": "d8214cf8d614c1b9a3770ee4a82f372c914f098f3c4dd2d07f159fb6114d3dc4",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 18,
+          "comment": "reject prime-order point 1 plus torsion point 6",
+          "publicKey": "bc0df520f0da5fb092f6bf2d1495f482b55d0e736a8e5908148b40fa64f28dea",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 19,
+          "comment": "reject prime-order point 1 plus torsion point 7",
+          "publicKey": "12cd8bb7d4ad0b6c84bfa3ffb694faee5c9b3a72b8673151e8ed9d7fc2b9a8d6",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 20,
+          "comment": "reject prime-order point 2 plus torsion point 1",
+          "publicKey": "c1b047f0106ff174487ba336a56d48127ed0563dcca139fd555cf113f609ac71",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 21,
+          "comment": "reject prime-order point 2 plus torsion point 2",
+          "publicKey": "280fa1145bb421c1586eeadfb0f96ba1a25673111eca768773dafedf9b4e5a38",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 22,
+          "comment": "reject prime-order point 2 plus torsion point 3",
+          "publicKey": "66f35e3ae56c736132dde77ae1faaeb01ebfc1bd79c98d43737e945b0744aaed",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 23,
+          "comment": "reject prime-order point 2 plus torsion point 4",
+          "publicKey": "c243dfb46f771baa41247bdb387f07475c78b8b9bb99b1089be6fd371420ccc3",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 24,
+          "comment": "reject prime-order point 2 plus torsion point 5",
+          "publicKey": "2c4fb80fef900e8bb7845cc95a92b7ed812fa9c2335ec602aaa30eec09f6538e",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 25,
+          "comment": "reject prime-order point 2 plus torsion point 6",
+          "publicKey": "c5f05eeba44bde3ea79115204f06945e5da98ceee13589788c25012064b1a5c7",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 26,
+          "comment": "reject prime-order point 2 plus torsion point 7",
+          "publicKey": "870ca1c51a938c9ecd2218851e05514fe1403e42863672bc8c816ba4f8bb5512",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 27,
+          "comment": "reject prime-order point 3 plus torsion point 1",
+          "publicKey": "85e7bfc77e932799ae948a1abd8ea287c56dd48fb8b4221931e4f8652e1eea20",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 28,
+          "comment": "reject prime-order point 3 plus torsion point 2",
+          "publicKey": "349a3840d09eb68a97b06eae781f4fbece569c6ffd70c238ff8406ec82fb587d",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 29,
+          "comment": "reject prime-order point 3 plus torsion point 3",
+          "publicKey": "0cf1b0a8da530a0f0b30f5b130391652f249680e0f3f7c80284bdc5ab955cfa3",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 30,
+          "comment": "reject prime-order point 3 plus torsion point 4",
+          "publicKey": "628c21a85bec28f1d0c0ea44b2c6e731f47a1b01be58d1028892f947351bfa61",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 31,
+          "comment": "reject prime-order point 3 plus torsion point 5",
+          "publicKey": "68184038816cd866516b75e542715d783a922b70474bdde6ce1b079ad1e115df",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 32,
+          "comment": "reject prime-order point 3 plus torsion point 6",
+          "publicKey": "b965c7bf2f614975684f915187e0b04131a96390028f3dc7007bf9137d04a782",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 33,
+          "comment": "reject prime-order point 3 plus torsion point 7",
+          "publicKey": "e10e4f5725acf5f0f4cf0a4ecfc6e9ad0db697f1f0c0837fd7b423a546aa305c",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        },
+        {
+          "tcId": 34,
+          "comment": "sodium_compat v2.5.1 mixed-order regression",
+          "publicKey": "d1e06adf4e05e248e1e52beca14b6be4da0af01b41645d2849b407ec22f41d47",
+          "result": "invalid",
+          "flags": [
+            "MixedOrderPublicKey"
+          ]
+        }
+      ]
+    }
+  ]
+}
