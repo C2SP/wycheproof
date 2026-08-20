@@ -1,0 +1,141 @@
+{
+  "algorithm": "HPKE",
+  "schema": "hpke_encap_test_schema.json",
+  "numberOfTests": 6,
+  "header": [
+    "HPKE (RFC 9180) base-mode encapsulation-key validation (SetupBaseS) with DHKEM(X25519, HKDF-SHA256). See doc/hpke.md."
+  ],
+  "notes": {
+    "LowOrderPublic": {
+      "bugType": "DEFINED",
+      "description": "The encapsulation key is a low-order point on the curve or its twist."
+    },
+    "NonCanonicalPublic": {
+      "bugType": "DEFINED",
+      "description": "The encapsulation key is in non-canonical form (its u coordinate is >= p; RFC 7748 Section 5 reduces it mod p)."
+    },
+    "Pseudorandom": {
+      "bugType": "BASIC",
+      "description": "A well-formed encapsulation key; SetupBaseS must succeed."
+    },
+    "SmallPublicKey": {
+      "bugType": "DEFINED",
+      "description": "The encapsulation key is the all-zero value; it is a small-order point and does not belong to a valid private key."
+    },
+    "WrongLengthPublicKey": {
+      "bugType": "MODIFIED_PARAMETER",
+      "description": "The encapsulation key is not 32 bytes (empty, short, or long) and must be rejected."
+    },
+    "ZeroSharedSecret": {
+      "bugType": "DEFINED",
+      "description": "The encapsulation key is a low-order point whose X25519 Diffie-Hellman output is all-zero. RFC 9180 Section 5.1.1 requires DH to abort on an all-zero shared secret, so SetupBaseS MUST fail. (Plain X25519, RFC 7748, leaves this check optional.)"
+    }
+  },
+  "testGroups": [
+    {
+      "type": "HpkeEncapTest",
+      "source": {
+        "name": "wycheproof",
+        "version": "0.1"
+      },
+      "kem": "DHKEM(X25519, HKDF-SHA256)",
+      "kemId": 32,
+      "kdf": "HKDF-SHA256",
+      "kdfId": 1,
+      "aead": "AES-128-GCM",
+      "aeadId": 1,
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "valid encapsulation key",
+          "pkRm": "34244fcfe68b99aeb02ecc64b033170a2973f43fc14c36d6a92562b1c9045f10",
+          "ikmE": "5c2179753439e19a85fc894a91fbcca45a95ee8ad57733b34c660205f691b8d7",
+          "skRm": "d0d58da87c32bed247e359b2b7abf0f5ca8fa324e29fe73ae63f38ec84ac4cb7",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "426561757479206973207472757468",
+          "enc": "4fef6838dbd7b86cbf13f9638ccbd0ddca8572f947d5d6744845da77e899ff2e",
+          "ct": "365a729d03bfe35c1e30054a031d6fd986adc449f5270e8720915c6c1c027b",
+          "result": "valid",
+          "flags": [
+            "Pseudorandom"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "all-zero encapsulation key (small-order point)",
+          "pkRm": "0000000000000000000000000000000000000000000000000000000000000000",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "",
+          "enc": "",
+          "ct": "",
+          "result": "invalid",
+          "flags": [
+            "ZeroSharedSecret",
+            "LowOrderPublic",
+            "SmallPublicKey"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "non-canonical low-order encapsulation key with an all-zero shared secret",
+          "pkRm": "e0eb7a7c3b41b8ae1656e3faf19fc46ada098deb9c32b1fd866205165f49b880",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "",
+          "enc": "",
+          "ct": "",
+          "result": "invalid",
+          "flags": [
+            "ZeroSharedSecret",
+            "LowOrderPublic",
+            "NonCanonicalPublic"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "empty encapsulation key",
+          "pkRm": "",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "",
+          "enc": "",
+          "ct": "",
+          "result": "invalid",
+          "flags": [
+            "WrongLengthPublicKey"
+          ]
+        },
+        {
+          "tcId": 5,
+          "comment": "encapsulation key one byte short",
+          "pkRm": "34244fcfe68b99aeb02ecc64b033170a2973f43fc14c36d6a92562b1c9045f",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "",
+          "enc": "",
+          "ct": "",
+          "result": "invalid",
+          "flags": [
+            "WrongLengthPublicKey"
+          ]
+        },
+        {
+          "tcId": 6,
+          "comment": "encapsulation key one byte long",
+          "pkRm": "34244fcfe68b99aeb02ecc64b033170a2973f43fc14c36d6a92562b1c9045f1000",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "aad": "777963686570726f6f6620616164",
+          "pt": "",
+          "enc": "",
+          "ct": "",
+          "result": "invalid",
+          "flags": [
+            "WrongLengthPublicKey"
+          ]
+        }
+      ]
+    }
+  ]
+}

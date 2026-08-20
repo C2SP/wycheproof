@@ -52,6 +52,7 @@ including
 - EdDSA
 - ECIES
 - HKDF
+- [HPKE](doc/hpke.md)
 - HMAC
 - KMAC
 - MORUS
