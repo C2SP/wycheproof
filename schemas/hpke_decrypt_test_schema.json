@@ -1,0 +1,195 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "HPKE"
+      ]
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "hpke_decrypt_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/HpkeTestGroup"
+      }
+    }
+  },
+  "required": [
+    "algorithm",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "HpkeTestGroup": {
+      "type": "object",
+      "description": "HPKE single-shot decryption (Open) in base mode (RFC 9180). Each group fixes one (KEM, KDF, AEAD) ciphersuite. Given the recipient private key skRm, info, aad, enc, and ct, the implementation runs SetupBaseR followed by Open and MUST recover pt for valid cases or fail for invalid cases. The primary direction tested is SetupBaseR + Open; valid cases additionally pin the sender direction via ikmE (see doc/hpke.md).",
+      "properties": {
+        "type": {
+          "enum": [
+            "HpkeTest"
+          ],
+          "description": "A legacy field, test files contain only one type per file"
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "kem": {
+          "enum": [
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024",
+            "MLKEM768-X25519",
+            "MLKEM768-P256",
+            "MLKEM1024-P384",
+            "DHKEM(P-256, HKDF-SHA256)",
+            "DHKEM(P-384, HKDF-SHA384)",
+            "DHKEM(P-521, HKDF-SHA512)",
+            "DHKEM(X25519, HKDF-SHA256)",
+            "DHKEM(X448, HKDF-SHA512)"
+          ],
+          "description": "The HPKE KEM"
+        },
+        "kemId": {
+          "type": "integer",
+          "description": "The two-byte HPKE KEM identifier from the IANA HPKE KEM registry (RFC 9180, extended by draft-ietf-hpke-pq)"
+        },
+        "kdf": {
+          "enum": [
+            "HKDF-SHA256",
+            "HKDF-SHA384",
+            "HKDF-SHA512"
+          ],
+          "description": "The HPKE KDF"
+        },
+        "kdfId": {
+          "type": "integer",
+          "description": "The two-byte HPKE KDF identifier (RFC 9180 Table 3)"
+        },
+        "aead": {
+          "enum": [
+            "AES-128-GCM",
+            "AES-256-GCM",
+            "ChaCha20Poly1305"
+          ],
+          "description": "The HPKE AEAD"
+        },
+        "aeadId": {
+          "type": "integer",
+          "description": "The two-byte HPKE AEAD identifier (RFC 9180 Table 5)"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "skRm": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The serialized recipient private key (SerializePrivateKey of skR). For ML-KEM KEMs this is the 64-byte d || z seed; for DHKEM KEMs it is the serialized scalar."
+              },
+              "pkRm": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The serialized recipient public key (SerializePublicKey of pkR), derivable from skRm and provided for convenience"
+              },
+              "ikmE": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "Optional. The 32-byte seed that fixes the sender's ephemeral key. For ML-KEM it is the encapsulation randomness (ikmE); for DHKEM(X25519) it is the sender's ephemeral private key skEm, i.e. the seed a deterministic-encapsulation test hook consumes, not RFC 9180 DeriveKeyPair ikm. When present, deterministic encapsulation from this seed reproduces enc and ct exactly, so an implementation with such a hook can also check the sender direction. Absent for negative cases, where enc/ct are mutated and are not reproducible."
+              },
+              "info": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The HPKE info string bound into the key schedule"
+              },
+              "aad": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The additional authenticated data passed to the AEAD Open"
+              },
+              "enc": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The KEM encapsulated key (Nenc bytes) consumed by SetupBaseR"
+              },
+              "ct": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The AEAD sealed message (ciphertext || tag) produced by ContextS.Seal"
+              },
+              "pt": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The expected recovered plaintext for valid cases; empty for invalid cases"
+              },
+              "result": {
+                "$ref": "common.json#/definitions/Result"
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              }
+            },
+            "required": [
+              "tcId",
+              "comment",
+              "skRm",
+              "pkRm",
+              "info",
+              "aad",
+              "enc",
+              "ct",
+              "pt",
+              "result",
+              "flags"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "type",
+        "source",
+        "kem",
+        "kemId",
+        "kdf",
+        "kdfId",
+        "aead",
+        "aeadId",
+        "tests"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
