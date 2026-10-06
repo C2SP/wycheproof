@@ -1,0 +1,168 @@
+{
+  "algorithm": "HPKE",
+  "schema": "hpke_decrypt_test_schema.json",
+  "numberOfTests": 4,
+  "header": [
+    "Test vectors for HPKE (RFC 9180) Open of a message SEQUENCE in base",
+    "mode using DHKEM(X25519, HKDF-SHA256). HPKE Open is stateful and",
+    "ordered: the recipient runs SetupBaseR once, then Opens each message",
+    "in turn with AEAD nonce base_nonce XOR sequenceNumber. Each case",
+    "carries one enc and an ordered list of decryptions to open against a",
+    "single context, covering nonce evolution and rejection of",
+    "out-of-order, replayed, and skipped ciphertexts. See doc/hpke.md."
+  ],
+  "notes": {
+    "MultiMessage": {
+      "bugType": "FUNCTIONALITY",
+      "description": "A sequence of messages opened in order on one HPKE context. Each Open advances the sequence number, so the AEAD nonce is base_nonce XOR sequenceNumber; opening the messages in order MUST recover each plaintext."
+    },
+    "OutOfOrderCiphertext": {
+      "bugType": "AUTH_BYPASS",
+      "description": "A ciphertext sealed at one sequence number is presented at a different one, so the AEAD nonce (base_nonce XOR sequenceNumber) does not match the one used to seal; Open MUST fail at the tag check."
+    },
+    "ReplayedCiphertext": {
+      "bugType": "AUTH_BYPASS",
+      "description": "A ciphertext already opened at its sequence number is replayed at a later sequence number; the nonce differs, so Open MUST fail. HPKE contexts do not accept a message twice."
+    },
+    "SkippedSequenceNumber": {
+      "bugType": "AUTH_BYPASS",
+      "description": "A ciphertext sealed for a later sequence number is opened after skipping one or more sequence numbers; the nonce does not match, so Open MUST fail."
+    }
+  },
+  "testGroups": [
+    {
+      "type": "HpkeSequenceTest",
+      "source": {
+        "name": "wycheproof",
+        "version": "0.1"
+      },
+      "kem": "DHKEM(X25519, HKDF-SHA256)",
+      "kemId": 32,
+      "kdf": "HKDF-SHA256",
+      "kdfId": 1,
+      "aead": "AES-128-GCM",
+      "aeadId": 1,
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "valid sequence of four messages opened in order",
+          "skRm": "22cb0f77932269c60746bbe32b4238763c9b40b90a75b610329724124fc50494",
+          "pkRm": "0af6350c3e56ee7a78db61e026d204a91592cf3a758f5c2a71abf8b5fe8ddb2b",
+          "ikmE": "67b42b534b633ec57dc0827876065abc7b106db454841cd8f038c9c89f2d6c11",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "enc": "dc086d2da7fdfc0065831a47b3181e260b0b2fb9a558f13c0b5cba9826dd252f",
+          "decryptions": [
+            {
+              "sequenceNumber": 0,
+              "aad": "777963686570726f6f6620616164",
+              "ct": "fbcffb8cc0f5c0ac2402db976cca9348ecfc5b63e9c8d107db2473967daafd8791c4879cf6bfd4a068c3656717",
+              "pt": "4265617574792069732074727574682c20747275746820626561757479",
+              "result": "valid"
+            },
+            {
+              "sequenceNumber": 1,
+              "aad": "",
+              "ct": "90f84974a1df286235fbd7a32c5506f3ee9f6439c4ce6cd735bf68cab384529145ba125f26c109873adc0438a6",
+              "pt": "4265617574792069732074727574682c20747275746820626561757479",
+              "result": "valid"
+            },
+            {
+              "sequenceNumber": 2,
+              "aad": "00ff00ff00",
+              "ct": "a4a15780444b47ad53bc4e1fb8cf2b84793743bbdf8c9b",
+              "pt": "00010002000300",
+              "result": "valid"
+            },
+            {
+              "sequenceNumber": 3,
+              "aad": "777963686570726f6f6620616164",
+              "ct": "af83ad697084fe959a4b80f4665287cf8f32ac47ff993d99dccc1fbcbe28",
+              "pt": "7365636f6e64206d657373616765",
+              "result": "valid"
+            }
+          ],
+          "flags": [
+            "MultiMessage"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "out-of-order: second message's ciphertext opened at sequence 0",
+          "skRm": "22cb0f77932269c60746bbe32b4238763c9b40b90a75b610329724124fc50494",
+          "pkRm": "0af6350c3e56ee7a78db61e026d204a91592cf3a758f5c2a71abf8b5fe8ddb2b",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "enc": "dc086d2da7fdfc0065831a47b3181e260b0b2fb9a558f13c0b5cba9826dd252f",
+          "decryptions": [
+            {
+              "sequenceNumber": 0,
+              "aad": "",
+              "ct": "90f84974a1df286235fbd7a32c5506f3ee9f6439c4ce6cd735bf68cab384529145ba125f26c109873adc0438a6",
+              "pt": "",
+              "result": "invalid"
+            }
+          ],
+          "flags": [
+            "MultiMessage",
+            "OutOfOrderCiphertext"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "replay: first message opened again at sequence 1",
+          "skRm": "22cb0f77932269c60746bbe32b4238763c9b40b90a75b610329724124fc50494",
+          "pkRm": "0af6350c3e56ee7a78db61e026d204a91592cf3a758f5c2a71abf8b5fe8ddb2b",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "enc": "dc086d2da7fdfc0065831a47b3181e260b0b2fb9a558f13c0b5cba9826dd252f",
+          "decryptions": [
+            {
+              "sequenceNumber": 0,
+              "aad": "777963686570726f6f6620616164",
+              "ct": "fbcffb8cc0f5c0ac2402db976cca9348ecfc5b63e9c8d107db2473967daafd8791c4879cf6bfd4a068c3656717",
+              "pt": "4265617574792069732074727574682c20747275746820626561757479",
+              "result": "valid"
+            },
+            {
+              "sequenceNumber": 1,
+              "aad": "777963686570726f6f6620616164",
+              "ct": "fbcffb8cc0f5c0ac2402db976cca9348ecfc5b63e9c8d107db2473967daafd8791c4879cf6bfd4a068c3656717",
+              "pt": "",
+              "result": "invalid"
+            }
+          ],
+          "flags": [
+            "MultiMessage",
+            "ReplayedCiphertext"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "skip: third message's ciphertext opened at sequence 1",
+          "skRm": "22cb0f77932269c60746bbe32b4238763c9b40b90a75b610329724124fc50494",
+          "pkRm": "0af6350c3e56ee7a78db61e026d204a91592cf3a758f5c2a71abf8b5fe8ddb2b",
+          "info": "777963686570726f6f662068706b6520696e666f",
+          "enc": "dc086d2da7fdfc0065831a47b3181e260b0b2fb9a558f13c0b5cba9826dd252f",
+          "decryptions": [
+            {
+              "sequenceNumber": 0,
+              "aad": "777963686570726f6f6620616164",
+              "ct": "fbcffb8cc0f5c0ac2402db976cca9348ecfc5b63e9c8d107db2473967daafd8791c4879cf6bfd4a068c3656717",
+              "pt": "4265617574792069732074727574682c20747275746820626561757479",
+              "result": "valid"
+            },
+            {
+              "sequenceNumber": 1,
+              "aad": "00ff00ff00",
+              "ct": "a4a15780444b47ad53bc4e1fb8cf2b84793743bbdf8c9b",
+              "pt": "",
+              "result": "invalid"
+            }
+          ],
+          "flags": [
+            "MultiMessage",
+            "SkippedSequenceNumber"
+          ]
+        }
+      ]
+    }
+  ]
+}
