@@ -126,7 +126,7 @@ cryptography projects and libraries. In no particular order these include:
 * [leancrypto](https://github.com/smuellerDD/leancrypto)
 * [Odin](https://github.com/odin-lang/odin)
 * [FreeHSM](https://github.com/afchine1337/freehsm)
-  
+
 If your project uses test vectors from Wycheproof, feel free to open a PR
 to add it to the list above!
 
