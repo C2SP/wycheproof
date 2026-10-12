@@ -19,7 +19,7 @@ Replay from the repo root:
 
 ```
 rm -f /tmp/mldsa_87_reduction_omission_verify_test.json
-GOEXPERIMENT=jsonv2 go run ./tools/vectorgen add --create \
+go run ./tools/vectorgen add --create \
   --vectors /tmp/mldsa_87_reduction_omission_verify_test.json \
   --input vectorgen/testdata/add_pr255/envelope.json
 diff /tmp/mldsa_87_reduction_omission_verify_test.json vectorgen/testdata/add_pr255/after.json

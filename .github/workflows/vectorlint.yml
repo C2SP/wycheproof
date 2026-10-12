@@ -17,12 +17,11 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version: stable
+          go-version-file: go.mod
 
       - uses: geomys/sandboxed-step@v1.2.2
         with:
           run: go tool govulncheck ./...
-          env: GOEXPERIMENT=jsonv2
   gostaticcheck:
     runs-on: ubuntu-latest
     steps:
@@ -32,12 +31,11 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version: stable
+          go-version-file: go.mod
 
       - uses: geomys/sandboxed-step@v1.2.2
         with:
           run: go tool staticcheck ./...
-          env: GOEXPERIMENT=jsonv2
   golint:
     runs-on: ubuntu-latest
     steps:
@@ -78,13 +76,9 @@ jobs:
           go-version-file: go.mod
 
       - name: Verify JSON formatting
-        env:
-          GOEXPERIMENT: jsonv2
         run: go run ./tools/vectorgen fmt --check 'testvectors_v1/*.json'
 
       - name: Run vectorgen lint
-        env:
-          GOEXPERIMENT: jsonv2
         run: go run ./tools/vectorgen lint
 
       - name: Run twistcheck
