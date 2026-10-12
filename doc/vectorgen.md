@@ -3,7 +3,8 @@
 Wycheproof offers a tool called `vectorgen` to help contributors add, update or
 replace test cases.
 
-To use `vectorgen` you'll need [Go 1.26+](https://go.dev/doc/install).
+To use `vectorgen` you'll need [Go](https://go.dev/doc/install) at the version
+specified in [`go.mod`](../go.mod) or newer.
 
 Three common workflows are covered:
 
@@ -11,19 +12,6 @@ Three common workflows are covered:
    or new tests in an existing group,
 2. **update**ing existing vectors to add or rewrite a field,
 3. **replace**ing a whole group of vectors with regenerated output.
-
-Until Go 1.27 is released `vectorgen` requires setting `GOEXPERIMENT=jsonv2`
-once per shell env, or as an env variable prefix before every tool invocation.
-
-> [!IMPORTANT]
-> If you see a build error like
->
-> ```
-> imports encoding/json/jsontext: build constraints exclude all Go files in
-> .../src/encoding/json/jsontext
-> ```
->
-> it means `GOEXPERIMENT=jsonv2` is not set in the environment.
 
 After any change, run `go run ./tools/vectorgen fmt --check
 'testvectors_v1/*.json'` and `go run ./tools/vectorgen lint` to confirm the
@@ -284,9 +272,8 @@ call the library functions. The same workflows described above can all be
 achieved programmatically.
 
 All examples elide error handling and assume `import "github.com/c2sp/wycheproof/vectorgen"`.
-Generators must be built with `GOEXPERIMENT=jsonv2`. Each test or group
-object is a `jsontext.Value` (raw JSON bytes) and you can build them however you
-like. The library offers `RawObject` (an ordered map) as a convenient helper
+Each test or group object is a `jsontext.Value` (raw JSON bytes) and you can
+build them however you like. The library offers `RawObject` (an ordered map) as a convenient helper
 when you want deterministic key order, since Go maps serialize alphabetically
 through `json/v2`.
 
