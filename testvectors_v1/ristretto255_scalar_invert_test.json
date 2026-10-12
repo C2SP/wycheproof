@@ -1,0 +1,74 @@
+{
+  "algorithm": "RISTRETTO255",
+  "header": [
+    "Test vectors for Ristretto255 scalar inversion."
+  ],
+  "notes": {
+    "ZeroInverse": {
+      "bugType": "DEFINED",
+      "description": "Inversion of zero must fail; returning an all-zero scalar is not an inverse."
+    },
+    "Ktv": {
+      "bugType": "BASIC",
+      "description": "A known scalar inversion result."
+    },
+    "EdgeCase": {
+      "bugType": "EDGE_CASE",
+      "description": "The scalar is at the upper canonical field boundary."
+    }
+  },
+  "numberOfTests": 4,
+  "schema": "ristretto_scalar_test_schema_v1.json",
+  "testGroups": [
+    {
+      "type": "RistrettoScalarTest",
+      "source": {
+        "name": "github/paragonie/sodium_compat/boundary-regressions",
+        "version": "2.5.2"
+      },
+      "curve": "ristretto255",
+      "operation": "invert",
+      "tests": [
+        {
+          "tcId": 1,
+          "comment": "zero has no multiplicative inverse",
+          "scalar": "0000000000000000000000000000000000000000000000000000000000000000",
+          "result": "invalid",
+          "flags": [
+            "ZeroInverse"
+          ]
+        },
+        {
+          "tcId": 2,
+          "comment": "inverse of one",
+          "scalar": "0100000000000000000000000000000000000000000000000000000000000000",
+          "resultScalar": "0100000000000000000000000000000000000000000000000000000000000000",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        },
+        {
+          "tcId": 3,
+          "comment": "inverse of the scalar field order minus one",
+          "scalar": "ecd3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010",
+          "resultScalar": "ecd3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010",
+          "result": "valid",
+          "flags": [
+            "EdgeCase"
+          ]
+        },
+        {
+          "tcId": 4,
+          "comment": "inverse of two",
+          "scalar": "0200000000000000000000000000000000000000000000000000000000000000",
+          "resultScalar": "f7e97a2e8d31092c6bce7b51ef7c6f0a00000000000000000000000000000008",
+          "result": "valid",
+          "flags": [
+            "Ktv"
+          ]
+        }
+      ]
+    }
+  ]
+}
