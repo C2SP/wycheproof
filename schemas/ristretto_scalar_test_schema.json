@@ -1,44 +1,36 @@
 {
   "type": "object",
   "definitions": {
-    "StreamCipherTestGroup": {
+    "RistrettoScalarTestGroup": {
       "type": "object",
       "properties": {
         "type": {
           "enum": [
-            "StreamCipherTest"
+            "RistrettoScalarTest"
           ]
         },
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "algorithm": {
+        "curve": {
           "type": "string",
-          "description": "the stream cipher variant"
+          "const": "ristretto255"
         },
-        "keySize": {
-          "type": "integer",
-          "description": "the key size in bits"
-        },
-        "ivSize": {
-          "type": "integer",
-          "description": "the IV size in bits"
-        },
-        "counterSize": {
-          "type": "integer",
-          "description": "the counter size in bits"
+        "operation": {
+          "type": "string",
+          "const": "invert"
         },
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/StreamCipherTestVector"
+            "$ref": "#/definitions/RistrettoScalarTestVector"
           }
         }
       },
-      "required": ["type", "source", "algorithm", "keySize", "ivSize", "counterSize", "tests"],
+      "required": ["type", "source", "curve", "operation", "tests"],
       "additionalProperties": false
     },
-    "StreamCipherTestVector": {
+    "RistrettoScalarTestVector": {
       "type": "object",
       "properties": {
         "tcId": {
@@ -49,30 +41,15 @@
           "type": "string",
           "description": "A brief description of the test case"
         },
-        "key": {
+        "scalar": {
           "type": "string",
           "format": "HexBytes",
-          "description": "the key"
+          "description": "the scalar in canonical little-endian form"
         },
-        "iv": {
+        "resultScalar": {
           "type": "string",
           "format": "HexBytes",
-          "description": "the initialization vector"
-        },
-        "initialCounter": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the fixed-width initial counter in little-endian order"
-        },
-        "msg": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the plaintext"
-        },
-        "ct": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the expected ciphertext; omitted for invalid tests"
+          "description": "the expected inverse; omitted for invalid tests"
         },
         "result": {
           "$ref": "common.json#/definitions/Result"
@@ -85,7 +62,17 @@
           "description": "A list of flags"
         }
       },
-      "required": ["tcId", "comment", "key", "iv", "initialCounter", "msg", "result", "flags"],
+      "required": ["tcId", "comment", "scalar", "result", "flags"],
+      "if": {
+        "properties": {
+          "result": {
+            "enum": ["valid", "acceptable"]
+          }
+        }
+      },
+      "then": {
+        "required": ["resultScalar"]
+      },
       "additionalProperties": false
     }
   },
@@ -93,11 +80,6 @@
     "algorithm": {
       "type": "string",
       "description": "the primitive tested in the test file"
-    },
-    "generatorVersion": {
-      "type": "string",
-      "description": "DEPRECATED: prefer \"source\" property in test group",
-      "deprecated": true
     },
     "header": {
       "type": "array",
@@ -115,13 +97,13 @@
     },
     "schema": {
       "enum": [
-        "stream_cipher_test_schema_v1.json"
+        "ristretto_scalar_test_schema.json"
       ]
     },
     "testGroups": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/StreamCipherTestGroup"
+        "$ref": "#/definitions/RistrettoScalarTestGroup"
       }
     }
   },

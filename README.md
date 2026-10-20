@@ -42,21 +42,25 @@ including
 - ASCON v1.2 AEAD (Ascon-128, Ascon-128a, Ascon-80pq; pre-standardization)
 - NIST SP 800-232 Ascon-AEAD128
 - Camellia
+- ChaCha20 and XChaCha20 counter boundaries
 - ChaCha20-Poly1305
 - [Chunked encryption (Cobblestone)](doc/c2sp_chunked_encryption.md)
 - XChaCha20-Poly1305
+- XChaCha20-Poly1305 Secretstream counter and rekey boundaries
 - [DH](doc/dh.md)
 - DHIES
 - [DSA](doc/dsa.md)
 - [ECDH](doc/ecdh.md)
 - ECDSA
-- EdDSA
+- EdDSA, including Ed25519 small- and mixed-order public keys
+- Ed25519-to-X25519 public-key conversion
 - ECIES
 - HKDF
 - HMAC
 - KMAC
 - MORUS
 - PBKDF2
+- Ristretto255 scalar inversion
 - [RSA](doc/rsa.md)
 - SEED
 - SipHash

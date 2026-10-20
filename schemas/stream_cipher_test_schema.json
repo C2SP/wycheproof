@@ -1,55 +1,44 @@
 {
   "type": "object",
   "definitions": {
-    "SecretStreamState": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the current 32-byte subkey"
-        },
-        "counter": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the 32-bit counter in little-endian order"
-        },
-        "inonce": {
-          "type": "string",
-          "format": "HexBytes",
-          "description": "the 12-byte logical internal nonce"
-        }
-      },
-      "required": ["key", "counter", "inonce"],
-      "additionalProperties": false
-    },
-    "SecretStreamTestGroup": {
+    "StreamCipherTestGroup": {
       "type": "object",
       "properties": {
         "type": {
           "enum": [
-            "SecretStreamTest"
+            "StreamCipherTest"
           ]
         },
         "source": {
           "$ref": "common.json#/definitions/Source"
         },
-        "operation": {
-          "enum": [
-            "push"
-          ]
+        "algorithm": {
+          "type": "string",
+          "description": "the stream cipher variant"
+        },
+        "keySize": {
+          "type": "integer",
+          "description": "the key size in bits"
+        },
+        "ivSize": {
+          "type": "integer",
+          "description": "the IV size in bits"
+        },
+        "counterSize": {
+          "type": "integer",
+          "description": "the counter size in bits"
         },
         "tests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/SecretStreamTestVector"
+            "$ref": "#/definitions/StreamCipherTestVector"
           }
         }
       },
-      "required": ["type", "source", "operation", "tests"],
+      "required": ["type", "source", "algorithm", "keySize", "ivSize", "counterSize", "tests"],
       "additionalProperties": false
     },
-    "SecretStreamTestVector": {
+    "StreamCipherTestVector": {
       "type": "object",
       "properties": {
         "tcId": {
@@ -60,19 +49,20 @@
           "type": "string",
           "description": "A brief description of the test case"
         },
-        "initialState": {
-          "$ref": "#/definitions/SecretStreamState"
-        },
-        "tag": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 255,
-          "description": "the secretstream message tag"
-        },
-        "aad": {
+        "key": {
           "type": "string",
           "format": "HexBytes",
-          "description": "the associated data"
+          "description": "the key"
+        },
+        "iv": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the initialization vector"
+        },
+        "initialCounter": {
+          "type": "string",
+          "format": "HexBytes",
+          "description": "the fixed-width initial counter in little-endian order"
         },
         "msg": {
           "type": "string",
@@ -82,10 +72,7 @@
         "ct": {
           "type": "string",
           "format": "HexBytes",
-          "description": "the expected ciphertext including the encrypted tag and authenticator"
-        },
-        "expectedState": {
-          "$ref": "#/definitions/SecretStreamState"
+          "description": "the expected ciphertext; omitted for invalid tests"
         },
         "result": {
           "$ref": "common.json#/definitions/Result"
@@ -98,7 +85,17 @@
           "description": "A list of flags"
         }
       },
-      "required": ["tcId", "comment", "initialState", "tag", "aad", "msg", "ct", "expectedState", "result", "flags"],
+      "required": ["tcId", "comment", "key", "iv", "initialCounter", "msg", "result", "flags"],
+      "if": {
+        "properties": {
+          "result": {
+            "enum": ["valid", "acceptable"]
+          }
+        }
+      },
+      "then": {
+        "required": ["ct"]
+      },
       "additionalProperties": false
     }
   },
@@ -106,11 +103,6 @@
     "algorithm": {
       "type": "string",
       "description": "the primitive tested in the test file"
-    },
-    "generatorVersion": {
-      "type": "string",
-      "description": "DEPRECATED: prefer \"source\" property in test group",
-      "deprecated": true
     },
     "header": {
       "type": "array",
@@ -128,13 +120,13 @@
     },
     "schema": {
       "enum": [
-        "secretstream_test_schema_v1.json"
+        "stream_cipher_test_schema.json"
       ]
     },
     "testGroups": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/SecretStreamTestGroup"
+        "$ref": "#/definitions/StreamCipherTestGroup"
       }
     }
   },
