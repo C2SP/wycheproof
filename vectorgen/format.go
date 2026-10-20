@@ -1,8 +1,6 @@
 // Package vectorgen provides primitives for adding to and regenerating
 // Wycheproof test vector files while preserving field order and producing
 // minimal diffs.
-//
-// This package requires the GOEXPERIMENT=jsonv2 build experiment.
 package vectorgen
 
 import (
