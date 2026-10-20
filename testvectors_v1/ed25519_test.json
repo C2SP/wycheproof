@@ -51,16 +51,20 @@
       "description": "The test vector is an ordinary valid signature."
     },
     "SmallOrderPublicKey": {
-      "bugType": "AUTH_BYPASS",
-      "description": "The public key is a canonical point in the Ed25519 torsion subgroup.",
-      "effect": "Accepting the vector permits signatures that are not bound to a private key."
+      "bugType": "CAN_OF_WORMS",
+      "description": "The public key is a canonical point in the Ed25519 torsion subgroup. These signatures satisfy the cofactored verification equation in RFC 8032, Section 5.1.7. Implementations may reject them under a stricter public-key policy.",
+      "effect": "Verifiers with different public-key validation policies may disagree on these signatures.",
+      "links": [
+        "https://www.rfc-editor.org/rfc/rfc8032#section-5.1.7"
+      ]
     },
     "MixedOrderPublicKey": {
-      "bugType": "AUTH_BYPASS",
-      "description": "The public key has a nonzero torsion component and is not in the prime-order subgroup.",
-      "effect": "Accepting the vector can cause verifier disagreement or a signature-validation bypass.",
+      "bugType": "CAN_OF_WORMS",
+      "description": "The public key has a nonzero torsion component and is not in the prime-order subgroup. Signatures that satisfy the cofactored verification equation in RFC 8032, Section 5.1.7 are acceptable; implementations may reject them under a stricter subgroup policy. Signatures that fail this equation are invalid.",
+      "effect": "Verifiers with different subgroup policies may disagree on equation-valid signatures.",
       "links": [
-        "https://github.com/paragonie/sodium_compat/commit/e4d4933af9463a96a1a3cbaeb94327b90e3350ca"
+        "https://github.com/paragonie/sodium_compat/commit/e4d4933af9463a96a1a3cbaeb94327b90e3350ca",
+        "https://www.rfc-editor.org/rfc/rfc8032#section-5.1.7"
       ]
     }
   },
@@ -3392,7 +3396,7 @@
           ],
           "msg": "6d657373616765",
           "sig": "58666666666666666666666666666666666666666666666666666666666666660100000000000000000000000000000000000000000000000000000000000000",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3419,7 +3423,7 @@
           ],
           "msg": "746f7273696f6e2d312d3134",
           "sig": "b63dd4baa9c75ea9f3f1021ada3bf7dd6872e4cfbdac9653965ef78c4be9845d27df2ce4101220ec96bc5ccbcefa1336871b76e6ef52a0fb35745bb187b1a10d",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3446,7 +3450,7 @@
           ],
           "msg": "",
           "sig": "c459280d27f66a3285aa648ca1cc444cdfcde27a6062d117c6cb399e0969d6edf8b80551824c3e7275922ac8751e59a42793406560453c4e366999f900480506",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3473,7 +3477,7 @@
           ],
           "msg": "746f7273696f6e2d332d34",
           "sig": "afd0270f467226b517fa8f911d1d320906df0065fe0045593c8fd0394770b83e6bb6f264bca826f9a4631816571f8f42681a94db6d3f032e64721265a06c7009",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3500,7 +3504,7 @@
           ],
           "msg": "",
           "sig": "f8cea2efb481e92ca61b8972098e07aa1c16f2166cbd8da7ae682b55e433693920b491d7e08ab6c8e521b2f0300befbfcbfd7078340bc153a251896ef8b7c805",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3527,7 +3531,7 @@
           ],
           "msg": "746f7273696f6e2d352d3231",
           "sig": "54df79ed63c1bfdc39fd6408ad5f04143bcfc22b7e1dd0e5ea3bc00eccbbbf8260faa75789f6428d7a8a5a3b850b6779171de7edd504ffcfb5db320dd9864b06",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3554,7 +3558,7 @@
           ],
           "msg": "",
           "sig": "520679470254237dbe8f93dc12e8b05363f5236b5671ebff01251649930f6c287531efeb34b73a6fe0f3170a211ce386ae269b0d145d5a7e63bb4ba15ce0c408",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3581,7 +3585,7 @@
           ],
           "msg": "746f7273696f6e2d372d39",
           "sig": "b57aca4330dc58dcfd4ca75a1f7f3161aaf394a57769c7a9e9837d27cf7a80f7e88557a67e0b4792628285f53ed0f4fac97bc187e436fac5ea0513d320d5560f",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3608,7 +3612,7 @@
           ],
           "msg": "6d697865642d6f726465722d302d312d38",
           "sig": "49b0d4daf5493b98c7220f7b785fdf10f4befad3262e00f2cd6813c90d1319f6a7c6c0d69149f691d0c6b428642bb08d7046e0abff7e68e6b83547129f51080b",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3635,7 +3639,7 @@
           ],
           "msg": "",
           "sig": "d9f1148f0b13b3e801455c65d8314e7103706166ac6844ad43ead64ee310cc9f04e345b79bca79e83fbe7511fb5d17b347e2a2a98c247a92ba81b4a182116b0f",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3662,7 +3666,7 @@
           ],
           "msg": "6d697865642d6f726465722d302d332d31",
           "sig": "989e808156e71fb17c146080890b2726d0e9ba1ab29a0832b680bac5849c41e04e97cb8d756d0890b1c8d7eff77de4b1a0301404338874b8819c4bb5bf204a08",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3689,7 +3693,7 @@
           ],
           "msg": "",
           "sig": "df0ea594369382b35dd6c26bb71a7984f0fda2890a19bbb69bbbaf62242ee74dd7f1bba3c0da7caa20ebf1337bcc2d39a2547e4e95e132a2daaf272439af8a05",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3716,7 +3720,7 @@
           ],
           "msg": "6d697865642d6f726465722d302d352d32",
           "sig": "f31beed5c32641a1baca414ba1f6a39cd4e0da3fe95027d937a41df3d6a6e5a7f70d47674a0fb90b618e6465e7bd133f1615ae72eb790b05082342e12021180d",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3743,7 +3747,7 @@
           ],
           "msg": "",
           "sig": "bef3aa8b7c0a70ef4b689bc839aff99c7cb5d62b3ec733079338400ec5deb0ccabaafcae9ecd7d8cff17c1094353e85ec9d201e41f308589a3141c23895c030d",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3770,7 +3774,7 @@
           ],
           "msg": "6d697865642d6f726465722d302d372d33",
           "sig": "71e7486ab6df0686580902797c785ffcfb2fe3b61d46c8e5da432e168e05d9c59ec91d092c7c8c635de89a97b37e383a4cec89d3c6015fb3fa7fbf43900dae04",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3797,7 +3801,7 @@
           ],
           "msg": "",
           "sig": "3c48db3cce8f2f154ddfe665a697de2f8dce6dd965eb0a18dbb95e90df01f2d595225ab03a2452216368b9f6f7590b72b804bb8d3258c4c9caa15922e3bff50a",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3824,7 +3828,7 @@
           ],
           "msg": "6d697865642d6f726465722d312d322d38",
           "sig": "5c56e4644b99902901a9666a72c52ab6b029d4e81b07bb84b875c39f8f911938db1068dfa06b293fdeadafa97613fe10b2684b85184f5fccc6503096c316ba00",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3851,7 +3855,7 @@
           ],
           "msg": "",
           "sig": "5caa2cb4b66f9db52ca1dfa1a3068e36ba0fa66f3a5912d7ab9a55808edb6fe29be93e6714f72d9a0d83e736b88a4a74bd7237d739c85edbbfa99d5c518c7505",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3878,7 +3882,7 @@
           ],
           "msg": "6d697865642d6f726465722d312d342d31",
           "sig": "66250edaea83744886f3dfa139424148ced9e0646be033ab72b75d8413afbea453eefb6735dabe1491aff1f308bbd73060c669c3c3772ae2f94ab4f387642a02",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3905,7 +3909,7 @@
           ],
           "msg": "",
           "sig": "fc91f328ca137afe81ff69d75118b89455b96d6fd6cb88a46b99fc68074175b1ac6be310033c348fe42f41cbef8c004774563c77ab781217c165d13fc273b202",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3932,7 +3936,7 @@
           ],
           "msg": "6d697865642d6f726465722d312d362d34",
           "sig": "cc93d04669be4a2b68dd7d82944563b4468fa1392ae97fa36fe388d89e3d81a59588aa307e357bd12635702d077014daf525afd7400acb78d0c9a2f9f506c60a",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3959,7 +3963,7 @@
           ],
           "msg": "",
           "sig": "c28aa73d32d98a6f0f956392279cd13fc35d9d67ea54c99941eadea5d08ba760398f5845bbbb509102326b53ab93e33398b6c673331a194dd85173495e13ff0a",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -3986,7 +3990,7 @@
           ],
           "msg": "6d697865642d6f726465722d322d312d30",
           "sig": "e85ba67b317ad0f48848892ce0a585d2d47ccd49e7895bf93629bf3e4723f92c3de51cdced1b12654fc834d3e675488e98f2628fa0a01b058f17dfb81603c300",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4013,7 +4017,7 @@
           ],
           "msg": "",
           "sig": "1505ddb0ea2479d7751bdb60693727d448d1c22193cfe548ce6905f8c5da1a0c13a889c2a7d2b30c3b78015086972386d377060c9a97ea15d6dd8da04f8c7702",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4040,7 +4044,7 @@
           ],
           "msg": "6d697865642d6f726465722d322d332d33",
           "sig": "793423634e1945c284aa538008fa41767a46964acf14fddabc2ac7eeb3733b4a81b3075118fcaaf8499749a992df4949bc866de91ab0b1a98cae9459db2f710f",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4067,7 +4071,7 @@
           ],
           "msg": "",
           "sig": "f8410c87623213d696e74b9a23b30926fbf8036a931678db8155956440ac192e4ed451d782a41df339f56cd4e8482de55601eefd92301d55bb067e90bb5db009",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4094,7 +4098,7 @@
           ],
           "msg": "6d697865642d6f726465722d322d352d38",
           "sig": "a02a0c28d4735b1fa7803ce1e1f410828ffd07018b0b1f5255fe69381a04d788d575682aceb9efe1c12f158b920ef213bfbcc53cdbb36dbd81383ecd91b7dc03",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4121,7 +4125,7 @@
           ],
           "msg": "",
           "sig": "358d21d481ef812343dffa2b55b1398ade7d630c64ff2a4f48c9a634f7ae9b9f99766d982121c3ea719b338e942d95557cf41e3385c269ba6f51aa31a4956e0a",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },
@@ -4148,7 +4152,7 @@
           ],
           "msg": "6d697865642d6f726465722d322d372d32",
           "sig": "abce1d42c9c8da97d4ecebbbf58934b5d0f86a775a43c57fc0261b39be7a1ea1b0f208edcf4093ef5c61c9552bbcdd2946be36d1a1e7878d669a42bc523c5d0d",
-          "result": "invalid"
+          "result": "acceptable"
         }
       ]
     },

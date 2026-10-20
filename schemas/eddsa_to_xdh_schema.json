@@ -65,6 +65,16 @@
         }
       },
       "required": ["tcId", "comment", "publicKey", "result", "flags"],
+      "if": {
+        "properties": {
+          "result": {
+            "enum": ["valid", "acceptable"]
+          }
+        }
+      },
+      "then": {
+        "required": ["convertedPublicKey"]
+      },
       "additionalProperties": false
     }
   },
@@ -72,11 +82,6 @@
     "algorithm": {
       "type": "string",
       "description": "the primitive tested in the test file"
-    },
-    "generatorVersion": {
-      "type": "string",
-      "description": "DEPRECATED: prefer \"source\" property in test group",
-      "deprecated": true
     },
     "header": {
       "type": "array",
@@ -94,7 +99,7 @@
     },
     "schema": {
       "enum": [
-        "eddsa_to_xdh_schema_v1.json"
+        "eddsa_to_xdh_schema.json"
       ]
     },
     "testGroups": {
