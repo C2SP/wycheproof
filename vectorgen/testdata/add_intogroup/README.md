@@ -21,7 +21,7 @@ Replay from the repo root:
 
 ```
 cp vectorgen/testdata/add_intogroup/before.json /tmp/mlkem_512.json
-GOEXPERIMENT=jsonv2 go run ./tools/vectorgen add \
+go run ./tools/vectorgen add \
   --vectors /tmp/mlkem_512.json \
   --input vectorgen/testdata/add_intogroup/envelope.json \
   --into-group github/lukaszobernig/reenc \

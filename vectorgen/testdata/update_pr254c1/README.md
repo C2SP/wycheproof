@@ -22,7 +22,7 @@ Replay from the repo root:
 
 ```
 cp vectorgen/testdata/update_pr254c1/before.json /tmp/mlkem_512.json
-GOEXPERIMENT=jsonv2 go run ./tools/vectorgen update \
+go run ./tools/vectorgen update \
   --vectors /tmp/mlkem_512.json \
   --input vectorgen/testdata/update_pr254c1/envelope.json \
   --schemas-dir vectorgen/testdata/update_pr254c1

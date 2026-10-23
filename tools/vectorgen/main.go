@@ -1,7 +1,5 @@
 // vectorgen is the CLI for adding to and regenerating Wycheproof test vectors.
 //
-// Requires GOEXPERIMENT=jsonv2 to build.
-//
 // Subcommands:
 //
 //	fmt     [--check] <glob>...   Format vector files (or check formatting).
