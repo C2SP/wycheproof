@@ -4,6 +4,15 @@ Version\: 0.8rc21
 
 [TOC]
 
+## Field formats
+
+Byte and integer representations are defined in the
+[data types section of formats.md](formats.md#data-types). Consult the vector
+file's JSON schema for each field's format; a field named `ct` is not always
+`HexBytes`. For example, `ct` in `ChunkedEncryptionTestVector` uses
+[`CompressedHexBytes`](formats.md#compressedhexbytes) and must be decompressed
+before use. See the [chunked encryption guide](c2sp_chunked_encryption.md).
+
 ## AeadTestGroup
 
 A test group for authenticated encryption with additional data.

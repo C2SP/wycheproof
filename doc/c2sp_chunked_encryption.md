@@ -20,14 +20,14 @@ instantiations).
 
 ### Ciphertext compression
 
-The `ct` property is the ciphertext, zlib-compressed and then hex-encoded:
-decode the hex, then decompress the resulting zlib stream. (Some vectors
+The `ct` property uses
+[`CompressedHexBytes`](formats.md#compressedhexbytes), not `HexBytes`. Decoding
+that format yields the ciphertext to pass to the implementation. (Some vectors
 exercise the rollover of the chunk counter past one byte, and are more than
 4 MiB long. They are generated such that the ciphertext is almost entirely
 zero bytes, which compresses very well.)
 
-For example, in Python use `zlib.decompress(bytes.fromhex(ct))`, or in Go use
-`compress/zlib`.
+The shared format definition describes the encoding and complete-stream checks.
 
 ### Decryption
 
