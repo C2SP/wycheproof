@@ -56,6 +56,7 @@ including
 - Ed25519-to-X25519 public-key conversion
 - ECIES
 - HKDF
+- [HPKE](doc/hpke.md)
 - HMAC
 - KMAC
 - MORUS

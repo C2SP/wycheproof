@@ -1,0 +1,219 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "HPKE"
+      ]
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "additional documentation"
+    },
+    "notes": {
+      "$ref": "common.json#/definitions/Notes"
+    },
+    "numberOfTests": {
+      "type": "integer",
+      "description": "the number of test vectors in this test"
+    },
+    "schema": {
+      "enum": [
+        "hpke_sequence_test_schema.json"
+      ]
+    },
+    "testGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/HpkeSequenceTestGroup"
+      }
+    }
+  },
+  "required": [
+    "algorithm",
+    "numberOfTests",
+    "schema",
+    "testGroups"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "HpkeSequenceTestGroup": {
+      "type": "object",
+      "description": "HPKE base-mode decryption of a SEQUENCE of messages on one context (RFC 9180). Each group fixes one (KEM, KDF, AEAD) ciphersuite. HPKE encryption is stateful and ordered: the recipient runs SetupBaseR once with enc, then calls Open once per message, and the AEAD nonce for sequence number i is base_nonce XOR I2OSP(i, Nn). Each test case carries one encapsulation (enc) and an ordered list of decryptions; the implementation opens them in the given order against a single context. This exercises nonce evolution (including sequence numbers above 255), rejection of out-of-order or replayed ciphertexts, and retry after a rejected ciphertext (a failed Open does not advance the sequence number), which single-shot cases cannot cover.",
+      "properties": {
+        "type": {
+          "enum": [
+            "HpkeSequenceTest"
+          ],
+          "description": "A legacy field, test files contain only one type per file"
+        },
+        "source": {
+          "$ref": "common.json#/definitions/Source"
+        },
+        "kem": {
+          "enum": [
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024",
+            "DHKEM(X25519, HKDF-SHA256)"
+          ],
+          "description": "The HPKE KEM"
+        },
+        "kemId": {
+          "type": "integer",
+          "description": "The two-byte HPKE KEM identifier from the IANA HPKE KEM registry (RFC 9180, extended by draft-ietf-hpke-pq-05)"
+        },
+        "kdf": {
+          "enum": [
+            "HKDF-SHA256",
+            "HKDF-SHA384",
+            "HKDF-SHA512"
+          ],
+          "description": "The HPKE KDF"
+        },
+        "kdfId": {
+          "type": "integer",
+          "description": "The two-byte HPKE KDF identifier (RFC 9180 Table 3)"
+        },
+        "aead": {
+          "enum": [
+            "AES-128-GCM",
+            "AES-256-GCM",
+            "ChaCha20Poly1305"
+          ],
+          "description": "The HPKE AEAD"
+        },
+        "aeadId": {
+          "type": "integer",
+          "description": "The two-byte HPKE AEAD identifier (RFC 9180 Table 5)"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tcId": {
+                "type": "integer",
+                "description": "Identifier of the test case"
+              },
+              "comment": {
+                "type": "string",
+                "description": "A brief description of the test case"
+              },
+              "skRm": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The serialized recipient private key (SerializePrivateKey of skR). For ML-KEM KEMs this is the 64-byte d || z seed; for DHKEM(X25519) it is the 32-byte unclamped scalar (see skEm)."
+              },
+              "pkRm": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The serialized recipient public key (SerializePublicKey of pkR), derivable from skRm and provided for convenience"
+              },
+              "ikmE": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "Optional. The 32-byte randomness input to deterministic encapsulation (ikmE in the RFC 9180 Appendix A test vectors; the input to EncapDerand in draft-ietf-hpke-hpke-05 Appendix C.1). For DHKEM(X25519) it is the DeriveKeyPair input for the sender's ephemeral key pair, (skE, pkE) = DeriveKeyPair(ikmE); for ML-KEM (draft-ietf-hpke-pq-05) it is the randomness m passed to FIPS 203 ML-KEM.Encaps_internal. When present, deterministic encapsulation reproduces enc and the whole ct sequence. Present for cases whose decryptions are all valid; absent when any decryption is invalid."
+              },
+              "skEm": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "Optional, DHKEM only. The sender's ephemeral private key skEm = SerializePrivateKey(skE), where (skE, pkE) = DeriveKeyPair(ikmE) and SerializePrivateKey is the identity for X25519 (draft-ietf-hpke-hpke-05 Section 7.1.2). Provided for deterministic-encapsulation test hooks that take the raw ephemeral private key rather than ikmE. Present exactly when ikmE is present for a DHKEM; absent for ML-KEM, which has no ephemeral key pair. For X25519 this is the unclamped 32-byte string that DeriveKeyPair returns, matching the RFC 9180 Appendix A test vectors. The text of RFC 9180 Section 7.1.2 requires SerializePrivateKey to clamp, so an implementation that follows it (e.g. Go crypto/hpke PrivateKey.Bytes) re-serializes the key to different bytes; compare public keys or results, not re-serialized private keys. X25519 treats clamped and unclamped scalars identically (RFC 7748 Section 5); an API that requires a clamped scalar needs the key clamped before import. See doc/hpke.md."
+              },
+              "info": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The HPKE info string bound into the key schedule"
+              },
+              "enc": {
+                "type": "string",
+                "format": "HexBytes",
+                "description": "The KEM encapsulated key (Nenc bytes) consumed once by SetupBaseR before opening the sequence"
+              },
+              "decryptions": {
+                "type": "array",
+                "description": "The ordered messages to Open against the single SetupBaseR context, one Open call per entry, each with AEAD nonce base_nonce XOR I2OSP(sequenceNumber, Nn).",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "sequenceNumber": {
+                      "type": "integer",
+                      "description": "The context sequence number at which this ciphertext is opened (0-based): the number of successful Opens before this entry. A failed Open does not advance the sequence number (RFC 9180 Section 5.2), so an entry that follows an invalid one is opened at the same sequence number."
+                    },
+                    "aad": {
+                      "type": "string",
+                      "format": "HexBytes",
+                      "description": "The additional authenticated data passed to Open for this message"
+                    },
+                    "ct": {
+                      "type": "string",
+                      "format": "HexBytes",
+                      "description": "The AEAD sealed message (ciphertext || tag) to open at this sequence number"
+                    },
+                    "pt": {
+                      "type": "string",
+                      "format": "HexBytes",
+                      "description": "The expected recovered plaintext when result is valid; empty otherwise"
+                    },
+                    "result": {
+                      "$ref": "common.json#/definitions/Result"
+                    }
+                  },
+                  "required": [
+                    "sequenceNumber",
+                    "aad",
+                    "ct",
+                    "pt",
+                    "result"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "result": {
+                "type": "string",
+                "enum": [
+                  "valid"
+                ],
+                "description": "valid: the context must behave exactly as listed in decryptions (each entry's result applies at its sequenceNumber)"
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "A list of flags"
+              }
+            },
+            "required": [
+              "tcId",
+              "comment",
+              "skRm",
+              "pkRm",
+              "info",
+              "enc",
+              "decryptions",
+              "result",
+              "flags"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "type",
+        "source",
+        "kem",
+        "kemId",
+        "kdf",
+        "kdfId",
+        "aead",
+        "aeadId",
+        "tests"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
