@@ -126,8 +126,7 @@ representations can yield the same bytes, so consumers should compare the
 decompressed input, not require one compressor's particular output.
 
 Some vectors expand to multiple MiB. Consumers handling untrusted vector files
-should enforce their own decompression resource limits. For the use of this
-format in ciphertext fields, see [chunked encryption](c2sp_chunked_encryption.md).
+should enforce their own decompression resource limits.
 
 ## General format
 

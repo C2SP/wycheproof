@@ -18,16 +18,6 @@ After any change, run `go run ./tools/vectorgen fmt --check
 result is canonical and schema-valid. These checks are also
 [applied in CI][schema lint] for every pull request.
 
-## Field formats
-
-The schema's `format` selects the representation of a field; see the shared
-[data type definitions](formats.md#data-types). In particular,
-[`CompressedHexBytes`](formats.md#compressedhexbytes) means zlib-compressed
-bytes encoded as lowercase hex, not the hex of the uncompressed input. The
-`lint` command checks that the entire compressed stream is valid and has no
-trailing bytes. The [chunked encryption guide](c2sp_chunked_encryption.md)
-explains how to use the decompressed ciphertext in those tests.
-
 ## Workflow
 
 `vectorgen` operations are driven by an **envelope**: a small JSON document
