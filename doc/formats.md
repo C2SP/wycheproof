@@ -98,10 +98,35 @@ described below
 **Type** | **Representation**
 :------- | :-----------------
 HexBytes | This is an array of bytes represented as by hexadecimal string.
+CompressedHexBytes | A byte string represented by the lowercase hexadecimal encoding of a zlib-compressed stream. See [CompressedHexBytes](#compressedhexbytes).
 BigInt   | An integer in hexadecimal representation using a twos complement representation and big-endian order. The integer is negative if the first byte is greater character is greater than 7. Starting with version 0.7 the size is always a multiple of 2. This simplifies conversion to an array of bytes. Examples: 259: "0103", -192: "ff40", 0: "00", 255: "00ff"
 Asn      | A hexadecimal encoded array of bytes. This may be a valid or invalid ASN encoding.
 Der      | A valid DER encoding represented as a hexadecimal string.
 Pem      | A valid PEM encoded key
+
+### CompressedHexBytes
+
+`CompressedHexBytes` is a JSON string containing an even number of lowercase
+hexadecimal digits. Decode the hex to bytes, then decompress those bytes as a
+zlib stream to obtain the input to the cryptographic operation. This is not
+gzip or raw DEFLATE, and the compressed bytes are not themselves the
+cryptographic input.
+
+The stream must be complete, including a valid zlib checksum, and consume all
+the hex-decoded bytes. Trailing bytes, including a second concatenated stream,
+are not allowed. These checks are performed by
+[`vectorgen`'s format validator](../vectorgen/lint.go).
+An `invalid` test result describes the cryptographic input after decompression;
+it does not mean the compression wrapper may be malformed.
+
+For example, `"789c4b4c4a0600024d0127"` decompresses to the three bytes
+`61 62 63` (`abc`). `"789c030000000001"` decompresses to an empty byte string;
+an empty JSON string is not a valid compressed stream. Different compressed
+representations can yield the same bytes, so consumers should compare the
+decompressed input, not require one compressor's particular output.
+
+Some vectors expand to multiple MiB. Consumers handling untrusted vector files
+should enforce their own decompression resource limits.
 
 ## General format
 
