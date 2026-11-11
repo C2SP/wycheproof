@@ -3,8 +3,14 @@
 Wycheproof offers a tool called `vectorgen` to help contributors add, update or
 replace test cases.
 
-To use `vectorgen` you'll need [Go](https://go.dev/doc/install) at the version
-specified in [`go.mod`](../go.mod) or newer.
+To use `vectorgen`, use the preferred Go toolchain specified in
+[`go.mod`](../go.mod) or a newer one. The Go command selects that toolchain
+automatically with its default `GOTOOLCHAIN=auto` setting. `vectorgen` requires
+Go 1.27 because it uses the standard library's JSON v2 packages.
+
+The module's minimum supported version is Go 1.26 so downstream projects can
+import the top-level `github.com/c2sp/wycheproof` package and access
+`TestVectors` and `Schemas` without raising their own minimum Go version.
 
 Three common workflows are covered:
 
@@ -272,10 +278,10 @@ call the library functions. The same workflows described above can all be
 achieved programmatically.
 
 All examples elide error handling and assume `import "github.com/c2sp/wycheproof/vectorgen"`.
-Each test or group object is a `jsontext.Value` (raw JSON bytes) and you can
-build them however you like. The library offers `RawObject` (an ordered map) as a convenient helper
-when you want deterministic key order, since Go maps serialize alphabetically
-through `json/v2`.
+This package requires Go 1.27. Each test or group object is a `jsontext.Value`
+(raw JSON bytes) and you can build them however you like. The library offers
+`RawObject` (an ordered map) as a convenient helper when you want deterministic
+key order, since Go maps serialize alphabetically through `json/v2`.
 
 Even when calling the library directly, running `scaffold add --schema <name>`
 once is worth it: it shows the group and test shapes to build as
