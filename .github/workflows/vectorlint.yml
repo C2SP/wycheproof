@@ -8,6 +8,24 @@ on:
   pull_request:
 
 jobs:
+  gocompat:
+    runs-on: ubuntu-latest
+    env:
+      # Exercise the minimum version instead of following go.mod's preferred
+      # toolchain directive.
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+
+      - name: Test the downstream package
+        run: go test .
+
   govulncheck:
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +54,19 @@ jobs:
       - uses: geomys/sandboxed-step@v1.2.2
         with:
           run: go tool staticcheck ./...
+  gotest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - run: go test ./...
+
   golint:
     runs-on: ubuntu-latest
     steps:
