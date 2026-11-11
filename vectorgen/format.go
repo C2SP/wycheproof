@@ -1,6 +1,10 @@
+//go:build go1.27
+
 // Package vectorgen provides primitives for adding to and regenerating
 // Wycheproof test vector files while preserving field order and producing
 // minimal diffs.
+//
+// This package requires Go 1.27 or later.
 package vectorgen
 
 import (
