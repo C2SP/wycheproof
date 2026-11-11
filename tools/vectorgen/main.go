@@ -1,4 +1,8 @@
+//go:build go1.27
+
 // vectorgen is the CLI for adding to and regenerating Wycheproof test vectors.
+//
+// This command requires Go 1.27 or later.
 //
 // Subcommands:
 //

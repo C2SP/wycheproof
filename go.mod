@@ -1,6 +1,8 @@
 module github.com/c2sp/wycheproof
 
-go 1.27.3
+go 1.26.0
+
+toolchain go1.27.4
 
 require (
 	filippo.io/edwards25519 v1.1.0
