@@ -67,6 +67,13 @@ You should also verify all signatures after computing them.
 Verification can be tested with the verify vectors, by checking that signatures
 verify or fail as expected.
 
+Verification must reject contexts longer than 255 bytes, even if wrapping
+the context length into one byte would make the signature verify. A documented
+context-length error counts as rejection. If your adapter calls an internal
+verification API that takes M', check the context length before constructing
+M'. Some `InvalidContext` vectors have valid companions that use the same
+signature with part of the context moved into the message.
+
 ## Additional test vectors
 
 CCTV provides [two sets of "accumulated" test vectors](https://github.com/C2SP/CCTV/tree/main/ML-DSA/accumulated).
